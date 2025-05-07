@@ -63,3 +63,7 @@ See the [LICENSE-commercial](./LICENSE-commercial.txt) file for details.
 For community users, open an issue on GitHub.
 
 [//]: # (For enterprise support, visit [yourcompany.com]&#40;https://yourcompany.com&#41; or email [support@yourdomain.com]&#40;mailto:support@yourdomain.com&#41;.)
+
+## Contributing
+
+Please use the following guide lines for contributions [CONTRIBUTING](./contributing.md)

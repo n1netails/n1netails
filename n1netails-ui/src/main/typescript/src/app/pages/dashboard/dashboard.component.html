@@ -1,0 +1,112 @@
+<nz-layout class="app-layout">
+  <nz-sider class="menu-sidebar" nzCollapsible nzCollapsed="true" [nzTrigger]="null">
+    <app-sidenav></app-sidenav>
+  </nz-sider>
+
+  <nz-layout>
+    <nz-header>
+      <app-header></app-header>
+    </nz-header>
+
+    <nz-content>
+      <div class="inner-content p-4">
+        <!-- KPI Cards -->
+        <nz-row class="kpi-cards" [nzGutter]="8" class="mb-6">
+          <nz-col [nzSpan]="6">
+            <nz-card class="tails-primary-color" nzTitle="Alerts Today" [nzBordered]="false"><b>52</b></nz-card>
+          </nz-col>
+          <nz-col [nzSpan]="6">
+            <nz-card class="tails-primary-color" nzTitle="Resolved" [nzBordered]="false"><b>34</b></nz-card>
+          </nz-col>
+          <nz-col [nzSpan]="6">
+            <nz-card class="tails-primary-color" nzTitle="Not Resolved" [nzBordered]="false"><b>18</b></nz-card>
+          </nz-col>
+          <nz-col [nzSpan]="6">
+            <nz-card class="tails-primary-color" nzTitle="Avg. MTTR" [nzBordered]="false"><b>2h 15m</b></nz-card>
+          </nz-col>
+        </nz-row>
+
+        <!-- Charts Row 1 -->
+        <nz-row [nzGutter]="8" class="mb-6">
+          <nz-col [nzSpan]="16">
+            <nz-card nzTitle="Tail Alerts (Hourly)" [nzBordered]="false">
+              <div style="height: 200px">
+                <canvas baseChart [data]="alertsTodayData" [options]="barChartOptions" [type]="'bar'">
+                </canvas>
+              </div>
+            </nz-card>
+          </nz-col>
+          <nz-col [nzSpan]="8">
+            <nz-card nzTitle="Tail Resolution Status" [nzBordered]="false">
+              <div style="height: 200px">
+                <canvas baseChart [data]="alertStatusData" [options]="doughnutOptions" [type]="'doughnut'">
+                </canvas>
+              </div>
+            </nz-card>
+          </nz-col>
+        </nz-row>
+
+        <!-- Charts Row 2 -->
+        <nz-row [nzGutter]="8">
+          <nz-col [nzSpan]="16">
+            <nz-card nzTitle="Monthly Alerts (Stacked)" [nzBordered]="false">
+              <div style="height: 200px">
+                <canvas baseChart [data]="monthlyAlertsData" [options]="stackedBarOptions" [type]="'bar'">
+                </canvas>
+              </div>
+
+            </nz-card>
+          </nz-col>
+          <nz-col [nzSpan]="8">
+            <nz-card nzTitle="Mean Time To Resolution" [nzBordered]="false">
+              <div style="height: 200px">
+                <canvas baseChart [data]="mttrLineData" [options]="lineChartOptions" [type]="'line'">
+                </canvas>
+              </div>
+            </nz-card>
+          </nz-col>
+        </nz-row>
+
+        <nz-row [nzGutter]="8">
+          <nz-col [nzSpan]="24">
+            <nz-card nzTitle="Active Tails" [nzBordered]="false">
+              <nz-list class="demo-loadmore-list" [nzLoading]="initLoading">
+                @for (item of list; track item) {
+                <nz-list-item>
+                  @if (item.loading) {
+                  <nz-skeleton [nzAvatar]="true" [nzActive]="true" [nzTitle]="false" [nzLoading]="true" />
+                  } @else {
+                  <ng-container>
+                    <nz-list-item-meta nzAvatar="n1netails_icon_transparent.png"
+                      nzDescription="Ant Design, a design language for background applications, is refined by Ant UED Team">
+                      <nz-list-item-meta-title>
+                        <a href="https://ng.ant.design">{{ item.name.last }}</a>
+                      </nz-list-item-meta-title>
+                    </nz-list-item-meta>
+                    content
+                    <ul nz-list-item-actions>
+                      <nz-list-item-action><a (click)="edit(item)">edit</a></nz-list-item-action>
+                      <nz-list-item-action><a (click)="edit(item)">more</a></nz-list-item-action>
+                    </ul>
+                  </ng-container>
+                  }
+                </nz-list-item>
+                }
+                <div class="loadmore" nz-list-load-more>
+                  @if (!loadingMore) {
+                  <button
+                    style="float: right; background-color: #F06D0F; padding: 5px; border-radius: 3px; border: none;"
+                    nz-button nzType="primary" (click)="onLoadMore()">
+                    <nz-icon nzType="plus" nzTheme="outline" />
+                  </button>
+                  }
+                </div>
+              </nz-list>
+            </nz-card>
+          </nz-col>
+        </nz-row>
+      </div>
+    </nz-content>
+
+  </nz-layout>
+</nz-layout>

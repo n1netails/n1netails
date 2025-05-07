@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+       http://www.liquibase.org/xml/ns/dbchangelog
+       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+
+    <include file="db/changelog/db.changelog-00000-drop-tables.sql"/>
+    <include file="db/changelog/db.changelog-00001-create-table-tail.sql"/>
+    <include file="db/changelog/db.changelog-00002-create-table-runbook.sql"/>
+    <include file="db/changelog/db.changelog-00003-create-table-users.sql"/>
+    <include file="db/changelog/db.changelog-00004-create-table-organization.sql"/>
+    <include file="db/changelog/db.changelog-00005-insert-tail-seed-data.sql"/>
+
+</databaseChangeLog>

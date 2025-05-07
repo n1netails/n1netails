@@ -1,0 +1,65 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.4.5</version>
+		<relativePath/>
+	</parent>
+
+    <groupId>com.n1ne</groupId>
+    <artifactId>n1netails</artifactId>
+    <version>0.0.3</version>
+    <packaging>pom</packaging>
+
+    <url/>
+    <licenses>
+        <license>
+            <name>GNU Affero General Public License v3.0</name>
+            <url>https://www.gnu.org/licenses/agpl-3.0.html</url>
+            <distribution>repo</distribution>
+            <comments>
+                This project is available under a dual license:
+                1. AGPLv3 for open source use
+                2. Commercial license for enterprises — contact support@yourdomain.com
+            </comments>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <id>shahidfoy</id>
+            <name>Shahid Foy</name>
+            <email>shahidfoy@gmail.com</email>
+        </developer>
+    </developers>
+    <scm>
+        <connection/>
+        <developerConnection/>
+        <tag/>
+        <url/>
+    </scm>
+
+    <modules>
+        <module>n1netails-api</module>
+        <module>n1netails-ui</module>
+        <module>n1netails-liquibase</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Shared dependencies go here -->
+        </dependencies>
+    </dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+</project>

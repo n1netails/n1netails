@@ -1,0 +1,28 @@
+<div class="sidebar-logo">
+  <a routerLink="/dashboard">
+    <img src="n1netails_icon_transparent.png" alt="logo">
+    <h1>N1ne Tails</h1>
+  </a>
+</div>
+<ul nz-menu nzTheme="dark" nzMode="inline" nzInlineCollapsed="true">
+  <li nz-submenu nzOpen nzTitle="Dashboard" nzIcon="dashboard">
+    <ul class="tails-menu">
+      <li nz-menu-item nzMatchRouter>
+        <a routerLink="/dashboard">Dashboard</a>
+      </li>
+      <li nz-menu-item nzMatchRouter>
+        <a>Monitor</a>
+      </li>
+      <li nz-menu-item nzMatchRouter>
+        <a>Workplace</a>
+      </li>
+    </ul>
+  </li>
+  <li nz-submenu nzOpen nzTitle="Form" nzIcon="form">
+    <ul>
+      <li nz-menu-item nzMatchRouter>
+        <a>Basic Form</a>
+      </li>
+    </ul>
+  </li>
+</ul>

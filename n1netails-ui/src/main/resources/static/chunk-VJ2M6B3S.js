@@ -1,0 +1,1 @@
+import{Ua as n,hb as m,ib as c,yb as p}from"./chunk-QKSHRNQR.js";var e=class t{constructor(){}static \u0275fac=function(o){return new(o||t)};static \u0275cmp=n({type:t,selectors:[["app-welcome"]],decls:2,vars:0,template:function(o,r){o&1&&(m(0,"p"),p(1,"welcome works!"),c())},encapsulation:2})};var u=[{path:"",component:e}];export{u as WELCOME_ROUTES};

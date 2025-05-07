@@ -39,9 +39,9 @@ mvn clean package
 ```
 ### Develop Locally
 Set up N1ne Tails locally by using these readmes:
-- [N1ne Tails Api README](n1netails-api/readme.md)
-- [N1ne Tails Ui README](n1netails-ui/readme.md)
-- [N1ne Tails Liquibase README](n1netails-liquibase/readme.md)
+1. [N1ne Tails Liquibase README](n1netails-liquibase/readme.md)
+2. [N1ne Tails Api README](n1netails-api/readme.md)
+3. [N1ne Tails Ui README](n1netails-ui/readme.md)
 
 ## License
 This project is licensed under the **GNU Affero General Public License v3 (AGPLv3)**. See the [LICENSE](./LICENSE) file for details.

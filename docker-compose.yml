@@ -7,7 +7,7 @@ services:
       context: ./n1netails-api
     container_name: n1netails-api
     ports:
-      - "8081:8081"
+      - "9901:9901"
     depends_on:
       liquibase:
         condition: service_completed_successfully
@@ -24,16 +24,16 @@ services:
       context: ./n1netails-ui
     container_name: n1netails-ui
     ports:
-      - "8080:8080"
+      - "9900:9900"
     depends_on:
       - api
+    environment:
+      API_BASE_URL: http://api:8081
   # N1neTails Liquibase
   liquibase:
     build:
       context: ./n1netails-liquibase
     container_name: n1netails-liquibase
-    ports:
-      - "8082:8082"
     depends_on:
       db:
         condition: service_healthy

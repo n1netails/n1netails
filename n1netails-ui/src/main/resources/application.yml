@@ -1,5 +1,5 @@
 spring.profiles.active: local
 server:
-  port: ${PORT:8080}
+  port: ${PORT:9900}
   connection-timeout: -1
   max-http-header-size: -1

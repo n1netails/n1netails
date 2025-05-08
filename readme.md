@@ -66,4 +66,4 @@ For community users, open an issue on GitHub.
 
 ## Contributing
 
-Please use the following guide lines for contributions [CONTRIBUTING](./contributing.md)
+Please use the following guidelines for contributions [CONTRIBUTING](./contributing.md)

@@ -4,14 +4,14 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.n1ne</groupId>
-		<artifactId>n1netails</artifactId>
-		<version>0.0.3</version>
-		<relativePath>../pom.xml</relativePath>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.4.5</version>
+		<relativePath/>
 	</parent>
 
 	<artifactId>n1netails-api</artifactId>
-	<version>0.0.3</version>
+	<version>0.0.4</version>
 	<name>n1netails-api</name>
 	<description>N1ne Tails Alert Service API</description>
 

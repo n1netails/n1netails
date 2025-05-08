@@ -12,6 +12,7 @@ import { BaseChartDirective } from 'ng2-charts';
 import { catchError, of } from 'rxjs';
 import { HeaderComponent } from "../../shared/template/header/header.component";
 import { SidenavComponent } from "../../shared/template/sidenav/sidenav.component";
+import { UiConfigService } from "../../shared/ui-config.service";
 
 // todo remove
 const count = 5;
@@ -33,11 +34,17 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private http: HttpClient,
-    private msg: NzMessageService
+    private msg: NzMessageService,
+    private uiConfigService: UiConfigService,
   ) {
   }
 
   ngOnInit() {
+    this.uiConfigService.loadConfig().then(() => {
+      const apiUrl = this.uiConfigService.getApiUrl();
+      console.log('API URL:', apiUrl); // Log the API URL to verify it's loaded correctly
+    });
+
     this.getData((res: any) => {
       this.data = res.results;
       this.list = res.results;

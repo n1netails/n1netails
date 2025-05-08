@@ -1,5 +1,15 @@
-spring.profiles.active: local
 server:
   port: ${PORT:9900}
   connection-timeout: -1
   max-http-header-size: -1
+
+spring.web.resources.add-mappings: true
+spring.web.resources.static-locations: classpath:/static/
+
+n1netails:
+  api.url: ${API_BASE_URL:http://localhost:9901}
+
+---
+spring.config.activate.on-profile: docker
+n1netails:
+  api.url: ${API_BASE_URL:http://api:9901}

@@ -28,7 +28,7 @@ services:
     depends_on:
       - api
     environment:
-      API_BASE_URL: http://api:8081
+      API_BASE_URL: http://api:9901
   # N1neTails Liquibase
   liquibase:
     build:

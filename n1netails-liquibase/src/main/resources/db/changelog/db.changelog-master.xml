@@ -13,11 +13,4 @@
     <include file="db/changelog/db.changelog-00004-create-table-organization.xml"/>
     <include file="db/changelog/db.changelog-00005-insert-tail-seed-data.xml"/>
 
-<!--    <include file="db/changelog/db.changelog-00000-drop-tables.sql"/>-->
-<!--    <include file="db/changelog/db.changelog-00001-create-table-tail.sql"/>-->
-<!--    <include file="db/changelog/db.changelog-00002-create-table-runbook.sql"/>-->
-<!--    <include file="db/changelog/db.changelog-00003-create-table-users.xml"/>-->
-<!--    <include file="db/changelog/db.changelog-00004-create-table-organization.sql"/>-->
-<!--    <include file="db/changelog/db.changelog-00005-insert-tail-seed-data.sql"/>-->
-
 </databaseChangeLog>

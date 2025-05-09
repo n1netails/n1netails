@@ -1,8 +1,16 @@
-spring.profiles.active: local
+spring.profiles.active: db
+spring.banner.location: classpath:banner.txt
 server:
   port: ${PORT:9901}
   connection-timeout: -1
   max-http-header-size: -1
+
+info:
+  application:
+    name: '@project.name@'
+    description: '@project.description@'
+    version: '@project.version@'
+
 spring:
   jpa:
     defer-datasource-initialization: true
@@ -15,3 +23,8 @@ spring:
         format-sql: true
     repositories:
       bootstrap-mode: default
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    use-root-path: true

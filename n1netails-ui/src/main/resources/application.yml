@@ -1,3 +1,4 @@
+spring.banner.location: classpath:banner.txt
 server:
   port: ${PORT:9900}
   connection-timeout: -1
@@ -9,7 +10,10 @@ spring.web.resources.static-locations: classpath:/static/
 n1netails:
   api.url: ${API_BASE_URL:http://localhost:9901}
 
+#########################################
+# Docker
+#########################################
 ---
 spring.config.activate.on-profile: docker
 n1netails:
-  api.url: ${API_BASE_URL:http://api:9901}
+  api.url: ${API_BASE_URL}

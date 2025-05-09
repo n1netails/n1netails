@@ -33,3 +33,14 @@ Run the project on your local computer using the following command
 ```bash
 mvn spring-boot:run -DSPRING_PROFILE_ACTIVE=local
 ```
+
+Run the project with environment variables.
+- PORT (application port)
+- POSTGRES_URL (postgres database url)
+- POSTGRES_USERNAME (postgres user)
+- POSTGRES_PASSWORD (postgres user password)
+
+Example:
+```bash
+mvn spring-boot:run -DSPRING_PROFILE_ACTIVE=local -DPORT=9901 -DPOSTGRES_URL=jdbc:postgresql://localhost/n1netails -DPOSTGRES_USERNAME=postres -DPOSTGRES_PASSWORD=postgres
+```

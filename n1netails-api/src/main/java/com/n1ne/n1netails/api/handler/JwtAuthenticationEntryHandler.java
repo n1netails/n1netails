@@ -1,7 +1,7 @@
 package com.n1ne.n1netails.api.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.n1ne.n1netails.api.model.response.HttpResponse;
+import com.n1ne.n1netails.api.model.response.HttpErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.AuthenticationException;
@@ -21,7 +21,7 @@ public class JwtAuthenticationEntryHandler extends Http403ForbiddenEntryPoint {
     @Override
     public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException exception) throws IOException {
 
-        HttpResponse httpResponse = new HttpResponse(
+        HttpErrorResponse httpErrorResponse = new HttpErrorResponse(
                 FORBIDDEN.value(),
                 FORBIDDEN,
                 FORBIDDEN.getReasonPhrase().toUpperCase(),
@@ -32,7 +32,7 @@ public class JwtAuthenticationEntryHandler extends Http403ForbiddenEntryPoint {
         httpServletResponse.setStatus(FORBIDDEN.value());
         OutputStream outputStream = httpServletResponse.getOutputStream();
         ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(outputStream, httpResponse);
+        mapper.writeValue(outputStream, httpErrorResponse);
         outputStream.flush();
     }
 }

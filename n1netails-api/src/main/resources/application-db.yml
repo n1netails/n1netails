@@ -3,10 +3,9 @@ spring:
     driver-class-name: org.postgresql.Driver
     initialization-mode: never
 #    initialization-mode: always
-    url: jdbc:postgresql://localhost/n1netails
-#    url: jdbc:postgresql://db:5433/n1netails
-    username: postgres
-    password: postgres
+    url: ${POSTGRES_URL:jdbc:postgresql://localhost/n1netails}
+    username: ${POSTGRES_USERNAME:postgres}
+    password: ${POSTGRES_PASSWORD:postgres}
   jpa:
     defer-datasource-initialization: true
     show-sql: true
@@ -16,25 +15,16 @@ spring:
 #      ddl-auto: update
 #      ddl-auto: none
       ddl-auto: validate
-  security:
-    oauth2:
-      client:
-        registration:
-          github:
-            clientId: github-client-id
-            clientSecret: github-client-secret
   sql:
     init:
       mode: never
 #      mode: always
 
-
-# TODO make different active profiles
+#########################################
+# Docker
+#########################################
 ---
 spring.config.activate.on-profile: docker
-#########################################
-# Postgres Config
-#########################################
 spring:
   datasource:
-    url: jdbc:postgresql://db:5432/n1netails
+    url: ${POSTGRES_URL:jdbc:postgresql://db:5432/n1netails}

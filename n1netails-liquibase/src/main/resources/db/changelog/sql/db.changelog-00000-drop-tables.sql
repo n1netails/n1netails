@@ -10,3 +10,6 @@ DROP TABLE IF EXISTS public.tail;
 DROP TABLE IF EXISTS public.tail_level;
 DROP TABLE IF EXISTS public.tail_type;
 DROP TABLE IF EXISTS public.tail_status;
+
+--DROP TABLE IF EXISTS public.databasechangelog;
+--DROP TABLE IF EXISTS public.databasechangeloglock;

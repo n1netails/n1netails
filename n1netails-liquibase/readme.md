@@ -21,3 +21,10 @@ Run the project on your local computer using the following command
 ```bash
 mvn spring-boot:run
 ```
+
+## Liquibase Maven Commands
+
+Rollback (example of rolling back 2 times)
+```bash
+mvn liquibase:rollback -Dliquibase.rollbackCount=2
+```

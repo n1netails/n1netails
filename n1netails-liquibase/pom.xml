@@ -45,7 +45,7 @@
 		<dependency>
 			<groupId>org.liquibase</groupId>
 			<artifactId>liquibase-maven-plugin</artifactId>
-			<version>4.20.0</version>
+			<version>4.29.2</version>
 		</dependency>
 
 		<dependency>
@@ -65,7 +65,7 @@
 			<plugin>
 				<groupId>org.liquibase</groupId>
 				<artifactId>liquibase-maven-plugin</artifactId>
-				<version>4.20.0</version>
+				<version>4.29.2</version>
 				<configuration>
 					<propertyFile>src/main/resources/db/liquibase.properties</propertyFile>
 					<promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>

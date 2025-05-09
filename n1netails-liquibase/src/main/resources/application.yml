@@ -1,10 +1,12 @@
+spring.banner.location: classpath:banner.txt
+
 spring:
   application:
     name: n1netails-liquibase
   datasource:
-    url: jdbc:postgresql://localhost/n1netails
-    username: postgres
-    password: postgres
+    url: ${POSTGRES_URL:jdbc:postgresql://localhost/n1netails}
+    username: ${POSTGRES_USERNAME:postgres}
+    password: ${POSTGRES_PASSWORD:postgres}
   driver-class-name: org.postgresql.Driver
   jpa:
     show-sql: true
@@ -15,11 +17,11 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.xml
     enabled: true
 
+#########################################
+# Docker
+#########################################
 ---
 spring.config.activate.on-profile: docker
-#########################################
-# Postgres Config
-#########################################
 spring:
   datasource:
-    url: jdbc:postgresql://db:5432/n1netails
+    url: ${POSTGRES_URL:jdbc:postgresql://db:5432/n1netails}

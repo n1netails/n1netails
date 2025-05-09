@@ -1,7 +1,7 @@
 package com.n1ne.n1netails.api.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.n1ne.n1netails.api.model.response.HttpResponse;
+import com.n1ne.n1netails.api.model.response.HttpErrorResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,7 +21,7 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 
     @Override
     public void handle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AccessDeniedException exception) throws IOException, ServletException {
-        HttpResponse httpResponse = new HttpResponse(
+        HttpErrorResponse httpErrorResponse = new HttpErrorResponse(
                 UNAUTHORIZED.value(),
                 UNAUTHORIZED,
                 UNAUTHORIZED.getReasonPhrase().toUpperCase(),
@@ -32,7 +32,7 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
         httpServletResponse.setStatus(UNAUTHORIZED.value());
         OutputStream outputStream = httpServletResponse.getOutputStream();
         ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(outputStream, httpResponse);
+        mapper.writeValue(outputStream, httpErrorResponse);
         outputStream.flush();
     }
 }

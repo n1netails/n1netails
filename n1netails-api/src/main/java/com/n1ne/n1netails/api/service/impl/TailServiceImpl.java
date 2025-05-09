@@ -165,17 +165,17 @@ public class TailServiceImpl implements TailService {
         tail.setDetails(request.getDetails());
 
         TailLevel tailLevel = new TailLevel();
-        tailLevel.setName(request.getTailLevel().getName());
-        tailLevel.setDescription(request.getTailLevel().getDescription());
+        tailLevel.setName(request.getLevel().getName());
+        tailLevel.setDescription(request.getLevel().getDescription());
         tail.setLevel(tailLevel);
 
         TailType tailType = new TailType();
-        tailType.setName(request.getTailType().getName());
-        tailType.setDescription(request.getTailType().getDescription());
+        tailType.setName(request.getType().getName());
+        tailType.setDescription(request.getType().getDescription());
         tail.setType(tailType);
 
         TailStatus tailStatus = new TailStatus();
-        tailStatus.setName(request.getTailStatus().getName());
+        tailStatus.setName(request.getStatus());
         tail.setStatus(tailStatus);
 
         List<TailVariable> tailVariableList = new ArrayList<>();

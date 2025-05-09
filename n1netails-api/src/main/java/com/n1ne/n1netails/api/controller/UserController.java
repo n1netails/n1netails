@@ -6,7 +6,13 @@ import com.n1ne.n1netails.api.model.UserPrincipal;
 import com.n1ne.n1netails.api.model.entity.Users;
 import com.n1ne.n1netails.api.model.request.UserLoginRequest;
 import com.n1ne.n1netails.api.model.request.UserRegisterRequest;
+import com.n1ne.n1netails.api.model.response.HttpErrorResponse;
 import com.n1ne.n1netails.api.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -30,6 +36,7 @@ import static org.springframework.http.HttpStatus.OK;
 
 @Slf4j
 @RequiredArgsConstructor
+@Tag(name = "Users Controller", description = "Operations related to Users")
 @RestController
 @RequestMapping(path = {"/api/user"})
 public class UserController {
@@ -38,6 +45,16 @@ public class UserController {
     private final AuthenticationManager authenticationManager;
     private final JwtEncoder jwtEncoder;
 
+    @Operation(
+            summary = "Login user and return user details with JWT token",
+            description = "Authenticates a user and returns the user object along with a JWT in the `Jwt-Token` header.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "User authenticated successfully",
+                            content = @Content(schema = @Schema(implementation = Users.class))),
+                    @ApiResponse(responseCode = "401", description = "Authentication failed",
+                            content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
+            }
+    )
     @PostMapping("/login")
     public ResponseEntity<Users> login(@RequestBody UserLoginRequest user) {
 
@@ -48,6 +65,16 @@ public class UserController {
         return new ResponseEntity<>(loginUser, jwtHeader, OK);
     }
 
+    @Operation(
+            summary = "Register new user and return user details with JWT token",
+            description = "Registers a new user and returns the user object along with a JWT in the `Jwt-Token` header.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "User registered successfully",
+                            content = @Content(schema = @Schema(implementation = Users.class))),
+                    @ApiResponse(responseCode = "400", description = "Invalid request or user already exists",
+                            content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
+            }
+    )
     @PostMapping("/register")
     public ResponseEntity<Users> register(@RequestBody UserRegisterRequest user) throws UserNotFoundException, EmailExistException {
 

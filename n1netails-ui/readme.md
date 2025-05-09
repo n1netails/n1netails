@@ -17,6 +17,15 @@ Run the project on your local computer using the following command
 mvn spring-boot:run -DSPRING_PROFILE_ACTIVE=local
 ```
 
+Run the project with environment variables.
+- PORT (application port)
+- API_BASE_URL (n1netails-api url)
+
+Example:
+```bash
+mvn spring-boot:run -DSPRING_PROFILE_ACTIVE=local -DPORT=9900 -API_BASE_URL=http://localhost:9901
+```
+
 ## Run Angular Application Locally
 `cd` into `src/main/typescript`
 Run the following command to start the angular application

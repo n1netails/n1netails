@@ -1,0 +1,19 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="00001-create-table-tail" author="your-name">
+        <sqlFile path="db/changelog/sql/db.changelog-00001-create-table-tail.sql"/>
+        <rollback>
+            DROP TABLE IF EXISTS public.note;
+            DROP TABLE IF EXISTS public.tail_variable;
+            DROP TABLE IF EXISTS public.tail;
+            DROP TABLE IF EXISTS public.tail_level;
+            DROP TABLE IF EXISTS public.tail_type;
+            DROP TABLE IF EXISTS public.tail_status;
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

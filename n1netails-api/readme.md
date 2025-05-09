@@ -11,7 +11,7 @@ username: postgres \
 password: postgres
 
 ## Create
-Create database `n1netails` in postgres pgAdmin 4 or use the following command to create database:
+Create database `n1netails` in postgres pgAdmin 4 if none exists or use the following command to create database:
 ```sql
 CREATE DATABASE "n1netails"
     WITH

@@ -7,7 +7,15 @@
     <changeSet id="00006-create-tail-sequences" author="your-name">
         <sqlFile path="db/changelog/sql/db.changelog-00006-create-tail-sequences.sql"/>
         <rollback>
-            empty
+            DROP SEQUENCE IF EXISTS organization_seq;
+            DROP SEQUENCE IF EXISTS runbook_seq;
+            DROP SEQUENCE IF EXISTS tail_level_seq;
+            DROP SEQUENCE IF EXISTS tail_seq;
+            DROP SEQUENCE IF EXISTS tail_status_seq;
+            DROP SEQUENCE IF EXISTS tail_type_seq;
+            DROP SEQUENCE IF EXISTS tail_variable_seq;
+            DROP SEQUENCE IF EXISTS users_seq;
+            DROP SEQUENCE IF EXISTS note_seq;
         </rollback>
     </changeSet>
 

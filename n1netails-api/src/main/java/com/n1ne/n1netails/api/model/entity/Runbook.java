@@ -8,7 +8,8 @@ import java.util.List;
 public class Runbook {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "runbook_seq")
+    @SequenceGenerator(name = "runbook_seq", sequenceName = "runbook_seq", allocationSize = 1)
     private Long id;
 
     private String title;

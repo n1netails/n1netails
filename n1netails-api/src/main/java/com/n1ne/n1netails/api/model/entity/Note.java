@@ -8,7 +8,8 @@ import java.time.Instant;
 public class Note {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "note_seq")
+    @SequenceGenerator(name = "note_seq", sequenceName = "note_seq", allocationSize = 1)
     private Long id;
 
     @ManyToOne

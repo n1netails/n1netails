@@ -11,8 +11,6 @@ N1ne Tails is an open-source project that provides practical alerts and monitori
 to identify issues — or if your application lacks any alerting at all — N1ne Tails offers a straightforward way to gain 
 clarity on problems affecting your applications.
 
-[![Join our Discord](https://img.shields.io/badge/Join_Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/ma9CCw7F2x)
-
 # Docker
 Run N1ne Tails with docker
 ### Useful Docker Commands
@@ -62,7 +60,10 @@ See the [LICENSE-commercial](./LICENSE-commercial.txt) file for details.
 
 ## Support
 
-For community users, open an issue on GitHub or Join our Discord (invite located above).
+For community users, open an issue on GitHub or Join our Discord
+
+[![Join our Discord](https://img.shields.io/badge/Join_Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/ma9CCw7F2x)
+
 
 [//]: # (For enterprise support, visit [yourcompany.com]&#40;https://yourcompany.com&#41; or email [support@yourdomain.com]&#40;mailto:support@yourdomain.com&#41;.)
 

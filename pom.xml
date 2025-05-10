@@ -5,7 +5,11 @@
 
     <groupId>com.n1ne</groupId>
     <artifactId>n1netails</artifactId>
+<<<<<<< HEAD
     <version>0.0.5</version>
+=======
+    <version>0.0.6</version>
+>>>>>>> 4537269970724fc148672e1ff97be10d6e18748b
     <packaging>pom</packaging>
 
     <url/>

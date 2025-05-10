@@ -17,7 +17,8 @@ import java.util.List;
 public class Tail {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tail_seq")
+    @SequenceGenerator(name = "tail_seq", sequenceName = "tail_seq", allocationSize = 1)
     private Long id;
 
     private String title;

@@ -1,9 +1,6 @@
 package com.n1ne.n1netails.api.model.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,7 +10,8 @@ import lombok.Setter;
 public class TailVariable {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tail_variable_seq")
+    @SequenceGenerator(name = "tail_variable_seq", sequenceName = "tail_variable_seq", allocationSize = 1)
     private Long id;
 
     private String key;

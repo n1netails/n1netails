@@ -12,7 +12,7 @@
 
 
 	<artifactId>n1netails-ui</artifactId>
-	<version>0.0.4</version>
+	<version>0.0.5</version>
 	<name>n1netails-ui</name>
 	<description>N1ne Tails Alert Service UI</description>
 
@@ -52,6 +52,23 @@
 				<artifactId>exec-maven-plugin</artifactId>
 				<version>3.1.0</version>
 				<executions>
+					<!-- Install node modules -->
+					<execution>
+						<id>npm-install</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>npm</executable>
+							<arguments>
+								<argument>install</argument>
+							</arguments>
+							<workingDirectory>${project.basedir}/src/main/typescript/</workingDirectory>
+						</configuration>
+					</execution>
+
+					<!-- build for spring boot -->
 					<execution>
 						<id>run-npm-build</id>
 						<phase>prepare-package</phase>

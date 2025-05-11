@@ -11,7 +11,8 @@ username: postgres \
 password: postgres
 
 ## Create
-Create database `n1netails` in postgres pgAdmin 4 if none exists or use the following command to create database:
+### Create Database
+Create Database `n1netails` in postgres pgAdmin 4 if none exists or use the following command to create database:
 ```sql
 CREATE DATABASE "n1netails"
     WITH
@@ -20,6 +21,12 @@ CREATE DATABASE "n1netails"
     LOCALE_PROVIDER = 'libc'
     CONNECTION LIMIT = -1
     IS_TEMPLATE = False;
+```
+### Create Schema
+Create Schema `ntail` inside of the postgres `n1netails` Database with pgAdmin 4 if none exists or use the following command to create schema:
+```sql
+CREATE SCHEMA IF NOT EXISTS ntail
+    AUTHORIZATION postgres;
 ```
 
 ## Build

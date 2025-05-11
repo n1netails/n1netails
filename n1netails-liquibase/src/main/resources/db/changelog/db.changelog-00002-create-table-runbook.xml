@@ -7,9 +7,9 @@
     <changeSet id="00002-create-table-runbook" author="your-name">
         <sqlFile path="db/changelog/sql/db.changelog-00002-create-table-runbook.sql"/>
         <rollback>
-            DROP TABLE IF EXISTS public.runbook_related_tail_types;
-            DROP TABLE IF EXISTS public.tail_runbooks;
-            DROP TABLE IF EXISTS public.runbook;
+            DROP TABLE IF EXISTS ntail.runbook_related_tail_types;
+            DROP TABLE IF EXISTS ntail.tail_runbooks;
+            DROP TABLE IF EXISTS ntail.runbook;
         </rollback>
     </changeSet>
 

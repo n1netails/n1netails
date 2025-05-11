@@ -1,9 +1,9 @@
 ------------------------------
--- Table: public.users
+-- Table: ntail.users
 ------------------------------
---DROP TABLE IF EXISTS public.users;
+--DROP TABLE IF EXISTS ntail.users;
 
-CREATE TABLE IF NOT EXISTS public.users
+CREATE TABLE IF NOT EXISTS ntail.users
 (
     enabled boolean NOT NULL,
     is_active boolean NOT NULL,
@@ -26,5 +26,5 @@ CREATE TABLE IF NOT EXISTS public.users
 
 TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS public.users
+ALTER TABLE IF EXISTS ntail.users
     OWNER to postgres;

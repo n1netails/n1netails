@@ -1,9 +1,9 @@
 ------------------------------
--- Table: public.tail_status
+-- Table: ntail.tail_status
 ------------------------------
---DROP TABLE IF EXISTS public.tail_status;
+--DROP TABLE IF EXISTS ntail.tail_status;
 
-CREATE TABLE IF NOT EXISTS public.tail_status
+CREATE TABLE IF NOT EXISTS ntail.tail_status
 (
     id bigint NOT NULL,
     name character varying(255) COLLATE pg_catalog."default",
@@ -12,15 +12,15 @@ CREATE TABLE IF NOT EXISTS public.tail_status
 
 TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS public.tail_status
+ALTER TABLE IF EXISTS ntail.tail_status
     OWNER to postgres;
 
 ------------------------------
--- Table: public.tail_type
+-- Table: ntail.tail_type
 ------------------------------
---DROP TABLE IF EXISTS public.tail_type;
+--DROP TABLE IF EXISTS ntail.tail_type;
 
-CREATE TABLE IF NOT EXISTS public.tail_type
+CREATE TABLE IF NOT EXISTS ntail.tail_type
 (
     id bigint NOT NULL,
     description character varying(255) COLLATE pg_catalog."default",
@@ -30,15 +30,15 @@ CREATE TABLE IF NOT EXISTS public.tail_type
 
 TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS public.tail_type
+ALTER TABLE IF EXISTS ntail.tail_type
     OWNER to postgres;
 
 ------------------------------
--- Table: public.tail_level
+-- Table: ntail.tail_level
 ------------------------------
---DROP TABLE IF EXISTS public.tail_level;
+--DROP TABLE IF EXISTS ntail.tail_level;
 
-CREATE TABLE IF NOT EXISTS public.tail_level
+CREATE TABLE IF NOT EXISTS ntail.tail_level
 (
     id bigint NOT NULL,
     description character varying(255) COLLATE pg_catalog."default",
@@ -48,15 +48,15 @@ CREATE TABLE IF NOT EXISTS public.tail_level
 
 TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS public.tail_level
+ALTER TABLE IF EXISTS ntail.tail_level
     OWNER to postgres;
 
 ------------------------------
--- Table: public.tail
+-- Table: ntail.tail
 ------------------------------
---DROP TABLE IF EXISTS public.tail;
+--DROP TABLE IF EXISTS ntail.tail;
 
-CREATE TABLE IF NOT EXISTS public.tail
+CREATE TABLE IF NOT EXISTS ntail.tail
 (
     id bigint NOT NULL,
     level_id bigint,
@@ -70,30 +70,30 @@ CREATE TABLE IF NOT EXISTS public.tail
     details text COLLATE pg_catalog."default",
     CONSTRAINT tail_pkey PRIMARY KEY (id),
     CONSTRAINT fk_tail_status_id FOREIGN KEY (status_id)
-        REFERENCES public.tail_status (id) MATCH SIMPLE
+        REFERENCES ntail.tail_status (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION,
     CONSTRAINT fk_tail_type_id FOREIGN KEY (type_id)
-        REFERENCES public.tail_type (id) MATCH SIMPLE
+        REFERENCES ntail.tail_type (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION,
     CONSTRAINT fk_tail_level_id FOREIGN KEY (level_id)
-        REFERENCES public.tail_level (id) MATCH SIMPLE
+        REFERENCES ntail.tail_level (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
 )
 
 TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS public.tail
+ALTER TABLE IF EXISTS ntail.tail
     OWNER to postgres;
 
 ------------------------------
--- Table: public.tail_variable
+-- Table: ntail.tail_variable
 ------------------------------
---DROP TABLE IF EXISTS public.tail_variable;
+--DROP TABLE IF EXISTS ntail.tail_variable;
 
-CREATE TABLE IF NOT EXISTS public.tail_variable
+CREATE TABLE IF NOT EXISTS ntail.tail_variable
 (
     id bigint NOT NULL,
     tail_id bigint,
@@ -101,22 +101,22 @@ CREATE TABLE IF NOT EXISTS public.tail_variable
     value character varying(255) COLLATE pg_catalog."default",
     CONSTRAINT tail_variable_pkey PRIMARY KEY (id),
     CONSTRAINT fk_tail_variable_tail_id FOREIGN KEY (tail_id)
-        REFERENCES public.tail (id) MATCH SIMPLE
+        REFERENCES ntail.tail (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
 )
 
 TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS public.tail_variable
+ALTER TABLE IF EXISTS ntail.tail_variable
     OWNER to postgres;
 
 ------------------------------
--- Table: public.note
+-- Table: ntail.note
 ------------------------------
---DROP TABLE IF EXISTS public.note;
+--DROP TABLE IF EXISTS ntail.note;
 
-CREATE TABLE IF NOT EXISTS public.note
+CREATE TABLE IF NOT EXISTS ntail.note
 (
     created_at timestamp(6) with time zone,
     id bigint NOT NULL,
@@ -124,12 +124,12 @@ CREATE TABLE IF NOT EXISTS public.note
     content oid,
     CONSTRAINT note_pkey PRIMARY KEY (id),
     CONSTRAINT fk_note_tail_id FOREIGN KEY (tail_id)
-        REFERENCES public.tail (id) MATCH SIMPLE
+        REFERENCES ntail.tail (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
 )
 
 TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS public.note
+ALTER TABLE IF EXISTS ntail.note
     OWNER to postgres;

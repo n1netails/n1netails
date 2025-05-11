@@ -15,6 +15,9 @@ spring:
 #      ddl-auto: update
 #      ddl-auto: none
       ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: ntail
   sql:
     init:
       mode: never

@@ -1,19 +1,19 @@
 -- TailLevel seed data
-INSERT INTO tail_level (id, name, description) VALUES
+INSERT INTO ntail.tail_level (id, name, description) VALUES
 (1, 'LOW', 'Minor tail, minimal impact.'),
 (2, 'MEDIUM', 'Moderate tail, needs attention.'),
 (3, 'HIGH', 'Major tail, immediate action required.'),
 (4, 'EXTREME', 'Extreme tail, highest priority deal with this issue first.');
 
 -- TailStatus seed data
-INSERT INTO tail_status (id, name) VALUES
+INSERT INTO ntail.tail_status (id, name) VALUES
 (1, 'NEW'),
 (2, 'IN_PROGRESS'),
 (3, 'BLOCKED'),
 (4, 'RESOLVED');
 
 -- TailType seed data
-INSERT INTO tail_type (id, name, description) VALUES
+INSERT INTO ntail.tail_type (id, name, description) VALUES
 (1, 'SYSTEM_ALERT', 'Indicates a system-level issue.'),
 (2, 'USER_REPORT', 'Reported by end users.'),
 (3, 'SCHEDULED_MAINTENANCE', 'Planned tail due to maintenance.'),

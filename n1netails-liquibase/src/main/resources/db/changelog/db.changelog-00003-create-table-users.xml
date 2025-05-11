@@ -7,7 +7,7 @@
     <changeSet id="00003-create-table-users" author="your-name">
         <sqlFile path="db/changelog/sql/db.changelog-00003-create-table-users.sql"/>
         <rollback>
-            DROP TABLE IF EXISTS public.users;
+            DROP TABLE IF EXISTS ntail.users;
         </rollback>
     </changeSet>
 

@@ -7,9 +7,9 @@
     <changeSet id="00005-insert-tail-seed-data" author="your-name">
         <sqlFile path="db/changelog/sql/db.changelog-00005-insert-tail-seed-data.sql"/>
         <rollback>
-            DELETE FROM tail_level WHERE id IN (1, 2, 3, 4);
-            DELETE FROM tail_status WHERE id IN (1, 2, 3, 4);
-            DELETE FROM tail_type WHERE id BETWEEN 1 AND 20;
+            DELETE FROM ntail.tail_level WHERE id IN (1, 2, 3, 4);
+            DELETE FROM ntail.tail_status WHERE id IN (1, 2, 3, 4);
+            DELETE FROM ntail.tail_type WHERE id BETWEEN 1 AND 20;
         </rollback>
     </changeSet>
 

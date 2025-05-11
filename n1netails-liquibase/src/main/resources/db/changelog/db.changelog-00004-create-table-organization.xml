@@ -7,8 +7,8 @@
     <changeSet id="00004-create-table-organization" author="your-name">
         <sqlFile path="db/changelog/sql/db.changelog-00004-create-table-organization.sql"/>
         <rollback>
-            DROP TABLE IF EXISTS public.user_organizations;
-            DROP TABLE IF EXISTS public.organization;
+            DROP TABLE IF EXISTS ntail.user_organizations;
+            DROP TABLE IF EXISTS ntail.organization;
         </rollback>
     </changeSet>
 

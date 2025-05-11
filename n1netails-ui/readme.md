@@ -23,7 +23,7 @@ Run the project with environment variables.
 
 Example:
 ```bash
-mvn spring-boot:run -DSPRING_PROFILE_ACTIVE=local -DPORT=9900 -API_BASE_URL=http://localhost:9901
+mvn spring-boot:run -DSPRING_PROFILE_ACTIVE=local -DPORT=9900 -DAPI_BASE_URL=http://localhost:9901
 ```
 
 ## Run Angular Application Locally

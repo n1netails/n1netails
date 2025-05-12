@@ -1,7 +1,7 @@
 package com.n1ne.n1netails.api.controller;
 
-import com.n1ne.n1netails.api.exception.EmailExistException;
-import com.n1ne.n1netails.api.exception.UserNotFoundException;
+import com.n1ne.n1netails.api.exception.type.EmailExistException;
+import com.n1ne.n1netails.api.exception.type.UserNotFoundException;
 import com.n1ne.n1netails.api.model.UserPrincipal;
 import com.n1ne.n1netails.api.model.entity.Users;
 import com.n1ne.n1netails.api.model.request.UserLoginRequest;

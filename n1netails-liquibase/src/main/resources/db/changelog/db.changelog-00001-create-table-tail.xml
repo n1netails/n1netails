@@ -7,7 +7,6 @@
     <changeSet id="00001-create-table-tail" author="your-name">
         <sqlFile path="db/changelog/sql/db.changelog-00001-create-table-tail.sql"/>
         <rollback>
-            DROP TABLE IF EXISTS ntail.note;
             DROP TABLE IF EXISTS ntail.tail_variable;
             DROP TABLE IF EXISTS ntail.tail;
             DROP TABLE IF EXISTS ntail.tail_level;

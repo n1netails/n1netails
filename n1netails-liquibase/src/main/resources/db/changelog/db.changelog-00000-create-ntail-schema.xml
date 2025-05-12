@@ -7,7 +7,7 @@
     <changeSet id="00000-create-ntail-schema" author="your-name">
         <sqlFile path="db/changelog/sql/db.changelog-00000-create-ntail-schema.sql"/>
         <rollback>
-            DROP SCHEMA ntail CASCADE;
+            empty
         </rollback>
     </changeSet>
 

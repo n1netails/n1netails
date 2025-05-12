@@ -28,3 +28,31 @@ TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS ntail.users
     OWNER to postgres;
+
+------------------------------
+-- Table: ntail.note
+------------------------------
+--DROP TABLE IF EXISTS ntail.note;
+
+CREATE TABLE IF NOT EXISTS ntail.note
+(
+    created_at timestamp(6) with time zone,
+    id bigint NOT NULL,
+    tail_id bigint,
+    user_id bigint NOT NULL,
+    content oid,
+    CONSTRAINT note_pkey PRIMARY KEY (id),
+    CONSTRAINT fk_note_tail_id FOREIGN KEY (tail_id)
+        REFERENCES ntail.tail (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT fk_note_user_id FOREIGN KEY (user_id)
+        REFERENCES ntail.users (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS ntail.note
+    OWNER to postgres;

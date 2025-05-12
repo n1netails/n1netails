@@ -15,7 +15,8 @@ public class Note {
     @ManyToOne
     private Tail tail;
 
-    // TODO add value to track user
+    @ManyToOne
+    private Users user;
 
     @Lob
     private String content;

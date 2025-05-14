@@ -11,7 +11,7 @@
 	</parent>
 
 	<artifactId>n1netails-liquibase</artifactId>
-	<version>0.0.6</version>
+	<version>0.1.0</version>
 	<name>n1netails-liquibase</name>
 	<description>N1ne Tails Liquibase Database Migration Tool</description>
 

@@ -10,8 +10,9 @@
 		<relativePath/>
 	</parent>
 
+	<groupId>com.n1netails</groupId>
 	<artifactId>n1netails-api</artifactId>
-	<version>0.1.0</version>
+	<version>0.1.1</version>
 	<name>n1netails-api</name>
 	<description>N1ne Tails Alert Service API</description>
 

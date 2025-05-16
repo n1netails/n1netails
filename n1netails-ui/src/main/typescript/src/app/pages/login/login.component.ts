@@ -10,7 +10,7 @@ import { NzFormModule } from 'ng-zorro-antd/form';
 
 @Component({
   selector: 'app-login',
-  imports: [NzFormModule, FormsModule,RouterModule],
+  imports: [NzFormModule,FormsModule,RouterModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.less'
 })

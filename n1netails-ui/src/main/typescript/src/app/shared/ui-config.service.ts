@@ -17,6 +17,7 @@ export class UiConfigService {
       const config = await firstValueFrom(
         this.http.get<{ n1netailsApiUrl: string }>('/ui/n1netails-config/api-url')
       );
+      console.log('Config loaded:', config);
       if (config) this.apiUrl = config.n1netailsApiUrl;
     } catch (error) {
       console.warn('Failed to load API URL from server, using fallback:', this.apiUrl);

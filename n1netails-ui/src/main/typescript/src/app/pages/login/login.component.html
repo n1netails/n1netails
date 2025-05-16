@@ -1,0 +1,51 @@
+<div class="login-container">
+  <form nz-form #loginForm="ngForm" (ngSubmit)="onLogin(loginForm)" class="login-form">
+    <div class="logo-container">
+      <img src="n1netails_icon_transparent.png" alt="N1netails Logo" class="login-logo" />
+    </div>
+    <h2>N1netails Login</h2>
+    <nz-form-item class="netflix-form-item">
+      <nz-form-label [nzSpan]="24" nzFor="email" nzRequired>Email</nz-form-label>
+      <nz-form-control [nzSpan]="24">
+        <input
+          nz-input
+          type="email"
+          id="email"
+          name="email"
+          ngModel
+          required
+          placeholder="Enter your email"
+          class="netflix-input"
+        />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item class="netflix-form-item">
+      <nz-form-label [nzSpan]="24" nzFor="password" nzRequired>Password</nz-form-label>
+      <nz-form-control [nzSpan]="24">
+        <input
+          nz-input
+          type="password"
+          id="password"
+          name="password"
+          ngModel
+          required
+          placeholder="Enter your password"
+          class="netflix-input"
+        />
+      </nz-form-control>
+    </nz-form-item>
+    <button
+      nz-button
+      nzType="primary"
+      class="login-btn"
+      [disabled]="!loginForm.valid"
+      type="submit"
+    >
+      Login
+    </button>
+    <div class="register-link">
+      <span>Don't have an account?</span>
+      <a routerLink="/register">Register here</a>
+    </div>
+  </form>
+</div>

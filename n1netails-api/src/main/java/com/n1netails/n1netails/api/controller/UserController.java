@@ -58,6 +58,7 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<Users> login(@RequestBody UserLoginRequest user) {
 
+        log.info("attempting user login");
         authenticate(user.getEmail(), user.getPassword());
         Users loginUser = userService.findUserByEmail(user.getEmail());
         UserPrincipal userPrincipal = new UserPrincipal(loginUser);

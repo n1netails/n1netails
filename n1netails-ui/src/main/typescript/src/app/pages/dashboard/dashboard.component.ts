@@ -40,10 +40,8 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.uiConfigService.loadConfig().then(() => {
-      const apiUrl = this.uiConfigService.getApiUrl();
-      console.log('API URL:', apiUrl); // Log the API URL to verify it's loaded correctly
-    });
+    const apiUrl = this.uiConfigService.getApiUrl();
+    console.log('API URL:', apiUrl); // Log the API URL to verify it's loaded correctly
 
     this.getData((res: any) => {
       this.data = res.results;

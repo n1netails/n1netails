@@ -36,6 +36,17 @@ export class RegisterComponent implements OnInit, OnDestroy {
 
   public onRegister(form: NgForm): void {
     const user: User = form.value;
+    const password = user.password;
+
+    // Password must be at least 8 characters, contain 1 uppercase, and 1 special character
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+
+    if (!passwordRegex.test(password)) {
+      // todo replace with toast
+      alert('Password must be at least 8 characters long, contain at least 1 uppercase letter, and 1 special character.');
+      return;
+    }
+
     this.isLoading = true;
     this.subscriptions.push(
       this.authenticationService.register(user).subscribe({

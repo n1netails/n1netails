@@ -79,6 +79,15 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<Users> register(@RequestBody UserRegisterRequest user) throws UserNotFoundException, EmailExistException {
 
+        String password = user.getPassword();
+        // Regex: at least 8 chars, 1 uppercase, 1 special char
+        String passwordPattern = "^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\\-={}\\[\\]:;'\"\\\\|,.<>/?]).{8,}$";
+        if (password == null || !password.matches(passwordPattern)) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(null); // Or return a custom error object/message if preferred
+        }
+
         Users newUser = userService.register(user);
         authenticate(user.getEmail(), user.getPassword());
         UserPrincipal userPrincipal = new UserPrincipal(newUser);

@@ -40,8 +40,7 @@ export class DashboardComponent implements OnInit {
     private uiConfigService: UiConfigService,
     private authenticationService: AuthenticationService,
     private router: Router
-  ) {
-  }
+  ) {}
 
   ngOnInit() {
     if (!this.authenticationService.isUserLoggedIn()) {

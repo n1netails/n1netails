@@ -10,7 +10,7 @@ import { User } from '../model/user';
 })
 export class AuthenticationService {
 
-  private host: string = '';
+  host: string = '';
   private token: string | null = "";
   private loggedInUsername: string = "";
   private jwtHelper = new JwtHelperService();

@@ -25,9 +25,9 @@ export class RegisterComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // if (this.authenticationService.isUserLoggedIn()) {
-    //   this.router.navigateByUrl('/dashboard');
-    // }
+    if (this.authenticationService.isUserLoggedIn()) {
+      this.router.navigateByUrl('/dashboard');
+    }
   }
 
   ngOnDestroy(): void {

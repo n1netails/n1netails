@@ -77,9 +77,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setNotLocked(true);
         user.setRole(ROLE_USER.name());
         user.setAuthorities(ROLE_USER.getAuthorities());
-//        user.setProfileImageUrl(getTemporaryProfileImageUrl(newUser.getUsername()));
+        user.setProfileImageUrl(getTemporaryProfileImageUrl(newUser.getUsername()));
         userRepository.save(user);
         return user;
+    }
+
+    private String getTemporaryProfileImageUrl(String username) {
+        return "https://robohash.org/"+username+"?set=set4";
     }
 
     private String encodePassword(String password) {

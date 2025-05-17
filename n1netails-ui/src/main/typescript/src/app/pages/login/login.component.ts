@@ -7,6 +7,7 @@ import { User } from '../../model/user';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { HeaderType } from '../../model/enum/header-type.enum';
 import { NzFormModule } from 'ng-zorro-antd/form';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
 
 @Component({
   selector: 'app-login',
@@ -20,6 +21,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
 
   constructor(
+    private notification: NzNotificationService,
     private authenticationService: AuthenticationService,
     private router: Router
   ) {}
@@ -55,14 +57,10 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   private async presentToast(message: string) {
-    // todo replace with toast
-    // const toast = await this.toastController.create({
-    //   position: 'bottom',
-    //   message: message,
-    //   duration: 10000
-    // });
-    // toast.present();
-    alert(message);
+    this.notification.error('Error', "Error logging in please try again later.", {
+      nzPlacement: 'topRight',
+      nzDuration: 10000
+    });
   }
 
   private saveUser(response: HttpResponse<User>) {

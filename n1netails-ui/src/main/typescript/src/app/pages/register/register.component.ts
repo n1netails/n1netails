@@ -7,6 +7,7 @@ import { User } from '../../model/user';
 import { AuthenticationService } from '../../service/authentication.service';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { HeaderType } from '../../model/enum/header-type.enum';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
 
 @Component({
   selector: 'app-register',
@@ -20,8 +21,9 @@ export class RegisterComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
 
   constructor(
-    private router: Router,
+    private notification: NzNotificationService,
     private authenticationService: AuthenticationService,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -36,14 +38,11 @@ export class RegisterComponent implements OnInit, OnDestroy {
 
   public onRegister(form: NgForm): void {
     const user: User = form.value;
+    const email = user.email;
     const password = user.password;
 
-    // Password must be at least 8 characters, contain 1 uppercase, and 1 special character
-    const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
-
-    if (!passwordRegex.test(password)) {
-      // todo replace with toast
-      alert('Password must be at least 8 characters long, contain at least 1 uppercase letter, and 1 special character.');
+    // Validate email and password before sending to the server
+    if (!this.validateEmail(email) || !this.validatePassword(password)) {
       return;
     }
 
@@ -58,7 +57,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
         },
         error: (errorResponse: HttpErrorResponse) => {
           console.error('Error: ', errorResponse);
-          this.presentToast('Error registering in please try again later. ' + errorResponse.error.message);
+          this.presentToast('Error registering: \n' + errorResponse.error.message);
           this.isLoading = false;
         }
       })
@@ -66,19 +65,34 @@ export class RegisterComponent implements OnInit, OnDestroy {
   }
 
   private async presentToast(message: string) {
-    // todo replace with toast
-    // const toast = await this.toastController.create({
-    //   position: 'bottom',
-    //   message: message,
-    //   duration: 10000
-    // });
-    // toast.present();
-    alert(message);
+    this.notification.error('Error', message, {
+      nzPlacement: 'topRight',
+      nzDuration: 10000
+    });
   }
 
   private saveUser(response: HttpResponse<User>) {
     const token = response.headers.get(HeaderType.JWT_TOKEN) || "";
     this.authenticationService.saveToken(token);
     this.authenticationService.addUserToLocalCache(response.body || null);
+  }
+
+  private validateEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      this.presentToast('Invalid email format.');
+      return false;
+    }
+    return true;
+  }
+
+  private validatePassword(password: string): boolean {
+    // Password must be at least 8 characters, contain 1 uppercase, and 1 special character
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      this.presentToast('Password must be at least 8 characters long, contain at least 1 uppercase letter, and 1 special character.');
+      return false;
+    }
+    return true;
   }
 }

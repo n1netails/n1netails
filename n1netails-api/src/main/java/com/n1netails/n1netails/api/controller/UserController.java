@@ -85,7 +85,7 @@ public class UserController {
         if (password == null || !password.matches(passwordPattern)) {
             return ResponseEntity
                     .badRequest()
-                    .body(null); // Or return a custom error object/message if preferred
+                    .body(null);
         }
 
         Users newUser = userService.register(user);

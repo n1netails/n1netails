@@ -46,7 +46,7 @@ export class LoginComponent implements OnInit, OnDestroy {
           form.resetForm();
         },
         error: (errorResponse: HttpErrorResponse) => {
-          // this.presentToast('Error logging in please try again later. ' + errorResponse.error.message);;
+          this.presentToast('Error logging in please try again later. ' + errorResponse.error.message);;
           console.error('Error: ', errorResponse);
           this.isLoading = false;
         }
@@ -54,14 +54,16 @@ export class LoginComponent implements OnInit, OnDestroy {
     );
   }
 
-  // private async presentToast(message: string) {
-  //   const toast = await this.toastController.create({
-  //     position: 'bottom',
-  //     message: message,
-  //     duration: 10000
-  //   });
-  //   toast.present();
-  // }
+  private async presentToast(message: string) {
+    // todo replace with toast
+    // const toast = await this.toastController.create({
+    //   position: 'bottom',
+    //   message: message,
+    //   duration: 10000
+    // });
+    // toast.present();
+    alert(message);
+  }
 
   private saveUser(response: HttpResponse<User>) {
     const token = response.headers.get(HeaderType.JWT_TOKEN) || "";

@@ -58,21 +58,23 @@ export class RegisterComponent implements OnInit, OnDestroy {
         },
         error: (errorResponse: HttpErrorResponse) => {
           console.error('Error: ', errorResponse);
-          // this.presentToast('Error registering in please try again later. ' + errorResponse.error.message);
+          this.presentToast('Error registering in please try again later. ' + errorResponse.error.message);
           this.isLoading = false;
         }
       })
     )
   }
 
-  // private async presentToast(message: string) {
-  //   const toast = await this.toastController.create({
-  //     position: 'bottom',
-  //     message: message,
-  //     duration: 10000
-  //   });
-  //   toast.present();
-  // }
+  private async presentToast(message: string) {
+    // todo replace with toast
+    // const toast = await this.toastController.create({
+    //   position: 'bottom',
+    //   message: message,
+    //   duration: 10000
+    // });
+    // toast.present();
+    alert(message);
+  }
 
   private saveUser(response: HttpResponse<User>) {
     const token = response.headers.get(HeaderType.JWT_TOKEN) || "";

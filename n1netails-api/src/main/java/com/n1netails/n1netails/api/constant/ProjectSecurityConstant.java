@@ -12,6 +12,8 @@ public class ProjectSecurityConstant {
             "/assets/**",
             "/svg/**",
             "/error**",
+            "/actuator/health",
+            "/actuator/info",
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/api/user/login",

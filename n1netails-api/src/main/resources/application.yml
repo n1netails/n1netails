@@ -6,7 +6,7 @@ server:
   max-http-header-size: -1
 
 info:
-  application:
+  app:
     name: '@project.name@'
     description: '@project.description@'
     version: '@project.version@'
@@ -28,3 +28,9 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
     use-root-path: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
-    @Value("${info.application.version}")
+    @Value("${info.app.version}")
     private String version;
 
     private static final String SECURITY_SCHEME_NAME = "bearerAuth";

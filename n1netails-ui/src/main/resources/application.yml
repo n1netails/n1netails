@@ -4,8 +4,20 @@ server:
   connection-timeout: -1
   max-http-header-size: -1
 
+info:
+  app:
+    name: '@project.name@'
+    description: '@project.description@'
+    version: '@project.version@'
+
 spring.web.resources.add-mappings: true
 spring.web.resources.static-locations: classpath:/static/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
 
 n1netails:
   api.url: ${API_BASE_URL:http://localhost:9901}

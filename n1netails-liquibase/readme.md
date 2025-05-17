@@ -48,7 +48,7 @@ Run the project with environment variables.
 
 Example:
 ```bash
-mvn spring-boot:run -DSPRING_PROFILE_ACTIVE=local -DPOSTGRES_URL=jdbc:postgresql://localhost/n1netails -DPOSTGRES_USERNAME=postres -DPOSTGRES_PASSWORD=postgres
+mvn spring-boot:run -DSPRING_PROFILE_ACTIVE=local -DPOSTGRES_URL=jdbc:postgresql://localhost/n1netails -DPOSTGRES_USERNAME=postgres -DPOSTGRES_PASSWORD=postgres
 ```
 
 ## Liquibase Maven Commands

@@ -6,16 +6,19 @@
   <span style="float:right; margin-right: 21px;">
     <div>
       <span class="pointer" nz-dropdown [nzDropdownMenu]="profile" [nzTrigger]="'click'">
-        <nz-avatar nzIcon="user"></nz-avatar>
+        <nz-avatar *ngIf="loggedInUser.profileImageUrl === null" nzIcon="user"></nz-avatar>
+        <nz-avatar *ngIf="loggedInUser.profileImageUrl !== null" nzSize="large" nzSrc="loggedInUser.profileImageUrl"></nz-avatar>
       </span>
       <nz-dropdown-menu #profile="nzDropdownMenu">
         <ul nz-menu style="padding: 8px; width: 220px;">
           <li>
             <div style="display: flex; align-items: center;">
-              <nz-avatar nzSize="large" nzSrc="n1netails_icon_transparent.png"></nz-avatar>
+              <nz-avatar *ngIf="loggedInUser.profileImageUrl === null" nzSize="large" nzSrc="n1netails_icon_transparent.png"></nz-avatar>
+              <nz-avatar *ngIf="loggedInUser.profileImageUrl !== null" nzSize="large" nzSrc="loggedInUser.profileImageUrl"></nz-avatar>
+            
               <div style="margin-left: 10px;">
-                <p style="margin: 0;">Shahid Foy</p>
-                <p style="margin: 0;">Software Engineer</p>
+                <p style="margin: 0;">{{ loggedInUser.username }}</p>
+                <p style="margin: 0;">{{ loggedInUser.email }}</p>
               </div>
             </div>
             <hr>
@@ -46,7 +49,7 @@
           </li>
           <li nz-menu-item>
             <a>
-              <div>
+              <div (click)="logOut()">
                 <i nz-icon nzType="logout" theme="outline"></i>
                 <span> Logout</span>
               </div>

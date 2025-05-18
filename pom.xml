@@ -36,9 +36,9 @@
     </scm>
 
     <modules>
+        <module>n1netails-liquibase</module>
         <module>n1netails-api</module>
         <module>n1netails-ui</module>
-        <module>n1netails-liquibase</module>
     </modules>
 
     <dependencyManagement>

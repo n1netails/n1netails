@@ -11,17 +11,23 @@ N1ne Tails is an open-source project that provides practical alerts and monitori
 to identify issues — or if your application lacks any alerting at all — N1ne Tails offers a straightforward way to gain 
 clarity on problems affecting your applications.
 
+## Requirements
+- Java 17
+- Maven
+- Postgres
+- Node.js
+
 # Docker
 Run N1ne Tails with docker
 ### Useful Docker Commands
 
 Build and run the docker container 
 
-Bash
+Bash (Unix)
 ```bash
-mvn clean package && docker-compose up --build
+mvn clean package && docker compose up --build
 ```
-PowerShell
+PowerShell (Windows)
 ```shell
 mvn clean package; docker-compose up --build
 ```

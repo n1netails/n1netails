@@ -5,7 +5,7 @@
 
     <groupId>com.n1netails</groupId>
     <artifactId>n1netails</artifactId>
-    <version>0.1.1</version>
+    <version>0.1.2</version>
     <packaging>pom</packaging>
 
     <url/>
@@ -36,9 +36,9 @@
     </scm>
 
     <modules>
+        <module>n1netails-liquibase</module>
         <module>n1netails-api</module>
         <module>n1netails-ui</module>
-        <module>n1netails-liquibase</module>
     </modules>
 
     <dependencyManagement>

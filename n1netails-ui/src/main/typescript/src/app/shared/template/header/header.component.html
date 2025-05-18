@@ -1,6 +1,6 @@
 <div class="app-header">
   <span class="header-title">
-    <b>N1ne Tails</b>
+    <b>N1netails</b>
   </span>
 
   <span style="float:right; margin-right: 21px;">
@@ -15,7 +15,7 @@
             <div style="display: flex; align-items: center;">
               <nz-avatar *ngIf="loggedInUser.profileImageUrl === null" nzSize="large" nzSrc="n1netails_icon_transparent.png"></nz-avatar>
               <nz-avatar *ngIf="loggedInUser.profileImageUrl !== null" nzSize="large" [nzSrc]="loggedInUser.profileImageUrl"></nz-avatar>
-            
+
               <div style="margin-left: 10px;">
                 <p style="margin: 0;">{{ loggedInUser.username }}</p>
                 <p style="margin: 0;">{{ loggedInUser.email }}</p>

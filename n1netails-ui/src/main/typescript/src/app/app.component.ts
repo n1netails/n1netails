@@ -10,7 +10,7 @@ import { UiConfigService } from './shared/ui-config.service';
 })
 export class AppComponent implements OnInit {
 
-  title = 'N1ne Tails';
+  title = 'N1netails';
 
   constructor(private uiConfigService: UiConfigService) {}
 

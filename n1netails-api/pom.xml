@@ -14,7 +14,7 @@
 	<artifactId>n1netails-api</artifactId>
 	<version>0.1.3</version>
 	<name>n1netails-api</name>
-	<description>N1ne Tails Alert Service API</description>
+	<description>N1netails Alert Service API</description>
 
 	<scm>
 		<connection/>

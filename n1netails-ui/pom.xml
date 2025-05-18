@@ -14,7 +14,7 @@
 	<artifactId>n1netails-ui</artifactId>
 	<version>0.1.2</version>
 	<name>n1netails-ui</name>
-	<description>N1ne Tails Alert Service UI</description>
+	<description>N1netails Alert Service UI</description>
 
 	<scm>
 		<connection/>

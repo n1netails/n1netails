@@ -1,4 +1,4 @@
-# N1ne Tails Liquibase
+# N1netails Liquibase
 
 ## Requirements
 - Java 17

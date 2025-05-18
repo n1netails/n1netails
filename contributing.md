@@ -1,4 +1,4 @@
-# Contributing to N1ne Tails
+# Contributing to N1netails
 
 We welcome contributions from the community! Whether you're fixing bugs, improving documentation, or proposing new features, your help is appreciated.
 

@@ -25,11 +25,11 @@ CREATE TABLE IF NOT EXISTS ntail.tail_runbooks
 (
     related_tails_id bigint NOT NULL,
     runbooks_id bigint NOT NULL,
-    CONSTRAINT fk5qhab40kcb3dkpjdkhvbdmehr FOREIGN KEY (runbooks_id)
+    CONSTRAINT fk_runbooks_runbook_id FOREIGN KEY (runbooks_id)
         REFERENCES ntail.runbook (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION,
-    CONSTRAINT fkh80uq4erxktgw73di9n6r1yt8 FOREIGN KEY (related_tails_id)
+    CONSTRAINT fk_runbooks_tails_id FOREIGN KEY (related_tails_id)
         REFERENCES ntail.tail (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION

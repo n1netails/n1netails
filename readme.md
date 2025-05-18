@@ -1,4 +1,4 @@
-# N1ne Tails
+# N1netails
 
 <div align="center">
   <img src="n1netails_icon_transparent.png" alt="N1ne Tails" width="500" style="display: block; margin: auto;"/>
@@ -7,7 +7,7 @@
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](LICENSE)
 
 # Alert Monitoring and Management
-N1ne Tails is an open-source project that provides practical alerts and monitoring for applications. If you're tired of relying on complex SIEM tools 
+N1netails is an open-source project that provides practical alerts and monitoring for applications. If you're tired of relying on complex SIEM tools 
 to identify issues — or if your application lacks any alerting at all — N1ne Tails offers a straightforward way to gain 
 clarity on problems affecting your applications.
 
@@ -18,7 +18,7 @@ clarity on problems affecting your applications.
 - Node.js
 
 # Docker
-Run N1ne Tails with docker
+Run N1netails with docker
 ### Useful Docker Commands
 
 Build and run the docker container 

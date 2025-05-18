@@ -23,7 +23,7 @@ public class OpenApiConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("N1ne Tails - API")
+                        .title("N1netails - API")
                         .description("N1ne Tails is an open-source project that provides practical alerts and monitoring for applications.")
                         .version(version)
                         .contact(new Contact()

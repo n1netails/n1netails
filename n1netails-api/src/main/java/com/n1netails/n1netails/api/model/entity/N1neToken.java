@@ -1,0 +1,56 @@
+package com.n1netails.n1netails.api.model.entity;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.Instant;
+import java.util.UUID;
+
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+public class N1neToken {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "token_seq")
+    @SequenceGenerator(name = "token_seq", sequenceName = "token_seq", allocationSize = 1)
+    @Column(nullable = false, updatable = false)
+    private Long id;
+
+    @Column(name = "token", nullable = false, unique = true, updatable = false)
+    private UUID token;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    private Users user;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    private Organization organization;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @Column(name = "expires_at")
+    private Instant expiresAt;
+
+    @Column(name = "revoked", nullable = false)
+    private boolean revoked = false;
+
+    @Column(name = "last_used_at")
+    private Instant lastUsedAt;
+
+    public N1neToken() {
+        this.token = UUID.randomUUID();
+        this.createdAt = Instant.now();
+    }
+
+    public N1neToken(Users user, Organization organization, Instant expiresAt) {
+        this.token = UUID.randomUUID();
+        this.user = user;
+        this.organization = organization;
+        this.createdAt = Instant.now();
+        this.expiresAt = expiresAt;
+    }
+}

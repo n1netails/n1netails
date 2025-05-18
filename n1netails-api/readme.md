@@ -1,4 +1,4 @@
-# N1ne Tails API
+# N1netails API
 
 ## Requirements
 - Java 17

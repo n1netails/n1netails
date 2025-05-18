@@ -1,4 +1,4 @@
-# N1ne Tails UI
+# N1netails UI
 
 ## Requirements
 - Java 17

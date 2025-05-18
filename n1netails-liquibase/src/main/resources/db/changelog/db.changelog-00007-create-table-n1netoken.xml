@@ -1,0 +1,15 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="00007-create-table-n1netoken" author="your-name">
+        <sqlFile path="db/changelog/sql/db.changelog-00007-create-table-n1netoken.sql"/>
+        <rollback>
+            DROP TABLE IF EXISTS ntail.n1ne_token;
+            DROP SEQUENCE IF EXISTS token_seq;
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

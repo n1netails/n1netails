@@ -12,7 +12,8 @@ import java.util.UUID;
 @Getter
 @Setter
 @AllArgsConstructor
-public class N1neToken {
+@Table(name = "n1ne_token", schema = "ntail")
+public class N1neTokenEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "token_seq")
@@ -24,10 +25,10 @@ public class N1neToken {
     private UUID token;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    private Users user;
+    private UsersEntity user;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    private Organization organization;
+    private OrganizationEntity organization;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
@@ -41,12 +42,12 @@ public class N1neToken {
     @Column(name = "last_used_at")
     private Instant lastUsedAt;
 
-    public N1neToken() {
+    public N1neTokenEntity() {
         this.token = UUID.randomUUID();
         this.createdAt = Instant.now();
     }
 
-    public N1neToken(Users user, Organization organization, Instant expiresAt) {
+    public N1neTokenEntity(UsersEntity user, OrganizationEntity organization, Instant expiresAt) {
         this.token = UUID.randomUUID();
         this.user = user;
         this.organization = organization;

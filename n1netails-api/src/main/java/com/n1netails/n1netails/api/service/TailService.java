@@ -1,8 +1,8 @@
 package com.n1netails.n1netails.api.service;
 
-import com.n1netails.n1netails.api.model.dto.TailLevelDto;
-import com.n1netails.n1netails.api.model.dto.TailStatusDto;
-import com.n1netails.n1netails.api.model.dto.TailTypeDto;
+import com.n1netails.n1netails.api.model.dto.TailLevel;
+import com.n1netails.n1netails.api.model.dto.TailStatus;
+import com.n1netails.n1netails.api.model.dto.TailType;
 import com.n1netails.n1netails.api.model.request.TailRequest;
 import com.n1netails.n1netails.api.model.response.TailResponse;
 
@@ -16,7 +16,7 @@ public interface TailService {
     TailResponse updateTail(Long id, TailRequest request);
     void deleteTail(Long id);
 
-    TailResponse updateTailStatus(Long id, TailStatusDto tailStatus);
-    TailResponse updateTailLevel(Long id, TailLevelDto tailLevel);
-    TailResponse updateTailType(Long id, TailTypeDto tailType);
+    TailResponse updateTailStatus(Long id, TailStatus tailStatus);
+    TailResponse updateTailLevel(Long id, TailLevel tailLevel);
+    TailResponse updateTailType(Long id, TailType tailType);
 }

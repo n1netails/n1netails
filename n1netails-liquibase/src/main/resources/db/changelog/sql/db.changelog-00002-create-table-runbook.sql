@@ -47,13 +47,13 @@ ALTER TABLE IF EXISTS ntail.tail_runbooks
 
 CREATE TABLE IF NOT EXISTS ntail.runbook_related_tail_types
 (
-    related_tail_types_id bigint NOT NULL,
     runbook_id bigint NOT NULL,
+    tail_type_id bigint NOT NULL,
     CONSTRAINT fk_runbook_related_tail_types_runbook_id FOREIGN KEY (runbook_id)
         REFERENCES ntail.runbook (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION,
-    CONSTRAINT fk_runbook_related_tail_types_tail_types_id FOREIGN KEY (related_tail_types_id)
+    CONSTRAINT fk_runbook_related_tail_types_tail_type_id FOREIGN KEY (tail_type_id)
         REFERENCES ntail.tail_type (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION

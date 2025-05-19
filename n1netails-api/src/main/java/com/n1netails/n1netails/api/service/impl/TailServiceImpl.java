@@ -1,8 +1,8 @@
 package com.n1netails.n1netails.api.service.impl;
 
-import com.n1netails.n1netails.api.model.dto.TailLevelDto;
-import com.n1netails.n1netails.api.model.dto.TailStatusDto;
-import com.n1netails.n1netails.api.model.dto.TailTypeDto;
+import com.n1netails.n1netails.api.model.dto.TailLevel;
+import com.n1netails.n1netails.api.model.dto.TailStatus;
+import com.n1netails.n1netails.api.model.dto.TailType;
 import com.n1netails.n1netails.api.model.entity.*;
 import com.n1netails.n1netails.api.repository.*;
 import com.n1netails.n1netails.api.model.request.TailRequest;
@@ -32,9 +32,9 @@ public class TailServiceImpl implements TailService {
 
     @Override
     public List<TailResponse> getTails() {
-        List<Tail> tails = tailRepository.findAll();
+        List<TailEntity> tailEntities = tailRepository.findAll();
         List<TailResponse> tailResponseList = new ArrayList<>();
-        tails.forEach(tail -> {
+        tailEntities.forEach(tail -> {
             TailResponse tailResponse = setTailResponse(tail);
             tailResponseList.add(tailResponse);
         });
@@ -43,7 +43,7 @@ public class TailServiceImpl implements TailService {
 
     @Override
     public TailResponse getTailById(Long id) {
-        Optional<Tail> tail = tailRepository.findById(id);
+        Optional<TailEntity> tail = tailRepository.findById(id);
         TailResponse tailResponse = new TailResponse();
         if (tail.isPresent()) {
             tailResponse = setTailResponse(tail.get());
@@ -53,22 +53,22 @@ public class TailServiceImpl implements TailService {
 
     @Override
     public TailResponse createTail(TailRequest request) {
-        Tail tail = setTail(request);
-        tail = tailRepository.save(tail);
-        return setTailResponse(tail);
+        TailEntity tailEntity = setTail(request);
+        tailEntity = tailRepository.save(tailEntity);
+        return setTailResponse(tailEntity);
     }
 
     @Override
     public TailResponse updateTail(Long id, TailRequest request) {
-        Tail updatedTail = new Tail();
-        Optional<Tail> tail = tailRepository.findById(id);
+        TailEntity updatedTailEntity = new TailEntity();
+        Optional<TailEntity> tail = tailRepository.findById(id);
         if (tail.isPresent()) {
-            updatedTail = setTail(request, tail.get());
-            updatedTail = tailRepository.save(updatedTail);
+            updatedTailEntity = setTail(request, tail.get());
+            updatedTailEntity = tailRepository.save(updatedTailEntity);
         } else {
             log.error("updateTail - " + REQUESTED_TAIL_NOT_FOUND);
         }
-        return setTailResponse(updatedTail);
+        return setTailResponse(updatedTailEntity);
     }
 
     @Override
@@ -77,137 +77,137 @@ public class TailServiceImpl implements TailService {
     }
 
     @Override
-    public TailResponse updateTailStatus(Long id, TailStatusDto tailStatus) {
-        Optional<Tail> tail = tailRepository.findById(id);
-        Tail updatedTail = new Tail();
+    public TailResponse updateTailStatus(Long id, TailStatus tailStatus) {
+        Optional<TailEntity> tail = tailRepository.findById(id);
+        TailEntity updatedTailEntity = new TailEntity();
         if (tail.isPresent()) {
-            updatedTail = tail.get();
-            Optional<TailStatus> newStatus = statusRepository.findTailStatusByName(tailStatus.getName());
+            updatedTailEntity = tail.get();
+            Optional<TailStatusEntity> newStatus = statusRepository.findTailStatusByName(tailStatus.getName());
             if (newStatus.isPresent()) {
-                updatedTail.setStatus(newStatus.get());
+                updatedTailEntity.setStatus(newStatus.get());
             } else {
-                TailStatus createdStatus = new TailStatus();
+                TailStatusEntity createdStatus = new TailStatusEntity();
                 createdStatus.setName(tailStatus.getName());
                 createdStatus = statusRepository.save(createdStatus);
-                updatedTail.setStatus(createdStatus);
+                updatedTailEntity.setStatus(createdStatus);
             }
-            tailRepository.save(updatedTail);
+            tailRepository.save(updatedTailEntity);
         } else {
             log.error("updateTailStatus - " + REQUESTED_TAIL_NOT_FOUND);
         }
-        return setTailResponse(updatedTail);
+        return setTailResponse(updatedTailEntity);
     }
 
     @Override
-    public TailResponse updateTailLevel(Long id, TailLevelDto tailLevel) {
+    public TailResponse updateTailLevel(Long id, TailLevel tailLevel) {
         if (tailLevel.getDescription().isBlank()) tailLevel.setDescription(null);
 
-        Optional<Tail> tail = tailRepository.findById(id);
-        Tail updatedTail = new Tail();
+        Optional<TailEntity> tail = tailRepository.findById(id);
+        TailEntity updatedTailEntity = new TailEntity();
         if (tail.isPresent()) {
-            updatedTail = tail.get();
-            Optional<TailLevel> newLevel = levelRepository.findTailLevelByName(tailLevel.getName());
+            updatedTailEntity = tail.get();
+            Optional<TailLevelEntity> newLevel = levelRepository.findTailLevelByName(tailLevel.getName());
             if (newLevel.isPresent()) {
-                TailLevel level = newLevel.get();
+                TailLevelEntity level = newLevel.get();
                 level.setDescription(tailLevel.getDescription() != null ? tailLevel.getDescription() : level.getDescription());
-                updatedTail.setLevel(level);
+                updatedTailEntity.setLevel(level);
             } else {
-                TailLevel createdLevel = new TailLevel();
+                TailLevelEntity createdLevel = new TailLevelEntity();
                 createdLevel.setName(tailLevel.getName());
                 createdLevel.setDescription(tailLevel.getDescription());
                 createdLevel = levelRepository.save(createdLevel);
-                updatedTail.setLevel(createdLevel);
+                updatedTailEntity.setLevel(createdLevel);
             }
-            tailRepository.save(updatedTail);
+            tailRepository.save(updatedTailEntity);
         } else {
             log.error("updateTailLevel - " + REQUESTED_TAIL_NOT_FOUND);
         }
-        return setTailResponse(updatedTail);
+        return setTailResponse(updatedTailEntity);
     }
 
     @Override
-    public TailResponse updateTailType(Long id, TailTypeDto tailType) {
+    public TailResponse updateTailType(Long id, TailType tailType) {
         if (tailType.getDescription().isBlank()) tailType.setDescription(null);
 
-        Optional<Tail> tail = tailRepository.findById(id);
-        Tail updatedTail = new Tail();
+        Optional<TailEntity> tail = tailRepository.findById(id);
+        TailEntity updatedTailEntity = new TailEntity();
         if (tail.isPresent()) {
-            updatedTail = tail.get();
-            Optional<TailType> newType = typeRepository.findTailTypeByName(tailType.getName());
+            updatedTailEntity = tail.get();
+            Optional<TailTypeEntity> newType = typeRepository.findTailTypeByName(tailType.getName());
             if (newType.isPresent()) {
-                TailType type = newType.get();
+                TailTypeEntity type = newType.get();
                 type.setDescription(tailType.getDescription() != null ? tailType.getDescription() : type.getDescription());
-                updatedTail.setType(type);
+                updatedTailEntity.setType(type);
             } else {
-                TailType createdType = new TailType();
+                TailTypeEntity createdType = new TailTypeEntity();
                 createdType.setName(tailType.getName());
                 createdType.setDescription(tailType.getDescription());
                 createdType = typeRepository.save(createdType);
-                updatedTail.setType(createdType);
+                updatedTailEntity.setType(createdType);
             }
-            tailRepository.save(updatedTail);
+            tailRepository.save(updatedTailEntity);
         } else {
             log.error("updateTailType - " + REQUESTED_TAIL_NOT_FOUND);
         }
-        return setTailResponse(updatedTail);
+        return setTailResponse(updatedTailEntity);
     }
 
-    private Tail setTail(TailRequest request) {
-        Tail tail = new Tail();
-        return setTail(request, tail);
+    private TailEntity setTail(TailRequest request) {
+        TailEntity tailEntity = new TailEntity();
+        return setTail(request, tailEntity);
     }
 
-    private Tail setTail(TailRequest request, Tail tail) {
-        tail.setTitle(request.getTitle());
-        tail.setDescription(request.getDescription());
-        tail.setTimestamp(request.getTimestamp());
-        tail.setAssignedUserId(request.getAssignedUserId());
-        tail.setDetails(request.getDetails());
+    private TailEntity setTail(TailRequest request, TailEntity tailEntity) {
+        tailEntity.setTitle(request.getTitle());
+        tailEntity.setDescription(request.getDescription());
+        tailEntity.setTimestamp(request.getTimestamp());
+        tailEntity.setAssignedUserId(request.getAssignedUserId());
+        tailEntity.setDetails(request.getDetails());
 
-        TailLevel tailLevel = new TailLevel();
-        tailLevel.setName(request.getLevel().getName());
-        tailLevel.setDescription(request.getLevel().getDescription());
-        tail.setLevel(tailLevel);
+        TailLevelEntity tailLevelEntity = new TailLevelEntity();
+        tailLevelEntity.setName(request.getLevel().getName());
+        tailLevelEntity.setDescription(request.getLevel().getDescription());
+        tailEntity.setLevel(tailLevelEntity);
 
-        TailType tailType = new TailType();
-        tailType.setName(request.getType().getName());
-        tailType.setDescription(request.getType().getDescription());
-        tail.setType(tailType);
+        TailTypeEntity tailTypeEntity = new TailTypeEntity();
+        tailTypeEntity.setName(request.getType().getName());
+        tailTypeEntity.setDescription(request.getType().getDescription());
+        tailEntity.setType(tailTypeEntity);
 
-        TailStatus tailStatus = new TailStatus();
-        tailStatus.setName(request.getStatus());
-        tail.setStatus(tailStatus);
+        TailStatusEntity tailStatusEntity = new TailStatusEntity();
+        tailStatusEntity.setName(request.getStatus());
+        tailEntity.setStatus(tailStatusEntity);
 
-        List<TailVariable> tailVariableList = new ArrayList<>();
+        List<TailVariableEntity> tailVariableEntityList = new ArrayList<>();
         Map<String, String> metadata = request.getMetadata();
         metadata.forEach((key, value) -> {
-            TailVariable tailVariable = new TailVariable();
-            tailVariable.setKey(key);
-            tailVariable.setValue(value);
+            TailVariableEntity tailVariableEntity = new TailVariableEntity();
+            tailVariableEntity.setKey(key);
+            tailVariableEntity.setValue(value);
             // todo see if this works..
-            tailVariable.setTail(tail);
-            tailVariableList.add(tailVariable);
+            tailVariableEntity.setTail(tailEntity);
+            tailVariableEntityList.add(tailVariableEntity);
         });
-        tail.setCustomVariables(tailVariableList);
-        return tail;
+        tailEntity.setCustomVariables(tailVariableEntityList);
+        return tailEntity;
     }
 
-    private TailResponse setTailResponse(Tail tail) {
+    private TailResponse setTailResponse(TailEntity tailEntity) {
         TailResponse tailResponse  = new TailResponse();
-        tailResponse.setId(tail.getId());
-        tailResponse.setTitle(tail.getTitle());
-        tailResponse.setDescription(tail.getDescription());
-        tailResponse.setTimestamp(tail.getTimestamp());
-        tailResponse.setResolvedTimestamp(tail.getResolvedTimestamp());
-        tailResponse.setAssignedUserId(tail.getAssignedUserId());
-        Users user = usersRepository.findUserByUserId(tail.getAssignedUserId());
+        tailResponse.setId(tailEntity.getId());
+        tailResponse.setTitle(tailEntity.getTitle());
+        tailResponse.setDescription(tailEntity.getDescription());
+        tailResponse.setTimestamp(tailEntity.getTimestamp());
+        tailResponse.setResolvedTimestamp(tailEntity.getResolvedTimestamp());
+        tailResponse.setAssignedUserId(tailEntity.getAssignedUserId());
+        UsersEntity user = usersRepository.findUserByUserId(tailEntity.getAssignedUserId());
         tailResponse.setAssignedUsername(user.getUsername());
-        tailResponse.setDetails(tail.getDetails());
-        tailResponse.setLevel(tail.getLevel().getName());
-        tailResponse.setType(tail.getType().getName());
-        tailResponse.setStatus(tail.getStatus().getName());
+        tailResponse.setDetails(tailEntity.getDetails());
+        tailResponse.setLevel(tailEntity.getLevel().getName());
+        tailResponse.setType(tailEntity.getType().getName());
+        tailResponse.setStatus(tailEntity.getStatus().getName());
         Map<String, String> metadata = new HashMap<>();
-        List<TailVariable> variables = tail.getCustomVariables();
+        List<TailVariableEntity> variables = tailEntity.getCustomVariables();
         variables.forEach(variable -> {
            metadata.put(variable.getKey(), variable.getValue());
         });

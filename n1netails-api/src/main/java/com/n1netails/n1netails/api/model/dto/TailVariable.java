@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TailVariableDto {
+public class TailVariable {
 
     private String key;
     private String value;

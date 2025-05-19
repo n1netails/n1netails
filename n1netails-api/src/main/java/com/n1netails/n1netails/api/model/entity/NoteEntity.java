@@ -5,7 +5,8 @@ import jakarta.persistence.*;
 import java.time.Instant;
 
 @Entity
-public class Note {
+@Table(name = "note", schema = "ntail")
+public class NoteEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "note_seq")
@@ -13,10 +14,10 @@ public class Note {
     private Long id;
 
     @ManyToOne
-    private Tail tail;
+    private TailEntity tail;
 
     @ManyToOne
-    private Users user;
+    private UsersEntity user;
 
     @Lob
     private String content;

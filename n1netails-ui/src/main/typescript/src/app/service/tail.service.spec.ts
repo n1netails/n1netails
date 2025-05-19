@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { TailService } from './tail.service';
+import { TailService } from './tailEntity.service';
 
 describe('TailService', () => {
   let service: TailService;

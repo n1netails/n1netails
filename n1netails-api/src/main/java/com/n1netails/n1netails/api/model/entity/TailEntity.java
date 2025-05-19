@@ -14,7 +14,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Tail {
+@Table(name = "tail", schema = "ntail")
+public class TailEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tail_seq")
@@ -30,15 +31,15 @@ public class Tail {
     @Column(columnDefinition = "TEXT")
     private String details;
     @ManyToOne
-    private TailLevel level;
+    private TailLevelEntity level;
     @ManyToOne
-    private TailType type;
+    private TailTypeEntity type;
     @ManyToOne
-    private TailStatus status;
+    private TailStatusEntity status;
     @ManyToMany
-    private List<Runbook> runbooks;
+    private List<RunbookEntity> runbooks;
     @OneToMany(mappedBy = "tail", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Note> notes;
+    private List<NoteEntity> notes;
     @OneToMany(mappedBy = "tail", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TailVariable> customVariables;
+    private List<TailVariableEntity> customVariables;
 }

@@ -9,4 +9,5 @@ public interface UserService {
 
     Users findUserByEmail(String email);
     Users register(UserRegisterRequest user) throws UserNotFoundException, EmailExistException;
+    Users editUser(Users user);
 }

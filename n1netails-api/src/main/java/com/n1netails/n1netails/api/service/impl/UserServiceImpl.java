@@ -54,6 +54,18 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
+    public Users editUser(Users user) {
+
+        Users currentUser = findUserByEmail(user.getEmail());
+        currentUser.setFirstName(user.getFirstName());
+        currentUser.setLastName(user.getLastName());
+        currentUser.setUsername(user.getUsername());
+
+        userRepository.save(currentUser);
+        return currentUser;
+    }
+
+    @Override
     public Users findUserByEmail(String email) {
         return userRepository.findUserByEmail(email)
                 .orElse(null);

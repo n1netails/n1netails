@@ -1,7 +1,9 @@
 package com.n1netails.n1netails.api.controller;
 
 import com.n1netails.n1netails.api.exception.type.EmailExistException;
+import com.n1netails.n1netails.api.exception.type.EmailNotFoundException;
 import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
+import com.n1netails.n1netails.api.exception.type.UsernameExistsException;
 import com.n1netails.n1netails.api.model.UserPrincipal;
 import com.n1netails.n1netails.api.model.entity.Users;
 import com.n1netails.n1netails.api.model.request.UserLoginRequest;
@@ -20,18 +22,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.oauth2.jwt.*;
+import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
 import java.time.Instant;
 import java.util.stream.Collectors;
 
-import static com.n1netails.n1netails.api.constant.ProjectSecurityConstant.EXPIRATION_TIME;
+import static com.n1netails.n1netails.api.constant.ProjectSecurityConstant.*;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.OK;
 
 @Slf4j
@@ -44,6 +43,33 @@ public class UserController {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
     private final JwtEncoder jwtEncoder;
+    private final JwtDecoder jwtDecoder;
+
+    @Operation(
+            summary = "Edit user profile",
+            description = "Edit logged in user profile",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "User updated successfully",
+                            content = @Content(schema = @Schema(implementation = Users.class))),
+                    @ApiResponse(responseCode = "401", description = "Authentication failed",
+                            content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
+            }
+    )
+    @PostMapping("/edit")
+    public ResponseEntity<Users> editUser(
+            @RequestHeader(AUTHORIZATION) String authorizationHeader,
+            @RequestBody Users user
+    ) throws AccessDeniedException {
+        try {
+            String token = authorizationHeader.substring(TOKEN_PREFIX.length());
+            String authEmail = jwtDecoder.decode(token).getSubject();
+            log.info("auth email: {}", authEmail);
+            Users editUser = userService.editUser(user);
+            return new ResponseEntity<>(editUser, OK);
+        } catch (JwtException e) {
+            throw new AccessDeniedException(ACCESS_DENIED_MESSAGE);
+        }
+    }
 
     @Operation(
             summary = "Login user and return user details with JWT token",

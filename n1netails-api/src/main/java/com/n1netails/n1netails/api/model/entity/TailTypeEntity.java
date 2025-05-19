@@ -15,7 +15,6 @@ public class TailTypeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tail_type_seq")
     @SequenceGenerator(name = "tail_type_seq", sequenceName = "tail_type_seq", allocationSize = 1)
-    @Column(name = "id")
     private Long id;
 
     private String name;

@@ -9,7 +9,71 @@
     </nz-header>
 
     <nz-content>
-      <h1>Edit Profile</h1>
+      <div class="inner-content">
+        <nz-row class="edit-profile" [nzGutter]="8">
+          <nz-col [nzSpan]="24">
+            <nz-card class="tails-primary-color" nzTitle="Edit Profile" [nzBordered]="false">
+              
+              <div class="profile-flex">
+                <img class="profile-img" [src]="user.profileImageUrl">
+                <div class="profile-details">
+
+                  <form nz-form #profileForm="ngForm" (ngSubmit)="onSaveProfile(profileForm)">
+                    <nz-form-item>
+                      <nz-form-label [nzSpan]="4" nzFor="username" nzRequired>Username</nz-form-label>
+                      <nz-form-control [nzSpan]="16">
+                        <input
+                          nz-input
+                          type="text"
+                          id="username"
+                          name="username"
+                          [(ngModel)]="usernameInput"
+                          required
+                          placeholder="Enter username"
+                        />
+                      </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item>
+                      <nz-form-label [nzSpan]="4" nzFor="firstName" nzRequired>First Name</nz-form-label>
+                      <nz-form-control [nzSpan]="16">
+                        <input
+                          nz-input
+                          type="text"
+                          id="firstName"
+                          name="firstName"
+                          [(ngModel)]="firstNameInput"
+                          required
+                          placeholder="Enter first name"
+                        />
+                      </nz-form-control>
+                    </nz-form-item>
+                     <nz-form-item>
+                      <nz-form-label [nzSpan]="4" nzFor="lastName" nzRequired>Last Name</nz-form-label>
+                      <nz-form-control [nzSpan]="16">
+                        <input
+                          nz-input
+                          type="text"
+                          id="lastName"
+                          name="lastName"
+                          [(ngModel)]="lastNameInput"
+                          required
+                          placeholder="Enter last name"
+                        />
+                      </nz-form-control>
+                    </nz-form-item>
+                    <button nz-button nzType="primary" type="submit" [disabled]="!profileForm.valid">
+                      Save
+                    </button>
+                  </form>
+
+                </div>
+              </div>
+              
+            </nz-card>
+          </nz-col>
+        </nz-row> 
+      </div>
+      
     </nz-content>
   </nz-layout>
 </nz-layout>

@@ -3,10 +3,12 @@ import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
 import { Observable, tap } from "rxjs";
 import { AuthenticationService } from "../service/authentication.service";
+import { NzNotificationService } from "ng-zorro-antd/notification";
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
     constructor(
+        private notification: NzNotificationService,
         private authenticationService: AuthenticationService,
         private router: Router
     ) {}
@@ -41,13 +43,9 @@ export class AuthInterceptor implements HttpInterceptor {
     }
    
     private async presentToast(message: string) {
-        // const toast = await this.toastController.create({
-        //   position: 'top',
-        //   message: message,
-        //   duration: 3000,
-        //   color: 'danger'
-        // });
-        // toast.present();
-        alert(message);
+        this.notification.error('Error', message, {
+          nzPlacement: 'topRight',
+          nzDuration: 10000
+        });
     }
 }

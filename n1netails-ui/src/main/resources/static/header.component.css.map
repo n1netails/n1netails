@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/shared/template/header/header.component.less"],
-  "sourcesContent": [".header-title {\n  height: 64px;\n  padding: 20px 24px;\n  font-size: 20px;\n  cursor: pointer;\n  transition: all .3s, padding 0s;\n}\n\n.app-header {\n  position: relative;\n  height: 64px;\n  padding: 0;\n}"],
-  "mappings": ";AAAA,CAAA;AACE,UAAA;AACA,WAAA,KAAA;AACA,aAAA;AACA,UAAA;AACA,cAAA,IAAA,IAAA,EAAA,QAAA;;AAGF,CAAA;AACE,YAAA;AACA,UAAA;AACA,WAAA;;",
-  "names": []
-}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/pages/dashboard/dashboard.component.less"],
+  "sourcesContent": ["@import '../../../variables.less';\n\n:host {\n  display: flex;\n  text-rendering: optimizeLegibility;\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale;\n}\n\n.app-layout {\n  height: 100vh;\n}\n\n.menu-sidebar {\n  position: relative;\n  z-index: 10;\n  min-height: 100vh;\n  border-right: 1px solid @primary-color;\n}\n\nnz-header {\n  padding: 0;\n  width: 100%;\n  z-index: 2;\n}\n\nnz-content {\n  margin: 0px;\n  overflow-y: auto;\n  overflow-x: hidden;\n}\n\n.inner-content {\n  padding-right: 8px;\n  padding-left: 8px;\n}\n\nnz-row {\n  margin: 8px;\n}"],
+  "mappings": ";AAEA;AACE,WAAA;AACA,kBAAA;AACA,0BAAA;AACA,2BAAA;;AAGF,CAAA;AACE,UAAA;;AAGF,CAAA;AACE,YAAA;AACA,WAAA;AACA,cAAA;AACA,gBAAA,IAAA,MAAA;;AAGF;AACE,WAAA;AACA,SAAA;AACA,WAAA;;AAGF;AACE,UAAA;AACA,cAAA;AACA,cAAA;;AAGF,CAAA;AACE,iBAAA;AACA,gBAAA;;AAGF;AACE,UAAA;;",
+  "names": []
+}

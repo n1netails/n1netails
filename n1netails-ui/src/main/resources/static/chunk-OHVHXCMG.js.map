@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/pages/welcome/welcome.component.ts", "src/app/pages/welcome/welcome.component.html", "src/app/pages/welcome/welcome.routes.ts"],
-  "sourcesContent": ["import { Component } from '@angular/core';\r\n\r\n@Component({\r\n  selector: 'app-welcome',\r\n  templateUrl: './welcome.component.html',\r\n  styleUrl: './welcome.component.less'\r\n})\r\nexport class WelcomeComponent {\r\n  constructor() {}\r\n}\r\n", "<p>welcome works!</p>\r\n", "import { Routes } from '@angular/router';\r\nimport { WelcomeComponent } from './welcome.component';\r\n\r\nexport const WELCOME_ROUTES: Routes = [\r\n  { path: '', component: WelcomeComponent },\r\n];\r\n"],
-  "mappings": ";;;;;;;;;;;AAOM,IAAO,mBAAP,MAAO,kBAAgB;EAC3B,cAAA;EAAe;;qCADJ,mBAAgB;EAAA;yEAAhB,mBAAgB,WAAA,CAAA,CAAA,aAAA,CAAA,GAAA,OAAA,GAAA,MAAA,GAAA,UAAA,SAAA,0BAAA,IAAA,KAAA;AAAA,QAAA,KAAA,GAAA;ACP7B,MAAA,yBAAA,GAAA,GAAA;AAAG,MAAA,iBAAA,GAAA,gBAAA;AAAc,MAAA,uBAAA;;;;;sEDOJ,kBAAgB,CAAA;UAL5B;uBACW,eAAa,UAAA,4BAAA,CAAA;;;;6EAIZ,kBAAgB,EAAA,WAAA,oBAAA,UAAA,8CAAA,YAAA,EAAA,CAAA;AAAA,GAAA;;;AEJtB,IAAM,iBAAyB;EACpC,EAAE,MAAM,IAAI,WAAW,iBAAgB;;",
-  "names": []
-}

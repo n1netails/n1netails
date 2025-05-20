@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/shared/template/sidenav/sidenav.component.less"],
-  "sourcesContent": ["@import '../../../../variables.less';\n\n.sidebar-logo {\n  position: relative;\n  height: 64px;\n  padding-left: 24px;\n  overflow: hidden;\n  line-height: 64px;\n  background: #1f1f1f;\n  border-radius: 2px;\n  transition: all .3s;\n}\n\n.sidebar-logo img {\n  display: inline-block;\n  height: 32px;\n  width: 32px;\n  vertical-align: middle;\n}\n\n.sidebar-logo h1 {\n  display: inline-block;\n  margin: 0 0 0 20px;\n  color: #fff;\n  font-weight: 600;\n  font-size: 14px;\n  font-family: Avenir,Helvetica Neue,Arial,Helvetica,sans-serif;\n  vertical-align: middle;\n}\n"],
-  "mappings": ";AAEA,CAAA;AACE,YAAA;AACA,UAAA;AACA,gBAAA;AACA,YAAA;AACA,eAAA;AACA,cAAA;AACA,iBAAA;AACA,cAAA,IAAA;;AAGF,CAXA,aAWc;AACZ,WAAA;AACA,UAAA;AACA,SAAA;AACA,kBAAA;;AAGF,CAlBA,aAkBc;AACZ,WAAA;AACA,UAAA,EAAA,EAAA,EAAA;AACA,SAAA;AACA,eAAA;AACA,aAAA;AACA;IAAA,MAAA;IAAA,UAAA,IAAA;IAAA,KAAA;IAAA,SAAA;IAAA;AACA,kBAAA;;",
-  "names": []
-}

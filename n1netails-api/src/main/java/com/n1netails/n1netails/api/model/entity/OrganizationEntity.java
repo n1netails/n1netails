@@ -15,7 +15,8 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Organization {
+@Table(name = "organization", schema = "ntail")
+public class OrganizationEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "organization_seq")
@@ -36,5 +37,5 @@ public class Organization {
             joinColumns = @JoinColumn(name = "organization_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private Set<Users> users = new HashSet<>();
+    private Set<UsersEntity> users = new HashSet<>();
 }

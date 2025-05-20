@@ -1,6 +1,6 @@
 package com.n1netails.n1netails.api.model;
 
-import com.n1netails.n1netails.api.model.entity.Users;
+import com.n1netails.n1netails.api.model.entity.UsersEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,9 +12,9 @@ import static java.util.Arrays.stream;
 
 public class UserPrincipal implements UserDetails {
 
-    private final Users user;
+    private final UsersEntity user;
 
-    public UserPrincipal(Users user) {
+    public UserPrincipal(UsersEntity user) {
         this.user = user;
     }
 

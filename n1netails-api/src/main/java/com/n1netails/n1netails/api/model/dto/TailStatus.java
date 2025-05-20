@@ -7,8 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TailTypeDto {
+public class TailStatus {
 
     private String name;
-    private String description;
 }

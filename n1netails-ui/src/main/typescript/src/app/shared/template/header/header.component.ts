@@ -20,10 +20,15 @@ export class HeaderComponent {
 
   constructor(    
     private authenticationService: AuthenticationService,
-    private router: Router) {
+    private router: Router,
+  ) {
       this.loggedInUser = this.authenticationService.getUserFromLocalCache();
       console.log('Logged in user:', this.loggedInUser);
-    }
+  }
+
+  editProfile() {
+    this.router.navigate(['/edit-profile'])
+  }
 
   logOut() {
     this.authenticationService.logOut();

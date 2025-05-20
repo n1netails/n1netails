@@ -3,7 +3,7 @@ package com.n1netails.n1netails.api.controller;
 import com.n1netails.n1netails.api.exception.type.EmailExistException;
 import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
 import com.n1netails.n1netails.api.model.UserPrincipal;
-import com.n1netails.n1netails.api.model.entity.Users;
+import com.n1netails.n1netails.api.model.entity.UsersEntity;
 import com.n1netails.n1netails.api.model.request.UserLoginRequest;
 import com.n1netails.n1netails.api.model.request.UserRegisterRequest;
 import com.n1netails.n1netails.api.model.response.HttpErrorResponse;
@@ -20,18 +20,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.oauth2.jwt.*;
+import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
 import java.time.Instant;
 import java.util.stream.Collectors;
 
-import static com.n1netails.n1netails.api.constant.ProjectSecurityConstant.EXPIRATION_TIME;
+import static com.n1netails.n1netails.api.constant.ProjectSecurityConstant.*;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.OK;
 
 @Slf4j
@@ -44,23 +41,50 @@ public class UserController {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
     private final JwtEncoder jwtEncoder;
+    private final JwtDecoder jwtDecoder;
+
+    @Operation(
+            summary = "Edit user profile",
+            description = "Edit logged in user profile",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "User updated successfully",
+                            content = @Content(schema = @Schema(implementation = UsersEntity.class))),
+                    @ApiResponse(responseCode = "401", description = "Authentication failed",
+                            content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
+            }
+    )
+    @PostMapping("/edit")
+    public ResponseEntity<UsersEntity> editUser(
+            @RequestHeader(AUTHORIZATION) String authorizationHeader,
+            @RequestBody UsersEntity user
+    ) throws AccessDeniedException {
+        try {
+            String token = authorizationHeader.substring(TOKEN_PREFIX.length());
+            String authEmail = jwtDecoder.decode(token).getSubject();
+            log.info("auth email: {}", authEmail);
+            UsersEntity editUser = userService.editUser(user);
+            return new ResponseEntity<>(editUser, OK);
+        } catch (JwtException e) {
+            throw new AccessDeniedException(ACCESS_DENIED_MESSAGE);
+        }
+    }
 
     @Operation(
             summary = "Login user and return user details with JWT token",
             description = "Authenticates a user and returns the user object along with a JWT in the `Jwt-Token` header.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "User authenticated successfully",
-                            content = @Content(schema = @Schema(implementation = Users.class))),
+                            content = @Content(schema = @Schema(implementation = UsersEntity.class))),
                     @ApiResponse(responseCode = "401", description = "Authentication failed",
                             content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
             }
     )
     @PostMapping("/login")
-    public ResponseEntity<Users> login(@RequestBody UserLoginRequest user) {
+    public ResponseEntity<UsersEntity> login(@RequestBody UserLoginRequest user) {
 
         log.info("attempting user login");
         authenticate(user.getEmail(), user.getPassword());
-        Users loginUser = userService.findUserByEmail(user.getEmail());
+        UsersEntity loginUser = userService.findUserByEmail(user.getEmail());
         UserPrincipal userPrincipal = new UserPrincipal(loginUser);
         HttpHeaders jwtHeader = setJwtHeader(userPrincipal);
         return new ResponseEntity<>(loginUser, jwtHeader, OK);
@@ -71,13 +95,13 @@ public class UserController {
             description = "Registers a new user and returns the user object along with a JWT in the `Jwt-Token` header.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "User registered successfully",
-                            content = @Content(schema = @Schema(implementation = Users.class))),
+                            content = @Content(schema = @Schema(implementation = UsersEntity.class))),
                     @ApiResponse(responseCode = "400", description = "Invalid request or user already exists",
                             content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
             }
     )
     @PostMapping("/register")
-    public ResponseEntity<Users> register(@RequestBody UserRegisterRequest user) throws UserNotFoundException, EmailExistException {
+    public ResponseEntity<UsersEntity> register(@RequestBody UserRegisterRequest user) throws UserNotFoundException, EmailExistException {
 
         String password = user.getPassword();
         // Regex: at least 8 chars, 1 uppercase, 1 special char
@@ -88,7 +112,7 @@ public class UserController {
                     .body(null);
         }
 
-        Users newUser = userService.register(user);
+        UsersEntity newUser = userService.register(user);
         authenticate(user.getEmail(), user.getPassword());
         UserPrincipal userPrincipal = new UserPrincipal(newUser);
         HttpHeaders jwtHeader = setJwtHeader(userPrincipal);

@@ -13,7 +13,8 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Users {
+@Table(name = "users", schema = "ntail")
+public class UsersEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "users_seq")

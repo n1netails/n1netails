@@ -5,7 +5,8 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
-public class Runbook {
+@Table(name = "runbook", schema = "ntail")
+public class RunbookEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "runbook_seq")
@@ -17,8 +18,13 @@ public class Runbook {
     private String steps;
 
     @ManyToMany(mappedBy = "runbooks")
-    private List<Tail> relatedTails;
+    private List<TailEntity> relatedTails;
 
     @ManyToMany
-    private List<TailType> relatedTailTypes;
+    @JoinTable(
+            name = "runbook_related_tail_types",
+            joinColumns = @JoinColumn(name = "runbook_id"),
+            inverseJoinColumns = @JoinColumn(name = "tail_type_id")
+    )
+    private List<TailTypeEntity> relatedTailTypes;
 }

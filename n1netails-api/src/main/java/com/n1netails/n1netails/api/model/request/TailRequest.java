@@ -1,7 +1,7 @@
 package com.n1netails.n1netails.api.model.request;
 
-import com.n1netails.n1netails.api.model.dto.TailLevelDto;
-import com.n1netails.n1netails.api.model.dto.TailTypeDto;
+import com.n1netails.n1netails.api.model.dto.TailLevel;
+import com.n1netails.n1netails.api.model.dto.TailType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,7 +20,7 @@ public class TailRequest {
     private Instant resolvedTimestamp;
     private String assignedUserId;
     private String status;
-    private TailLevelDto level;
-    private TailTypeDto type;
+    private TailLevel level;
+    private TailType type;
     private Map<String, String> metadata;
 }

@@ -7,7 +7,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-public class TailVariable {
+@Table(name = "tail_variable", schema = "ntail")
+public class TailVariableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tail_variable_seq")
@@ -18,5 +19,5 @@ public class TailVariable {
     private String value;
 
     @ManyToOne
-    private Tail tail;
+    private TailEntity tail;
 }

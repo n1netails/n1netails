@@ -3,7 +3,7 @@ package com.n1netails.n1netails.api.service.impl;
 import com.n1netails.n1netails.api.exception.type.EmailExistException;
 import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
 import com.n1netails.n1netails.api.model.UserPrincipal;
-import com.n1netails.n1netails.api.model.entity.Users;
+import com.n1netails.n1netails.api.model.entity.UsersEntity;
 import com.n1netails.n1netails.api.model.request.UserRegisterRequest;
 import com.n1netails.n1netails.api.repository.UserRepository;
 import com.n1netails.n1netails.api.service.LoginAttemptService;
@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Users user = userRepository.findUserByEmail(email).orElse(null);
+        UsersEntity user = userRepository.findUserByEmail(email).orElse(null);
 
         if (user != null) {
             validateLoginAttempt(user);
@@ -54,18 +54,30 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public Users findUserByEmail(String email) {
+    public UsersEntity editUser(UsersEntity user) {
+
+        UsersEntity currentUser = findUserByEmail(user.getEmail());
+        currentUser.setFirstName(user.getFirstName());
+        currentUser.setLastName(user.getLastName());
+        currentUser.setUsername(user.getUsername());
+
+        userRepository.save(currentUser);
+        return currentUser;
+    }
+
+    @Override
+    public UsersEntity findUserByEmail(String email) {
         return userRepository.findUserByEmail(email)
                 .orElse(null);
     }
 
     @Override
-    public Users register(UserRegisterRequest newUser) throws UserNotFoundException, EmailExistException {
+    public UsersEntity register(UserRegisterRequest newUser) throws UserNotFoundException, EmailExistException {
 
         validateEmail("", newUser.getEmail());
         String encodedPassword = encodePassword(newUser.getPassword());
 
-        Users user = new Users();
+        UsersEntity user = new UsersEntity();
         user.setUserId(generateUserId());
         user.setFirstName(newUser.getFirstName());
         user.setLastName(newUser.getLastName());
@@ -97,7 +109,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return generator.generate(10);
     }
 
-    private void validateLoginAttempt(Users user) {
+    private void validateLoginAttempt(UsersEntity user) {
         if (user.isNotLocked()) {
             if (loginAttemptService.hasExceededMaxAttempts(user.getUsername())) {
                 user.setNotLocked(false);
@@ -109,12 +121,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
     }
 
-    private Users validateEmail(String currentEmail, String email)
+    private UsersEntity validateEmail(String currentEmail, String email)
             throws UserNotFoundException, EmailExistException
     {
-        Users userByNewEmail = findUserByEmail(email);
+        UsersEntity userByNewEmail = findUserByEmail(email);
         if (StringUtils.isNotBlank(currentEmail)) {
-            Users currentUser = findUserByEmail(currentEmail);
+            UsersEntity currentUser = findUserByEmail(currentEmail);
             if (currentUser == null) {
                 throw new UserNotFoundException(NO_USER_FOUND_BY_EMAIL + currentEmail);
             }

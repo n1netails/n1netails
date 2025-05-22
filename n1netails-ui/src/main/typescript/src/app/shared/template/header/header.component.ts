@@ -26,6 +26,10 @@ export class HeaderComponent {
       console.log('Logged in user:', this.loggedInUser);
   }
 
+  accountSettings() {
+    this.router.navigate(['/settings'])
+  }
+
   editProfile() {
     this.router.navigate(['/edit-profile'])
   }

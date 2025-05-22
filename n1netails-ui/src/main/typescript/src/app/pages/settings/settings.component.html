@@ -1,0 +1,110 @@
+<nz-layout class="app-layout">
+  <nz-sider class="menu-sidebar" nzCollapsible nzCollapsed="true" [nzTrigger]="null">
+    <app-sidenav></app-sidenav>
+  </nz-sider>
+
+  <nz-layout>
+    <nz-header>
+      <app-header></app-header>
+    </nz-header>
+
+    <nz-content>
+      <div class="inner-content">
+
+        <div class="settings-container">
+          <nz-card nzTitle="Alert Token Manager" class="tails-primary-color" [nzBordered]="false">
+            <h3>Create N1ne Token:</h3>
+            <form nz-form (ngSubmit)="onCreateToken()" #tokenForm="ngForm" class="token-form">
+              <nz-form-item>
+                <nz-form-label [nzSm]="10" [nzXs]="24" nzFor="expiration">Set Expiration Date (optional)</nz-form-label>
+                <nz-form-control [nzSm]="10" [nzXs]="24">
+                  <input nz-input type="date" id="expiration" name="expiration" [(ngModel)]="newTokenExpiration"
+                    required />
+                </nz-form-control>
+                <button nz-button nzType="primary" type="submit" [disabled]="!tokenForm.valid">Create Token</button>
+              </nz-form-item>
+            </form>
+            <nz-table #tokenTable [nzData]="tokens" class="token-table">
+              <thead>
+                <tr>
+                  <th>Token</th>
+                  <th>Expiration</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let token of tokens">
+                  <td>{{ token.value }}</td>
+                  <td>{{ token.expiration }}</td>
+                  <td>
+                    <button nz-button nzType="default" nzDanger (click)="onDeleteToken(token)">Delete</button>
+                  </td>
+                </tr>
+              </tbody>
+            </nz-table>
+          </nz-card>
+
+          <nz-card nzTitle="Alert Levels, Statuses, and Types" class="tails-primary-color" [nzBordered]="false">
+            <div class="alert-management">
+              <div class="alert-list">
+                <h4>Alert Levels</h4>
+                <ul>
+                  <li *ngFor="let level of alertLevels">
+                    {{ level }}
+                    <button nz-button nzType="link" nzDanger (click)="removeAlertLevel(level)">Remove</button>
+                  </li>
+                </ul>
+                <input nz-input [(ngModel)]="newAlertLevel" name="newAlertLevel" placeholder="Add new level" />
+                <button nz-button nzType="default" (click)="addAlertLevel()">+</button>
+              </div>
+              <div class="alert-list">
+                <h4>Alert Statuses</h4>
+                <ul>
+                  <li *ngFor="let status of alertStatuses">
+                    {{ status }}
+                    <button nz-button nzType="link" nzDanger (click)="removeAlertStatus(status)">Remove</button>
+                  </li>
+                </ul>
+                <input nz-input [(ngModel)]="newAlertStatus" name="newAlertStatus" placeholder="Add new status" />
+                <button nz-button nzType="default" (click)="addAlertStatus()">+</button>
+              </div>
+              <div class="alert-list">
+                <h4>Alert Types</h4>
+                <ul>
+                  <li *ngFor="let type of alertTypes">
+                    {{ type }}
+                    <button nz-button nzType="link" nzDanger (click)="removeAlertType(type)">Remove</button>
+                  </li>
+                </ul>
+                <input nz-input [(ngModel)]="newAlertType" name="newAlertType" placeholder="Add new type" />
+                <button nz-button nzType="default" (click)="addAlertType()">+</button>
+              </div>
+            </div>
+          </nz-card>
+
+          <nz-card nzTitle="Preferred Alert Types" class="tails-primary-color" [nzBordered]="false">
+            <form nz-form (ngSubmit)="onSavePreferredTypes()" #preferredTypesForm="ngForm">
+              <nz-checkbox-group [(ngModel)]="preferredAlertTypes" [nzOptions]="alertTypeOptions"
+                name="preferredAlertTypes"></nz-checkbox-group>
+              <button nz-button nzType="primary" type="submit" style="margin-top: 16px;">Save Preferences</button>
+            </form>
+          </nz-card>
+
+          <nz-card nzTitle="Password Reset" class="tails-primary-color" [nzBordered]="false">
+            <form nz-form (ngSubmit)="onPasswordReset()" #passwordForm="ngForm" class="password-form">
+              <nz-form-item>
+                <nz-form-label [nzSpan]="10" nzFor="newPassword" nzRequired>New Password: </nz-form-label>
+                <nz-form-control [nzSpan]="10">
+                  <input nz-input type="password" id="newPassword" name="newPassword" [(ngModel)]="newPassword" required
+                    placeholder="Enter new password" />
+                </nz-form-control>
+              </nz-form-item>
+            </form>
+            <button nz-button nzType="primary" type="submit" [disabled]="!passwordForm.valid">Reset Password</button>
+          </nz-card>
+
+        </div>
+      </div>
+    </nz-content>
+  </nz-layout>
+</nz-layout>

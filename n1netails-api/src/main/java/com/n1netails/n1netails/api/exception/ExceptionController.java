@@ -21,7 +21,10 @@ public class ExceptionController implements ErrorController {
      * @param exception not found exception
      * @return http error response
      */
-    @ExceptionHandler(UserNotFoundException.class)
+    @ExceptionHandler({
+            UserNotFoundException.class,
+            IllegalArgumentException.class
+    })
     public ResponseEntity<HttpErrorResponse> notFoundException(UserNotFoundException exception) {
         log.error(exception.getMessage());
         return createHttpResponse(NOT_FOUND, exception.getMessage());

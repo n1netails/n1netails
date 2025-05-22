@@ -57,3 +57,13 @@ Rollback (example of rolling back 2 times)
 ```bash
 mvn liquibase:rollback -Dliquibase.rollbackCount=2
 ```
+
+Clear Check Sums
+```bash
+mvn liquibase:clearCheckSums
+```
+
+Update
+```bash
+mvn liquibase:update
+```

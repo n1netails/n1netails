@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS ntail.n1ne_token
     id bigint NOT NULL,
     token UUID NOT NULL UNIQUE,
     user_id bigint NOT NULL,
-    organization_id bigint NOT NULL,
+    organization_id bigint NULL,
     created_at TIMESTAMP NOT NULL,
     expires_at TIMESTAMP,
     revoked BOOLEAN NOT NULL DEFAULT FALSE,

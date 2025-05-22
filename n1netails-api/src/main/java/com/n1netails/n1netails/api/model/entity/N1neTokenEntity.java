@@ -27,7 +27,8 @@ public class N1neTokenEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private UsersEntity user;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "organization_id")
     private OrganizationEntity organization;
 
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -45,13 +46,5 @@ public class N1neTokenEntity {
     public N1neTokenEntity() {
         this.token = UUID.randomUUID();
         this.createdAt = Instant.now();
-    }
-
-    public N1neTokenEntity(UsersEntity user, OrganizationEntity organization, Instant expiresAt) {
-        this.token = UUID.randomUUID();
-        this.user = user;
-        this.organization = organization;
-        this.createdAt = Instant.now();
-        this.expiresAt = expiresAt;
     }
 }

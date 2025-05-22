@@ -1,13 +1,12 @@
 package com.n1netails.n1netails.api.model.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class TailStatus {
-
     private String name;
 }

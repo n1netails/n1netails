@@ -18,7 +18,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Qualifier("tailService")
+@Qualifier("n1neTokenService")
 public class N1neTokenServiceImpl implements N1neTokenService {
 
     public static final String TOKEN_DOES_NOT_EXIST = "Token does not exist: ";

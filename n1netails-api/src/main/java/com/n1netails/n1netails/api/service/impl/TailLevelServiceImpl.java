@@ -1,6 +1,6 @@
 package com.n1netails.n1netails.api.service.impl;
 
-import com.n1netails.n1netails.api.model.dto.TailLevel;
+import com.n1netails.n1netails.api.model.core.TailLevel;
 import com.n1netails.n1netails.api.model.entity.TailLevelEntity;
 import com.n1netails.n1netails.api.model.response.TailLevelResponse;
 import com.n1netails.n1netails.api.repository.TailLevelRepository;

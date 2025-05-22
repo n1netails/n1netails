@@ -1,6 +1,6 @@
 package com.n1netails.n1netails.api.service.impl;
 
-import com.n1netails.n1netails.api.model.dto.TailStatus;
+import com.n1netails.n1netails.api.model.core.TailStatus;
 import com.n1netails.n1netails.api.model.entity.TailStatusEntity;
 import com.n1netails.n1netails.api.model.response.TailStatusResponse;
 import com.n1netails.n1netails.api.repository.TailStatusRepository;

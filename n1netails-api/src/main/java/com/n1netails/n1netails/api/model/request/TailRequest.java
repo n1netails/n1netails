@@ -1,7 +1,7 @@
 package com.n1netails.n1netails.api.model.request;
 
-import com.n1netails.n1netails.api.model.dto.TailLevel;
-import com.n1netails.n1netails.api.model.dto.TailType;
+import com.n1netails.n1netails.api.model.core.TailLevel;
+import com.n1netails.n1netails.api.model.core.TailType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

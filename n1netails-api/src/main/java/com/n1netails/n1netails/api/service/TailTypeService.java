@@ -1,6 +1,6 @@
 package com.n1netails.n1netails.api.service;
 
-import com.n1netails.n1netails.api.model.dto.TailType;
+import com.n1netails.n1netails.api.model.core.TailType;
 import com.n1netails.n1netails.api.model.response.TailTypeResponse;
 
 import java.util.List;

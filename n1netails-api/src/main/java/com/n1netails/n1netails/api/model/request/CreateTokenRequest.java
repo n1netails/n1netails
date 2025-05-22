@@ -1,6 +1,6 @@
 package com.n1netails.n1netails.api.model.request;
 
-import com.n1netails.n1netails.api.model.dto.N1neToken;
+import com.n1netails.n1netails.api.model.core.N1neToken;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

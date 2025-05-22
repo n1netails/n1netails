@@ -73,6 +73,7 @@ public class N1neTokenServiceImpl implements N1neTokenService {
         n1neTokenResponse.setCreatedAt(n1neTokenEntity.getCreatedAt());
         n1neTokenResponse.setRevoked(n1neTokenEntity.isRevoked());
         n1neTokenResponse.setExpiresAt(n1neTokenEntity.getExpiresAt());
+        n1neTokenResponse.setName(n1neTokenResponse.getName());
         n1neTokenResponse.setUserId(n1neTokenEntity.getUser().getId());
         n1neTokenResponse.setOrganizationId(n1neTokenEntity.getOrganization().getId());
         return n1neTokenResponse;

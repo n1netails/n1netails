@@ -13,5 +13,6 @@ public class N1neTokenResponse extends N1neToken {
     private Long id;
     private Long userId;
     private Long organizationId;
+    private String name;
     private Instant lastUsedAt;
 }

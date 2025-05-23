@@ -6,7 +6,7 @@
 CREATE TABLE IF NOT EXISTS ntail.runbook
 (
     id bigint NOT NULL,
-    title character varying(255) COLLATE pg_catalog."default",
+    title character varying(255),
     steps oid,
     CONSTRAINT runbook_pkey PRIMARY KEY (id)
 )

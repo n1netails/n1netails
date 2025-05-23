@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS ntail.n1ne_token
     token UUID NOT NULL UNIQUE,
     user_id bigint NOT NULL,
     organization_id bigint NULL,
-    name character varying(255) COLLATE pg_catalog."default",
+    name character varying(255),
     created_at TIMESTAMP NOT NULL,
     expires_at TIMESTAMP,
     revoked BOOLEAN NOT NULL DEFAULT FALSE,

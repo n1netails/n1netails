@@ -8,9 +8,9 @@ CREATE TABLE IF NOT EXISTS ntail.organization
     created_at timestamp(6) without time zone,
     id bigint NOT NULL,
     updated_at timestamp(6) without time zone,
-    address character varying(255) COLLATE pg_catalog."default",
-    description character varying(255) COLLATE pg_catalog."default",
-    name character varying(255) COLLATE pg_catalog."default",
+    address character varying(255),
+    description character varying(255),
+    name character varying(255),
     CONSTRAINT organization_pkey PRIMARY KEY (id)
 )
 

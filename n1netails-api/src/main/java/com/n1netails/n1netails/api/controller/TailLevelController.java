@@ -56,7 +56,6 @@ public class TailLevelController {
     })
     @PostMapping(consumes = APPLICATION_JSON)
     public ResponseEntity<TailLevelResponse> createTailLevel(@RequestBody TailLevel request) {
-        log.info("Create Tail Level Request: {}", request.toString());
         return ResponseEntity.ok(tailLevelService.createTailLevel(request));
     }
 

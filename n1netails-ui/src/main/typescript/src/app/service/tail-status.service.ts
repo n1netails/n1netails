@@ -3,19 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { UiConfigService } from '../shared/ui-config.service';
 
-// Define interfaces for TailStatus and TailStatusResponse based on Java models
-
 export interface TailStatus {
-  status: string; // e.g., 'RUNNING', 'STOPPED', 'INITIALIZING', 'ERROR'
-  message?: string; // Optional message, e.g., for errors or detailed status
-  tailId: number; // Foreign key to the parent Tail configuration
+  name: string;
 }
 
 export interface TailStatusResponse {
   id: number;
-  status: string;
-  message?: string;
-  tailId: number;
+  name: string;
 }
 
 @Injectable({

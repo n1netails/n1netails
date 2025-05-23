@@ -3,19 +3,15 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { UiConfigService } from '../shared/ui-config.service';
 
-// Define interfaces for TailLevel and TailLevelResponse based on Java models
-
 export interface TailLevel {
-  levelName: string;
-  matchString: string;
-  tailId: number; // Foreign key to the parent Tail configuration
+  name: string;
+  description: string;
 }
 
 export interface TailLevelResponse {
   id: number;
-  levelName: string;
-  matchString: string;
-  tailId: number;
+  name: string;
+  description: string;
 }
 
 @Injectable({

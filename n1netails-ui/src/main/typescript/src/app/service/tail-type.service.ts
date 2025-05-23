@@ -3,17 +3,15 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { UiConfigService } from '../shared/ui-config.service';
 
-// Define interfaces for TailType and TailTypeResponse based on Java models
-
 export interface TailType {
-  typeName: string; // e.g., 'LOG_FILE', 'KUBERNETES_POD', 'SYSTEMD_JOURNAL'
-  handlerIdentifier: string; // Identifier for the backend handler (e.g., Spring bean name or class name)
+  name: string;
+  description: string;
 }
 
 export interface TailTypeResponse {
   id: number;
-  typeName: string;
-  handlerIdentifier: string;
+  name: string;
+  description: string;
 }
 
 @Injectable({

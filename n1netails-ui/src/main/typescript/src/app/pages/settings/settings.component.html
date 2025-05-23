@@ -24,7 +24,7 @@
                 <button nz-button nzType="primary" type="submit" [disabled]="!tokenForm.valid">Create Token</button>
               </nz-form-item>
             </form>
-            <nz-table #tokenTable [nzData]="tokens" class="token-table">
+            <nz-table #tokenTable [nzData]="n1neTokens" class="token-table">
               <thead>
                 <tr>
                   <th>Token</th>
@@ -33,11 +33,11 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let token of tokens">
-                  <td>{{ token.value }}</td>
-                  <td>{{ token.expiration }}</td>
+                <tr *ngFor="let n1netoken of n1neTokens">
+                  <td>{{ n1netoken.token }}</td>
+                  <td>{{ n1netoken.expiresAt }}</td>
                   <td>
-                    <button nz-button nzType="default" nzDanger (click)="onDeleteToken(token)">Delete</button>
+                    <button nz-button nzType="default" nzDanger (click)="onDeleteToken(n1netoken)">Delete</button>
                   </td>
                 </tr>
               </tbody>

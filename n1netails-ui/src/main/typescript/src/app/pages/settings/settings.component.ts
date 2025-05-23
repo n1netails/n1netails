@@ -9,9 +9,12 @@ import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzCheckboxModule, NzCheckBoxOptionInterface } from 'ng-zorro-antd/checkbox';
 import { CommonModule } from '@angular/common';
 
-interface AlertToken {
-  value: string;
-  expiration: Date;
+interface N1neToken {
+  id?: number | undefined;
+  token: string | undefined;
+  createdAt: Date | undefined;
+  expiresAt: Date | undefined;
+  revoked: boolean | undefined;
 }
 
 @Component({
@@ -22,27 +25,33 @@ interface AlertToken {
 })
 export class SettingsComponent {
 
+  constructor() {
+    this.updateAlertTypeOptions();
+  }
+
   // Alert Token Manager
-  tokens: AlertToken[] = [
-    { value: 'abc123', expiration: new Date('2025-12-31') },
-    { value: 'def456', expiration: new Date('2025-11-30') }
+  n1neTokens: N1neToken[] = [
+    { token: 'abc123', expiresAt: new Date('2025-12-31'), createdAt: new Date(), revoked: false },
+    { token: 'def456', expiresAt: new Date('2025-11-30'), createdAt: new Date(), revoked: false }
   ];
 
   newTokenExpiration: string = '';
 
   onCreateToken() {
     if (this.newTokenExpiration) {
-      const newToken: AlertToken = {
-        value: Math.random().toString(36).substring(2, 10), // Simulate token
-        expiration: new Date(this.newTokenExpiration)
+      const newToken: N1neToken = {
+        token: Math.random().toString(36).substring(2, 10), // Simulate token
+        expiresAt: new Date(this.newTokenExpiration),
+        createdAt: new Date(),
+        revoked: false
       };
-      this.tokens.push(newToken);
+      this.n1neTokens.push(newToken);
       this.newTokenExpiration = '';
     }
   }
 
-  onDeleteToken(token: AlertToken) {
-    this.tokens = this.tokens.filter(t => t !== token);
+  onDeleteToken(token: N1neToken) {
+    this.n1neTokens = this.n1neTokens.filter(t => t !== token);
   }
 
   // Password Reset
@@ -100,10 +109,6 @@ export class SettingsComponent {
   // Preferred Alert Types
   alertTypeOptions: NzCheckBoxOptionInterface[] = [];
   preferredAlertTypes: string[] = [];
-
-  constructor() {
-    this.updateAlertTypeOptions();
-  }
 
   updateAlertTypeOptions() {
     this.alertTypeOptions = this.alertTypes.map(type => ({

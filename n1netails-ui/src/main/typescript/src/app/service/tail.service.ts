@@ -3,8 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { UiConfigService } from '../shared/ui-config.service';
 
-// Define interfaces for request and response objects based on TailRequest and TailResponse in Java
-
 export interface TailRequest {
   title: string;
   description: string;

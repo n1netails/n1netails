@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NzLayoutModule } from 'ng-zorro-antd/layout';
 import { HeaderComponent } from '../../shared/template/header/header.component';
 import { SidenavComponent } from '../../shared/template/sidenav/sidenav.component';
@@ -8,6 +8,12 @@ import { FormsModule } from '@angular/forms';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzCheckboxModule, NzCheckBoxOptionInterface } from 'ng-zorro-antd/checkbox';
 import { CommonModule } from '@angular/common';
+import { UserService } from '../../service/user.service';
+import { TailLevel, TailLevelService } from '../../service/tail-level.service';
+import { TailStatus, TailStatusService } from '../../service/tail-status.service';
+import { TailType, TailTypeService } from '../../service/tail-type.service';
+import { User } from '../../model/user';
+import { AuthenticationService } from '../../service/authentication.service';
 
 // TODO:: create n1ne token service and move these interfaces into 'model'
 interface N1neToken {
@@ -36,10 +42,51 @@ interface N1neTokenResponse extends N1neToken {
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.less'
 })
-export class SettingsComponent {
+export class SettingsComponent implements OnInit {
 
-  constructor() {
+  private user: User;
+
+  // Alert Levels, Statuses, Types
+  tailLevels: TailLevel[] = [];
+  tailStatuses: TailStatus[] = [];
+  tailTypes: TailType[] = [];
+
+  newTailLevel: string = '';
+  newTailStatus: string = '';
+  newTailType: string = '';
+
+  alertLevels: string[] = ['Critical', 'Warning', 'Info'];
+  alertStatuses: string[] = ['Active', 'Resolved', 'Acknowledged'];
+  alertTypes: string[] = ['Email', 'SMS', 'Push'];
+
+  newAlertLevel: string = '';
+  newAlertStatus: string = '';
+  newAlertType: string = '';
+
+  constructor(
+    private authenticationService: AuthenticationService,
+    private tailLevelService: TailLevelService,
+    private tailStatusService: TailStatusService,
+    private tailTypeService: TailTypeService,
+  ) {
     this.updateAlertTypeOptions();
+    this.user = this.authenticationService.getUserFromLocalCache();
+
+  }
+
+  ngOnInit(): void {
+    this.tailLevelService.getTailLevels().subscribe((response: TailLevel[]) => {
+      this.tailLevels = response;
+      console.log('tail levels:', this.tailLevels);
+    });
+    this.tailStatusService.getTailStatusList().subscribe((response: TailStatus[]) => {
+      this.tailStatuses = response;
+      console.log('tail statuses:', this.tailStatuses);
+    });
+    this.tailTypeService.getTailTypes().subscribe((response: TailType[]) => {
+      this.tailTypes = response;
+      console.log('tail types:', this.tailTypes);
+    });
   }
 
   // Alert Token Manager
@@ -75,15 +122,6 @@ export class SettingsComponent {
     // Show notification if needed
   }
 
-  // Alert Levels, Statuses, Types
-  alertLevels: string[] = ['Critical', 'Warning', 'Info'];
-  alertStatuses: string[] = ['Active', 'Resolved', 'Acknowledged'];
-  alertTypes: string[] = ['Email', 'SMS', 'Push'];
-
-  newAlertLevel: string = '';
-  newAlertStatus: string = '';
-  newAlertType: string = '';
-
   addAlertLevel() {
     if (this.newAlertLevel && !this.alertLevels.includes(this.newAlertLevel)) {
       this.alertLevels.push(this.newAlertLevel);
@@ -92,6 +130,8 @@ export class SettingsComponent {
   }
   removeAlertLevel(level: string) {
     this.alertLevels = this.alertLevels.filter(l => l !== level);
+    // todo call api
+    this.tailLevels = this.tailLevels.filter(lvl => lvl.name !== level);
   }
 
   addAlertStatus() {
@@ -102,6 +142,8 @@ export class SettingsComponent {
   }
   removeAlertStatus(status: string) {
     this.alertStatuses = this.alertStatuses.filter(s => s !== status);
+    // todo call api
+    this.tailStatuses = this.tailStatuses.filter(stat => stat.name !== status);
   }
 
   addAlertType() {
@@ -113,10 +155,14 @@ export class SettingsComponent {
   }
   removeAlertType(type: string) {
     this.alertTypes = this.alertTypes.filter(t => t !== type);
-    this.updateAlertTypeOptions();
-    this.preferredAlertTypes = this.preferredAlertTypes.filter(
-      (t: string) => t !== type
-    );
+    // todo call api
+    this.tailTypes = this.tailTypes.filter(tail => tail.name !== type);
+
+    // todo implement this later
+    // this.updateAlertTypeOptions();
+    // this.preferredAlertTypes = this.preferredAlertTypes.filter(
+    //   (t: string) => t !== type
+    // );
   }
 
   // Preferred Alert Types

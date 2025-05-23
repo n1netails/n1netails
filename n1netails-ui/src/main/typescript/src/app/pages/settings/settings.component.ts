@@ -9,9 +9,9 @@ import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzCheckboxModule, NzCheckBoxOptionInterface } from 'ng-zorro-antd/checkbox';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../service/user.service';
-import { TailLevel, TailLevelService } from '../../service/tail-level.service';
-import { TailStatus, TailStatusService } from '../../service/tail-status.service';
-import { TailType, TailTypeService } from '../../service/tail-type.service';
+import { TailLevel, TailLevelResponse, TailLevelService } from '../../service/tail-level.service';
+import { TailStatus, TailStatusResponse, TailStatusService } from '../../service/tail-status.service';
+import { TailType, TailTypeResponse, TailTypeService } from '../../service/tail-type.service';
 import { User } from '../../model/user';
 import { AuthenticationService } from '../../service/authentication.service';
 
@@ -47,9 +47,9 @@ export class SettingsComponent implements OnInit {
   private user: User;
 
   // Alert Levels, Statuses, Types
-  tailLevels: TailLevel[] = [];
-  tailStatuses: TailStatus[] = [];
-  tailTypes: TailType[] = [];
+  tailLevels: TailLevelResponse[] = [];
+  tailStatuses: TailStatusResponse[] = [];
+  tailTypes: TailTypeResponse[] = [];
 
   newTailLevel: string = '';
   newTailStatus: string = '';
@@ -67,15 +67,15 @@ export class SettingsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.tailLevelService.getTailLevels().subscribe((response: TailLevel[]) => {
+    this.tailLevelService.getTailLevels().subscribe((response: TailLevelResponse[]) => {
       this.tailLevels = response;
       console.log('tail levels:', this.tailLevels);
     });
-    this.tailStatusService.getTailStatusList().subscribe((response: TailStatus[]) => {
+    this.tailStatusService.getTailStatusList().subscribe((response: TailStatusResponse[]) => {
       this.tailStatuses = response;
       console.log('tail statuses:', this.tailStatuses);
     });
-    this.tailTypeService.getTailTypes().subscribe((response: TailType[]) => {
+    this.tailTypeService.getTailTypes().subscribe((response: TailTypeResponse[]) => {
       this.tailTypes = response;
       console.log('tail types:', this.tailTypes);
     });

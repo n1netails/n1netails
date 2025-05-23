@@ -1,4 +1,4 @@
-package com.n1netails.n1netails.api.model.dto;
+package com.n1netails.n1netails.api.model.core;
 
 import lombok.*;
 
@@ -7,7 +7,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TailType {
+public class TailLevel {
     private String name;
     private String description;
 }

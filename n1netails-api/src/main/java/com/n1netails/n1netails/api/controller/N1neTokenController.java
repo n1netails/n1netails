@@ -5,6 +5,7 @@ import com.n1netails.n1netails.api.model.response.HttpErrorResponse;
 import com.n1netails.n1netails.api.model.response.N1neTokenResponse;
 import com.n1netails.n1netails.api.service.N1neTokenService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -17,12 +18,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATION_JSON;
+
 @Slf4j
 @RequiredArgsConstructor
 @Tag(name = "N1ne Token Controller", description = "Operations related to N1ne Tokens")
 @SecurityRequirement(name = "bearerAuth")
 @RestController
-@RequestMapping(path = {"/api/n1ne-token"})
+@RequestMapping(path = {"/api/n1ne-token"}, produces = APPLICATION_JSON)
 public class N1neTokenController {
 
     private final N1neTokenService n1neTokenService;
@@ -31,7 +34,7 @@ public class N1neTokenController {
             @ApiResponse(responseCode = "200", description = "Token created",
                     content = @Content(schema = @Schema(implementation = N1neTokenResponse.class)))
     })
-    @PostMapping
+    @PostMapping(consumes = APPLICATION_JSON)
     public ResponseEntity<N1neTokenResponse> create(CreateTokenRequest createTokenRequest) {
         N1neTokenResponse n1neTokenResponse = n1neTokenService.create(createTokenRequest);
         return ResponseEntity.ok(n1neTokenResponse);
@@ -39,7 +42,7 @@ public class N1neTokenController {
 
     @Operation(summary = "Get all tokens", responses = {
             @ApiResponse(responseCode = "200", description = "List of tokens",
-                    content = @Content(schema = @Schema(implementation = N1neTokenResponse.class)))
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = N1neTokenResponse.class))))
     })
     @GetMapping
     public ResponseEntity<List<N1neTokenResponse>> getAll() {
@@ -66,6 +69,16 @@ public class N1neTokenController {
     @PutMapping("/revoke/{id}")
     public ResponseEntity<Void> revoke(Long id) {
         n1neTokenService.revoke(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Revoke token by ID", responses = {
+            @ApiResponse(responseCode = "204", description = "Revoke submitted"),
+            @ApiResponse(responseCode = "404", description = "Token not found")
+    })
+    @PutMapping("/revoke/{id}")
+    public ResponseEntity<Void> enable(Long id) {
+        n1neTokenService.enable(id);
         return ResponseEntity.noContent().build();
     }
 

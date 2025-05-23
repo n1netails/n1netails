@@ -1,4 +1,4 @@
-package com.n1netails.n1netails.api.model.dto;
+package com.n1netails.n1netails.api.model.core;
 
 import lombok.*;
 

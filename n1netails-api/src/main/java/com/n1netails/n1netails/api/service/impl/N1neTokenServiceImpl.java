@@ -18,7 +18,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Qualifier("tailService")
+@Qualifier("n1neTokenService")
 public class N1neTokenServiceImpl implements N1neTokenService {
 
     public static final String TOKEN_DOES_NOT_EXIST = "Token does not exist: ";
@@ -33,6 +33,10 @@ public class N1neTokenServiceImpl implements N1neTokenService {
         UsersEntity user = this.userRepository.findById(createTokenRequest.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException(USER_DOES_NOT_EXIST + createTokenRequest.getUserId()));
         n1neTokenEntity.setUser(user);
+        n1neTokenEntity.setCreatedAt(createTokenRequest.getCreatedAt());
+        n1neTokenEntity.setExpiresAt(createTokenRequest.getExpiresAt());
+        n1neTokenEntity.setName(createTokenRequest.getName());
+        n1neTokenEntity.setToken(createTokenRequest.getToken());
         n1neTokenEntity = this.n1neTokenRepository.save(n1neTokenEntity);
         return generateN1neTokenResponse(n1neTokenEntity);
     }
@@ -62,6 +66,13 @@ public class N1neTokenServiceImpl implements N1neTokenService {
     }
 
     @Override
+    public void enable(Long id) {
+        N1neTokenEntity n1neTokenEntity = this.n1neTokenRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException(TOKEN_DOES_NOT_EXIST + id));
+        n1neTokenEntity.setRevoked(false);
+    }
+
+    @Override
     public void delete(Long id) {
         this.n1neTokenRepository.deleteById(id);
     }
@@ -73,6 +84,7 @@ public class N1neTokenServiceImpl implements N1neTokenService {
         n1neTokenResponse.setCreatedAt(n1neTokenEntity.getCreatedAt());
         n1neTokenResponse.setRevoked(n1neTokenEntity.isRevoked());
         n1neTokenResponse.setExpiresAt(n1neTokenEntity.getExpiresAt());
+        n1neTokenResponse.setName(n1neTokenResponse.getName());
         n1neTokenResponse.setUserId(n1neTokenEntity.getUser().getId());
         n1neTokenResponse.setOrganizationId(n1neTokenEntity.getOrganization().getId());
         return n1neTokenResponse;

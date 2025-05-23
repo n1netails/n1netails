@@ -6,7 +6,7 @@
 CREATE TABLE IF NOT EXISTS ntail.tail_status
 (
     id bigint NOT NULL,
-    name character varying(255) COLLATE pg_catalog."default",
+    name character varying(255),
     CONSTRAINT tail_status_pkey PRIMARY KEY (id)
 )
 
@@ -23,8 +23,8 @@ ALTER TABLE IF EXISTS ntail.tail_status
 CREATE TABLE IF NOT EXISTS ntail.tail_type
 (
     id bigint NOT NULL,
-    description character varying(255) COLLATE pg_catalog."default",
-    name character varying(255) COLLATE pg_catalog."default",
+    description character varying(255),
+    name character varying(255),
     CONSTRAINT tail_type_pkey PRIMARY KEY (id)
 )
 
@@ -41,8 +41,8 @@ ALTER TABLE IF EXISTS ntail.tail_type
 CREATE TABLE IF NOT EXISTS ntail.tail_level
 (
     id bigint NOT NULL,
-    description character varying(255) COLLATE pg_catalog."default",
-    name character varying(255) COLLATE pg_catalog."default",
+    description character varying(255),
+    name character varying(255),
     CONSTRAINT tail_level_pkey PRIMARY KEY (id)
 )
 
@@ -64,10 +64,10 @@ CREATE TABLE IF NOT EXISTS ntail.tail
     status_id bigint,
     "timestamp" timestamp(6) with time zone,
     type_id bigint,
-    assigned_user_id character varying(255) COLLATE pg_catalog."default",
-    description character varying(255) COLLATE pg_catalog."default",
-    title character varying(255) COLLATE pg_catalog."default",
-    details text COLLATE pg_catalog."default",
+    assigned_user_id character varying(255),
+    description character varying(255),
+    title character varying(255),
+    details text,
     CONSTRAINT tail_pkey PRIMARY KEY (id),
     CONSTRAINT fk_tail_status_id FOREIGN KEY (status_id)
         REFERENCES ntail.tail_status (id) MATCH SIMPLE
@@ -97,8 +97,8 @@ CREATE TABLE IF NOT EXISTS ntail.tail_variable
 (
     id bigint NOT NULL,
     tail_id bigint,
-    key character varying(255) COLLATE pg_catalog."default",
-    value character varying(255) COLLATE pg_catalog."default",
+    key character varying(255),
+    value character varying(255),
     CONSTRAINT tail_variable_pkey PRIMARY KEY (id),
     CONSTRAINT fk_tail_variable_tail_id FOREIGN KEY (tail_id)
         REFERENCES ntail.tail (id) MATCH SIMPLE

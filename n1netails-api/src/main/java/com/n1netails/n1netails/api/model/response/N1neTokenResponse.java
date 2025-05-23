@@ -1,6 +1,6 @@
 package com.n1netails.n1netails.api.model.response;
 
-import com.n1netails.n1netails.api.model.dto.N1neToken;
+import com.n1netails.n1netails.api.model.core.N1neToken;
 import lombok.*;
 
 import java.time.Instant;
@@ -13,5 +13,6 @@ public class N1neTokenResponse extends N1neToken {
     private Long id;
     private Long userId;
     private Long organizationId;
+    private String name;
     private Instant lastUsedAt;
 }

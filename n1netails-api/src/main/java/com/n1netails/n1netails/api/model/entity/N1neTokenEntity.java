@@ -31,6 +31,9 @@ public class N1neTokenEntity {
     @JoinColumn(name = "organization_id")
     private OrganizationEntity organization;
 
+    @Column(name = "name")
+    private String name;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 

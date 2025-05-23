@@ -6,17 +6,30 @@ import { UiConfigService } from '../shared/ui-config.service';
 // Define interfaces for request and response objects based on TailRequest and TailResponse in Java
 
 export interface TailRequest {
-  name: string;
-  filePath: string;
-  filter?: string; // Optional filter
+  title: string;
+  description: string;
+  details: string;
+  timestamp: string;
+  resolvedTimestamp: string;
+  assignedUserId: string;
+  status: string;
+  level: string;
+  type: string;
+  metadata: { [key: string]: string };
 }
 
 export interface TailResponse {
   id: number;
-  name: string;
-  filePath: string;
-  filter?: string;
-  status: string; // e.g., 'RUNNING', 'STOPPED', 'ERROR'
+  title: string;
+  description: string;
+  timestamp: string;
+  resolvedTimestamp: string;
+  assignedUserId: string;
+  assignedUsername: string;
+  details: string;
+  level: string;
+  type: string;
+  status: string;
 }
 
 @Injectable({

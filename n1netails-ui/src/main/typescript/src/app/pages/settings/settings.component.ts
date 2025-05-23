@@ -55,14 +55,6 @@ export class SettingsComponent implements OnInit {
   newTailStatus: string = '';
   newTailType: string = '';
 
-  alertLevels: string[] = ['Critical', 'Warning', 'Info'];
-  alertStatuses: string[] = ['Active', 'Resolved', 'Acknowledged'];
-  alertTypes: string[] = ['Email', 'SMS', 'Push'];
-
-  newAlertLevel: string = '';
-  newAlertStatus: string = '';
-  newAlertType: string = '';
-
   constructor(
     private authenticationService: AuthenticationService,
     private tailLevelService: TailLevelService,
@@ -123,38 +115,48 @@ export class SettingsComponent implements OnInit {
   }
 
   addAlertLevel() {
-    if (this.newAlertLevel && !this.alertLevels.includes(this.newAlertLevel)) {
-      this.alertLevels.push(this.newAlertLevel);
-      this.newAlertLevel = '';
+    console.log('adding level', this.newTailLevel);
+    const tailLevel: TailLevel = { name: this.newTailLevel, description: '' }
+    if (this.newTailLevel && !this.tailLevels.includes(tailLevel)) {
+      // todo call api
+      console.log('pushing new tail level', tailLevel);
+      this.tailLevels.push(tailLevel);
+      this.newTailLevel = '';
     }
   }
   removeAlertLevel(level: string) {
-    this.alertLevels = this.alertLevels.filter(l => l !== level);
     // todo call api
     this.tailLevels = this.tailLevels.filter(lvl => lvl.name !== level);
   }
 
   addAlertStatus() {
-    if (this.newAlertStatus && !this.alertStatuses.includes(this.newAlertStatus)) {
-      this.alertStatuses.push(this.newAlertStatus);
-      this.newAlertStatus = '';
+    console.log('adding status', this.newTailStatus);
+    const tailStatus: TailStatus = { name: this.newTailStatus }
+    if (this.newTailStatus && !this.tailStatuses.includes(tailStatus)) {
+      // todo call api
+      console.log('pushing new tail status', tailStatus);
+      this.tailStatuses.push(tailStatus);
+      this.newTailStatus = '';
     }
   }
+
   removeAlertStatus(status: string) {
-    this.alertStatuses = this.alertStatuses.filter(s => s !== status);
     // todo call api
     this.tailStatuses = this.tailStatuses.filter(stat => stat.name !== status);
   }
 
   addAlertType() {
-    if (this.newAlertType && !this.alertTypes.includes(this.newAlertType)) {
-      this.alertTypes.push(this.newAlertType);
-      this.updateAlertTypeOptions();
-      this.newAlertType = '';
+    console.log('adding type', this.newTailType);
+    const tailType: TailType = { name: this.newTailType, description: '' }
+    if (this.newTailType && !this.tailTypes.includes(tailType)) {
+      // todo call api
+      console.log('pushing new tail status', tailType);
+      this.tailTypes.push(tailType);
+      this.newTailType = '';
     }
   }
+
   removeAlertType(type: string) {
-    this.alertTypes = this.alertTypes.filter(t => t !== type);
     // todo call api
     this.tailTypes = this.tailTypes.filter(tail => tail.name !== type);
 
@@ -170,10 +172,10 @@ export class SettingsComponent implements OnInit {
   preferredAlertTypes: string[] = [];
 
   updateAlertTypeOptions() {
-    this.alertTypeOptions = this.alertTypes.map(type => ({
-      label: type,
-      value: type
-    }));
+    // this.alertTypeOptions = this.alertTypes.map(type => ({
+    //   label: type,
+    //   value: type
+    // }));
   }
 
   onSavePreferredTypes() {

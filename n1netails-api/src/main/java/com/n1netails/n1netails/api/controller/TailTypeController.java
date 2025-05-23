@@ -18,12 +18,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATION_JSON;
+
 @Slf4j
 @RequiredArgsConstructor
 @Tag(name = "Tail Type Controller", description = "Operations related to Tail Types")
 @SecurityRequirement(name = "bearerAuth")
 @RestController
-@RequestMapping(path = {"/api/tail-type"})
+@RequestMapping(path = {"/api/tail-type"}, produces = APPLICATION_JSON)
 public class TailTypeController {
 
     private final TailTypeService tailTypeService;
@@ -52,7 +54,7 @@ public class TailTypeController {
             @ApiResponse(responseCode = "200", description = "Tail type created",
                     content = @Content(schema = @Schema(implementation = TailTypeResponse.class)))
     })
-    @PostMapping
+    @PostMapping(consumes = APPLICATION_JSON)
     public ResponseEntity<TailTypeResponse> createTailType(@RequestBody TailType request) {
         return ResponseEntity.ok(tailTypeService.createTailType(request));
     }
@@ -63,7 +65,7 @@ public class TailTypeController {
             @ApiResponse(responseCode = "404", description = "Tail type not found",
                     content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
     })
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = APPLICATION_JSON)
     public ResponseEntity<TailTypeResponse> updateTailType(@PathVariable Long id, @RequestBody TailType request) {
         return ResponseEntity.ok(tailTypeService.updateTailType(id, request));
     }

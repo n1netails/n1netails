@@ -8,11 +8,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATION_JSON;
+
 @Slf4j
 @RequiredArgsConstructor
 @Tag(name = "Password Controller", description = "Operations to managing credentials")
 @RestController
-@RequestMapping(path = {"/api/password"})
+@RequestMapping(path = {"/api/password"}, produces = APPLICATION_JSON)
 public class PasswordController {
 
     @GetMapping("/hello")

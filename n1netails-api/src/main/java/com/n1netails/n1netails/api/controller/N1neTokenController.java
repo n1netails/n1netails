@@ -17,12 +17,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATION_JSON;
+
 @Slf4j
 @RequiredArgsConstructor
 @Tag(name = "N1ne Token Controller", description = "Operations related to N1ne Tokens")
 @SecurityRequirement(name = "bearerAuth")
 @RestController
-@RequestMapping(path = {"/api/n1ne-token"})
+@RequestMapping(path = {"/api/n1ne-token"}, produces = APPLICATION_JSON)
 public class N1neTokenController {
 
     private final N1neTokenService n1neTokenService;
@@ -31,7 +33,7 @@ public class N1neTokenController {
             @ApiResponse(responseCode = "200", description = "Token created",
                     content = @Content(schema = @Schema(implementation = N1neTokenResponse.class)))
     })
-    @PostMapping
+    @PostMapping(consumes = APPLICATION_JSON)
     public ResponseEntity<N1neTokenResponse> create(CreateTokenRequest createTokenRequest) {
         N1neTokenResponse n1neTokenResponse = n1neTokenService.create(createTokenRequest);
         return ResponseEntity.ok(n1neTokenResponse);

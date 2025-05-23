@@ -27,6 +27,7 @@ import java.nio.file.AccessDeniedException;
 import java.time.Instant;
 import java.util.stream.Collectors;
 
+import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATION_JSON;
 import static com.n1netails.n1netails.api.constant.ProjectSecurityConstant.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.OK;
@@ -35,7 +36,7 @@ import static org.springframework.http.HttpStatus.OK;
 @RequiredArgsConstructor
 @Tag(name = "Users Controller", description = "Operations related to Users")
 @RestController
-@RequestMapping(path = {"/api/user"})
+@RequestMapping(path = {"/api/user"}, produces = APPLICATION_JSON)
 public class UserController {
 
     private final UserService userService;
@@ -53,7 +54,7 @@ public class UserController {
                             content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
             }
     )
-    @PostMapping("/edit")
+    @PostMapping(value = "/edit", consumes = APPLICATION_JSON)
     public ResponseEntity<UsersEntity> editUser(
             @RequestHeader(AUTHORIZATION) String authorizationHeader,
             @RequestBody UsersEntity user
@@ -79,7 +80,7 @@ public class UserController {
                             content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
             }
     )
-    @PostMapping("/login")
+    @PostMapping(value = "/login", consumes = APPLICATION_JSON)
     public ResponseEntity<UsersEntity> login(@RequestBody UserLoginRequest user) {
 
         log.info("attempting user login");
@@ -100,7 +101,7 @@ public class UserController {
                             content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
             }
     )
-    @PostMapping("/register")
+    @PostMapping(value = "/register", consumes = APPLICATION_JSON)
     public ResponseEntity<UsersEntity> register(@RequestBody UserRegisterRequest user) throws UserNotFoundException, EmailExistException {
 
         String password = user.getPassword();

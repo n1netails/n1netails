@@ -18,12 +18,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATION_JSON;
+
 @Slf4j
 @RequiredArgsConstructor
 @Tag(name = "Tail Level Controller", description = "Operations related to Tail Levels")
 @SecurityRequirement(name = "bearerAuth")
 @RestController
-@RequestMapping(path = {"/api/tail-level"})
+@RequestMapping(path = {"/api/tail-level"}, produces = APPLICATION_JSON)
 public class TailLevelController {
 
     private final TailLevelService tailLevelService;
@@ -52,7 +54,7 @@ public class TailLevelController {
             @ApiResponse(responseCode = "200", description = "Tail level created",
                     content = @Content(schema = @Schema(implementation = TailLevelResponse.class)))
     })
-    @PostMapping
+    @PostMapping(consumes = APPLICATION_JSON)
     public ResponseEntity<TailLevelResponse> createTailLevel(@RequestBody TailLevel request) {
         return ResponseEntity.ok(tailLevelService.createTailLevel(request));
     }
@@ -63,7 +65,7 @@ public class TailLevelController {
             @ApiResponse(responseCode = "404", description = "Tail level not found",
                     content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
     })
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = APPLICATION_JSON)
     public ResponseEntity<TailLevelResponse> updateTailLevel(@PathVariable Long id, @RequestBody TailLevel request) {
         return ResponseEntity.ok(tailLevelService.updateTailLevel(id, request));
     }

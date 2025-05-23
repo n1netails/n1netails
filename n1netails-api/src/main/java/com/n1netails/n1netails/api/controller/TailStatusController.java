@@ -19,12 +19,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATION_JSON;
+
 @Slf4j
 @RequiredArgsConstructor
 @Tag(name = "Tail Status Controller", description = "Operations related to Tail Status")
 @SecurityRequirement(name = "bearerAuth")
 @RestController
-@RequestMapping(path = {"/api/tail-status"})
+@RequestMapping(path = {"/api/tail-status"}, produces = APPLICATION_JSON)
 public class TailStatusController {
 
     private final TailStatusService tailStatusService;
@@ -53,7 +55,7 @@ public class TailStatusController {
             @ApiResponse(responseCode = "200", description = "Tail status created",
                     content = @Content(schema = @Schema(implementation = TailLevelResponse.class)))
     })
-    @PostMapping
+    @PostMapping(consumes = APPLICATION_JSON)
     public ResponseEntity<TailStatusResponse> createTailStatus(@RequestBody TailStatus request) {
         return ResponseEntity.ok(tailStatusService.createTailStatus(request));
     }
@@ -64,7 +66,7 @@ public class TailStatusController {
             @ApiResponse(responseCode = "404", description = "Tail status not found",
                     content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
     })
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = APPLICATION_JSON)
     public ResponseEntity<TailStatusResponse> updateTailStatus(@PathVariable Long id, @RequestBody TailStatus request) {
         return ResponseEntity.ok(tailStatusService.updateTailStatus(id, request));
     }

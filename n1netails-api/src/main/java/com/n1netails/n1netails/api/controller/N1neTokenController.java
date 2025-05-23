@@ -76,7 +76,7 @@ public class N1neTokenController {
             @ApiResponse(responseCode = "204", description = "Revoke submitted"),
             @ApiResponse(responseCode = "404", description = "Token not found")
     })
-    @PutMapping("/revoke/{id}")
+    @PutMapping("/enable/{id}")
     public ResponseEntity<Void> enable(Long id) {
         n1neTokenService.enable(id);
         return ResponseEntity.noContent().build();

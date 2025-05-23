@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { UiConfigService } from '../shared/ui-config.service';
 
 // Define interfaces for TailStatus and TailStatusResponse based on Java models
 
@@ -21,27 +22,35 @@ export interface TailStatusResponse {
   providedIn: 'root'
 })
 export class TailStatusService {
+
+  host: string = '';
   private apiUrl = '/api/tail-status'; // Base URL for tail status operations
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private uiConfigService: UiConfigService
+  ) {
+    this.host = this.uiConfigService.getApiUrl();
+    this.host = this.host + this.apiUrl;
+  }
 
   createTailStatus(request: TailStatus): Observable<TailStatusResponse> {
-    return this.http.post<TailStatusResponse>(this.apiUrl, request);
+    return this.http.post<TailStatusResponse>(this.host, request);
   }
 
   getTailStatusList(): Observable<TailStatusResponse[]> {
-    return this.http.get<TailStatusResponse[]>(this.apiUrl);
+    return this.http.get<TailStatusResponse[]>(this.host);
   }
 
   getTailStatusById(id: number): Observable<TailStatusResponse> {
-    return this.http.get<TailStatusResponse>(`${this.apiUrl}/${id}`);
+    return this.http.get<TailStatusResponse>(`${this.host}/${id}`);
   }
 
   updateTailStatus(id: number, request: TailStatus): Observable<TailStatusResponse> {
-    return this.http.put<TailStatusResponse>(`${this.apiUrl}/${id}`, request);
+    return this.http.put<TailStatusResponse>(`${this.host}/${id}`, request);
   }
 
   deleteTailStatus(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.delete<void>(`${this.host}/${id}`);
   }
 }

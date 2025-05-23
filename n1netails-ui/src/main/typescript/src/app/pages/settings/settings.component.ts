@@ -9,12 +9,25 @@ import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzCheckboxModule, NzCheckBoxOptionInterface } from 'ng-zorro-antd/checkbox';
 import { CommonModule } from '@angular/common';
 
+// TODO:: create n1ne token service and move these interfaces into 'model'
 interface N1neToken {
-  id?: number | undefined;
-  token: string | undefined;
-  createdAt: Date | undefined;
-  expiresAt: Date | undefined;
-  revoked: boolean | undefined;
+  name?: string;
+  token: string;
+  createdAt: Date;
+  expiresAt: Date;
+  revoked: boolean;
+  lastUsedAt?: Date;
+}
+
+interface CreateTokenRequest extends N1neToken {
+  userId: number;
+  organizationId?: number;
+}
+
+interface N1neTokenResponse extends N1neToken {
+  id: number;
+  userId: number;
+  organizationId?: number;
 }
 
 @Component({

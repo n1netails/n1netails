@@ -8,3 +8,6 @@ CREATE SEQUENCE IF NOT EXISTS tail_type_seq START WITH 1 INCREMENT BY 1;
 CREATE SEQUENCE IF NOT EXISTS tail_variable_seq START WITH 1 INCREMENT BY 1;
 CREATE SEQUENCE IF NOT EXISTS users_seq START WITH 1 INCREMENT BY 1;
 
+SELECT setval('ntail.tail_status_seq', (SELECT MAX(id) FROM ntail.tail_status), true);
+SELECT setval('ntail.tail_type_seq', (SELECT MAX(id) FROM ntail.tail_type), true);
+SELECT setval('ntail.tail_level_seq', (SELECT MAX(id) FROM ntail.tail_level), true);

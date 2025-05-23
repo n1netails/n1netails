@@ -24,7 +24,7 @@
                 <button nz-button nzType="primary" type="submit" [disabled]="!tokenForm.valid">Create Token</button>
               </nz-form-item>
             </form>
-            <nz-table #tokenTable [nzData]="tokens" class="token-table">
+            <nz-table #tokenTable [nzData]="n1neTokens" class="token-table">
               <thead>
                 <tr>
                   <th>Token</th>
@@ -33,53 +33,15 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let token of tokens">
-                  <td>{{ token.value }}</td>
-                  <td>{{ token.expiration }}</td>
+                <tr *ngFor="let n1netoken of n1neTokens">
+                  <td>{{ n1netoken.token }}</td>
+                  <td>{{ n1netoken.expiresAt }}</td>
                   <td>
-                    <button nz-button nzType="default" nzDanger (click)="onDeleteToken(token)">Delete</button>
+                    <button nz-button nzType="default" nzDanger (click)="onDeleteToken(n1netoken)">Delete</button>
                   </td>
                 </tr>
               </tbody>
             </nz-table>
-          </nz-card>
-
-          <nz-card nzTitle="Alert Levels, Statuses, and Types" class="tails-primary-color" [nzBordered]="false">
-            <div class="alert-management">
-              <div class="alert-list">
-                <h4>Alert Levels</h4>
-                <ul>
-                  <li *ngFor="let level of alertLevels">
-                    {{ level }}
-                    <button nz-button nzType="link" nzDanger (click)="removeAlertLevel(level)">Remove</button>
-                  </li>
-                </ul>
-                <input nz-input [(ngModel)]="newAlertLevel" name="newAlertLevel" placeholder="Add new level" />
-                <button nz-button nzType="default" (click)="addAlertLevel()">+</button>
-              </div>
-              <div class="alert-list">
-                <h4>Alert Statuses</h4>
-                <ul>
-                  <li *ngFor="let status of alertStatuses">
-                    {{ status }}
-                    <button nz-button nzType="link" nzDanger (click)="removeAlertStatus(status)">Remove</button>
-                  </li>
-                </ul>
-                <input nz-input [(ngModel)]="newAlertStatus" name="newAlertStatus" placeholder="Add new status" />
-                <button nz-button nzType="default" (click)="addAlertStatus()">+</button>
-              </div>
-              <div class="alert-list">
-                <h4>Alert Types</h4>
-                <ul>
-                  <li *ngFor="let type of alertTypes">
-                    {{ type }}
-                    <button nz-button nzType="link" nzDanger (click)="removeAlertType(type)">Remove</button>
-                  </li>
-                </ul>
-                <input nz-input [(ngModel)]="newAlertType" name="newAlertType" placeholder="Add new type" />
-                <button nz-button nzType="default" (click)="addAlertType()">+</button>
-              </div>
-            </div>
           </nz-card>
 
           <nz-card nzTitle="Preferred Alert Types" class="tails-primary-color" [nzBordered]="false">
@@ -88,6 +50,44 @@
                 name="preferredAlertTypes"></nz-checkbox-group>
               <button nz-button nzType="primary" type="submit" style="margin-top: 16px;">Save Preferences</button>
             </form>
+          </nz-card>
+
+          <nz-card nzTitle="Alert Levels, Statuses, and Types" class="tails-primary-color" [nzBordered]="false">
+            <div class="alert-management">
+              <div class="alert-list">
+                <h4>Tail Levels</h4>
+                <ul>
+                  <li *ngFor="let level of tailLevels">
+                    {{ level.name }}
+                    <button nz-button nzType="link" nzDanger (click)="removeAlertLevel(level.name)">Remove</button>
+                  </li>
+                </ul>
+                <input nz-input [(ngModel)]="newTailLevel" name="newTailLevel" placeholder="Add new level" />
+                <button nz-button nzType="default" (click)="addAlertLevel()">+</button>
+              </div>
+              <div class="alert-list">
+                <h4>Tail Statuses</h4>
+                <ul>
+                  <li *ngFor="let status of tailStatuses">
+                    {{ status.name }}
+                    <button nz-button nzType="link" nzDanger (click)="removeAlertStatus(status.name)">Remove</button>
+                  </li>
+                </ul>
+                <input nz-input [(ngModel)]="newTailStatus" name="newTailStatus" placeholder="Add new status" />
+                <button nz-button nzType="default" (click)="addAlertStatus()">+</button>
+              </div>
+              <div class="alert-list">
+                <h4>Tail Types</h4>
+                <ul>
+                  <li *ngFor="let type of tailTypes">
+                    {{ type.name }}
+                    <button nz-button nzType="link" nzDanger (click)="removeAlertType(type.name)">Remove</button>
+                  </li>
+                </ul>
+                <input nz-input [(ngModel)]="newTailType" name="newTailType" placeholder="Add new type" />
+                <button nz-button nzType="default" (click)="addAlertType()">+</button>
+              </div>
+            </div>
           </nz-card>
 
           <nz-card nzTitle="Password Reset" class="tails-primary-color" [nzBordered]="false">

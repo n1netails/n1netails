@@ -117,54 +117,77 @@ export class SettingsComponent implements OnInit {
   addAlertLevel() {
     console.log('adding level', this.newTailLevel);
     const tailLevel: TailLevel = { name: this.newTailLevel, description: '' }
-    if (this.newTailLevel && !this.tailLevels.includes(tailLevel)) {
-      // todo call api
-      console.log('pushing new tail level', tailLevel);
-      this.tailLevels.push(tailLevel);
-      this.newTailLevel = '';
+    if (this.newTailLevel && !this.tailLevels.some(level => level.name === tailLevel.name)) {
+      this.tailLevelService.createTailLevel(tailLevel).subscribe(response => {
+        console.log('TailLevel created:', response);
+        this.tailLevels.push(response); // Assuming response is the created TailLevel
+        this.newTailLevel = '';
+      });
     }
   }
-  removeAlertLevel(level: string) {
-    // todo call api
-    this.tailLevels = this.tailLevels.filter(lvl => lvl.name !== level);
+  removeAlertLevel(levelName: string) {
+    const levelToRemove = this.tailLevels.find(lvl => lvl.name === levelName);
+    if (levelToRemove && levelToRemove.id) {
+      this.tailLevelService.deleteTailLevel(levelToRemove.id).subscribe(() => {
+        console.log('TailLevel deleted:', levelToRemove.id);
+        this.tailLevels = this.tailLevels.filter(lvl => lvl.id !== levelToRemove.id);
+      });
+    } else {
+      console.warn('TailLevel not found or id missing for level:', levelName);
+    }
   }
 
   addAlertStatus() {
     console.log('adding status', this.newTailStatus);
     const tailStatus: TailStatus = { name: this.newTailStatus }
-    if (this.newTailStatus && !this.tailStatuses.includes(tailStatus)) {
-      // todo call api
-      console.log('pushing new tail status', tailStatus);
-      this.tailStatuses.push(tailStatus);
-      this.newTailStatus = '';
+    if (this.newTailStatus && !this.tailStatuses.some(status => status.name === tailStatus.name)) {
+      this.tailStatusService.createTailStatus(tailStatus).subscribe(response => {
+        console.log('TailStatus created:', response);
+        this.tailStatuses.push(response); // Assuming response is the created TailStatus
+        this.newTailStatus = '';
+      });
     }
   }
 
-  removeAlertStatus(status: string) {
-    // todo call api
-    this.tailStatuses = this.tailStatuses.filter(stat => stat.name !== status);
+  removeAlertStatus(statusName: string) {
+    const statusToRemove = this.tailStatuses.find(stat => stat.name === statusName);
+    if (statusToRemove && statusToRemove.id) {
+      this.tailStatusService.deleteTailStatus(statusToRemove.id).subscribe(() => {
+        console.log('TailStatus deleted:', statusToRemove.id);
+        this.tailStatuses = this.tailStatuses.filter(stat => stat.id !== statusToRemove.id);
+      });
+    } else {
+      console.warn('TailStatus not found or id missing for status:', statusName);
+    }
   }
 
   addAlertType() {
     console.log('adding type', this.newTailType);
-    const tailType: TailType = { name: this.newTailType, description: '' }
-    if (this.newTailType && !this.tailTypes.includes(tailType)) {
-      // todo call api
-      console.log('pushing new tail status', tailType);
-      this.tailTypes.push(tailType);
-      this.newTailType = '';
+    const tailType: TailType = { name: this.newTailType, description: '' } // Assuming description is empty for new types or handled by backend
+    if (this.newTailType && !this.tailTypes.some(type => type.name === tailType.name)) {
+      this.tailTypeService.createTailType(tailType).subscribe(response => {
+        console.log('TailType created:', response);
+        this.tailTypes.push(response); // Assuming response is the created TailType
+        this.newTailType = '';
+      });
     }
   }
 
-  removeAlertType(type: string) {
-    // todo call api
-    this.tailTypes = this.tailTypes.filter(tail => tail.name !== type);
-
-    // todo implement this later
-    // this.updateAlertTypeOptions();
-    // this.preferredAlertTypes = this.preferredAlertTypes.filter(
-    //   (t: string) => t !== type
-    // );
+  removeAlertType(typeName: string) {
+    const typeToRemove = this.tailTypes.find(type => type.name === typeName);
+    if (typeToRemove && typeToRemove.id) {
+      this.tailTypeService.deleteTailType(typeToRemove.id).subscribe(() => {
+        console.log('TailType deleted:', typeToRemove.id);
+        this.tailTypes = this.tailTypes.filter(type => type.id !== typeToRemove.id);
+        // todo implement this later
+        // this.updateAlertTypeOptions();
+        // this.preferredAlertTypes = this.preferredAlertTypes.filter(
+        //   (t: string) => t !== typeName
+        // );
+      });
+    } else {
+      console.warn('TailType not found or id missing for type:', typeName);
+    }
   }
 
   // Preferred Alert Types

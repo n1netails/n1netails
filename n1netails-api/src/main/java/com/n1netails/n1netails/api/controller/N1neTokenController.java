@@ -5,6 +5,7 @@ import com.n1netails.n1netails.api.model.response.HttpErrorResponse;
 import com.n1netails.n1netails.api.model.response.N1neTokenResponse;
 import com.n1netails.n1netails.api.service.N1neTokenService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -41,7 +42,7 @@ public class N1neTokenController {
 
     @Operation(summary = "Get all tokens", responses = {
             @ApiResponse(responseCode = "200", description = "List of tokens",
-                    content = @Content(schema = @Schema(implementation = N1neTokenResponse.class)))
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = N1neTokenResponse.class))))
     })
     @GetMapping
     public ResponseEntity<List<N1neTokenResponse>> getAll() {
@@ -68,6 +69,16 @@ public class N1neTokenController {
     @PutMapping("/revoke/{id}")
     public ResponseEntity<Void> revoke(Long id) {
         n1neTokenService.revoke(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Revoke token by ID", responses = {
+            @ApiResponse(responseCode = "204", description = "Revoke submitted"),
+            @ApiResponse(responseCode = "404", description = "Token not found")
+    })
+    @PutMapping("/revoke/{id}")
+    public ResponseEntity<Void> enable(Long id) {
+        n1neTokenService.enable(id);
         return ResponseEntity.noContent().build();
     }
 

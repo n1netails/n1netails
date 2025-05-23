@@ -33,6 +33,10 @@ public class N1neTokenServiceImpl implements N1neTokenService {
         UsersEntity user = this.userRepository.findById(createTokenRequest.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException(USER_DOES_NOT_EXIST + createTokenRequest.getUserId()));
         n1neTokenEntity.setUser(user);
+        n1neTokenEntity.setCreatedAt(createTokenRequest.getCreatedAt());
+        n1neTokenEntity.setExpiresAt(createTokenRequest.getExpiresAt());
+        n1neTokenEntity.setName(createTokenRequest.getName());
+        n1neTokenEntity.setToken(createTokenRequest.getToken());
         n1neTokenEntity = this.n1neTokenRepository.save(n1neTokenEntity);
         return generateN1neTokenResponse(n1neTokenEntity);
     }
@@ -59,6 +63,13 @@ public class N1neTokenServiceImpl implements N1neTokenService {
         N1neTokenEntity n1neTokenEntity = this.n1neTokenRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(TOKEN_DOES_NOT_EXIST + id));
         n1neTokenEntity.setRevoked(true);
+    }
+
+    @Override
+    public void enable(Long id) {
+        N1neTokenEntity n1neTokenEntity = this.n1neTokenRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException(TOKEN_DOES_NOT_EXIST + id));
+        n1neTokenEntity.setRevoked(false);
     }
 
     @Override

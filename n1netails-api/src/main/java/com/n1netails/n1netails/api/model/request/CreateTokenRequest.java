@@ -14,4 +14,5 @@ public class CreateTokenRequest extends N1neToken {
 
     private Long userId;
     private Long organizationId;
+    private String name;
 }

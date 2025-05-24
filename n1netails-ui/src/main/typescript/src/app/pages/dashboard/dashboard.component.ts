@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
+import { TailService, TailResponse, Page } from '../../service/tail.service'; // Added
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -15,31 +16,31 @@ import { SidenavComponent } from "../../shared/template/sidenav/sidenav.componen
 import { UiConfigService } from "../../shared/ui-config.service";
 import { AuthenticationService } from '../../service/authentication.service';
 import { Router } from '@angular/router';
-
-// todo remove
-const count = 5;
-const fakeDataUrl = 'https://randomuser.me/api/?results=5&inc=name,gender,email,nat&noinfo';
+import { NzPaginationModule } from 'ng-zorro-antd/pagination'; // Added
 
 @Component({
   selector: 'app-dashboard',
-  imports: [NzIconModule, NzLayoutModule, NzCardModule, NzGridModule, NzAvatarModule, NzListModule, NzSkeletonModule, BaseChartDirective, HeaderComponent, SidenavComponent],
+  imports: [NzIconModule, NzLayoutModule, NzCardModule, NzGridModule, NzAvatarModule, NzListModule, NzSkeletonModule, BaseChartDirective, HeaderComponent, SidenavComponent, NzPaginationModule], // Added NzPaginationModule
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.less'
 })
 export class DashboardComponent implements OnInit {
 
-  initLoading = true; // bug
-  loadingMore = false;
-  data: any[] = [];
-  list: Array<{ loading: boolean; name: any }> = [];
+  tails: TailResponse[] = [];
+  currentPage: number = 0; // 0-indexed for API
+  pageSize: number = 10;
+  totalElements: number = 0;
+  totalPages: number = 0;
+  loadingTails: boolean = true;
 
 
   constructor(
-    private http: HttpClient,
+    private http: HttpClient, // Kept for chart data for now, can be removed if charts are refactored
     private msg: NzMessageService,
     private uiConfigService: UiConfigService,
     private authenticationService: AuthenticationService,
-    private router: Router
+    private router: Router,
+    private tailService: TailService // Added
   ) {}
 
   ngOnInit() {
@@ -50,11 +51,31 @@ export class DashboardComponent implements OnInit {
     const apiUrl = this.uiConfigService.getApiUrl();
     console.log('API URL:', apiUrl); // Log the API URL to verify it's loaded correctly
 
-    this.getData((res: any) => {
-      this.data = res.results;
-      this.list = res.results;
-      this.initLoading = false;
-    });
+    this.loadTails();
+  }
+
+  loadTails(page: number = this.currentPage, size: number = this.pageSize): void {
+    this.loadingTails = true;
+    this.tailService.getTails(page, size).subscribe(
+      (response: Page<TailResponse>) => {
+        this.tails = response.content;
+        this.currentPage = response.number;
+        this.pageSize = response.size;
+        this.totalElements = response.totalElements;
+        this.totalPages = response.totalPages;
+        this.loadingTails = false;
+      },
+      error => {
+        this.loadingTails = false;
+        this.msg.error('Failed to load tails.');
+        console.error('Error loading tails:', error);
+      }
+    );
+  }
+
+  onPageIndexChange(pageIndex: number): void {
+    // pageIndex is 1-based from nz-pagination
+    this.loadTails(pageIndex - 1, this.pageSize);
   }
 
   alertsTodayData = {
@@ -104,29 +125,9 @@ export class DashboardComponent implements OnInit {
     maintainAspectRatio: false,
   };
 
-
-
-   getData(callback: (res: any) => void): void {
-    this.http
-      .get(fakeDataUrl)
-      .pipe(catchError(() => of({ results: [] })))
-      .subscribe((res: any) => callback(res));
-  }
-
-  onLoadMore(): void {
-    this.loadingMore = true;
-    this.list = this.data.concat([...Array(count)].fill({}).map(() => ({ loading: true, name: {} })));
-    this.http
-      .get(fakeDataUrl)
-      .pipe(catchError(() => of({ results: [] })))
-      .subscribe((res: any) => {
-        this.data = this.data.concat(res.results);
-        this.list = [...this.data];
-        this.loadingMore = false;
-      });
-  }
-
-  edit(item: any): void {
-    this.msg.success(item.email);
+  // edit method might need to be updated based on TailResponse structure if it's used
+  edit(item: TailResponse): void {
+    // Placeholder for actual edit functionality
+    this.msg.success(`Editing: ${item.title}`);
   }
 }

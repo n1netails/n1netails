@@ -71,7 +71,77 @@
               
             </nz-card>
           </nz-col>
-        </nz-row> 
+        </nz-row>
+
+        <!-- Change Password Card -->
+        <nz-row class="edit-profile" [nzGutter]="8" style="margin-top: 24px;">
+          <nz-col [nzSpan]="24">
+            <nz-card class="tails-primary-color" nzTitle="Change Password" [nzBordered]="false">
+              <form nz-form #changePasswordNgForm="ngForm" (ngSubmit)="onChangePassword(changePasswordNgForm)">
+                <!-- Current Password -->
+                <nz-form-item>
+                  <nz-form-label [nzSpan]="6" nzFor="currentPassword" nzRequired>Current Password</nz-form-label>
+                  <nz-form-control [nzSpan]="14" nzErrorTip="Please input your current password!">
+                    <input
+                      nz-input
+                      type="password"
+                      id="currentPassword"
+                      name="currentPassword"
+                      [(ngModel)]="currentPasswordInput"
+                      required
+                      placeholder="Enter current password"
+                    />
+                  </nz-form-control>
+                </nz-form-item>
+
+                <!-- New Password -->
+                <nz-form-item>
+                  <nz-form-label [nzSpan]="6" nzFor="newPassword" nzRequired>New Password</nz-form-label>
+                  <nz-form-control [nzSpan]="14" nzErrorTip="Password must be at least 8 characters long.">
+                    <input
+                      nz-input
+                      type="password"
+                      id="newPassword"
+                      name="newPassword"
+                      [(ngModel)]="newPasswordInput"
+                      required
+                      minlength="8" 
+                      placeholder="Enter new password"
+                    />
+                  </nz-form-control>
+                </nz-form-item>
+
+                <!-- Confirm New Password -->
+                <nz-form-item>
+                  <nz-form-label [nzSpan]="6" nzFor="confirmNewPassword" nzRequired>Confirm New Password</nz-form-label>
+                  <nz-form-control [nzSpan]="14" nzErrorTip="Please confirm your new password!">
+                    <input
+                      nz-input
+                      type="password"
+                      id="confirmNewPassword"
+                      name="confirmNewPassword"
+                      [(ngModel)]="confirmNewPasswordInput"
+                      required
+                      placeholder="Confirm new password"
+                    />
+                    <!-- Custom error for mismatch can be added here if needed, or rely on component logic -->
+                     @if (changePasswordNgForm.controls['confirmNewPassword']?.errors?.['mismatch'] && changePasswordNgForm.controls['confirmNewPassword']?.touched) {
+                      <nz-form-explain>New passwords do not match.</nz-form-explain>
+                    }
+                  </nz-form-control>
+                </nz-form-item>
+
+                <nz-form-item>
+                  <nz-form-control [nzSpan]="14" [nzOffset]="6">
+                    <button nz-button nzType="primary" type="submit" [disabled]="!changePasswordNgForm.valid">
+                      Change Password
+                    </button>
+                  </nz-form-control>
+                </nz-form-item>
+              </form>
+            </nz-card>
+          </nz-col>
+        </nz-row>
       </div>
       
     </nz-content>

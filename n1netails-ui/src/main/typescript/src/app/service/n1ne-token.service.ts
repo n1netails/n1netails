@@ -5,7 +5,7 @@ import { UiConfigService } from '../shared/ui-config.service';
 
 export interface CreateTokenRequest {
   userId: number;
-  organizationId?: number; // Made optional
+  organizationId?: number;
   name: string;
   expiresAt?: string; // ISO 8601 format
 }
@@ -19,9 +19,6 @@ export interface N1neTokenResponse {
   lastUsedAt: string; // ISO 8601 format
   expiresAt?: string; // ISO 8601 format
   createdAt?: string; // ISO 8601 format
-  // Assuming 'enabled' and 'revoked' fields might also be relevant from a typical token model
-  // Add them if they are present in the backend N1neTokenResponse model and needed by the UI
-  // enabled: boolean; 
   revoked: boolean;
 }
 

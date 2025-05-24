@@ -12,19 +12,23 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import com.n1netails.n1netails.api.model.request.ChangePasswordRequest; // Added
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid; // Added
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication; // Added
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.AccessDeniedException;
 import java.time.Instant;
+import java.util.Map; // Added
 import java.util.stream.Collectors;
 
 import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATION_JSON;
@@ -147,5 +151,24 @@ public class UserController {
         return userPrincipal.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(" "));
+    }
+
+    @Operation(
+            summary = "Change user password",
+            description = "Allows an authenticated user to change their password.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Password changed successfully"),
+                    @ApiResponse(responseCode = "400", description = "Invalid request (e.g., current password mismatch, validation error)",
+                            content = @Content(schema = @Schema(implementation = HttpErrorResponse.class))),
+                    @ApiResponse(responseCode = "401", description = "User not authenticated",
+                            content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
+            }
+    )
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody @Valid ChangePasswordRequest request, Authentication authentication) {
+        String userEmail = authentication.getName();
+        userService.changePassword(userEmail, request.getCurrentPassword(), request.getNewPassword());
+        // Consider creating a more structured success response if needed
+        return ResponseEntity.ok().body(Map.of("message", "Password changed successfully."));
     }
 }

@@ -67,18 +67,47 @@ export class AuthenticationService {
   public isUserLoggedIn(): boolean {
     this.loadToken();
     if (this.token != null && this.token !== '') {
-      if (this.jwtHelper.decodeToken(this.token).sub != null || '') {
-        if (!this.jwtHelper.isTokenExpired(this.token)) {
-          this.loggedInUsername = this.jwtHelper.decodeToken(this.token).sub;
-          return true;
-        } 
-        else {
-          this.logOut();
-          return false;
+      try {
+        const decodedToken = this.jwtHelper.decodeToken(this.token);
+        if (decodedToken && decodedToken.sub != null && decodedToken.sub !== '') {
+          if (!this.jwtHelper.isTokenExpired(this.token)) {
+            this.loggedInUsername = decodedToken.sub;
+            return true;
+          } else {
+            this.logOut(); // Token expired
+            return false;
+          }
         }
+      } catch (error) {
+        console.error('Error decoding token:', error);
+        this.logOut(); // Invalid token
+        return false;
       }
-    } 
+    }
+    // No token or failed decoding
     this.logOut();
+    return false;
+  }
+
+  public hasAuthority(requiredAuthority: string): boolean {
+    this.loadToken();
+    if (!this.token) {
+      return false;
+    }
+    try {
+      const decodedToken = this.jwtHelper.decodeToken(this.token);
+      if (decodedToken && decodedToken.authorities && Array.isArray(decodedToken.authorities)) {
+        return decodedToken.authorities.includes(requiredAuthority);
+      }
+      // Also check for 'scope' if authorities might be stored there (common in OAuth2)
+      if (decodedToken && typeof decodedToken.scope === 'string') {
+        const scopes = decodedToken.scope.split(' ');
+        return scopes.includes(requiredAuthority);
+      }
+    } catch (error) {
+      console.error('Error decoding token for authority check:', error);
+      return false;
+    }
     return false;
   }
 }

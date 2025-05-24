@@ -5,12 +5,12 @@ import com.n1netails.n1netails.api.model.core.TailStatus;
 import com.n1netails.n1netails.api.model.core.TailType;
 import com.n1netails.n1netails.api.model.request.TailRequest;
 import com.n1netails.n1netails.api.model.response.TailResponse;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface TailService {
 
-    List<TailResponse> getTails();
+    Page<TailResponse> getTails(Pageable pageable);
     TailResponse getTailById(Long id);
     TailResponse createTail(TailRequest request);
     TailResponse updateTail(Long id, TailRequest request);

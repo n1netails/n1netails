@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { UiConfigService } from '../shared/ui-config.service';
 
@@ -30,6 +30,14 @@ export interface TailResponse {
   status: string;
 }
 
+export interface Page<T> {
+  content: T[];
+  totalPages: number;
+  totalElements: number;
+  size: number;
+  number: number; // current page index
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -50,8 +58,11 @@ export class TailService {
     return this.http.post<TailResponse>(this.host, request);
   }
 
-  getTails(): Observable<TailResponse[]> {
-    return this.http.get<TailResponse[]>(this.host);
+  getTails(page: number, size: number): Observable<Page<TailResponse>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    return this.http.get<Page<TailResponse>>(this.host, { params });
   }
 
   getTailById(id: number): Observable<TailResponse> {

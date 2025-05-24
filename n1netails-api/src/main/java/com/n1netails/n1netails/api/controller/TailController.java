@@ -12,10 +12,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATION_JSON;
 
@@ -38,13 +39,13 @@ public class TailController {
         return ResponseEntity.ok(tailService.createTail(request));
     }
 
-    @Operation(summary = "Get all tails", responses = {
-            @ApiResponse(responseCode = "200", description = "List of tails",
-                    content = @Content(schema = @Schema(implementation = TailResponse.class)))
+    @Operation(summary = "Get all tails with pagination", responses = {
+            @ApiResponse(responseCode = "200", description = "Page of tails",
+                    content = @Content(schema = @Schema(implementation = Page.class))) // Consider how to represent Page<TailResponse> in Swagger
     })
     @GetMapping
-    public ResponseEntity<List<TailResponse>> getAll() {
-        return ResponseEntity.ok(tailService.getTails());
+    public ResponseEntity<Page<TailResponse>> getAll(@PageableDefault(size = 10, sort = "timestamp,desc") Pageable pageable) {
+        return ResponseEntity.ok(tailService.getTails(pageable));
     }
 
     @Operation(summary = "Get tail by ID", responses = {

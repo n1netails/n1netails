@@ -25,4 +25,11 @@
       </li>
     </ul>
   </li>
+  <!-- Admin Menu Item -->
+  <li nz-menu-item *ngIf="authService.hasAuthority('user:create')" nzMatchRouter>
+    <a routerLink="/admin/users">
+      <span nz-icon nzType="team"></span> <!-- Or any other suitable icon -->
+      <span>Admin Users</span>
+    </a>
+  </li>
 </ul>

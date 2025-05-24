@@ -9,11 +9,20 @@ import com.n1netails.n1netails.api.model.request.TailRequest;
 import com.n1netails.n1netails.api.model.response.TailResponse;
 import com.n1netails.n1netails.api.service.TailService;
 import lombok.RequiredArgsConstructor;
+import com.n1netails.n1netails.api.model.UserPrincipal; // Added
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.security.core.Authentication; // Added
+import org.springframework.security.core.GrantedAuthority; // Added
+import org.springframework.security.core.context.SecurityContextHolder; // Added
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -31,14 +40,30 @@ public class TailServiceImpl implements TailService {
 //    private final TailVariableRepository variableRepository;
 
     @Override
-    public List<TailResponse> getTails() {
-        List<TailEntity> tailEntities = tailRepository.findAll();
-        List<TailResponse> tailResponseList = new ArrayList<>();
-        tailEntities.forEach(tail -> {
-            TailResponse tailResponse = setTailResponse(tail);
-            tailResponseList.add(tailResponse);
-        });
-        return tailResponseList;
+    public Page<TailResponse> getTails(Pageable pageable) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserEmail = authentication.getName();
+        Page<TailEntity> tailEntities;
+
+        // Check for admin authority (e.g., 'user:create' which is used for admin access)
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(auth -> auth.equals("user:create") || auth.equals("ROLE_ADMIN") || auth.equals("ROLE_SUPER_ADMIN")); // Added more role checks for robustness
+
+        if (isAdmin) {
+            log.info("User {} is admin. Fetching all tails.", currentUserEmail);
+            tailEntities = tailRepository.findAll(pageable);
+        } else {
+            log.info("User {} is not admin. Fetching assigned tails.", currentUserEmail);
+            UsersEntity currentUser = usersRepository.findUserByEmail(currentUserEmail).orElse(null);
+            if (currentUser != null && currentUser.getUserId() != null) {
+                tailEntities = tailRepository.findByAssignedUserId(currentUser.getUserId(), pageable);
+            } else {
+                log.warn("Could not find user or userId for email: {}. Returning empty page.", currentUserEmail);
+                tailEntities = Page.empty(pageable);
+            }
+        }
+        return tailEntities.map(this::setTailResponse);
     }
 
     @Override
@@ -200,17 +225,27 @@ public class TailServiceImpl implements TailService {
         tailResponse.setTimestamp(tailEntity.getTimestamp());
         tailResponse.setResolvedTimestamp(tailEntity.getResolvedTimestamp());
         tailResponse.setAssignedUserId(tailEntity.getAssignedUserId());
+        // TODO: Re-evaluate how to efficiently get username, for now, it might make an N+1 query if not careful
+        // For now, let's assume assignedUsername can be null or fetched if the user entity is readily available
+        // without an extra query per tail. The current implementation usersRepository.findUserByUserId will do N+1.
         UsersEntity user = usersRepository.findUserByUserId(tailEntity.getAssignedUserId());
-        tailResponse.setAssignedUsername(user.getUsername());
+        if (user != null) {
+            tailResponse.setAssignedUsername(user.getUsername());
+        } else {
+            tailResponse.setAssignedUsername(null); // Or some default string
+        }
         tailResponse.setDetails(tailEntity.getDetails());
         tailResponse.setLevel(tailEntity.getLevel().getName());
         tailResponse.setType(tailEntity.getType().getName());
         tailResponse.setStatus(tailEntity.getStatus().getName());
         Map<String, String> metadata = new HashMap<>();
-        List<TailVariableEntity> variables = tailEntity.getCustomVariables();
-        variables.forEach(variable -> {
-           metadata.put(variable.getKey(), variable.getValue());
-        });
+        // Null check for customVariables
+        if (tailEntity.getCustomVariables() != null) {
+            List<TailVariableEntity> variables = tailEntity.getCustomVariables();
+            variables.forEach(variable -> {
+                metadata.put(variable.getKey(), variable.getValue());
+            });
+        }
         tailResponse.setMetadata(metadata);
         return tailResponse;
     }

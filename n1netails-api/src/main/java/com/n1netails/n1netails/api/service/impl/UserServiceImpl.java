@@ -8,12 +8,16 @@ import com.n1netails.n1netails.api.model.request.UserRegisterRequest;
 import com.n1netails.n1netails.api.repository.UserRepository;
 import com.n1netails.n1netails.api.service.LoginAttemptService;
 import com.n1netails.n1netails.api.service.UserService;
+import com.n1netails.n1netails.api.model.response.UserResponse; // Added
 import io.micrometer.common.util.StringUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page; // Added
+import org.springframework.data.domain.Pageable; // Added
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.RandomStringGenerator;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.authentication.BadCredentialsException; // Added
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -33,6 +37,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     public static final String EMAIL_ALREADY_EXISTS = "Email already exists";
     public static final String NO_USER_FOUND_BY_EMAIL = "No user found by email: ";
+    public static final String INCORRECT_CURRENT_PASSWORD = "Incorrect current password."; // Added
 
     private final UserRepository userRepository;
     private final LoginAttemptService loginAttemptService;
@@ -93,6 +98,46 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setEnabled(true);
         userRepository.save(user);
         return user;
+    }
+
+    @Override
+    public Page<UserResponse> getAllUsers(Pageable pageable) {
+        Page<UsersEntity> usersPage = userRepository.findAll(pageable);
+        return usersPage.map(this::convertToUserResponse);
+    }
+
+    @Override
+    public void changePassword(String email, String currentPassword, String newPassword) {
+        UsersEntity user = userRepository.findUserByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException(NO_USER_FOUND_BY_EMAIL + email));
+
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new BadCredentialsException(INCORRECT_CURRENT_PASSWORD);
+        }
+
+        // Validate new password complexity if needed (already done in request DTO for basic length)
+        // String passwordPattern = "^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\\-={}\\[\\]:;'\"\\\\|,.<>/?]).{8,}$";
+        // if (!newPassword.matches(passwordPattern)) {
+        //     throw new IllegalArgumentException("Password does not meet complexity requirements.");
+        // }
+
+        user.setPassword(encodePassword(newPassword));
+        userRepository.save(user);
+        log.info("Password changed successfully for user {}", email);
+    }
+
+    private UserResponse convertToUserResponse(UsersEntity entity) {
+        return UserResponse.builder()
+                .id(entity.getId())
+                .userId(entity.getUserId())
+                .firstName(entity.getFirstName())
+                .lastName(entity.getLastName())
+                .email(entity.getEmail())
+                .role(entity.getRole()) // Assuming UsersEntity has getRole() returning String
+                .active(entity.isActive())
+                .notLocked(entity.isNotLocked())
+                .joinDate(entity.getJoinDate())
+                .build();
     }
 
     private String getTemporaryProfileImageUrl(String username) {

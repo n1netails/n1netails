@@ -1,0 +1,57 @@
+<nz-card nzTitle="User Management">
+  <nz-table
+    #userTable
+    [nzData]="users"
+    [nzLoading]="loadingUsers"
+    [nzFrontPagination]="false" 
+    [nzShowPagination]="false" 
+    nzSize="middle"
+  >
+    <thead>
+      <tr>
+        <th>Email</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Role</th>
+        <th>Active</th>
+        <th>Locked</th>
+        <th>Join Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (data of userTable.data; track data.id) {
+      <tr>
+        <td>{{ data.email }}</td>
+        <td>{{ data.firstName }}</td>
+        <td>{{ data.lastName }}</td>
+        <td>{{ data.role }}</td>
+        <td>
+          <nz-badge [nzStatus]="data.active ? 'success' : 'error'" [nzText]="data.active ? 'Yes' : 'No'"></nz-badge>
+        </td>
+        <td>
+          <nz-badge [nzStatus]="!data.notLocked ? 'error' : 'success'" [nzText]="!data.notLocked ? 'Yes' : 'No'"></nz-badge>
+        </td>
+        <td>{{ data.joinDate | date: 'mediumDate' }}</td>
+        <td>
+          <nz-space>
+            <button *nzSpaceItem nz-button nzType="primary" nzSize="small" (click)="editUser(data)">Edit</button>
+            <button *nzSpaceItem nz-button nzType="default" nzSize="small" (click)="toggleUserStatus(data)">Toggle Status</button>
+          </nz-space>
+        </td>
+      </tr>
+      }
+    </tbody>
+  </nz-table>
+
+  <nz-pagination
+    style="margin-top: 20px; text-align: right;"
+    [nzPageIndex]="currentPage + 1" 
+    [nzPageSize]="pageSize"
+    [nzTotal]="totalElements"
+    (nzPageIndexChange)="onPageIndexChange($event)"
+    [nzShowTotal]="totalTemplate"
+  >
+  </nz-pagination>
+  <ng-template #totalTemplate let-total> Total {{ total }} items </ng-template>
+</nz-card>

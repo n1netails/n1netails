@@ -70,38 +70,35 @@
         <nz-row [nzGutter]="8">
           <nz-col [nzSpan]="24">
             <nz-card nzTitle="Active Tails" [nzBordered]="false">
-              <nz-list class="demo-loadmore-list" [nzLoading]="initLoading">
-                @for (item of list; track item) {
-                <nz-list-item>
-                  @if (item.loading) {
-                  <nz-skeleton [nzAvatar]="true" [nzActive]="true" [nzTitle]="false" [nzLoading]="true" />
-                  } @else {
-                  <ng-container>
-                    <nz-list-item-meta nzAvatar="n1netails_icon_transparent.png"
-                      nzDescription="Ant Design, a design language for background applications, is refined by Ant UED Team">
+              <nz-list [nzDataSource]="tails" [nzLoading]="loadingTails" [nzRenderItem]="itemTemplate" nzItemLayout="horizontal">
+                <ng-template #itemTemplate let-item>
+                  <nz-list-item>
+                    <nz-list-item-meta
+                      nzAvatar="assets/n1netails_icon_transparent.png"
+                      [nzDescription]="item.description || 'No description provided.'">
                       <nz-list-item-meta-title>
-                        <a href="https://ng.ant.design">{{ item.name.last }}</a>
+                        <a (click)="edit(item)">{{ item.title }}</a>
                       </nz-list-item-meta-title>
                     </nz-list-item-meta>
-                    content
+                    <div class="list-item-content">
+                      <div><strong>Status:</strong> {{ item.status }}</div>
+                      <div><strong>Assigned to:</strong> {{ item.assignedUsername || 'Unassigned' }}</div>
+                      <div><strong>Timestamp:</strong> {{ item.timestamp | date:'short' }}</div>
+                    </div>
                     <ul nz-list-item-actions>
                       <nz-list-item-action><a (click)="edit(item)">edit</a></nz-list-item-action>
-                      <nz-list-item-action><a (click)="edit(item)">more</a></nz-list-item-action>
+                      <nz-list-item-action><a>more</a></nz-list-item-action> 
                     </ul>
-                  </ng-container>
-                  }
-                </nz-list-item>
-                }
-                <div class="loadmore" nz-list-load-more>
-                  @if (!loadingMore) {
-                  <button
-                    style="float: right; background-color: #F06D0F; padding: 5px; border-radius: 3px; border: none;"
-                    nz-button nzType="primary" (click)="onLoadMore()">
-                    <nz-icon nzType="plus" nzTheme="outline" />
-                  </button>
-                  }
-                </div>
+                  </nz-list-item>
+                </ng-template>
               </nz-list>
+              <nz-pagination
+                [nzPageIndex]="currentPage + 1"
+                [nzPageSize]="pageSize"
+                [nzTotal]="totalElements"
+                (nzPageIndexChange)="onPageIndexChange($event)"
+                style="text-align: right; margin-top: 20px;">
+              </nz-pagination>
             </nz-card>
           </nz-col>
         </nz-row>

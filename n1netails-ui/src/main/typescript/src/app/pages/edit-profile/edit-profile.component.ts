@@ -12,10 +12,11 @@ import { NzFormModule } from 'ng-zorro-antd/form';
 import { FormsModule, NgForm } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
+import { NzMessageService, NzMessageModule } from 'ng-zorro-antd/message'; // Added NzMessageModule
 
 @Component({
   selector: 'app-edit-profile',
-  imports: [NzLayoutModule,NzGridModule,NzCardModule,HeaderComponent,SidenavComponent,NzFormModule,FormsModule],
+  imports: [NzLayoutModule,NzGridModule,NzCardModule,HeaderComponent,SidenavComponent,NzFormModule,FormsModule, NzMessageModule], // Added NzMessageModule
   templateUrl: './edit-profile.component.html',
   styleUrl: './edit-profile.component.less'
 })
@@ -26,10 +27,16 @@ export class EditProfileComponent implements OnInit, OnDestroy {
   firstNameInput: string = "";
   lastNameInput: string = "";
 
+  // For Change Password Form
+  currentPasswordInput: string = "";
+  newPasswordInput: string = "";
+  confirmNewPasswordInput: string = "";
+
   subscriptions: Subscription[] = [];
 
   constructor(
     private notification: NzNotificationService,
+    private message: NzMessageService, // Added
     private authenticationService: AuthenticationService,
     private userService: UserService,
   ) {}
@@ -55,16 +62,68 @@ export class EditProfileComponent implements OnInit, OnDestroy {
         next: (response: User) => {
           this.authenticationService.addUserToLocalCache(response);
           this.user = response;
-          this.presentToast('Success','Updated profile successfully');
+          this.message.success('Profile updated successfully'); // Using NzMessageService
         },
         error: (errorResponse: HttpErrorResponse) => {
           console.error(errorResponse);
-          this.presentToast('Error','Error updating profile');
+          this.message.error('Error updating profile'); // Using NzMessageService
         }
       });
     this.subscriptions.push(sub);
   }
 
+  onChangePassword(changePasswordForm: NgForm): void {
+    if (changePasswordForm.invalid) {
+      this.message.error('Please fill in all required fields for password change.');
+      // Mark fields as touched to show errors if not already shown by ngSubmit
+      Object.values(changePasswordForm.controls).forEach(control => {
+        control.markAsTouched();
+      });
+      return;
+    }
+
+    const newPassword = changePasswordForm.value.newPassword;
+    const confirmPassword = changePasswordForm.value.confirmNewPassword;
+
+    if (newPassword !== confirmPassword) {
+      this.message.error('New password and confirm password do not match.');
+      // Optionally set form control error for confirmNewPassword
+      changePasswordForm.controls['confirmNewPassword']?.setErrors({'mismatch': true});
+      return;
+    }
+    
+    // Basic new password length validation (can be more complex)
+    if (newPassword.length < 8) {
+        this.message.error('New password must be at least 8 characters long.');
+        changePasswordForm.controls['newPassword']?.setErrors({'minlength': true});
+        return;
+    }
+
+
+    const request = {
+      currentPassword: changePasswordForm.value.currentPassword,
+      newPassword: newPassword
+    };
+
+    const sub = this.userService.changePassword(request).subscribe({
+      next: () => {
+        this.message.success('Password changed successfully.');
+        changePasswordForm.resetForm();
+        // Clear specific input fields if resetForm is not enough or for clarity
+        this.currentPasswordInput = "";
+        this.newPasswordInput = "";
+        this.confirmNewPasswordInput = "";
+      },
+      error: (errorResponse: HttpErrorResponse) => {
+        console.error('Password change error:', errorResponse);
+        const errorMessage = errorResponse.error?.message || 'Failed to change password. Please check your current password or try again later.';
+        this.message.error(errorMessage);
+      }
+    });
+    this.subscriptions.push(sub);
+  }
+
+  // Using NzNotificationService for profile updates as it was originally
   private async presentToast(type: string, message: string) {
     switch (type) {
       case 'Error':

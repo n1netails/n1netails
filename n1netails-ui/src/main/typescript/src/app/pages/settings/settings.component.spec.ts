@@ -289,4 +289,123 @@ describe('SettingsComponent', () => {
       }));
   });
 
+  describe('Alert Type Management', () => {
+    const mockTailTypesInitial: TailTypeResponse[] = [
+      { id: 1, name: 'TypeA', description: 'Description A' },
+      { id: 2, name: 'TypeB', description: 'Description B' },
+      { id: 3, name: 'TypeC', description: 'Description C' },
+    ];
+
+    const mockTailTypesAfterRemove: TailTypeResponse[] = [
+      { id: 1, name: 'TypeA', description: 'Description A' },
+      { id: 3, name: 'TypeC', description: 'Description C' },
+    ];
+
+    beforeEach(() => {
+      // Reset relevant service mocks before each test in this suite
+      mockTailTypeService.getTailTypes.and.returnValue(of([...mockTailTypesInitial]));
+      mockTailTypeService.deleteTailType.and.returnValue(of(undefined)); // Default success for delete
+    });
+
+    it('should load tail types and populate alertTypeOptions on ngOnInit', fakeAsync(() => {
+      fixture.detectChanges(); // Calls ngOnInit
+      tick(); // Complete observables
+
+      expect(mockTailTypeService.getTailTypes).toHaveBeenCalled();
+      expect(component.tailTypes.length).toBe(3);
+      expect(component.tailTypes[0].name).toBe('TypeA');
+      expect(component.alertTypeOptions.length).toBe(3);
+      expect(component.alertTypeOptions[0]).toEqual({ label: 'TypeA', value: 'TypeA' });
+      expect(component.alertTypeOptions[1]).toEqual({ label: 'TypeB', value: 'TypeB' });
+    }));
+
+    it('should update alertTypeOptions when updateAlertTypeOptions is called', fakeAsync(() => {
+      const customMockTypes: TailTypeResponse[] = [{ id: 10, name: 'CustomType', description: 'Custom Desc' }];
+      mockTailTypeService.getTailTypes.and.returnValue(of(customMockTypes));
+
+      component.updateAlertTypeOptions();
+      tick(); // Complete observable
+
+      expect(mockTailTypeService.getTailTypes).toHaveBeenCalled();
+      expect(component.alertTypeOptions.length).toBe(1);
+      expect(component.alertTypeOptions[0]).toEqual({ label: 'CustomType', value: 'CustomType' });
+    }));
+
+    it('should log preferredAlertTypes on onSavePreferredTypes', () => {
+      spyOn(console, 'log');
+      component.preferredAlertTypes = ['TypeA', 'TypeC'];
+      component.onSavePreferredTypes();
+
+      expect(console.log).toHaveBeenCalledWith('Saving preferred tail types:', ['TypeA', 'TypeC']);
+    });
+
+    describe('removeAlertType', () => {
+      beforeEach(fakeAsync(() => {
+        // Initial setup for removeAlertType tests
+        component.tailTypes = [...mockTailTypesInitial];
+        component.preferredAlertTypes = ['TypeA', 'TypeB']; // TypeB will be removed
+         // updateAlertTypeOptions called in constructor, then ngOnInit, then here
+        mockTailTypeService.getTailTypes.and.returnValue(of([...mockTailTypesInitial]));
+        fixture.detectChanges(); // ngOnInit, populates alertTypeOptions initially
+        tick();
+        // For the specific call within removeAlertType after deletion
+        mockTailTypeService.getTailTypes.and.returnValue(of([...mockTailTypesAfterRemove]));
+      }));
+
+      it('should call deleteTailType, update tailTypes, preferredAlertTypes, and alertTypeOptions', fakeAsync(() => {
+        const typeNameToRemove = 'TypeB';
+        const typeIdToRemove = mockTailTypesInitial.find(t => t.name === typeNameToRemove)!.id;
+
+        component.removeAlertType(typeNameToRemove);
+        tick(); // Complete delete and subsequent getTailTypes
+
+        expect(mockTailTypeService.deleteTailType).toHaveBeenCalledWith(typeIdToRemove);
+        
+        // Check tailTypes updated in component
+        expect(component.tailTypes.length).toBe(2);
+        expect(component.tailTypes.find(t => t.name === typeNameToRemove)).toBeUndefined();
+        
+        // Check preferredAlertTypes updated
+        expect(component.preferredAlertTypes.length).toBe(1);
+        expect(component.preferredAlertTypes.includes(typeNameToRemove)).toBeFalse();
+        expect(component.preferredAlertTypes[0]).toBe('TypeA');
+
+        // Check alertTypeOptions updated (based on mockTailTypesAfterRemove)
+        expect(component.alertTypeOptions.length).toBe(2);
+        expect(component.alertTypeOptions.find(opt => opt.value === typeNameToRemove)).toBeUndefined();
+        expect(component.alertTypeOptions[0]).toEqual({ label: 'TypeA', value: 'TypeA' });
+        expect(component.alertTypeOptions[1]).toEqual({ label: 'TypeC', value: 'TypeC' });
+      }));
+
+      it('should not change preferredAlertTypes if removed type is not preferred', fakeAsync(() => {
+        const typeNameToRemove = 'TypeC'; // Not in preferredAlertTypes ['TypeA', 'TypeB']
+        const typeIdToRemove = mockTailTypesInitial.find(t => t.name === typeNameToRemove)!.id;
+        
+        // Update mock for getTailTypes to reflect TypeC removal for alertTypeOptions update
+        const typesAfterRemovingC = mockTailTypesInitial.filter(t => t.name !== typeNameToRemove);
+        mockTailTypeService.getTailTypes.and.returnValue(of(typesAfterRemovingC));
+
+        component.removeAlertType(typeNameToRemove);
+        tick();
+
+        expect(mockTailTypeService.deleteTailType).toHaveBeenCalledWith(typeIdToRemove);
+        expect(component.preferredAlertTypes.length).toBe(2); // Unchanged
+        expect(component.preferredAlertTypes).toEqual(['TypeA', 'TypeB']);
+        expect(component.alertTypeOptions.find(opt => opt.value === typeNameToRemove)).toBeUndefined();
+      }));
+
+      it('should handle removal of non-existent type gracefully', fakeAsync(() => {
+        const typeNameToRemove = 'TypeNonExistent';
+        spyOn(console, 'warn'); // Spy on console.warn for the message
+
+        component.removeAlertType(typeNameToRemove);
+        tick();
+
+        expect(mockTailTypeService.deleteTailType).not.toHaveBeenCalled();
+        expect(console.warn).toHaveBeenCalledWith('TailType not found or id missing for type:', typeNameToRemove);
+        expect(component.tailTypes.length).toBe(3); // Unchanged from initial
+        expect(component.preferredAlertTypes.length).toBe(2); // Unchanged
+      }));
+    });
+  });
 });

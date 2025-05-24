@@ -12,33 +12,107 @@
       <div class="inner-content">
 
         <div class="settings-container">
-          <nz-card nzTitle="Alert Token Manager" class="tails-primary-color" [nzBordered]="false">
-            <h3>Create N1ne Token:</h3>
-            <form nz-form (ngSubmit)="onCreateToken()" #tokenForm="ngForm" class="token-form">
+          <!-- N1ne Token Management Card -->
+          <nz-card nzTitle="N1ne Token Manager" class="tails-primary-color" [nzBordered]="false">
+            <div *ngIf="isLoading" class="loading-indicator">Loading tokens...</div>
+            <div *ngIf="errorMessage" [class.bind]="'error-message'" style="color: red; margin-bottom: 10px;">{{ errorMessage }}</div>
+
+            <!-- Create Token Form -->
+            <h3>Create New Token</h3>
+            <form #tokenForm="ngForm" (ngSubmit)="createToken()" nz-form>
               <nz-form-item>
-                <nz-form-label [nzSm]="10" [nzXs]="24" nzFor="expiration">Set Expiration Date (optional)</nz-form-label>
-                <nz-form-control [nzSm]="10" [nzXs]="24">
-                  <input nz-input type="date" id="expiration" name="expiration" [(ngModel)]="newTokenExpiration"
-                    required />
+                <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="tokenName" nzRequired>Token Name</nz-form-label>
+                <nz-form-control [nzSm]="14" [nzXs]="24">
+                  <input nz-input type="text" id="tokenName" name="name" [(ngModel)]="newTokenRequestForm.name" placeholder="Enter a name for the token" required #name="ngModel">
+                  <div *ngIf="name.invalid && (name.dirty || name.touched)" class="error-text">
+                    Token name is required.
+                  </div>
                 </nz-form-control>
-                <button nz-button nzType="primary" type="submit" [disabled]="!tokenForm.valid">Create Token</button>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="tokenExpiresAt">Expiration Date (Optional)</nz-form-label>
+                <nz-form-control [nzSm]="14" [nzXs]="24">
+                  <input nz-input type="datetime-local" id="tokenExpiresAt" name="expiresAt" [(ngModel)]="newTokenRequestForm.expiresAt">
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-control [nzSm]="14" [nzXs]="24" [nzOffset]="6">
+                  <button nz-button nzType="primary" type="submit" [disabled]="!tokenForm.form.valid || isLoading">Create Token</button>
+                </nz-form-control>
               </nz-form-item>
             </form>
-            <nz-table #tokenTable [nzData]="n1neTokens" class="token-table">
+
+            <nz-divider></nz-divider>
+
+            <!-- Display Tokens Table -->
+            <h3>Active Tokens</h3>
+            <nz-table #activeTokensTable [nzData]="tokens" [nzLoading]="isLoading" nzSize="small">
               <thead>
                 <tr>
-                  <th>Token</th>
-                  <th>Expiration</th>
+                  <th>Name</th>
+                  <th>ID</th>
+                  <th>Token Value</th>
+                  <th>Created At</th>
+                  <th>Expires At</th>
+                  <th>Last Used At</th>
+                  <th>Status</th>
+                  <th>User</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let n1netoken of n1neTokens">
-                  <td>{{ n1netoken.token }}</td>
-                  <td>{{ n1netoken.expiresAt }}</td>
+                <tr *ngFor="let token of tokens; let i = index">
+                  <td>{{ token.name }}</td>
+                  <td>{{ token.id }}</td>
                   <td>
-                    <button nz-button nzType="default" nzDanger (click)="onDeleteToken(n1netoken)">Delete</button>
+                    <div class="token-value-cell">
+                      <input
+                        nz-input
+                        [type]="showTokenIndex === i ? 'text' : 'password'"
+                        [value]="token.token"
+                        readonly
+                        style="width: 140px; margin-right: 4px;"
+                        (click)="toggleShowToken(i)"
+                      />
+                      <button
+                        nz-button
+                        nzType="link"
+                        nzSize="small"
+                        (click)="toggleShowToken(i)"
+                        [attr.aria-label]="showTokenIndex === i ? 'Hide' : 'Show'"
+                        style="padding: 0 4px;"
+                      >
+                        <span *ngIf="showTokenIndex !== i" nz-icon nzType="eye-invisible"></span>
+                        <span *ngIf="showTokenIndex === i" nz-icon nzType="eye"></span>
+                      </button>
+                      <button
+                        nz-button
+                        nzType="link"
+                        nzSize="small"
+                        (click)="copyToken(token.token)"
+                        aria-label="Copy"
+                        style="padding: 0 4px;"
+                      >
+                        <span nz-icon nzType="copy"></span>
+                      </button>
+                    </div>
                   </td>
+                  <td>{{ token.createdAt | date:'short' }}</td>
+                  <td>{{ token.expiresAt ? (token.expiresAt | date:'short') : 'Never' }}</td>
+                  <td>{{ token.lastUsedAt ? (token.lastUsedAt | date:'short') : 'Never' }}</td>
+                  <td>
+                    <span *ngIf="token.revoked" style="color: red;">Revoked</span>
+                    <span *ngIf="!token.revoked" style="color: green;">Active</span>
+                  </td>
+                  <td>{{ user.username }}</td>
+                  <td>
+                    <button nz-button nzType="default" (click)="revokeToken(token)" *ngIf="!token.revoked" [disabled]="isLoading" nzSize="small" style="margin-right: 5px;">Revoke</button>
+                    <button nz-button nzType="default" (click)="enableToken(token)" *ngIf="token.revoked" [disabled]="isLoading" nzSize="small" style="margin-right: 5px;">Enable</button>
+                    <button nz-button nzType="primary" nzDanger (click)="deleteToken(token.id)" [disabled]="isLoading" nzSize="small">Delete</button>
+                  </td>
+                </tr>
+                <tr *ngIf="!isLoading && tokens.length === 0">
+                  <td colspan="9" style="text-align: center;">No tokens found.</td>
                 </tr>
               </tbody>
             </nz-table>

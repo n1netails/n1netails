@@ -35,7 +35,8 @@ public class N1neTokenController {
                     content = @Content(schema = @Schema(implementation = N1neTokenResponse.class)))
     })
     @PostMapping(consumes = APPLICATION_JSON)
-    public ResponseEntity<N1neTokenResponse> create(CreateTokenRequest createTokenRequest) {
+    public ResponseEntity<N1neTokenResponse> create(@RequestBody CreateTokenRequest createTokenRequest) {
+        log.info("Create n1ne token");
         N1neTokenResponse n1neTokenResponse = n1neTokenService.create(createTokenRequest);
         return ResponseEntity.ok(n1neTokenResponse);
     }
@@ -57,7 +58,7 @@ public class N1neTokenController {
                     content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
     })
     @GetMapping("/{id}")
-    public ResponseEntity<N1neTokenResponse> getById(Long id) {
+    public ResponseEntity<N1neTokenResponse> getById(@PathVariable Long id) {
         N1neTokenResponse n1neTokenResponse = n1neTokenService.getById(id);
         return ResponseEntity.ok(n1neTokenResponse);
     }
@@ -67,7 +68,7 @@ public class N1neTokenController {
             @ApiResponse(responseCode = "404", description = "Token not found")
     })
     @PutMapping("/revoke/{id}")
-    public ResponseEntity<Void> revoke(Long id) {
+    public ResponseEntity<Void> revoke(@PathVariable Long id) {
         n1neTokenService.revoke(id);
         return ResponseEntity.noContent().build();
     }
@@ -77,7 +78,7 @@ public class N1neTokenController {
             @ApiResponse(responseCode = "404", description = "Token not found")
     })
     @PutMapping("/enable/{id}")
-    public ResponseEntity<Void> enable(Long id) {
+    public ResponseEntity<Void> enable(@PathVariable Long id) {
         n1neTokenService.enable(id);
         return ResponseEntity.noContent().build();
     }
@@ -87,7 +88,7 @@ public class N1neTokenController {
             @ApiResponse(responseCode = "404", description = "Token not found")
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         n1neTokenService.delete(id);
         return ResponseEntity.noContent().build();
     }

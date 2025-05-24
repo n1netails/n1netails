@@ -259,7 +259,8 @@ export class SettingsComponent implements OnInit {
         console.log('TailType deleted:', typeToRemove.id);
         this.tailTypes = this.tailTypes.filter(type => type.id !== typeToRemove.id);
 
-        // todo implement this later
+        // todo implement this
+        // rewrite this to retrieve available tail types from the tailTypeService api
         // this.updateAlertTypeOptions();
         // this.preferredAlertTypes = this.preferredAlertTypes.filter(
         //   (t: string) => t !== typeName
@@ -276,7 +277,8 @@ export class SettingsComponent implements OnInit {
 
   updateAlertTypeOptions() {
 
-    // todo implement this later
+    // todo implement this
+    // rewrite this retrive the alert types from the api tailTypeService
     // this.alertTypeOptions = this.alertTypes.map(type => ({
     //   label: type,
     //   value: type
@@ -284,7 +286,11 @@ export class SettingsComponent implements OnInit {
   }
 
   onSavePreferredTypes() {
-    // todo implement this later
+    // todo implement this
+    // extend upon the /api/tail-type create a process to save a users prefered tail types
+    // modify /n1netails-liquibase and /n1netails-api services in the root directory to include and save the users prefered tail types
+    // if tail types do not exist in the tail types list then it should be removed from the user prefered tail types as well
+    // this does not need to be corrected until the user checks to confirm and view their prefered tail type list.
     // Save preferredAlertTypes to backend or local storage as needed
   }
 }

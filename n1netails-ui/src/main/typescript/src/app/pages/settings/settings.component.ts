@@ -8,13 +8,12 @@ import { FormsModule } from '@angular/forms';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzCheckboxModule, NzCheckBoxOptionInterface } from 'ng-zorro-antd/checkbox';
 import { CommonModule } from '@angular/common';
-import { UserService } from '../../service/user.service';
 import { TailLevel, TailLevelResponse, TailLevelService } from '../../service/tail-level.service';
 import { TailStatus, TailStatusResponse, TailStatusService } from '../../service/tail-status.service';
 import { TailType, TailTypeResponse, TailTypeService } from '../../service/tail-type.service';
 import { User } from '../../model/user';
 import { AuthenticationService } from '../../service/authentication.service';
-import { N1neTokenService, N1neTokenResponse, CreateTokenRequest } from '../../service/n1ne-token.service'; // Renamed to avoid conflict
+import { N1neTokenService, N1neTokenResponse, CreateTokenRequest } from '../../service/n1ne-token.service';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 
 @Component({
@@ -25,7 +24,7 @@ import { NzDividerModule } from 'ng-zorro-antd/divider';
 })
 export class SettingsComponent implements OnInit {
 
-  user: User; // Assumed to be populated, e.g. by AuthenticationService
+  user: User;
 
   // N1ne Token Management
   tokens: N1neTokenResponse[] = [];
@@ -47,12 +46,10 @@ export class SettingsComponent implements OnInit {
     private tailLevelService: TailLevelService,
     private tailStatusService: TailStatusService,
     private tailTypeService: TailTypeService,
-    private n1neTokenService: N1neTokenService // Injected N1neTokenService
+    private n1neTokenService: N1neTokenService,
   ) {
     this.updateAlertTypeOptions();
     this.user = this.authenticationService.getUserFromLocalCache();
-    // currentUser can be this.user directly if its structure matches { id: number, ... }
-    // For this task, we'll use this.user.id which is number as per User model.
   }
 
   ngOnInit(): void {
@@ -106,8 +103,7 @@ export class SettingsComponent implements OnInit {
 
     const request: CreateTokenRequest = {
       name: this.newTokenRequestForm.name,
-      userId: this.user.id, // Using id from the existing user object
-      // organizationId is optional and will not be sent
+      userId: this.user.id,
       organizationId: 0,
       expiresAt: ''
     };
@@ -203,7 +199,7 @@ export class SettingsComponent implements OnInit {
     if (this.newTailLevel && !this.tailLevels.some(level => level.name === tailLevel.name)) {
       this.tailLevelService.createTailLevel(tailLevel).subscribe(response => {
         console.log('TailLevel created:', response);
-        this.tailLevels.push(response); // Assuming response is the created TailLevel
+        this.tailLevels.push(response);
         this.newTailLevel = '';
       });
     }
@@ -226,7 +222,7 @@ export class SettingsComponent implements OnInit {
     if (this.newTailStatus && !this.tailStatuses.some(status => status.name === tailStatus.name)) {
       this.tailStatusService.createTailStatus(tailStatus).subscribe(response => {
         console.log('TailStatus created:', response);
-        this.tailStatuses.push(response); // Assuming response is the created TailStatus
+        this.tailStatuses.push(response);
         this.newTailStatus = '';
       });
     }
@@ -246,11 +242,11 @@ export class SettingsComponent implements OnInit {
 
   addAlertType() {
     console.log('adding type', this.newTailType);
-    const tailType: TailType = { name: this.newTailType, description: '' } // Assuming description is empty for new types or handled by backend
+    const tailType: TailType = { name: this.newTailType, description: '' }
     if (this.newTailType && !this.tailTypes.some(type => type.name === tailType.name)) {
       this.tailTypeService.createTailType(tailType).subscribe(response => {
         console.log('TailType created:', response);
-        this.tailTypes.push(response); // Assuming response is the created TailType
+        this.tailTypes.push(response);
         this.newTailType = '';
       });
     }
@@ -262,6 +258,7 @@ export class SettingsComponent implements OnInit {
       this.tailTypeService.deleteTailType(typeToRemove.id).subscribe(() => {
         console.log('TailType deleted:', typeToRemove.id);
         this.tailTypes = this.tailTypes.filter(type => type.id !== typeToRemove.id);
+
         // todo implement this later
         // this.updateAlertTypeOptions();
         // this.preferredAlertTypes = this.preferredAlertTypes.filter(
@@ -278,6 +275,8 @@ export class SettingsComponent implements OnInit {
   preferredAlertTypes: string[] = [];
 
   updateAlertTypeOptions() {
+
+    // todo implement this later
     // this.alertTypeOptions = this.alertTypes.map(type => ({
     //   label: type,
     //   value: type
@@ -285,6 +284,7 @@ export class SettingsComponent implements OnInit {
   }
 
   onSavePreferredTypes() {
+    // todo implement this later
     // Save preferredAlertTypes to backend or local storage as needed
   }
 }

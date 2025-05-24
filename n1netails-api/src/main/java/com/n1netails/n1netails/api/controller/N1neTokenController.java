@@ -36,6 +36,9 @@ public class N1neTokenController {
     })
     @PostMapping(consumes = APPLICATION_JSON)
     public ResponseEntity<N1neTokenResponse> create(CreateTokenRequest createTokenRequest) {
+        log.info("Create n1ne token: {}", createTokenRequest.toString());
+        log.info("token name: {}", createTokenRequest.getName());
+        log.info("user id: {}", createTokenRequest.getUserId());
         N1neTokenResponse n1neTokenResponse = n1neTokenService.create(createTokenRequest);
         return ResponseEntity.ok(n1neTokenResponse);
     }

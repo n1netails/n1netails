@@ -14,11 +14,12 @@ import { TailStatus, TailStatusResponse, TailStatusService } from '../../service
 import { TailType, TailTypeResponse, TailTypeService } from '../../service/tail-type.service';
 import { User } from '../../model/user';
 import { AuthenticationService } from '../../service/authentication.service';
-import { N1neTokenService, N1neTokenResponse, CreateTokenRequest as ActualCreateTokenRequest } from '../../service/n1ne-token.service'; // Renamed to avoid conflict
+import { N1neTokenService, N1neTokenResponse, CreateTokenRequest } from '../../service/n1ne-token.service'; // Renamed to avoid conflict
+import { NzDividerModule } from 'ng-zorro-antd/divider';
 
 @Component({
   selector: 'app-settings',
-  imports: [NzLayoutModule,HeaderComponent,SidenavComponent,NzCardModule,NzFormModule,FormsModule,NzTableModule,NzCheckboxModule,CommonModule],
+  imports: [NzLayoutModule,HeaderComponent,SidenavComponent,NzCardModule,NzFormModule,FormsModule,NzTableModule,NzCheckboxModule,CommonModule,NzDividerModule],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.less'
 })
@@ -102,7 +103,7 @@ export class SettingsComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
-    const request: ActualCreateTokenRequest = {
+    const request: CreateTokenRequest = {
       name: this.newTokenRequestForm.name,
       userId: this.user.id, // Using id from the existing user object
       // organizationId is optional and will not be sent
@@ -113,6 +114,7 @@ export class SettingsComponent implements OnInit {
       request.expiresAt = new Date(this.newTokenRequestForm.expiresAt).toISOString();
     }
 
+    console.log('Create token request:', request);
     this.n1neTokenService.createToken(request).subscribe({
       next: () => {
         this.newTokenRequestForm = {}; // Reset form

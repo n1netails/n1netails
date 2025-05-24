@@ -12,8 +12,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -33,10 +35,10 @@ public class N1neTokenServiceImpl implements N1neTokenService {
         UsersEntity user = this.userRepository.findById(createTokenRequest.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException(USER_DOES_NOT_EXIST + createTokenRequest.getUserId()));
         n1neTokenEntity.setUser(user);
-        n1neTokenEntity.setCreatedAt(createTokenRequest.getCreatedAt());
+        n1neTokenEntity.setCreatedAt(Instant.now());
         n1neTokenEntity.setExpiresAt(createTokenRequest.getExpiresAt());
         n1neTokenEntity.setName(createTokenRequest.getName());
-        n1neTokenEntity.setToken(createTokenRequest.getToken());
+        n1neTokenEntity.setToken(UUID.randomUUID());
         n1neTokenEntity = this.n1neTokenRepository.save(n1neTokenEntity);
         return generateN1neTokenResponse(n1neTokenEntity);
     }

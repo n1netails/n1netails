@@ -16,7 +16,7 @@
           <nz-card nzTitle="N1ne Token Manager" class="tails-primary-color" [nzBordered]="false">
             <!-- Loading and Error Messages -->
             <div *ngIf="isLoading" class="loading-indicator">Loading tokens...</div>
-            <div *ngIf="errorMessage" class.bind="'error-message'" style="color: red; margin-bottom: 10px;">{{ errorMessage }}</div>
+            <div *ngIf="errorMessage" [class.bind]="'error-message'" style="color: red; margin-bottom: 10px;">{{ errorMessage }}</div>
 
             <!-- Create Token Form -->
             <h3>Create New Token</h3>

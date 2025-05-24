@@ -1,18 +1,19 @@
 package com.n1netails.n1netails.api.model.request;
 
 import com.n1netails.n1netails.api.model.core.N1neToken;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+
+import java.time.Instant;
 
 @Getter
 @Setter
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateTokenRequest extends N1neToken {
+public class CreateTokenRequest {
 
     private Long userId;
     private Long organizationId;
     private String name;
+    private Instant expiresAt;
 }

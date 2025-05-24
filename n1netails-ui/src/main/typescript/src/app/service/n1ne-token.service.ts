@@ -54,11 +54,11 @@ export class N1neTokenService {
   }
 
   revokeToken(id: number): Observable<void> {
-    return this.http.put<void>(`${this.host}/${id}/revoke`, {});
+    return this.http.put<void>(`${this.host}/revoke/${id}`, {});
   }
 
   enableToken(id: number): Observable<void> {
-    return this.http.put<void>(`${this.host}/${id}/enable`, {});
+    return this.http.put<void>(`${this.host}/enable/${id}`, {});
   }
 
   deleteToken(id: number): Observable<void> {

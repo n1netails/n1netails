@@ -39,7 +39,9 @@ public class N1neTokenServiceImpl implements N1neTokenService {
         n1neTokenEntity.setExpiresAt(createTokenRequest.getExpiresAt());
         n1neTokenEntity.setName(createTokenRequest.getName());
         n1neTokenEntity.setToken(UUID.randomUUID());
+        log.info("Saving new token");
         n1neTokenEntity = this.n1neTokenRepository.save(n1neTokenEntity);
+        log.info("Generating token response");
         return generateN1neTokenResponse(n1neTokenEntity);
     }
 
@@ -65,6 +67,7 @@ public class N1neTokenServiceImpl implements N1neTokenService {
         N1neTokenEntity n1neTokenEntity = this.n1neTokenRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(TOKEN_DOES_NOT_EXIST + id));
         n1neTokenEntity.setRevoked(true);
+        this.n1neTokenRepository.save(n1neTokenEntity);
     }
 
     @Override
@@ -72,6 +75,7 @@ public class N1neTokenServiceImpl implements N1neTokenService {
         N1neTokenEntity n1neTokenEntity = this.n1neTokenRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(TOKEN_DOES_NOT_EXIST + id));
         n1neTokenEntity.setRevoked(false);
+        this.n1neTokenRepository.save(n1neTokenEntity);
     }
 
     @Override
@@ -86,9 +90,10 @@ public class N1neTokenServiceImpl implements N1neTokenService {
         n1neTokenResponse.setCreatedAt(n1neTokenEntity.getCreatedAt());
         n1neTokenResponse.setRevoked(n1neTokenEntity.isRevoked());
         n1neTokenResponse.setExpiresAt(n1neTokenEntity.getExpiresAt());
-        n1neTokenResponse.setName(n1neTokenResponse.getName());
+        n1neTokenResponse.setName(n1neTokenEntity.getName());
         n1neTokenResponse.setUserId(n1neTokenEntity.getUser().getId());
-        n1neTokenResponse.setOrganizationId(n1neTokenEntity.getOrganization().getId());
+        if (n1neTokenEntity.getOrganization() != null)
+            n1neTokenResponse.setOrganizationId(n1neTokenEntity.getOrganization().getId());
         return n1neTokenResponse;
     }
 }

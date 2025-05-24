@@ -14,7 +14,6 @@
         <div class="settings-container">
           <!-- N1ne Token Management Card -->
           <nz-card nzTitle="N1ne Token Manager" class="tails-primary-color" [nzBordered]="false">
-            <!-- Loading and Error Messages -->
             <div *ngIf="isLoading" class="loading-indicator">Loading tokens...</div>
             <div *ngIf="errorMessage" [class.bind]="'error-message'" style="color: red; margin-bottom: 10px;">{{ errorMessage }}</div>
 
@@ -57,15 +56,47 @@
                   <th>Expires At</th>
                   <th>Last Used At</th>
                   <th>Status</th>
-                  <th>User ID</th>
+                  <th>User</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let token of tokens">
+                <tr *ngFor="let token of tokens; let i = index">
                   <td>{{ token.name }}</td>
                   <td>{{ token.id }}</td>
-                  <td><input nz-input [value]="token.token" readonly style="width: 100px;"/></td> <!-- Assuming token.token holds the UUID -->
+                  <td>
+                    <div class="token-value-cell">
+                      <input
+                        nz-input
+                        [type]="showTokenIndex === i ? 'text' : 'password'"
+                        [value]="token.token"
+                        readonly
+                        style="width: 140px; margin-right: 4px;"
+                        (click)="toggleShowToken(i)"
+                      />
+                      <button
+                        nz-button
+                        nzType="link"
+                        nzSize="small"
+                        (click)="toggleShowToken(i)"
+                        [attr.aria-label]="showTokenIndex === i ? 'Hide' : 'Show'"
+                        style="padding: 0 4px;"
+                      >
+                        <span *ngIf="showTokenIndex !== i" nz-icon nzType="eye-invisible"></span>
+                        <span *ngIf="showTokenIndex === i" nz-icon nzType="eye"></span>
+                      </button>
+                      <button
+                        nz-button
+                        nzType="link"
+                        nzSize="small"
+                        (click)="copyToken(token.token)"
+                        aria-label="Copy"
+                        style="padding: 0 4px;"
+                      >
+                        <span nz-icon nzType="copy"></span>
+                      </button>
+                    </div>
+                  </td>
                   <td>{{ token.createdAt | date:'short' }}</td>
                   <td>{{ token.expiresAt ? (token.expiresAt | date:'short') : 'Never' }}</td>
                   <td>{{ token.lastUsedAt ? (token.lastUsedAt | date:'short') : 'Never' }}</td>
@@ -73,7 +104,7 @@
                     <span *ngIf="token.revoked" style="color: red;">Revoked</span>
                     <span *ngIf="!token.revoked" style="color: green;">Active</span>
                   </td>
-                  <td>{{ token.userId }}</td>
+                  <td>{{ user.username }}</td>
                   <td>
                     <button nz-button nzType="default" (click)="revokeToken(token)" *ngIf="!token.revoked" [disabled]="isLoading" nzSize="small" style="margin-right: 5px;">Revoke</button>
                     <button nz-button nzType="default" (click)="enableToken(token)" *ngIf="token.revoked" [disabled]="isLoading" nzSize="small" style="margin-right: 5px;">Enable</button>
@@ -81,7 +112,7 @@
                   </td>
                 </tr>
                 <tr *ngIf="!isLoading && tokens.length === 0">
-                    <td colspan="9" style="text-align: center;">No tokens found.</td>
+                  <td colspan="9" style="text-align: center;">No tokens found.</td>
                 </tr>
               </tbody>
             </nz-table>

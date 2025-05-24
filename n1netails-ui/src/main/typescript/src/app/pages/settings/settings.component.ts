@@ -25,7 +25,7 @@ import { NzDividerModule } from 'ng-zorro-antd/divider';
 })
 export class SettingsComponent implements OnInit {
 
-  private user: User; // Assumed to be populated, e.g. by AuthenticationService
+  user: User; // Assumed to be populated, e.g. by AuthenticationService
 
   // N1ne Token Management
   tokens: N1neTokenResponse[] = [];
@@ -77,6 +77,7 @@ export class SettingsComponent implements OnInit {
     this.errorMessage = '';
     this.n1neTokenService.getAllTokens().subscribe({
       next: (data) => {
+        console.log('TOKEN DATA:', data);
         this.tokens = data;
         this.isLoading = false;
       },
@@ -107,6 +108,8 @@ export class SettingsComponent implements OnInit {
       name: this.newTokenRequestForm.name,
       userId: this.user.id, // Using id from the existing user object
       // organizationId is optional and will not be sent
+      organizationId: 0,
+      expiresAt: ''
     };
 
     if (this.newTokenRequestForm.expiresAt) {
@@ -170,6 +173,19 @@ export class SettingsComponent implements OnInit {
         this.isLoading = false;
         console.error(`Failed to delete token ${tokenId}`, err);
       }
+    });
+  }
+
+  showTokenIndex: number | null = null;
+
+  toggleShowToken(index: number): void {
+    this.showTokenIndex = this.showTokenIndex === index ? null : index;
+  }
+
+  copyToken(tokenValue: string): void {
+    navigator.clipboard.writeText(tokenValue).then(() => {
+      // Optionally show a notification/toast here
+      console.log('copied token');
     });
   }
 

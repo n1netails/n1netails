@@ -73,7 +73,7 @@ export class SettingsComponent implements OnInit {
   loadTokens(): void {
     this.isLoading = true;
     this.errorMessage = '';
-    this.n1neTokenService.getAllTokens().subscribe({
+    this.n1neTokenService.getAllTokensByUserId(this.user.id).subscribe({
       next: (data) => {
         console.log('TOKEN DATA:', data);
         this.tokens = data;

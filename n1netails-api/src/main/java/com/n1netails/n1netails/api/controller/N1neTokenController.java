@@ -51,6 +51,17 @@ public class N1neTokenController {
         return ResponseEntity.ok(n1neTokenResponseList);
     }
 
+    @Operation(summary = "Get all tokens by user id", responses = {
+            @ApiResponse(responseCode = "200", description = "List of tokens by user id",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = N1neTokenResponse.class))))
+    })
+    @GetMapping("/user-tokens/{userId}")
+    public ResponseEntity<List<N1neTokenResponse>> getAllByUserId(@PathVariable Long userId) {
+        log.info("Get all tokens by user id");
+        List<N1neTokenResponse> n1neTokenResponseList = n1neTokenService.getAllByUserId(userId);
+        return ResponseEntity.ok(n1neTokenResponseList);
+    }
+
     @Operation(summary = "Get token by ID", responses = {
             @ApiResponse(responseCode = "200", description = "Token found",
                     content = @Content(schema = @Schema(implementation = N1neTokenResponse.class))),

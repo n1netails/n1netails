@@ -10,6 +10,7 @@ public interface N1neTokenService {
     N1neTokenResponse create(CreateTokenRequest createTokenRequest);
     N1neTokenResponse getById(Long id);
     List<N1neTokenResponse> getAll();
+    List<N1neTokenResponse> getAllByUserId(Long userId);
     void revoke(Long id);
     void enable(Long id);
     void delete(Long id);

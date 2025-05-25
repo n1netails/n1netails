@@ -63,6 +63,16 @@ public class N1neTokenServiceImpl implements N1neTokenService {
     }
 
     @Override
+    public List<N1neTokenResponse> getAllByUserId(Long userId) {
+        List<N1neTokenEntity> n1neTokenEntities = this.n1neTokenRepository.findByUserId(userId);
+        List<N1neTokenResponse> n1neTokenResponseList = new ArrayList<>();
+        n1neTokenEntities.forEach(entity -> {
+            n1neTokenResponseList.add(generateN1neTokenResponse(entity));
+        });
+        return n1neTokenResponseList;
+    }
+
+    @Override
     public void revoke(Long id) {
         N1neTokenEntity n1neTokenEntity = this.n1neTokenRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(TOKEN_DOES_NOT_EXIST + id));

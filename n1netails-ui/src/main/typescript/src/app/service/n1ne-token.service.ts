@@ -46,6 +46,10 @@ export class N1neTokenService {
     return this.http.get<N1neTokenResponse[]>(this.host);
   }
 
+  getAllTokensByUserId(userId: number): Observable<N1neTokenResponse[]> {
+    return this.http.get<N1neTokenResponse[]>(`${this.host}/user-tokens/${userId}`);
+  }
+
   getTokenById(id: number): Observable<N1neTokenResponse> {
     return this.http.get<N1neTokenResponse>(`${this.host}/${id}`);
   }

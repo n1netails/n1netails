@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -46,6 +47,7 @@ public class N1neTokenController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = N1neTokenResponse.class))))
     })
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('user:admin')")
     public ResponseEntity<List<N1neTokenResponse>> getAll() {
         List<N1neTokenResponse> n1neTokenResponseList = n1neTokenService.getAll();
         return ResponseEntity.ok(n1neTokenResponseList);

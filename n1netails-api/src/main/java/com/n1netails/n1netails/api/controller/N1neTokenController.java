@@ -47,7 +47,7 @@ public class N1neTokenController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = N1neTokenResponse.class))))
     })
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('user:read', 'user:update', 'user:create')")
+    @PreAuthorize("hasAnyAuthority('user:admin')")
     public ResponseEntity<List<N1neTokenResponse>> getAll() {
         List<N1neTokenResponse> n1neTokenResponseList = n1neTokenService.getAll();
         return ResponseEntity.ok(n1neTokenResponseList);

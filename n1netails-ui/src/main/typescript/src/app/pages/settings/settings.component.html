@@ -118,13 +118,15 @@
             </nz-table>
           </nz-card>
 
-          <nz-card nzTitle="Preferred Alert Types" class="tails-primary-color" [nzBordered]="false">
+          <!-- TODO ADD THIS FEATURE IN LATER -->
+          <!-- provide users with options to selete their perferred alert types -->
+          <!-- <nz-card nzTitle="Preferred Alert Types" class="tails-primary-color" [nzBordered]="false">
             <form nz-form (ngSubmit)="onSavePreferredTypes()" #preferredTypesForm="ngForm">
               <nz-checkbox-group [(ngModel)]="preferredAlertTypes" [nzOptions]="alertTypeOptions"
                 name="preferredAlertTypes"></nz-checkbox-group>
               <button nz-button nzType="primary" type="submit" style="margin-top: 16px;">Save Preferences</button>
             </form>
-          </nz-card>
+          </nz-card> -->
 
           <nz-card nzTitle="Alert Levels, Statuses, and Types" class="tails-primary-color" [nzBordered]="false">
             <div class="alert-management">

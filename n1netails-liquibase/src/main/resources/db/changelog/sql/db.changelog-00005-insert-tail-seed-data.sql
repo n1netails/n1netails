@@ -1,9 +1,10 @@
 -- TailLevel seed data
 INSERT INTO ntail.tail_level (id, name, description) VALUES
-(1, 'LOW', 'Minor tail, minimal impact.'),
-(2, 'MEDIUM', 'Moderate tail, needs attention.'),
-(3, 'HIGH', 'Major tail, immediate action required.'),
-(4, 'EXTREME', 'Extreme tail, highest priority deal with this issue first.');
+(1, 'INFO', 'Info tail, minimal impact.'),
+(2, 'SUCCESS', 'Success tail, notify on successful actions.'),
+(3, 'WARN', 'Warning tail, indicates a non-breaking issue immediate action not required.'),
+(4, 'ERROR', 'Error tail, immediate action required.'),
+(5, 'CRITICAL', 'Critical tail, highest priority deal with this issue first.');
 
 -- TailStatus seed data
 INSERT INTO ntail.tail_status (id, name) VALUES

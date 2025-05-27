@@ -1,5 +1,6 @@
 package com.n1netails.n1netails.api.controller;
 
+import com.n1netails.n1netails.api.exception.type.TailLevelNotFoundException;
 import com.n1netails.n1netails.api.model.core.TailLevel;
 import com.n1netails.n1netails.api.model.response.HttpErrorResponse;
 import com.n1netails.n1netails.api.model.response.TailLevelResponse;
@@ -75,7 +76,7 @@ public class TailLevelController {
             @ApiResponse(responseCode = "404", description = "Tail level not found")
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTailLevel(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteTailLevel(@PathVariable Long id) throws TailLevelNotFoundException {
         tailLevelService.deleteTailLevel(id);
         return ResponseEntity.noContent().build();
     }

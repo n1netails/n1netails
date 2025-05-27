@@ -9,4 +9,5 @@ import lombok.*;
 @NoArgsConstructor
 public class TailStatus {
     private String name;
+    private boolean isDeletable;
 }

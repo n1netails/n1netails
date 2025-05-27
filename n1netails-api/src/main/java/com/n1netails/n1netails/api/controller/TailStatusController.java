@@ -1,5 +1,6 @@
 package com.n1netails.n1netails.api.controller;
 
+import com.n1netails.n1netails.api.exception.type.TailStatusNotFoundException;
 import com.n1netails.n1netails.api.model.core.TailStatus;
 import com.n1netails.n1netails.api.model.response.HttpErrorResponse;
 import com.n1netails.n1netails.api.model.response.TailLevelResponse;
@@ -76,7 +77,7 @@ public class TailStatusController {
             @ApiResponse(responseCode = "404", description = "Tail status not found")
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTailStatus(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteTailStatus(@PathVariable Long id) throws TailStatusNotFoundException {
         tailStatusService.deleteTailStatus(id);
         return ResponseEntity.noContent().build();
     }

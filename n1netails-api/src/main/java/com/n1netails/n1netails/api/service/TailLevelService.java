@@ -1,5 +1,6 @@
 package com.n1netails.n1netails.api.service;
 
+import com.n1netails.n1netails.api.exception.type.TailLevelNotFoundException;
 import com.n1netails.n1netails.api.model.core.TailLevel;
 import com.n1netails.n1netails.api.model.response.TailLevelResponse;
 
@@ -11,5 +12,5 @@ public interface TailLevelService {
     TailLevelResponse getTailLevelById(Long id);
     TailLevelResponse createTailLevel(TailLevel request);
     TailLevelResponse updateTailLevel(Long id, TailLevel request);
-    void deleteTailLevel(Long id);
+    void deleteTailLevel(Long id) throws TailLevelNotFoundException;
 }

@@ -1,5 +1,6 @@
 package com.n1netails.n1netails.api.controller;
 
+import com.n1netails.n1netails.api.exception.type.TailTypeNotFoundException;
 import com.n1netails.n1netails.api.model.core.TailType;
 import com.n1netails.n1netails.api.model.response.HttpErrorResponse;
 import com.n1netails.n1netails.api.model.response.TailTypeResponse;
@@ -75,7 +76,7 @@ public class TailTypeController {
             @ApiResponse(responseCode = "404", description = "Tail type not found")
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTailType(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteTailType(@PathVariable Long id) throws TailTypeNotFoundException {
         tailTypeService.deleteTailType(id);
         return ResponseEntity.noContent().build();
     }

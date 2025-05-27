@@ -1,5 +1,6 @@
 package com.n1netails.n1netails.api.service.impl;
 
+import com.n1netails.n1netails.api.exception.type.TailTypeNotFoundException;
 import com.n1netails.n1netails.api.model.core.TailType;
 import com.n1netails.n1netails.api.model.entity.TailTypeEntity;
 import com.n1netails.n1netails.api.model.response.TailTypeResponse;
@@ -46,6 +47,7 @@ public class TailTypeServiceImpl implements TailTypeService {
         TailTypeEntity tailTypeEntity = new TailTypeEntity();
         tailTypeEntity.setName(request.getName());
         tailTypeEntity.setDescription(request.getDescription());
+        tailTypeEntity.setDeletable(request.isDeletable());
         tailTypeEntity = this.tailTypeRepository.save(tailTypeEntity);
         return generateTailTypeResponse(tailTypeEntity);
     }
@@ -61,14 +63,17 @@ public class TailTypeServiceImpl implements TailTypeService {
     }
 
     @Override
-    public void deleteTailType(Long id) {
-        this.tailTypeRepository.deleteById(id);
+    public void deleteTailType(Long id) throws TailTypeNotFoundException {
+        TailTypeEntity tailTypeEntity = this.tailTypeRepository.findById(id)
+                .orElseThrow(() -> new TailTypeNotFoundException("Tail Type Does Not Exist."));
+        if (tailTypeEntity.isDeletable()) this.tailTypeRepository.deleteById(id);
     }
 
     private TailTypeResponse generateTailTypeResponse(TailTypeEntity entity) {
         TailTypeResponse tailTypeResponse = new TailTypeResponse(entity.getId());
         tailTypeResponse.setName(entity.getName());
         tailTypeResponse.setDescription(entity.getDescription());
+        tailTypeResponse.setDeletable(entity.isDeletable());
         return tailTypeResponse;
     }
 }

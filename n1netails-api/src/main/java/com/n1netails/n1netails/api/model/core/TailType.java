@@ -10,4 +10,5 @@ import lombok.*;
 public class TailType {
     private String name;
     private String description;
+    private boolean isDeletable;
 }

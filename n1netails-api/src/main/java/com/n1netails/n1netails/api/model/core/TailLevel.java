@@ -10,4 +10,5 @@ import lombok.*;
 public class TailLevel {
     private String name;
     private String description;
+    private boolean isDeletable;
 }

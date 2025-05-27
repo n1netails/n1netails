@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS ntail.tail_status
 (
     id bigint NOT NULL,
     name character varying(255),
+    is_deletable boolean NOT NULL,
     CONSTRAINT tail_status_pkey PRIMARY KEY (id)
 )
 
@@ -25,6 +26,7 @@ CREATE TABLE IF NOT EXISTS ntail.tail_type
     id bigint NOT NULL,
     description character varying(255),
     name character varying(255),
+    is_deletable boolean NOT NULL,
     CONSTRAINT tail_type_pkey PRIMARY KEY (id)
 )
 
@@ -43,6 +45,7 @@ CREATE TABLE IF NOT EXISTS ntail.tail_level
     id bigint NOT NULL,
     description character varying(255),
     name character varying(255),
+    is_deletable boolean NOT NULL,
     CONSTRAINT tail_level_pkey PRIMARY KEY (id)
 )
 

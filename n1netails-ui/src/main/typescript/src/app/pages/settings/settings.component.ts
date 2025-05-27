@@ -196,7 +196,7 @@ export class SettingsComponent implements OnInit {
 
   addAlertLevel() {
     console.log('adding level', this.newTailLevel);
-    const tailLevel: TailLevel = { name: this.newTailLevel, description: '' }
+    const tailLevel: TailLevel = { name: this.newTailLevel, description: '', deletable: true }
     if (this.newTailLevel && !this.tailLevels.some(level => level.name === tailLevel.name)) {
       this.tailLevelService.createTailLevel(tailLevel).subscribe(response => {
         console.log('TailLevel created:', response);
@@ -219,7 +219,7 @@ export class SettingsComponent implements OnInit {
 
   addAlertStatus() {
     console.log('adding status', this.newTailStatus);
-    const tailStatus: TailStatus = { name: this.newTailStatus }
+    const tailStatus: TailStatus = { name: this.newTailStatus, deletable: true }
     if (this.newTailStatus && !this.tailStatuses.some(status => status.name === tailStatus.name)) {
       this.tailStatusService.createTailStatus(tailStatus).subscribe(response => {
         console.log('TailStatus created:', response);
@@ -243,7 +243,7 @@ export class SettingsComponent implements OnInit {
 
   addAlertType() {
     console.log('adding type', this.newTailType);
-    const tailType: TailType = { name: this.newTailType, description: '' }
+    const tailType: TailType = { name: this.newTailType, description: '', deletable: true }
     if (this.newTailType && !this.tailTypes.some(type => type.name === tailType.name)) {
       this.tailTypeService.createTailType(tailType).subscribe(response => {
         console.log('TailType created:', response);

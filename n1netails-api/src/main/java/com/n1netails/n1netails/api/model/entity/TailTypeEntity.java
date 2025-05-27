@@ -19,6 +19,7 @@ public class TailTypeEntity {
 
     private String name;
     private String description;
+    private boolean isDeletable;
 
     @ManyToMany(mappedBy = "relatedTailTypes")
     private List<RunbookEntity> runbooks;

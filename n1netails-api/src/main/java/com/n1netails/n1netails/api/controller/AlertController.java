@@ -16,7 +16,7 @@ import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATIO
 
 @Slf4j
 @RequiredArgsConstructor
-@Tag(name = "N1ne Alert Controller", description = "Operations related to N1ne Alerts (Utilized by Kuda)")
+@Tag(name = "Alert Controller", description = "Operations related to N1ne Alerts (Utilized by Kuda)")
 @RestController
 @RequestMapping(path = {"/api/alert"}, produces = APPLICATION_JSON)
 public class AlertController {
@@ -25,7 +25,8 @@ public class AlertController {
     private final N1neTokenService n1neTokenService;
 
     @Operation(summary = "Create a new alert", responses = {
-            @ApiResponse(responseCode = "200", description = "Alert created")
+            @ApiResponse(responseCode = "200", description = "Alert created"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
     @PostMapping(consumes = APPLICATION_JSON)
     public ResponseEntity<Void> create(

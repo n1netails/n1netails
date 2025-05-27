@@ -200,7 +200,7 @@ public class TailServiceImpl implements TailService {
         tailResponse.setTimestamp(tailEntity.getTimestamp());
         tailResponse.setResolvedTimestamp(tailEntity.getResolvedTimestamp());
         tailResponse.setAssignedUserId(tailEntity.getAssignedUserId());
-        UsersEntity user = usersRepository.findUserByUserId(tailEntity.getAssignedUserId());
+        UsersEntity user = usersRepository.findUserById(tailEntity.getAssignedUserId());
         tailResponse.setAssignedUsername(user.getUsername());
         tailResponse.setDetails(tailEntity.getDetails());
         tailResponse.setLevel(tailEntity.getLevel().getName());

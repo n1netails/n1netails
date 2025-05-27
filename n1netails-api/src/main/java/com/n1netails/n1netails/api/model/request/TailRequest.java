@@ -18,7 +18,7 @@ public class TailRequest {
     private String details;
     private Instant timestamp;
     private Instant resolvedTimestamp;
-    private String assignedUserId;
+    private Long assignedUserId;
     private String status;
     private TailLevel level;
     private TailType type;

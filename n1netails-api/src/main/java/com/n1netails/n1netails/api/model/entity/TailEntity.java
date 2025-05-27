@@ -26,7 +26,7 @@ public class TailEntity {
     private String description;
     private Instant timestamp;
     private Instant resolvedTimestamp;
-    private String assignedUserId;
+    private Long assignedUserId;
     @Lob
     @Column(columnDefinition = "TEXT")
     private String details;

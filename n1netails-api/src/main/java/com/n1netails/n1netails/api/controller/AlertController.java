@@ -1,0 +1,42 @@
+package com.n1netails.n1netails.api.controller;
+
+import com.n1netails.n1netails.api.model.request.KudaTailRequest;
+import com.n1netails.n1netails.api.service.AlertService;
+import com.n1netails.n1netails.api.service.N1neTokenService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATION_JSON;
+
+@Slf4j
+@RequiredArgsConstructor
+@Tag(name = "N1ne Alert Controller", description = "Operations related to N1ne Alerts (Utilized by Kuda)")
+@RestController
+@RequestMapping(path = {"/api/alert"}, produces = APPLICATION_JSON)
+public class AlertController {
+
+    private final AlertService alertService;
+    private final N1neTokenService n1neTokenService;
+
+    @Operation(summary = "Create a new alert", responses = {
+            @ApiResponse(responseCode = "200", description = "Alert created")
+    })
+    @PostMapping(consumes = APPLICATION_JSON)
+    public ResponseEntity<Void> create(
+            @RequestHeader("N1ne-Token") String n1neToken,
+            @RequestBody KudaTailRequest request
+    ) {
+        log.info("=====================");
+        log.info("RECEIVED KUDA REQUEST");
+
+        boolean tokenValid = this.n1neTokenService.validateToken(n1neToken);
+        if (tokenValid) alertService.createTail(n1neToken, request);
+        else log.error("Invalid token received");
+        return ResponseEntity.noContent().build();
+    }
+}

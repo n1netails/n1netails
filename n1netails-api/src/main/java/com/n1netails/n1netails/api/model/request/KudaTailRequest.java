@@ -1,4 +1,4 @@
-package com.n1netails.n1netails.api.model.response;
+package com.n1netails.n1netails.api.model.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,17 +10,12 @@ import java.util.Map;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TailResponse {
-    private Long id;
+public class KudaTailRequest {
     private String title;
     private String description;
-    private Instant timestamp;
-    private Instant resolvedTimestamp;
-    private Long assignedUserId;
-    private String assignedUsername;
     private String details;
+    private Instant timestamp;
     private String level;
     private String type;
-    private String status;
     private Map<String, String> metadata;
 }

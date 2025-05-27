@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,7 +37,11 @@ public class AlertController {
 
         boolean tokenValid = this.n1neTokenService.validateToken(n1neToken);
         if (tokenValid) alertService.createTail(n1neToken, request);
-        else log.error("Invalid token received");
+        else {
+            // Log internally, but don’t reveal to client
+            log.warn("Unauthorized access attempt with token: {}", n1neToken);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.noContent().build();
     }
 }

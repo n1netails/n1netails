@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface TailRepository extends JpaRepository<TailEntity, Long> {
-    List<TailEntity> findByAssignedUserId(String userId);
+    List<TailEntity> findByAssignedUserId(Long userId);
 }

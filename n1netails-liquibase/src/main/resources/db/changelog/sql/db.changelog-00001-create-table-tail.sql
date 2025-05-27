@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS ntail.tail
     status_id bigint,
     "timestamp" timestamp(6) with time zone,
     type_id bigint,
-    assigned_user_id character varying(255),
+    assigned_user_id bigint NOT NULL,
     description character varying(255),
     title character varying(255),
     details text,

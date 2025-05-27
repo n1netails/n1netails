@@ -14,4 +14,5 @@ public interface N1neTokenService {
     void revoke(Long id);
     void enable(Long id);
     void delete(Long id);
+    boolean validateToken(String n1neToken);
 }

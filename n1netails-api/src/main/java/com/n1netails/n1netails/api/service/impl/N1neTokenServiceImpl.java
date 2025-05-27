@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -91,6 +92,13 @@ public class N1neTokenServiceImpl implements N1neTokenService {
     @Override
     public void delete(Long id) {
         this.n1neTokenRepository.deleteById(id);
+    }
+
+    @Override
+    public boolean validateToken(String n1neToken) {
+        UUID token = UUID.fromString(n1neToken);
+        Optional<N1neTokenEntity> optionalN1neTokenEntity = this.n1neTokenRepository.findByToken(token);
+        return optionalN1neTokenEntity.isPresent();
     }
 
     private static N1neTokenResponse generateN1neTokenResponse(N1neTokenEntity n1neTokenEntity) {

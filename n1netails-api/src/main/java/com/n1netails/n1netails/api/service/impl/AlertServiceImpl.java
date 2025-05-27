@@ -20,6 +20,10 @@ import java.util.UUID;
 @Qualifier("alertServiceImpl")
 public class AlertServiceImpl implements AlertService {
 
+    public static final String INFO = "INFO";
+    public static final String SYSTEM_ALERT = "SYSTEM_ALERT";
+    public static final String NEW = "NEW";
+
     private final TailRepository tailRepository;
     private final TailLevelRepository levelRepository;
     private final TailTypeRepository typeRepository;
@@ -50,10 +54,10 @@ public class AlertServiceImpl implements AlertService {
         if (this.levelRepository.findTailLevelByName(request.getLevel()).isPresent()) {
             tailLevelEntity = this.levelRepository.findTailLevelByName(request.getLevel()).get();
         } else if (request.getLevel() == null || request.getLevel().isBlank()) {
-            tailLevelEntity = this.levelRepository.findTailLevelByName("INFO")
+            tailLevelEntity = this.levelRepository.findTailLevelByName(INFO)
                     .orElseGet(() -> {
                         TailLevelEntity newLevel = new TailLevelEntity();
-                        newLevel.setName("INFO");
+                        newLevel.setName(INFO);
                         return this.levelRepository.save(newLevel);
                     });
         } else {
@@ -68,10 +72,10 @@ public class AlertServiceImpl implements AlertService {
         if (this.typeRepository.findTailTypeByName(request.getType()).isPresent()) {
             tailTypeEntity = this.typeRepository.findTailTypeByName(request.getType()).get();
         } else if (request.getType() == null || request.getType().isBlank()) {
-            tailTypeEntity = this.typeRepository.findTailTypeByName("SYSTEM_ALERT")
+            tailTypeEntity = this.typeRepository.findTailTypeByName(SYSTEM_ALERT)
                     .orElseGet(() -> {
                         TailTypeEntity newType = new TailTypeEntity();
-                        newType.setName("SYSTEM_ALERT");
+                        newType.setName(SYSTEM_ALERT);
                         return this.typeRepository.save(newType);
                     });
         } else {
@@ -83,11 +87,11 @@ public class AlertServiceImpl implements AlertService {
         // tail status (set NEW status for incoming tails)
         log.info("tail status");
         TailStatusEntity tailStatusEntity;
-        if (this.statusRepository.findTailStatusByName("NEW").isPresent()) {
-            tailStatusEntity = this.statusRepository.findTailStatusByName("NEW").get();
+        if (this.statusRepository.findTailStatusByName(NEW).isPresent()) {
+            tailStatusEntity = this.statusRepository.findTailStatusByName(NEW).get();
         } else {
             tailStatusEntity = new TailStatusEntity();
-            tailStatusEntity.setName("NEW");
+            tailStatusEntity.setName(NEW);
             tailStatusEntity = this.statusRepository.save(tailStatusEntity);
         }
 

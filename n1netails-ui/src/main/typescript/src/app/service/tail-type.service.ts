@@ -6,12 +6,14 @@ import { UiConfigService } from '../shared/ui-config.service';
 export interface TailType {
   name: string;
   description: string;
+  deletable: boolean;
 }
 
 export interface TailTypeResponse {
   id: number;
   name: string;
   description: string;
+  deletable: boolean;
 }
 
 @Injectable({

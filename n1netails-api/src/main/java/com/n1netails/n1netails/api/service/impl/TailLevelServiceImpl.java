@@ -1,5 +1,6 @@
 package com.n1netails.n1netails.api.service.impl;
 
+import com.n1netails.n1netails.api.exception.type.TailLevelNotFoundException;
 import com.n1netails.n1netails.api.model.core.TailLevel;
 import com.n1netails.n1netails.api.model.entity.TailLevelEntity;
 import com.n1netails.n1netails.api.model.response.TailLevelResponse;
@@ -46,6 +47,7 @@ public class TailLevelServiceImpl implements TailLevelService {
         TailLevelEntity tailLevelEntity = new TailLevelEntity();
         tailLevelEntity.setName(request.getName());
         tailLevelEntity.setDescription(request.getDescription());
+        tailLevelEntity.setDeletable(request.isDeletable());
         tailLevelEntity = this.tailLevelRepository.save(tailLevelEntity);
         return generateTailLevelResponse(tailLevelEntity);
     }
@@ -61,14 +63,17 @@ public class TailLevelServiceImpl implements TailLevelService {
     }
 
     @Override
-    public void deleteTailLevel(Long id) {
-        this.tailLevelRepository.deleteById(id);
+    public void deleteTailLevel(Long id) throws TailLevelNotFoundException {
+        TailLevelEntity tailLevelEntity = this.tailLevelRepository.findById(id)
+                .orElseThrow(() -> new TailLevelNotFoundException("Tail Level Does Not Exist."));
+        if (tailLevelEntity.isDeletable()) this.tailLevelRepository.deleteById(id);
     }
 
     private static TailLevelResponse generateTailLevelResponse(TailLevelEntity entity) {
         TailLevelResponse tailLevelResponse = new TailLevelResponse(entity.getId());
         tailLevelResponse.setName(entity.getName());
         tailLevelResponse.setDescription(entity.getDescription());
+        tailLevelResponse.setDeletable(entity.isDeletable());
         return tailLevelResponse;
     }
 }

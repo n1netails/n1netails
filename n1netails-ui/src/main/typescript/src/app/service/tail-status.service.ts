@@ -5,11 +5,13 @@ import { UiConfigService } from '../shared/ui-config.service';
 
 export interface TailStatus {
   name: string;
+  deletable: boolean;
 }
 
 export interface TailStatusResponse {
   id: number;
   name: string;
+  deletable: boolean;
 }
 
 @Injectable({

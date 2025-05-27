@@ -135,7 +135,7 @@
                 <ul>
                   <li *ngFor="let level of tailLevels">
                     {{ level.name }}
-                    <button nz-button nzType="link" nzDanger (click)="removeAlertLevel(level.name)">Remove</button>
+                    <button *ngIf="level.deletable" nz-button nzType="link" nzDanger (click)="removeAlertLevel(level.name)">Remove</button>
                   </li>
                 </ul>
                 <input nz-input [(ngModel)]="newTailLevel" name="newTailLevel" placeholder="Add new level" />
@@ -146,7 +146,7 @@
                 <ul>
                   <li *ngFor="let status of tailStatuses">
                     {{ status.name }}
-                    <button nz-button nzType="link" nzDanger (click)="removeAlertStatus(status.name)">Remove</button>
+                    <button *ngIf="status.deletable" nz-button nzType="link" nzDanger (click)="removeAlertStatus(status.name)">Remove</button>
                   </li>
                 </ul>
                 <input nz-input [(ngModel)]="newTailStatus" name="newTailStatus" placeholder="Add new status" />
@@ -157,7 +157,7 @@
                 <ul>
                   <li *ngFor="let type of tailTypes">
                     {{ type.name }}
-                    <button nz-button nzType="link" nzDanger (click)="removeAlertType(type.name)">Remove</button>
+                    <button *ngIf="type.deletable" nz-button nzType="link" nzDanger (click)="removeAlertType(type.name)">Remove</button>
                   </li>
                 </ul>
                 <input nz-input [(ngModel)]="newTailType" name="newTailType" placeholder="Add new type" />

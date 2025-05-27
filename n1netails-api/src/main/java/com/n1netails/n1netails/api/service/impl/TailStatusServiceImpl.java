@@ -1,5 +1,6 @@
 package com.n1netails.n1netails.api.service.impl;
 
+import com.n1netails.n1netails.api.exception.type.TailStatusNotFoundException;
 import com.n1netails.n1netails.api.model.core.TailStatus;
 import com.n1netails.n1netails.api.model.entity.TailStatusEntity;
 import com.n1netails.n1netails.api.model.response.TailStatusResponse;
@@ -45,6 +46,7 @@ public class TailStatusServiceImpl implements TailStatusService {
     public TailStatusResponse createTailStatus(TailStatus request) {
         TailStatusEntity tailStatusEntity = new TailStatusEntity();
         tailStatusEntity.setName(request.getName());
+        tailStatusEntity.setDeletable(request.isDeletable());
         tailStatusEntity = this.tailStatusRepository.save(tailStatusEntity);
         return generateTailStatusResponse(tailStatusEntity);
     }
@@ -59,13 +61,16 @@ public class TailStatusServiceImpl implements TailStatusService {
     }
 
     @Override
-    public void deleteTailStatus(Long id) {
-        this.tailStatusRepository.deleteById(id);
+    public void deleteTailStatus(Long id) throws TailStatusNotFoundException {
+        TailStatusEntity tailStatusEntity = this.tailStatusRepository.findById(id)
+                .orElseThrow(() -> new TailStatusNotFoundException("Tail Status Does Not Exist."));
+        if (tailStatusEntity.isDeletable()) this.tailStatusRepository.deleteById(id);
     }
 
     private TailStatusResponse generateTailStatusResponse(TailStatusEntity entity) {
         TailStatusResponse tailStatusResponse = new TailStatusResponse(entity.getId());
         tailStatusResponse.setName(entity.getName());
+        tailStatusResponse.setDeletable(entity.isDeletable());
         return tailStatusResponse;
     }
 }

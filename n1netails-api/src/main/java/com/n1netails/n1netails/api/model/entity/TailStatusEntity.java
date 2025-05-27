@@ -16,4 +16,5 @@ public class TailStatusEntity {
     private Long id;
 
     private String name; // enum-like: "NEW", "IN_PROGRESS", "RESOLVED"
+    private boolean isDeletable;
 }

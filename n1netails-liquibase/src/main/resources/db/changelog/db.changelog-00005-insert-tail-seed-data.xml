@@ -7,7 +7,13 @@
     <changeSet id="00005-insert-tail-seed-data" author="your-name">
         <sqlFile path="db/changelog/sql/db.changelog-00005-insert-tail-seed-data.sql"/>
         <rollback>
-            DELETE FROM ntail.tail_level WHERE id IN (1, 2, 3, 4);
+            DROP TABLE IF EXISTS ntail.note;
+            DROP TABLE IF EXISTS ntail.runbook_related_tail_types;
+            DROP TABLE IF EXISTS ntail.tail_runbooks;
+            DROP TABLE IF EXISTS ntail.runbook;
+            DROP TABLE IF EXISTS ntail.tail_variable;
+            DROP TABLE IF EXISTS ntail.tail;
+            DELETE FROM ntail.tail_level WHERE id IN (1, 2, 3, 4, 5);
             DELETE FROM ntail.tail_status WHERE id IN (1, 2, 3, 4);
             DELETE FROM ntail.tail_type WHERE id BETWEEN 1 AND 20;
         </rollback>

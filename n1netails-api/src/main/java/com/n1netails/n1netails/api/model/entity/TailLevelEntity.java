@@ -17,4 +17,5 @@ public class TailLevelEntity {
 
     private String name;
     private String description;
+    private boolean isDeletable;
 }

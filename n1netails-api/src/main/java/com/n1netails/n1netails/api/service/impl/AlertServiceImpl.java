@@ -20,6 +20,7 @@ import java.util.UUID;
 @Qualifier("alertServiceImpl")
 public class AlertServiceImpl implements AlertService {
 
+    // TODO MAKE SURE THESE VALUES CANNOT BE REMOVED FROM THE DATABASE
     public static final String INFO = "INFO";
     public static final String SYSTEM_ALERT = "SYSTEM_ALERT";
     public static final String NEW = "NEW";

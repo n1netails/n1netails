@@ -39,7 +39,7 @@ public class AlertController {
         if (tokenValid) alertService.createTail(n1neToken, request);
         else {
             // Log internally, but don’t reveal to client
-            log.warn("Unauthorized access attempt with token: {}", n1neToken);
+            log.warn("Unauthorized access attempt with token: {}...", n1neToken.substring(0, 5));
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         return ResponseEntity.noContent().build();

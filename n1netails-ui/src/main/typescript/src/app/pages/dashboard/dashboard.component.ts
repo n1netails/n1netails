@@ -42,7 +42,7 @@ export class DashboardComponent implements OnInit {
 
   // Tail Resoultion Status (Pie Chart)
   alertStatusData = {
-    labels: ['Resolved', 'Unresolved'],
+    labels: ['Resolved', 'Not Resolved'],
     datasets: [{ data: [this.totalTailsResolved, this.totalTailsNotResolved], backgroundColor: ['#F06D0F', '#F00F21'], borderWidth: 1, borderColor: '#F38A3F'}]
   };
 
@@ -81,9 +81,9 @@ export class DashboardComponent implements OnInit {
     this.tailMetricsService.countTailAlertsResolved().subscribe(result => {
       this.totalTailsResolved = result;
 
-      // todo make this better load after data has been received
+      // todo make this better load after totalTailsResolved and totalTailsNotResolved data has been received
       this.alertStatusData = {
-        labels: ['Resolved', 'Unresolved'],
+        labels: ['Resolved', 'Not Resolved'],
         datasets: [{ data: [this.totalTailsResolved, this.totalTailsNotResolved], backgroundColor: ['#F06D0F', '#F00F21'], borderWidth: 1, borderColor: '#F38A3F'}]
       };
     });
@@ -91,19 +91,21 @@ export class DashboardComponent implements OnInit {
     this.tailMetricsService.countTailAlertsNotResolved().subscribe(result => {
       this.totalTailsNotResolved = result;
 
-      // todo make this better load after data has been received
+      // todo make this better load after totalTailsResolved and totalTailsNotResolved data has been received
       this.alertStatusData = {
-        labels: ['Resolved', 'Unresolved'],
+        labels: ['Resolved', 'Not Resolved'],
         datasets: [{ data: [this.totalTailsResolved, this.totalTailsNotResolved], backgroundColor: ['#F06D0F', '#F00F21'], borderWidth: 1, borderColor: '#F38A3F'}]
       };
     });
+
+    // mttr
     this.tailMetricsService.mttr().subscribe(result => {
       this.mttr = result;
     });
   }
 
 
-  
+
   alertsTodayData = {
     labels: ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00','08:00'],
     datasets: [{ label: 'Alerts', data: [5, 2, 1, 7, 3, 10, 7 , 8, 9], backgroundColor: '#F06D0F' }]

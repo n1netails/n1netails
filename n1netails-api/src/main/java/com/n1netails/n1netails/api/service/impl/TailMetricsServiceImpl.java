@@ -14,7 +14,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,24 +36,9 @@ public class TailMetricsServiceImpl implements TailMetricsService {
                 .collect(Collectors.toList());
     }
 
-    private TailResponse mapToTailResponse(TailEntity entity) {
-        if (entity == null) {
-            return null;
-        }
-        TailResponse response = new TailResponse();
-        response.setId(entity.getId());
-        response.setTitle(entity.getTitle());
-        response.setDescription(entity.getDescription());
-        response.setTimestamp(entity.getTimestamp());
-        response.setResolvedTimestamp(entity.getResolvedTimestamp());
-        response.setDetails(entity.getDetails());
-        response.setLevel(entity.getLevel() != null ? entity.getLevel().getName() : null);
-        response.setType(entity.getType() != null ? entity.getType().getName() : null);
-        response.setStatus(entity.getStatus() != null ? entity.getStatus().getName() : null);
-        response.setAssignedUserId(entity.getAssignedUserId());
-        response.setAssignedUsername(null); // As per requirement
-        response.setMetadata(null); // As per requirement
-        return response;
+    @Override
+    public long countAlertsToday() {
+        return tailRepository.countByTimestampBetween(getStartOfDay(), getEndOfDay());
     }
 
     @Override
@@ -69,6 +53,11 @@ public class TailMetricsServiceImpl implements TailMetricsService {
     }
 
     @Override
+    public long countAlertsResolved() {
+        return tailRepository.countByStatusName("RESOLVED");
+    }
+
+    @Override
     public List<TailResponse> tailAlertsNotResolved() {
         List<TailEntity> tailEntities = tailRepository.findAllByStatusNameNot("RESOLVED");
         if (tailEntities == null || tailEntities.isEmpty()) {
@@ -77,6 +66,11 @@ public class TailMetricsServiceImpl implements TailMetricsService {
         return tailEntities.stream()
                 .map(this::mapToTailResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public long countAlertsNotResolved() {
+        return tailRepository.countByStatusNameNot("RESOLVED");
     }
 
     @Override
@@ -102,6 +96,26 @@ public class TailMetricsServiceImpl implements TailMetricsService {
         }
 
         return totalDurationInSeconds / validTailsCount;
+    }
+
+    private TailResponse mapToTailResponse(TailEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+        TailResponse response = new TailResponse();
+        response.setId(entity.getId());
+        response.setTitle(entity.getTitle());
+        response.setDescription(entity.getDescription());
+        response.setTimestamp(entity.getTimestamp());
+        response.setResolvedTimestamp(entity.getResolvedTimestamp());
+        response.setDetails(entity.getDetails());
+        response.setLevel(entity.getLevel() != null ? entity.getLevel().getName() : null);
+        response.setType(entity.getType() != null ? entity.getType().getName() : null);
+        response.setStatus(entity.getStatus() != null ? entity.getStatus().getName() : null);
+        response.setAssignedUserId(entity.getAssignedUserId());
+        response.setAssignedUsername(null); // As per requirement
+        response.setMetadata(null); // As per requirement
+        return response;
     }
 
     private Instant getStartOfDay() {

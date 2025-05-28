@@ -7,7 +7,13 @@ import java.util.List;
 public interface TailMetricsService {
 
     List<TailResponse> tailAlertsToday();
+    long countAlertsToday();
+
     List<TailResponse> tailAlertsResolved();
+    long countAlertsResolved();
+
     List<TailResponse> tailAlertsNotResolved();
+    long countAlertsNotResolved();
+
     long tailAlertsMTTR();
 }

@@ -10,10 +10,15 @@ import java.util.List;
 @Repository
 public interface TailRepository extends JpaRepository<TailEntity, Long> {
     List<TailEntity> findByAssignedUserId(Long userId);
+
     List<TailEntity> findByTimestampBetween(Instant startOfDay, Instant endOfDay);
     long countByTimestampBetween(Instant startOfDay, Instant endOfDay);
 
     List<TailEntity> findAllByStatusName(String statusName);
+    long countByStatusName(String statusName);
+
     List<TailEntity> findAllByStatusNameNot(String statusName);
+    long countByStatusNameNot(String statusName);
+
     List<TailEntity> findAllByResolvedTimestampIsNotNull();
 }

@@ -32,14 +32,14 @@ public class TailMetricsServiceImpl implements TailMetricsService {
     @Override
     public List<TailResponse> tailAlertsResolved() {
         // todo update the service impl
-        // implement the number of tail alerts resolved
+        // implement the number of tail alerts resolved. TailStatusEntity name = RESOLVED
         return List.of();
     }
 
     @Override
     public List<TailResponse> tailAlertsNotResolved() {
         // todo update the service impl
-        // implement the number of tail alerts not resolved
+        // implement the number of tail alerts not resolved. TailStatusEntity name != RESOLVED
         return List.of();
     }
 

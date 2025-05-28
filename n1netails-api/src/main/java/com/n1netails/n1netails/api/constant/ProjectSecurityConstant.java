@@ -18,8 +18,8 @@ public class ProjectSecurityConstant {
             "/v3/api-docs/**",
             "/api/user/login",
             "/api/user/register",
-//            "/api/password/hello",
             "/api/alert/**",
+//            "/api/metrics/tails/**",
             "/"
     };
 

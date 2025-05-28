@@ -20,7 +20,6 @@ import java.util.UUID;
 @Qualifier("alertServiceImpl")
 public class AlertServiceImpl implements AlertService {
 
-    // TODO MAKE SURE THESE VALUES CANNOT BE REMOVED FROM THE DATABASE
     public static final String INFO = "INFO";
     public static final String SYSTEM_ALERT = "SYSTEM_ALERT";
     public static final String NEW = "NEW";
@@ -59,11 +58,13 @@ public class AlertServiceImpl implements AlertService {
                     .orElseGet(() -> {
                         TailLevelEntity newLevel = new TailLevelEntity();
                         newLevel.setName(INFO);
+                        newLevel.setDeletable(false);
                         return this.levelRepository.save(newLevel);
                     });
         } else {
             tailLevelEntity = new TailLevelEntity();
             tailLevelEntity.setName(request.getLevel());
+            tailLevelEntity.setDeletable(true);
             tailLevelEntity = this.levelRepository.save(tailLevelEntity);
         }
 
@@ -77,11 +78,13 @@ public class AlertServiceImpl implements AlertService {
                     .orElseGet(() -> {
                         TailTypeEntity newType = new TailTypeEntity();
                         newType.setName(SYSTEM_ALERT);
+                        newType.setDeletable(false);
                         return this.typeRepository.save(newType);
                     });
         } else {
             tailTypeEntity = new TailTypeEntity();
             tailTypeEntity.setName(request.getType());
+            tailTypeEntity.setDeletable(true);
             tailTypeEntity = this.typeRepository.save(tailTypeEntity);
         }
 
@@ -93,6 +96,7 @@ public class AlertServiceImpl implements AlertService {
         } else {
             tailStatusEntity = new TailStatusEntity();
             tailStatusEntity.setName(NEW);
+            tailStatusEntity.setDeletable(false);
             tailStatusEntity = this.statusRepository.save(tailStatusEntity);
         }
 

@@ -12,7 +12,7 @@ import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATIO
 
 @Slf4j
 @RequiredArgsConstructor
-@Tag(name = "Password Controller", description = "Operations to managing credentials")
+@Tag(name = "Password Controller", description = "Operations for managing credentials")
 @RestController
 @RequestMapping(path = {"/api/password"}, produces = APPLICATION_JSON)
 public class PasswordController {

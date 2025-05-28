@@ -15,6 +15,7 @@ import { SidenavComponent } from "../../shared/template/sidenav/sidenav.componen
 import { UiConfigService } from "../../shared/ui-config.service";
 import { AuthenticationService } from '../../service/authentication.service';
 import { Router } from '@angular/router';
+import { TailMetricsService } from '../../service/tail-metrics.service';
 
 // todo remove
 const count = 5;
@@ -33,12 +34,24 @@ export class DashboardComponent implements OnInit {
   data: any[] = [];
   list: Array<{ loading: boolean; name: any }> = [];
 
+  // metrics
+  totalTailAlertsToday = 0;
+  totalTailsResolved = 0;
+  totalTailsNotResolved = 0;
+  mttr = 0;
+
+  // Tail Resoultion Status (Pie Chart)
+  alertStatusData = {
+    labels: ['Resolved', 'Unresolved'],
+    datasets: [{ data: [this.totalTailsResolved, this.totalTailsNotResolved], backgroundColor: ['#F06D0F', '#F00F21'], borderWidth: 1, borderColor: '#F38A3F'}]
+  };
 
   constructor(
     private http: HttpClient,
     private msg: NzMessageService,
     private uiConfigService: UiConfigService,
     private authenticationService: AuthenticationService,
+    private tailMetricsService: TailMetricsService,
     private router: Router
   ) {}
 
@@ -55,16 +68,45 @@ export class DashboardComponent implements OnInit {
       this.list = res.results;
       this.initLoading = false;
     });
+
+    // metrics
+    this.countAlerts();
   }
 
+  countAlerts() {
+    this.tailMetricsService.countTailAlertsToday().subscribe(result => {
+      this.totalTailAlertsToday = result;
+    });
+
+    this.tailMetricsService.countTailAlertsResolved().subscribe(result => {
+      this.totalTailsResolved = result;
+
+      // todo make this better load after data has been received
+      this.alertStatusData = {
+        labels: ['Resolved', 'Unresolved'],
+        datasets: [{ data: [this.totalTailsResolved, this.totalTailsNotResolved], backgroundColor: ['#F06D0F', '#F00F21'], borderWidth: 1, borderColor: '#F38A3F'}]
+      };
+    });
+
+    this.tailMetricsService.countTailAlertsNotResolved().subscribe(result => {
+      this.totalTailsNotResolved = result;
+
+      // todo make this better load after data has been received
+      this.alertStatusData = {
+        labels: ['Resolved', 'Unresolved'],
+        datasets: [{ data: [this.totalTailsResolved, this.totalTailsNotResolved], backgroundColor: ['#F06D0F', '#F00F21'], borderWidth: 1, borderColor: '#F38A3F'}]
+      };
+    });
+    this.tailMetricsService.mttr().subscribe(result => {
+      this.mttr = result;
+    });
+  }
+
+
+  
   alertsTodayData = {
     labels: ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00','08:00'],
     datasets: [{ label: 'Alerts', data: [5, 2, 1, 7, 3, 10, 7 , 8, 9], backgroundColor: '#F06D0F' }]
-  };
-  
-  alertStatusData = {
-    labels: ['Resolved', 'Unresolved'],
-    datasets: [{ data: [34, 18], backgroundColor: ['#F06D0F', '#F00F21'], borderWidth: 1, borderColor: '#F38A3F'}]
   };
   
   monthlyAlertsData = {
@@ -106,7 +148,7 @@ export class DashboardComponent implements OnInit {
 
 
 
-   getData(callback: (res: any) => void): void {
+  getData(callback: (res: any) => void): void {
     this.http
       .get(fakeDataUrl)
       .pipe(catchError(() => of({ results: [] })))

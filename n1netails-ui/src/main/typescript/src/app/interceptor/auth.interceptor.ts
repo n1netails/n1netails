@@ -3,12 +3,10 @@ import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
 import { Observable, tap } from "rxjs";
 import { AuthenticationService } from "../service/authentication.service";
-import { NzNotificationService } from "ng-zorro-antd/notification";
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
     constructor(
-        private notification: NzNotificationService,
         private authenticationService: AuthenticationService,
         private router: Router
     ) {}
@@ -32,7 +30,6 @@ export class AuthInterceptor implements HttpInterceptor {
                     if (error.status !== 401) {
                         return;
                     }
-                    this.presentToast('Your login token has expired please login again sorry for the inconvinence.');
                     this.authenticationService.logOut();
                     setTimeout(() => {
                         this.router.navigate(['/login']);
@@ -40,12 +37,5 @@ export class AuthInterceptor implements HttpInterceptor {
                 }
             }
         }));
-    }
-   
-    private async presentToast(message: string) {
-        this.notification.error('Error', message, {
-          nzPlacement: 'topRight',
-          nzDuration: 10000
-        });
     }
 }

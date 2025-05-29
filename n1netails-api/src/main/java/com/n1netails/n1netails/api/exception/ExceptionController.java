@@ -16,8 +16,19 @@ import static org.springframework.http.HttpStatus.*;
 @RestControllerAdvice
 public class ExceptionController implements ErrorController {
 
+//    /**
+//     * Bad Request Exception (400)
+//     * @param exception bad request exception
+//     * @return http error response
+//     */
+//    @ExceptionHandler()
+//    public ResponseEntity<HttpErrorResponse> badRequestException(Exception exception) {
+//        log.error(exception.getMessage());
+//        return createHttpResponse(BAD_REQUEST, exception.getMessage());
+//    }
+
     /**
-     * Not Found Exception (400)
+     * Not Found Exception (404)
      * @param exception not found exception
      * @return http error response
      */
@@ -25,7 +36,7 @@ public class ExceptionController implements ErrorController {
             UserNotFoundException.class,
             IllegalArgumentException.class
     })
-    public ResponseEntity<HttpErrorResponse> notFoundException(UserNotFoundException exception) {
+    public ResponseEntity<HttpErrorResponse> notFoundException(Exception exception) {
         log.error(exception.getMessage());
         return createHttpResponse(NOT_FOUND, exception.getMessage());
     }
@@ -36,7 +47,7 @@ public class ExceptionController implements ErrorController {
      * @return http error response
      */
     @ExceptionHandler(EmailExistException.class)
-    public ResponseEntity<HttpErrorResponse> conflictException(EmailExistException exception) {
+    public ResponseEntity<HttpErrorResponse> conflictException(Exception exception) {
         log.error(exception.getMessage());
         return createHttpResponse(CONFLICT, exception.getMessage());
     }
@@ -47,7 +58,7 @@ public class ExceptionController implements ErrorController {
      * @return http error response
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<HttpErrorResponse> internalServerErrorException(EmailExistException exception) {
+    public ResponseEntity<HttpErrorResponse> internalServerErrorException(Exception exception) {
         log.error(exception.getMessage());
         return createHttpResponse(INTERNAL_SERVER_ERROR, exception.getMessage());
     }

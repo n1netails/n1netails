@@ -96,14 +96,19 @@ public class N1neTokenServiceImpl implements N1neTokenService {
 
     @Override
     public boolean validateToken(String n1neToken) {
+        log.info("validating token");
         UUID token = UUID.fromString(n1neToken);
+        log.info("attempting to locate token");
         Optional<N1neTokenEntity> optionalN1neTokenEntity = this.n1neTokenRepository.findByToken(token);
 
         if (optionalN1neTokenEntity.isPresent()) {
+            log.info("token is present");
             N1neTokenEntity n1neTokenEntity = optionalN1neTokenEntity.get();
             boolean tokenRevoked = n1neTokenEntity.isRevoked();
             // if expiration date is before the current date of validation, return true
-            boolean tokenExpired = n1neTokenEntity.getExpiresAt().isBefore(Instant.now());
+            boolean tokenExpired;
+            if (n1neTokenEntity.getExpiresAt() != null) tokenExpired = n1neTokenEntity.getExpiresAt().isBefore(Instant.now());
+            else tokenExpired = false;
             return !tokenRevoked && !tokenExpired;
         }
         return false;

@@ -1,6 +1,7 @@
 package com.n1netails.n1netails.api.service.impl;
 
 import com.n1netails.n1netails.api.model.entity.TailEntity;
+import com.n1netails.n1netails.api.model.response.TailAlertsPerHourResponse;
 import com.n1netails.n1netails.api.model.response.TailResponse;
 import com.n1netails.n1netails.api.repository.TailRepository;
 import com.n1netails.n1netails.api.service.TailMetricsService;
@@ -9,11 +10,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneOffset;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,8 +27,13 @@ public class TailMetricsServiceImpl implements TailMetricsService {
     private final TailRepository tailRepository;
 
     @Override
-    public List<TailResponse> tailAlertsToday() {
-        List<TailEntity> tailEntities = tailRepository.findByTimestampBetween(getStartOfDay(), getEndOfDay());
+    public List<TailResponse> tailAlertsToday(String timezoneIdString) {
+
+        ZoneId userZone = ZoneId.of(timezoneIdString); // Handle potential exceptions in real code
+        Instant startOfDayUserTzAsUtc = getStartOfDayInUTC(userZone);
+        Instant endOfDayUserTzAsUtc = getEndOfDayInUTC(userZone);
+
+        List<TailEntity> tailEntities = tailRepository.findByTimestampBetween(startOfDayUserTzAsUtc, endOfDayUserTzAsUtc);
         if (tailEntities == null || tailEntities.isEmpty()) {
             return List.of();
         }
@@ -37,8 +43,13 @@ public class TailMetricsServiceImpl implements TailMetricsService {
     }
 
     @Override
-    public long countAlertsToday() {
-        return tailRepository.countByTimestampBetween(getStartOfDay(), getEndOfDay());
+    public long countAlertsToday(String timezoneIdString) {
+        ZoneId userZone = ZoneId.of(timezoneIdString); // Handle potential exceptions in real code
+        Instant startOfDayUserTzAsUtc = getStartOfDayInUTC(userZone);
+        Instant endOfDayUserTzAsUtc = getEndOfDayInUTC(userZone);
+
+        log.info("Counting alerts for user timezone {}. UTC Start: {}, UTC End: {}", timezoneIdString, startOfDayUserTzAsUtc, endOfDayUserTzAsUtc);
+        return tailRepository.countByTimestampBetween(startOfDayUserTzAsUtc, endOfDayUserTzAsUtc);
     }
 
     @Override
@@ -98,6 +109,49 @@ public class TailMetricsServiceImpl implements TailMetricsService {
         return totalDurationInSeconds / validTailsCount;
     }
 
+    @Override
+    public TailAlertsPerHourResponse getTailAlertsPerHour(String timezoneIdString) {
+        ZoneId userZone = ZoneId.of(timezoneIdString);
+        ZonedDateTime userZonedNow = ZonedDateTime.now(userZone);
+        Instant nowUtc = userZonedNow.toInstant(); // Current time in UTC
+        Instant nineHoursAgoUtc = nowUtc.minus(9, ChronoUnit.HOURS); // 9 hours ago in UTC
+
+        log.info("Fetching tail alerts for user timezone {}. Querying UTC from {} to {}", timezoneIdString, nineHoursAgoUtc, nowUtc);
+
+        List<Instant> timestamps = tailRepository.findOnlyTimestampsBetween(nineHoursAgoUtc, nowUtc);
+        timestamps.forEach(instant -> log.info("ts: {}", instant));
+
+        log.info("fetch complete, {} timestamps found", timestamps.size());
+
+        List<Integer> data = new ArrayList<>(Collections.nCopies(10, 0));
+        List<String> labels = new ArrayList<>();
+
+        // Labels should be in user's local time hour
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:00").withZone(userZone);
+
+        // Generate labels for the last 9 hours
+        for (int i = 9; i >= 0; i--) {
+            // Generate labels based on user's local time
+            ZonedDateTime labelTime = userZonedNow.minusHours(i).truncatedTo(ChronoUnit.HOURS);
+            labels.add(formatter.format(labelTime));
+        }
+
+        // bucket alerts by hours
+        Instant hourlyBucketStartUtc = nineHoursAgoUtc.truncatedTo(ChronoUnit.HOURS);
+        for (Instant timestamp : timestamps) {
+            long hoursDifference = ChronoUnit.HOURS.between(hourlyBucketStartUtc, timestamp.truncatedTo(ChronoUnit.HOURS));
+            int index = (int) hoursDifference;
+            if (index >= 0 && index < data.size()) {
+                data.set(index, data.get(index) + 1);
+            } else {
+                log.warn("Timestamp {} is outside the 9-hour UTC window calculation relative to {}.", timestamp, hourlyBucketStartUtc);
+            }
+        }
+
+        log.info("Returning TailAlertsPerHourResponse for timezone {} with {} labels and data points: {}", timezoneIdString, labels.size(), data);
+        return new TailAlertsPerHourResponse(labels, data);
+    }
+
     private TailResponse mapToTailResponse(TailEntity entity) {
         if (entity == null) {
             return null;
@@ -118,12 +172,19 @@ public class TailMetricsServiceImpl implements TailMetricsService {
         return response;
     }
 
-    private Instant getStartOfDay() {
-        return LocalDate.now().atStartOfDay().toInstant(ZoneOffset.UTC);
+    // Removed getStartOfDay() and getEndOfDay() as per instructions
+    private Instant getStartOfDayInUTC(ZoneId zoneId) {
+        return LocalDate.now(zoneId)
+                .atStartOfDay()
+                .atZone(zoneId)
+                .toInstant();
     }
 
-    private Instant getEndOfDay() {
-        return LocalDate.now().atTime(LocalTime.MAX).toInstant(ZoneOffset.UTC);
+    private Instant getEndOfDayInUTC(ZoneId zoneId) {
+        return LocalDate.now(zoneId)
+                .atTime(LocalTime.MAX)
+                .atZone(zoneId)
+                .toInstant();
     }
 
     private Instant getYesterdayStartOfDay() {

@@ -1,13 +1,14 @@
 package com.n1netails.n1netails.api.service;
 
+import com.n1netails.n1netails.api.model.response.TailAlertsPerHourResponse;
 import com.n1netails.n1netails.api.model.response.TailResponse;
 
 import java.util.List;
 
 public interface TailMetricsService {
 
-    List<TailResponse> tailAlertsToday();
-    long countAlertsToday();
+    List<TailResponse> tailAlertsToday(String timezone);
+    long countAlertsToday(String timezone);
 
     List<TailResponse> tailAlertsResolved();
     long countAlertsResolved();
@@ -16,4 +17,6 @@ public interface TailMetricsService {
     long countAlertsNotResolved();
 
     long tailAlertsMTTR();
+
+    TailAlertsPerHourResponse getTailAlertsPerHour(String timezone);
 }

@@ -129,6 +129,7 @@ public class TailMetricsServiceImpl implements TailMetricsService {
         // Labels should be in user's local time hour
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:00").withZone(userZone);
 
+        // Generate labels for the last 9 hours
         for (int i = 9; i >= 0; i--) {
             // Generate labels based on user's local time
             ZonedDateTime labelTime = userZonedNow.minusHours(i).truncatedTo(ChronoUnit.HOURS);

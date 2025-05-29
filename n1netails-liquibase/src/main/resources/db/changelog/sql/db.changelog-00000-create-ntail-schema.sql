@@ -16,3 +16,6 @@ DROP TABLE IF EXISTS ntail.tail_status;
 
 CREATE SCHEMA IF NOT EXISTS ntail
     AUTHORIZATION postgres;
+
+-- Set UTC time
+ALTER DATABASE n1netails SET timezone TO 'Etc/UTC';

@@ -3,6 +3,11 @@ import { Injectable } from '@angular/core';
 import { UiConfigService } from '../shared/ui-config.service';
 import { Observable } from 'rxjs';
 
+export interface TailAlertsPerHourResponse {
+  labels: string[];
+  data: number[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -34,4 +39,8 @@ export class TailMetricsService {
   mttr(): Observable<number> {
     return this.http.get<number>(`${this.host}/mttr`);
   }
+
+  getTailAlertsHourly(): Observable<TailAlertsPerHourResponse> {
+    return this.http.get<TailAlertsPerHourResponse>(`${this.host}/hourly`);
+  } 
 }

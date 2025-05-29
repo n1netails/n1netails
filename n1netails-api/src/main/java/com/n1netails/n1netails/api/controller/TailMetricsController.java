@@ -1,5 +1,6 @@
 package com.n1netails.n1netails.api.controller;
 
+import com.n1netails.n1netails.api.model.response.TailAlertsPerHourResponse;
 import com.n1netails.n1netails.api.model.response.TailResponse;
 import com.n1netails.n1netails.api.service.TailMetricsService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -90,5 +91,14 @@ public class TailMetricsController {
     @GetMapping("/mttr")
     public long getTailAlertsMTTR() {
         return tailMetricsService.tailAlertsMTTR();
+    }
+
+    @Operation(summary = "Get tail alerts count per hour for the last 9 hours.", responses = {
+            @ApiResponse(responseCode = "200", description = "Hourly tail alert counts",
+                    content = @Content(schema = @Schema(implementation = TailAlertsPerHourResponse.class)))
+    })
+    @GetMapping("/hourly")
+    public TailAlertsPerHourResponse getTailAlertsHourly() {
+        return tailMetricsService.getTailAlertsPerHour();
     }
 }

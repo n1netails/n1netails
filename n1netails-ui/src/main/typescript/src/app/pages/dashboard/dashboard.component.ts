@@ -80,9 +80,10 @@ export class DashboardComponent implements OnInit {
   }
 
   getMetrics() {
-    // todo fix issues with timezones
+    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone; // Get user's timezone
+
     // pass timezone here in countTailAlertsToday
-    this.tailMetricsService.countTailAlertsToday().subscribe(result => {
+    this.tailMetricsService.countTailAlertsToday(userTimezone).subscribe(result => { // Pass timezone
       this.totalTailAlertsToday = result;
     });
 
@@ -112,9 +113,8 @@ export class DashboardComponent implements OnInit {
     });
 
     // hourly
-    // todo fix issues with timezones
     // pass timezone here in getTailAlertsHourly
-    this.tailMetricsService.getTailAlertsHourly().subscribe(result => {
+    this.tailMetricsService.getTailAlertsHourly(userTimezone).subscribe(result => { // Pass timezone
 
       this.alertsTodayData = {
         labels: result.labels,

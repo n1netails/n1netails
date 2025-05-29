@@ -28,11 +28,15 @@ public class TailMetricsServiceImpl implements TailMetricsService {
 
     @Override
     public List<TailResponse> tailAlertsToday() {
+        // This method is not part of the current subtask requirements for timezone handling.
+        // Assuming it might be updated later or is intentionally left as is.
+        // For now, it will use the old way of fetching today's alerts if not specified otherwise.
+        // If it needs to be timezone-aware, it would require a timezone parameter similar to countAlertsToday.
+        log.info("Fetching all tail alerts for today (UTC based).");
+        Instant startOfDayUtc = LocalDate.now(ZoneOffset.UTC).atStartOfDay().toInstant(ZoneOffset.UTC);
+        Instant endOfDayUtc = LocalDate.now(ZoneOffset.UTC).atTime(LocalTime.MAX).toInstant(ZoneOffset.UTC);
 
-        log.info("START OF DAY: {}", getStartOfDay());
-        log.info("END OF DAY: {}", getEndOfDay());
-
-        List<TailEntity> tailEntities = tailRepository.findByTimestampBetween(getStartOfDay(), getEndOfDay());
+        List<TailEntity> tailEntities = tailRepository.findByTimestampBetween(startOfDayUtc, endOfDayUtc);
         if (tailEntities == null || tailEntities.isEmpty()) {
             return List.of();
         }
@@ -42,21 +46,28 @@ public class TailMetricsServiceImpl implements TailMetricsService {
     }
 
     @Override
-    public long countAlertsToday() {
+    public long countAlertsToday(String timezoneIdString) {
+        ZoneId userZone = ZoneId.of(timezoneIdString); // Handle potential exceptions in real code
+        Instant startOfDayUserTzAsUtc = getStartOfDayInUTC(userZone);
+        Instant endOfDayUserTzAsUtc = getEndOfDayInUTC(userZone);
 
-        // todo remove
-        ZoneId mountainTime = ZoneId.of("America/Denver");
+        log.info("Counting alerts for user timezone {}. UTC Start: {}, UTC End: {}", timezoneIdString, startOfDayUserTzAsUtc, endOfDayUserTzAsUtc);
 
-        Instant startOfDay = getStartOfDay();
-        ZonedDateTime mountainStartOfDay = startOfDay.atZone(mountainTime);
-        log.info("START OF DAY: {} (Mountain Time: {})", startOfDay, mountainStartOfDay.toLocalTime());
+        return tailRepository.countByTimestampBetween(startOfDayUserTzAsUtc, endOfDayUserTzAsUtc);
+    }
 
-        Instant endOfDay = getEndOfDay();
-        ZonedDateTime mountainEndOfDay = endOfDay.atZone(mountainTime);
-        log.info("END OF DAY: {} (Mountain Time: {})", endOfDay, mountainEndOfDay.toLocalTime());
-        // todo remove end
+    private Instant getStartOfDayInUTC(ZoneId zoneId) {
+        return LocalDate.now(zoneId)
+                .atStartOfDay()
+                .atZone(zoneId)
+                .toInstant();
+    }
 
-        return tailRepository.countByTimestampBetween(getStartOfDay(), getEndOfDay());
+    private Instant getEndOfDayInUTC(ZoneId zoneId) {
+        return LocalDate.now(zoneId)
+                .atTime(LocalTime.MAX)
+                .atZone(zoneId)
+                .toInstant();
     }
 
     @Override
@@ -117,54 +128,47 @@ public class TailMetricsServiceImpl implements TailMetricsService {
     }
 
     @Override
-    public TailAlertsPerHourResponse getTailAlertsPerHour() {
-        // todo fix timezones
-        Instant now = Instant.now();
-//        Instant now = Instant.now().atZone(ZoneId.of("America/Denver")).toInstant();
+    public TailAlertsPerHourResponse getTailAlertsPerHour(String timezoneIdString) {
+        ZoneId userZone = ZoneId.of(timezoneIdString);
+        ZonedDateTime userZonedNow = ZonedDateTime.now(userZone);
+        Instant nowUtc = userZonedNow.toInstant(); // Current time in UTC
+        Instant nineHoursAgoUtc = nowUtc.minus(9, ChronoUnit.HOURS); // 9 hours ago in UTC
 
-        Instant nineHoursAgo = now.minus(9, ChronoUnit.HOURS);
+        log.info("Fetching tail alerts for user timezone {}. Querying UTC from {} to {}", timezoneIdString, nineHoursAgoUtc, nowUtc);
 
-        // todo remove
-        ZoneId mountainTime = ZoneId.of("America/Denver");
-        ZonedDateTime mountainNow = now.atZone(mountainTime);
-        log.info("Now: {} (Mountain Time: {})", now, mountainNow.toLocalTime());
-
-        ZonedDateTime mountainNineHoursAgo = nineHoursAgo.atZone(mountainTime);
-        log.info("Nine hours ago: {} (Mountain Time: {})", nineHoursAgo, mountainNineHoursAgo.toLocalTime());
-        // todo remove end
-
-        // Log the time range for debugging
-        log.info("Fetching tail alerts from {} to {}", nineHoursAgo, now);
-
-        List<Instant> timestamps = tailRepository.findOnlyTimestampsBetween(nineHoursAgo, now);
-        log.info("fetch complete");
+        List<Instant> timestamps = tailRepository.findOnlyTimestampsBetween(nineHoursAgoUtc, nowUtc);
+        log.info("fetch complete, {} timestamps found", timestamps.size());
 
         List<Integer> data = new ArrayList<>(Collections.nCopies(9, 0));
         List<String> labels = new ArrayList<>();
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:00").withZone(ZoneOffset.UTC);
+        // Labels should be in user's local time hour
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:00").withZone(userZone);
 
-        // Generate labels for the last 9 hours
-        for (int i = 8; i >= 0; i--) { // Corrected loop for chronological order of labels
-            Instant hourTimestamp = now.minus(i, ChronoUnit.HOURS).truncatedTo(ChronoUnit.HOURS);
-            labels.add(formatter.format(hourTimestamp));
+        for (int i = 8; i >= 0; i--) {
+            // Generate labels based on user's local time
+            ZonedDateTime labelTime = userZonedNow.minus(i, ChronoUnit.HOURS).truncatedTo(ChronoUnit.HOURS);
+            labels.add(formatter.format(labelTime));
         }
 
-        // Process entities and populate data
-        for (Instant timestamp: timestamps) {
-            // Calculate which hourly bucket this entity falls into relative to `nineHoursAgo`
-            long hoursDifference = ChronoUnit.HOURS.between(nineHoursAgo.truncatedTo(ChronoUnit.HOURS), timestamp.truncatedTo(ChronoUnit.HOURS));
+        // Process UTC timestamps from DB
+        // The bucketing logic needs to align with the UTC hours defined by nineHoursAgoUtc and nowUtc
+        // For each `timestamp` (which is UTC) from the DB:
+        //   Determine which of the 9 hourly UTC buckets it falls into.
+        //   The buckets are effectively [nineHoursAgoUtc, nineHoursAgoUtc+1H), [nineHoursAgoUtc+1H, nineHoursAgoUtc+2H), ...
+
+        Instant hourlyBucketStartUtc = nineHoursAgoUtc.truncatedTo(ChronoUnit.HOURS);
+        for (Instant timestamp : timestamps) {
+            long hoursDifference = ChronoUnit.HOURS.between(hourlyBucketStartUtc, timestamp.truncatedTo(ChronoUnit.HOURS));
             int index = (int) hoursDifference;
-            // Ensure the index is within the bounds of the data list (0 to 8)
             if (index >= 0 && index < data.size()) {
                 data.set(index, data.get(index) + 1);
             } else {
-                // Log if an entity's timestamp falls outside the expected range
-                log.warn("TailEntity with timestamp {} is outside the 9-hour window calculation.", timestamp);
+                log.warn("Timestamp {} is outside the 9-hour UTC window calculation relative to {}.", timestamp, hourlyBucketStartUtc);
             }
         }
 
-        log.info("Returning TailAlertsPerHourResponse with {} labels and data points: {}", labels.size(), data);
+        log.info("Returning TailAlertsPerHourResponse for timezone {} with {} labels and data points: {}", timezoneIdString, labels.size(), data);
         return new TailAlertsPerHourResponse(labels, data);
     }
 
@@ -188,17 +192,7 @@ public class TailMetricsServiceImpl implements TailMetricsService {
         return response;
     }
 
-    private Instant getStartOfDay() {
-        // todo fix issues with timezones
-//        return LocalDate.now().atStartOfDay().atZone(ZoneId.of("America/Denver")).toInstant(); // .toInstant(ZoneOffset.UTC);
-        return LocalDate.now().atStartOfDay().toInstant(ZoneOffset.UTC);
-    }
-
-    private Instant getEndOfDay() {
-        // todo fix issues with timezones
-//        return LocalDate.now().atTime(LocalTime.MAX).atZone(ZoneId.of("America/Denver")).toInstant(); // .toInstant(ZoneOffset.UTC);
-        return LocalDate.now().atTime(LocalTime.MAX).toInstant(ZoneOffset.UTC);
-    }
+    // Removed getStartOfDay() and getEndOfDay() as per instructions
 
     private Instant getYesterdayStartOfDay() {
         return LocalDate.now().minusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC);

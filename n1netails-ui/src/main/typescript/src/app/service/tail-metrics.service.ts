@@ -24,8 +24,9 @@ export class TailMetricsService {
     this.host = this.host + this.apiUrl;
   }
 
-  countTailAlertsToday(): Observable<number> {
-    return this.http.get<number>(`${this.host}/today/count`);
+  countTailAlertsToday(timezone: string): Observable<number> { // Added timezone parameter
+    const payload = { timezone: timezone };
+    return this.http.post<number>(`${this.host}/today/count`, payload); // Changed to post, added payload
   }
 
   countTailAlertsResolved(): Observable<number> {
@@ -40,7 +41,8 @@ export class TailMetricsService {
     return this.http.get<number>(`${this.host}/mttr`);
   }
 
-  getTailAlertsHourly(): Observable<TailAlertsPerHourResponse> {
-    return this.http.get<TailAlertsPerHourResponse>(`${this.host}/hourly`);
+  getTailAlertsHourly(timezone: string): Observable<TailAlertsPerHourResponse> { // Added timezone parameter
+    const payload = { timezone: timezone };
+    return this.http.post<TailAlertsPerHourResponse>(`${this.host}/hourly`, payload); // Changed to post, added payload
   } 
 }

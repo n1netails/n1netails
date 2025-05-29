@@ -27,16 +27,13 @@ public class TailMetricsServiceImpl implements TailMetricsService {
     private final TailRepository tailRepository;
 
     @Override
-    public List<TailResponse> tailAlertsToday() {
-        // This method is not part of the current subtask requirements for timezone handling.
-        // Assuming it might be updated later or is intentionally left as is.
-        // For now, it will use the old way of fetching today's alerts if not specified otherwise.
-        // If it needs to be timezone-aware, it would require a timezone parameter similar to countAlertsToday.
-        log.info("Fetching all tail alerts for today (UTC based).");
-        Instant startOfDayUtc = LocalDate.now(ZoneOffset.UTC).atStartOfDay().toInstant(ZoneOffset.UTC);
-        Instant endOfDayUtc = LocalDate.now(ZoneOffset.UTC).atTime(LocalTime.MAX).toInstant(ZoneOffset.UTC);
+    public List<TailResponse> tailAlertsToday(String timezoneIdString) {
 
-        List<TailEntity> tailEntities = tailRepository.findByTimestampBetween(startOfDayUtc, endOfDayUtc);
+        ZoneId userZone = ZoneId.of(timezoneIdString); // Handle potential exceptions in real code
+        Instant startOfDayUserTzAsUtc = getStartOfDayInUTC(userZone);
+        Instant endOfDayUserTzAsUtc = getEndOfDayInUTC(userZone);
+
+        List<TailEntity> tailEntities = tailRepository.findByTimestampBetween(startOfDayUserTzAsUtc, endOfDayUserTzAsUtc);
         if (tailEntities == null || tailEntities.isEmpty()) {
             return List.of();
         }
@@ -52,22 +49,7 @@ public class TailMetricsServiceImpl implements TailMetricsService {
         Instant endOfDayUserTzAsUtc = getEndOfDayInUTC(userZone);
 
         log.info("Counting alerts for user timezone {}. UTC Start: {}, UTC End: {}", timezoneIdString, startOfDayUserTzAsUtc, endOfDayUserTzAsUtc);
-
         return tailRepository.countByTimestampBetween(startOfDayUserTzAsUtc, endOfDayUserTzAsUtc);
-    }
-
-    private Instant getStartOfDayInUTC(ZoneId zoneId) {
-        return LocalDate.now(zoneId)
-                .atStartOfDay()
-                .atZone(zoneId)
-                .toInstant();
-    }
-
-    private Instant getEndOfDayInUTC(ZoneId zoneId) {
-        return LocalDate.now(zoneId)
-                .atTime(LocalTime.MAX)
-                .atZone(zoneId)
-                .toInstant();
     }
 
     @Override
@@ -137,26 +119,23 @@ public class TailMetricsServiceImpl implements TailMetricsService {
         log.info("Fetching tail alerts for user timezone {}. Querying UTC from {} to {}", timezoneIdString, nineHoursAgoUtc, nowUtc);
 
         List<Instant> timestamps = tailRepository.findOnlyTimestampsBetween(nineHoursAgoUtc, nowUtc);
+        timestamps.forEach(instant -> log.info("ts: {}", instant));
+
         log.info("fetch complete, {} timestamps found", timestamps.size());
 
-        List<Integer> data = new ArrayList<>(Collections.nCopies(9, 0));
+        List<Integer> data = new ArrayList<>(Collections.nCopies(10, 0));
         List<String> labels = new ArrayList<>();
 
         // Labels should be in user's local time hour
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:00").withZone(userZone);
 
-        for (int i = 8; i >= 0; i--) {
+        for (int i = 9; i >= 0; i--) {
             // Generate labels based on user's local time
-            ZonedDateTime labelTime = userZonedNow.minus(i, ChronoUnit.HOURS).truncatedTo(ChronoUnit.HOURS);
+            ZonedDateTime labelTime = userZonedNow.minusHours(i).truncatedTo(ChronoUnit.HOURS);
             labels.add(formatter.format(labelTime));
         }
 
-        // Process UTC timestamps from DB
-        // The bucketing logic needs to align with the UTC hours defined by nineHoursAgoUtc and nowUtc
-        // For each `timestamp` (which is UTC) from the DB:
-        //   Determine which of the 9 hourly UTC buckets it falls into.
-        //   The buckets are effectively [nineHoursAgoUtc, nineHoursAgoUtc+1H), [nineHoursAgoUtc+1H, nineHoursAgoUtc+2H), ...
-
+        // bucket alerts by hours
         Instant hourlyBucketStartUtc = nineHoursAgoUtc.truncatedTo(ChronoUnit.HOURS);
         for (Instant timestamp : timestamps) {
             long hoursDifference = ChronoUnit.HOURS.between(hourlyBucketStartUtc, timestamp.truncatedTo(ChronoUnit.HOURS));
@@ -193,6 +172,19 @@ public class TailMetricsServiceImpl implements TailMetricsService {
     }
 
     // Removed getStartOfDay() and getEndOfDay() as per instructions
+    private Instant getStartOfDayInUTC(ZoneId zoneId) {
+        return LocalDate.now(zoneId)
+                .atStartOfDay()
+                .atZone(zoneId)
+                .toInstant();
+    }
+
+    private Instant getEndOfDayInUTC(ZoneId zoneId) {
+        return LocalDate.now(zoneId)
+                .atTime(LocalTime.MAX)
+                .atZone(zoneId)
+                .toInstant();
+    }
 
     private Instant getYesterdayStartOfDay() {
         return LocalDate.now().minusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC);

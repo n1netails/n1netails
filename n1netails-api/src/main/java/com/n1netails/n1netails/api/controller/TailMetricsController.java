@@ -37,9 +37,9 @@ public class TailMetricsController {
             @ApiResponse(responseCode = "200", description = "List of tail alerts",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = TailResponse.class))))
     })
-    @GetMapping("/today")
-    public List<TailResponse> getTailAlertsToday() {
-        return tailMetricsService.tailAlertsToday();
+    @PostMapping("/today")
+    public List<TailResponse> getTailAlertsToday(@RequestBody TimezoneRequest timezoneRequest) {
+        return tailMetricsService.tailAlertsToday(timezoneRequest.getTimezone());
     }
 
     @Operation(summary = "Count tail alerts that occurred today.", responses = {

@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface TailMetricsService {
 
-    List<TailResponse> tailAlertsToday();
+    List<TailResponse> tailAlertsToday(String timezone);
     long countAlertsToday(String timezone);
 
     List<TailResponse> tailAlertsResolved();

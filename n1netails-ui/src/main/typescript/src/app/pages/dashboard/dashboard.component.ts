@@ -48,8 +48,8 @@ export class DashboardComponent implements OnInit {
 
   // Tail Alerts Hourly (Bar Chart)
   alertsTodayData = {
-    labels: ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00','08:00'],
-    datasets: [{ label: 'Alerts', data: [0, 0, 0, 0, 0, 0, 0, 0, 0], backgroundColor: '#F06D0F' }]
+    labels: ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00','08:00', '09:00'],
+    datasets: [{ label: 'Alerts', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], backgroundColor: '#F06D0F' }]
   };
 
   constructor(
@@ -116,6 +116,7 @@ export class DashboardComponent implements OnInit {
     // pass timezone here in getTailAlertsHourly
     this.tailMetricsService.getTailAlertsHourly(userTimezone).subscribe(result => { // Pass timezone
 
+      console.log('ALERTS TODAY', result);
       this.alertsTodayData = {
         labels: result.labels,
         datasets: [{ label: 'Alerts', data: result.data, backgroundColor: '#F06D0F' }]

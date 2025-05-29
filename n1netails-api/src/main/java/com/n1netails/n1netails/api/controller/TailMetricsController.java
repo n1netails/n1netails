@@ -1,5 +1,7 @@
 package com.n1netails.n1netails.api.controller;
 
+import com.n1netails.n1netails.api.model.request.TimezoneRequest;
+import com.n1netails.n1netails.api.model.response.TailAlertsPerHourResponse;
 import com.n1netails.n1netails.api.model.response.TailResponse;
 import com.n1netails.n1netails.api.service.TailMetricsService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,6 +14,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -33,18 +37,18 @@ public class TailMetricsController {
             @ApiResponse(responseCode = "200", description = "List of tail alerts",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = TailResponse.class))))
     })
-    @GetMapping("/today")
-    public List<TailResponse> getTailAlertsToday() {
-        return tailMetricsService.tailAlertsToday();
+    @PostMapping("/today")
+    public List<TailResponse> getTailAlertsToday(@RequestBody TimezoneRequest timezoneRequest) {
+        return tailMetricsService.tailAlertsToday(timezoneRequest.getTimezone());
     }
 
     @Operation(summary = "Count tail alerts that occurred today.", responses = {
             @ApiResponse(responseCode = "200", description = "Total count of tail alerts",
                     content = @Content(schema = @Schema(implementation = long.class)))
     })
-    @GetMapping("/today/count")
-    public long countTailAlertsToday() {
-        return tailMetricsService.countAlertsToday();
+    @PostMapping("/today/count")
+    public long countTailAlertsToday(@RequestBody TimezoneRequest timezoneRequest) {
+        return tailMetricsService.countAlertsToday(timezoneRequest.getTimezone());
     }
 
     @Operation(summary = "Get tail alerts that are resolved.", responses = {
@@ -90,5 +94,14 @@ public class TailMetricsController {
     @GetMapping("/mttr")
     public long getTailAlertsMTTR() {
         return tailMetricsService.tailAlertsMTTR();
+    }
+
+    @Operation(summary = "Get tail alerts count per hour for the last 9 hours.", responses = {
+            @ApiResponse(responseCode = "200", description = "Hourly tail alert counts",
+                    content = @Content(schema = @Schema(implementation = TailAlertsPerHourResponse.class)))
+    })
+    @PostMapping("/hourly")
+    public TailAlertsPerHourResponse getTailAlertsHourly(@RequestBody TimezoneRequest timezoneRequest) {
+        return tailMetricsService.getTailAlertsPerHour(timezoneRequest.getTimezone());
     }
 }

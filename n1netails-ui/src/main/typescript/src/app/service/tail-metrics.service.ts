@@ -3,6 +3,11 @@ import { Injectable } from '@angular/core';
 import { UiConfigService } from '../shared/ui-config.service';
 import { Observable } from 'rxjs';
 
+export interface TailAlertsPerHourResponse {
+  labels: string[];
+  data: number[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -19,8 +24,9 @@ export class TailMetricsService {
     this.host = this.host + this.apiUrl;
   }
 
-  countTailAlertsToday(): Observable<number> {
-    return this.http.get<number>(`${this.host}/today/count`);
+  countTailAlertsToday(timezone: string): Observable<number> { // Added timezone parameter
+    const payload = { timezone: timezone };
+    return this.http.post<number>(`${this.host}/today/count`, payload); // Changed to post, added payload
   }
 
   countTailAlertsResolved(): Observable<number> {
@@ -34,4 +40,9 @@ export class TailMetricsService {
   mttr(): Observable<number> {
     return this.http.get<number>(`${this.host}/mttr`);
   }
+
+  getTailAlertsHourly(timezone: string): Observable<TailAlertsPerHourResponse> { // Added timezone parameter
+    const payload = { timezone: timezone };
+    return this.http.post<TailAlertsPerHourResponse>(`${this.host}/hourly`, payload); // Changed to post, added payload
+  } 
 }

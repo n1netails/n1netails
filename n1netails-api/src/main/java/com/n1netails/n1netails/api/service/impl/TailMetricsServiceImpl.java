@@ -1,8 +1,12 @@
 package com.n1netails.n1netails.api.service.impl;
 
 import com.n1netails.n1netails.api.model.entity.TailEntity;
+import com.n1netails.n1netails.api.model.entity.TailLevelEntity;
 import com.n1netails.n1netails.api.model.response.TailAlertsPerHourResponse;
+import com.n1netails.n1netails.api.model.response.TailDatasetResponse;
+import com.n1netails.n1netails.api.model.response.TailMonthlySummaryResponse;
 import com.n1netails.n1netails.api.model.response.TailResponse;
+import com.n1netails.n1netails.api.repository.TailLevelRepository;
 import com.n1netails.n1netails.api.repository.TailRepository;
 import com.n1netails.n1netails.api.service.TailMetricsService;
 import lombok.RequiredArgsConstructor;
@@ -13,9 +17,7 @@ import org.springframework.stereotype.Service;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -25,6 +27,7 @@ import java.util.stream.Collectors;
 public class TailMetricsServiceImpl implements TailMetricsService {
 
     private final TailRepository tailRepository;
+    private final TailLevelRepository tailLevelRepository;
 
     @Override
     public List<TailResponse> tailAlertsToday(String timezoneIdString) {
@@ -193,5 +196,84 @@ public class TailMetricsServiceImpl implements TailMetricsService {
 
     private Instant getTomorrowStartOfDay() {
         return LocalDate.now().plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC);
+    }
+
+    @Override
+    public TailMonthlySummaryResponse getTailMonthlySummary() {
+        LocalDate today = LocalDate.now();
+        List<String> labels = new ArrayList<>();
+        DateTimeFormatter dayFormatter = DateTimeFormatter.ofPattern("MMM d", Locale.US);
+
+        for (int i = 0; i < 28; i++) {
+            labels.add(today.minusDays(27 - i).format(dayFormatter));
+        }
+
+        Instant endDate = today.plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC);
+        Instant startDate = today.minusDays(27).atStartOfDay().toInstant(ZoneOffset.UTC);
+
+        List<TailEntity> tails = tailRepository.findByTimestampBetween(startDate, endDate);
+        List<TailLevelEntity> allLevels = tailLevelRepository.findAll();
+
+        Map<String, Map<String, Integer>> levelDateCounts = new HashMap<>();
+        DateTimeFormatter tailDateFormatter = DateTimeFormatter.ofPattern("MMM d", Locale.US).withZone(ZoneId.systemDefault());
+
+        for (TailEntity tail : tails) {
+            if (tail.getTimestamp() != null && tail.getLevel() != null && tail.getLevel().getName() != null) {
+                String tailDateStr = tailDateFormatter.format(tail.getTimestamp());
+                String levelName = tail.getLevel().getName();
+                levelDateCounts.computeIfAbsent(levelName, k -> new HashMap<>())
+                               .merge(tailDateStr, 1, Integer::sum);
+            }
+        }
+
+        List<TailDatasetResponse> datasets = new ArrayList<>();
+        List<String> standardLevels = Arrays.asList("INFO", "SUCCESS", "WARN", "ERROR", "CRITICAL");
+        Map<String, Integer> kudaCounts = new HashMap<>(); // For "Kuda" category
+
+        for (TailLevelEntity levelEntity : allLevels) {
+            String levelName = levelEntity.getName();
+            if (standardLevels.contains(levelName)) {
+                List<Integer> levelData = new ArrayList<>();
+                for (String label : labels) {
+                    levelData.add(levelDateCounts.getOrDefault(levelName, Collections.emptyMap()).getOrDefault(label, 0));
+                }
+                datasets.add(new TailDatasetResponse(levelName, levelData));
+            } else {
+                // Aggregate into Kuda
+                for (String label : labels) {
+                    kudaCounts.merge(label, levelDateCounts.getOrDefault(levelName, Collections.emptyMap()).getOrDefault(label, 0), Integer::sum);
+                }
+            }
+        }
+        
+        // Add Kuda dataset if it has any counts
+        List<Integer> kudaData = new ArrayList<>();
+        boolean hasKudaData = false;
+        for (String label : labels) {
+            int count = kudaCounts.getOrDefault(label, 0);
+            kudaData.add(count);
+            if (count > 0) {
+                hasKudaData = true;
+            }
+        }
+        if (hasKudaData || allLevels.stream().anyMatch(l -> !standardLevels.contains(l.getName()))) {
+             datasets.add(new TailDatasetResponse("Kuda", kudaData));
+        }
+
+
+        // Order datasets
+        datasets.sort(Comparator.comparingInt(ds -> {
+            switch (ds.getLabel()) {
+                case "INFO": return 0;
+                case "SUCCESS": return 1;
+                case "WARN": return 2;
+                case "ERROR": return 3;
+                case "CRITICAL": return 4;
+                case "Kuda": return 5;
+                default: return 6; // Should not happen with current logic
+            }
+        }));
+        
+        return new TailMonthlySummaryResponse(labels, datasets);
     }
 }

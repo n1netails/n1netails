@@ -2,6 +2,7 @@ package com.n1netails.n1netails.api.controller;
 
 import com.n1netails.n1netails.api.model.request.TimezoneRequest;
 import com.n1netails.n1netails.api.model.response.TailAlertsPerHourResponse;
+import com.n1netails.n1netails.api.model.response.TailMonthlySummaryResponse;
 import com.n1netails.n1netails.api.model.response.TailResponse;
 import com.n1netails.n1netails.api.service.TailMetricsService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -103,5 +104,14 @@ public class TailMetricsController {
     @PostMapping("/hourly")
     public TailAlertsPerHourResponse getTailAlertsHourly(@RequestBody TimezoneRequest timezoneRequest) {
         return tailMetricsService.getTailAlertsPerHour(timezoneRequest.getTimezone());
+    }
+
+    @Operation(summary = "Get a monthly summary of tail alerts for the past 28 days, categorized by level.", responses = {
+            @ApiResponse(responseCode = "200", description = "Monthly tail alert summary",
+                    content = @Content(schema = @Schema(implementation = TailMonthlySummaryResponse.class)))
+    })
+    @GetMapping("/monthly-summary")
+    public TailMonthlySummaryResponse getTailMonthlySummary() {
+        return tailMetricsService.getTailMonthlySummary();
     }
 }

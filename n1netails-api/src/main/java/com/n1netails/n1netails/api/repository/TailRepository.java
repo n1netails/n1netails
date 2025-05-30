@@ -23,7 +23,7 @@ public interface TailRepository extends JpaRepository<TailEntity, Long> {
             @Param("end") Instant end
     );
 
-    @Query("SELECT new com.n1netails.n1netails.api.model.dto.TailLevelAndTimestampsBetween(t.timestamp, t.level) " +
+    @Query("SELECT new com.n1netails.n1netails.api.model.dto.TailLevelAndTimestamp(t.timestamp, t.level) " +
             "FROM TailEntity t WHERE t.timestamp BETWEEN :start AND :end ORDER BY t.timestamp ASC")
     List<TailLevelAndTimestamp> findOnlyLevelAndTimestampsBetween(
             @Param("start") Instant start,

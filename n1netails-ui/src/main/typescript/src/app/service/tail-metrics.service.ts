@@ -8,6 +8,16 @@ export interface TailAlertsPerHourResponse {
   data: number[];
 }
 
+export interface TailMonthlySummaryResponse {
+  labels: string[];
+  datasets: TailDatasetResponse[];
+}
+
+export interface TailDatasetResponse {
+  label: string;
+  data: number[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -44,5 +54,10 @@ export class TailMetricsService {
   getTailAlertsHourly(timezone: string): Observable<TailAlertsPerHourResponse> { // Added timezone parameter
     const payload = { timezone: timezone };
     return this.http.post<TailAlertsPerHourResponse>(`${this.host}/hourly`, payload); // Changed to post, added payload
-  } 
+  }
+
+  getTailMonthlySummary(timezone: string): Observable<TailMonthlySummaryResponse> {
+    const payload = { timezone: timezone }
+    return this.http.post<TailMonthlySummaryResponse>(`${this.host}/monthly-summary`, payload);
+  }
 }

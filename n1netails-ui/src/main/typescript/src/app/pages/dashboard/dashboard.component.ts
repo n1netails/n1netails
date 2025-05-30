@@ -187,13 +187,8 @@ export class DashboardComponent implements OnInit {
       }
     ]
   };
+
   
-  // userAlertLoadData = {
-  //   labels: ['Alice', 'Bob', 'Carol'],
-  //   datasets: [{ label: 'Assigned Alerts', data: [12, 9, 7], backgroundColor: '#59C7FF' }]
-  // };
-
-
 
   getData(callback: (res: any) => void): void {
     this.http

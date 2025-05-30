@@ -52,6 +52,19 @@ export class DashboardComponent implements OnInit {
     datasets: [{ label: 'Alerts', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], backgroundColor: '#F06D0F' }]
   };
 
+  // Monthly Alerts Stacked (Stacked Bar Chart)
+  monthlyAlertsData = {
+    labels: ['Apr 1', 'Apr 2', 'Apr 3', 'Apr 4', 'Apr 5', 'Apr 6', 'Apr 7', 'Apr 8', 'Apr 9', 'Apr 10', 'Apr 11', 'Apr 12', 'Apr 13', 'Apr 14', 'Apr 15', 'Apr 16', 'Apr 17', 'Apr 18', 'Apr 19', 'Apr 20', 'Apr 21', 'Apr 22', 'Apr 23', 'Apr 24', 'Apr 25', 'Apr 26', 'Apr 27', 'Apr 28', 'Apr 29', '...'],
+    datasets: [
+      { label: 'Info', data: [10, 5, 2, 3, 8, 9, 3, 1, 24, 0, 5, 9, 16, 2, 1, 15 ,21 ,5 ,6 ,9 ,5 ,1 ,2 ,8, 5 , 3, 1, 4, 9], backgroundColor: '#1E90FF' },
+      { label: 'Success', data: [10, 5, 2, 3, 8, 9, 3, 1, 24, 0, 5, 9, 16, 2, 1, 15 ,21 ,5 ,6 ,9 ,5 ,1 ,2 ,8, 5 , 3, 1, 4, 9], backgroundColor: '#FFD700' },
+      { label: 'Warn', data: [20, 10, 7, 2, 5, 4, 12, 2, 5, 1, 8, 3, 4, 4, 8, 3 ,3 ,8 ,18 ,7 ,14 ,5 ,2 ,18, 3 , 1, 17, 48, 9], backgroundColor: '#FFA500' },
+      { label: 'Error', data: [20, 10, 7, 2, 5, 4, 12, 2, 5, 1, 8, 3, 4, 4, 8, 3 ,3 ,8 ,18 ,7 ,14 ,5 ,2 ,18, 3 , 1, 17, 48, 9], backgroundColor: '#FF4500' },
+      { label: 'Critical', data: [10, 5, 2, 3, 8, 9, 3, 1, 24, 0, 5, 9, 16, 2, 1, 15 ,21 ,5 ,6 ,9 ,5 ,1 ,2 ,8, 5 , 3, 1, 4, 9], backgroundColor: '#FF0000' },
+      { label: 'Kuda', data: [10, 5, 2, 3, 8, 9, 3, 1, 24, 0, 5, 9, 16, 2, 1, 15 ,21 ,5 ,6 ,9 ,5 ,1 ,2 ,8, 5 , 3, 1, 4, 9], backgroundColor: '#8B0000' },
+    ]
+  };
+
   constructor(
     private http: HttpClient,
     private msg: NzMessageService,
@@ -80,6 +93,7 @@ export class DashboardComponent implements OnInit {
   }
 
   getMetrics() {
+    // GETS THE USERS TIMEZONE!
     const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone; // Get user's timezone
 
     // pass timezone here in countTailAlertsToday
@@ -122,19 +136,30 @@ export class DashboardComponent implements OnInit {
         datasets: [{ label: 'Alerts', data: result.data, backgroundColor: '#F06D0F' }]
       };
     });
+
+    // monthly
+    this.tailMetricsService.getTailMonthlySummary(userTimezone).subscribe(result => {
+      console.log('ALERTS THIS MONTH', result);
+      console.log('size {}', result.datasets.length);
+      this.monthlyAlertsData = {
+        labels: result.labels,
+        datasets: [
+          // INFO
+          { label: result.datasets[0].label, data: result.datasets[0].data, backgroundColor: '#1E90FF' },
+          // SUCCESS
+          { label: result.datasets[1].label, data: result.datasets[1].data, backgroundColor: '#FFD700' },
+          // WARN
+          { label: result.datasets[2].label, data: result.datasets[2].data, backgroundColor: '#FFA500' },
+          // ERROR
+          { label: result.datasets[3].label, data: result.datasets[3].data, backgroundColor: '#FF4500' },
+          // CRITICAL
+          { label: result.datasets[4].label, data: result.datasets[4].data, backgroundColor: '#FF0000' },
+          // KUDA
+          { label: result.datasets[5].label, data: result.datasets[5].data, backgroundColor: '#8B0000' },
+        ]
+      };
+    });
   }
-  
-  monthlyAlertsData = {
-    labels: ['Apr 1', 'Apr 2', 'Apr 3', 'Apr 4', 'Apr 5', 'Apr 6', 'Apr 7', 'Apr 8', 'Apr 9', 'Apr 10', 'Apr 11', 'Apr 12', 'Apr 13', 'Apr 14', 'Apr 15', 'Apr 16', 'Apr 17', 'Apr 18', 'Apr 19', 'Apr 20', 'Apr 21', 'Apr 22', 'Apr 23', 'Apr 24', 'Apr 25', 'Apr 26', 'Apr 27', 'Apr 28', '...'],
-    datasets: [
-      { label: 'Info', data: [10, 5, 2, 3, 8, 9, 3, 1, 24, 0, 5, 9, 16, 2, 1, 15 ,21 ,5 ,6 ,9 ,5 ,1 ,2 ,8, 5 , 3, 1, 4], backgroundColor: '#1E90FF' },
-      { label: 'Success', data: [10, 5, 2, 3, 8, 9, 3, 1, 24, 0, 5, 9, 16, 2, 1, 15 ,21 ,5 ,6 ,9 ,5 ,1 ,2 ,8, 5 , 3, 1, 4], backgroundColor: '#FFD700' },
-      { label: 'Warn', data: [20, 10, 7, 2, 5, 4, 12, 2, 5, 1, 8, 3, 4, 4, 8, 3 ,3 ,8 ,18 ,7 ,14 ,5 ,2 ,18, 3 , 1, 17, 48], backgroundColor: '#FFA500' },
-      { label: 'Error', data: [20, 10, 7, 2, 5, 4, 12, 2, 5, 1, 8, 3, 4, 4, 8, 3 ,3 ,8 ,18 ,7 ,14 ,5 ,2 ,18, 3 , 1, 17, 48], backgroundColor: '#FF4500' },
-      { label: 'Critical', data: [10, 5, 2, 3, 8, 9, 3, 1, 24, 0, 5, 9, 16, 2, 1, 15 ,21 ,5 ,6 ,9 ,5 ,1 ,2 ,8, 5 , 3, 1, 4], backgroundColor: '#FF0000' },
-      { label: 'Kuda', data: [10, 5, 2, 3, 8, 9, 3, 1, 24, 0, 5, 9, 16, 2, 1, 15 ,21 ,5 ,6 ,9 ,5 ,1 ,2 ,8, 5 , 3, 1, 4], backgroundColor: '#8B0000' },
-    ]
-  };
   
   mttrLineData = {
     labels: ['Apr 28', 'Apr 29', 'Apr 30'],

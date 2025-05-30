@@ -21,5 +21,5 @@ public interface TailMetricsService {
 
     TailAlertsPerHourResponse getTailAlertsPerHour(String timezone);
 
-    TailMonthlySummaryResponse getTailMonthlySummary();
+    TailMonthlySummaryResponse getTailMonthlySummary(String timezone);
 }

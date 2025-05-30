@@ -110,8 +110,8 @@ public class TailMetricsController {
             @ApiResponse(responseCode = "200", description = "Monthly tail alert summary",
                     content = @Content(schema = @Schema(implementation = TailMonthlySummaryResponse.class)))
     })
-    @GetMapping("/monthly-summary")
-    public TailMonthlySummaryResponse getTailMonthlySummary() {
-        return tailMetricsService.getTailMonthlySummary();
+    @PostMapping("/monthly-summary")
+    public TailMonthlySummaryResponse getTailMonthlySummary(@RequestBody TimezoneRequest timezoneRequest) {
+        return tailMetricsService.getTailMonthlySummary(timezoneRequest.getTimezone());
     }
 }

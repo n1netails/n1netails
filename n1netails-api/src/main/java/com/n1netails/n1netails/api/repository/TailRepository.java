@@ -2,6 +2,8 @@ package com.n1netails.n1netails.api.repository;
 
 import com.n1netails.n1netails.api.model.dto.TailLevelAndTimestamp;
 import com.n1netails.n1netails.api.model.entity.TailEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,6 +14,12 @@ import java.util.List;
 
 @Repository
 public interface TailRepository extends JpaRepository<TailEntity, Long> {
+    // ... existing methods ...
+
+    Page<TailEntity> findAllByOrderByTimestampDesc(Pageable pageable);
+
+    List<TailEntity> findTop9ByOrderByTimestampDesc();
+
     List<TailEntity> findByAssignedUserId(Long userId);
 
     long countByTimestampBetween(Instant startOfDay, Instant endOfDay);

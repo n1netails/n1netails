@@ -4,6 +4,7 @@ import com.n1netails.n1netails.api.model.core.TailLevel;
 import com.n1netails.n1netails.api.model.core.TailStatus;
 import com.n1netails.n1netails.api.model.core.TailType;
 import com.n1netails.n1netails.api.model.entity.*;
+import com.n1netails.n1netails.api.model.request.TailPageRequest;
 import com.n1netails.n1netails.api.repository.*;
 import com.n1netails.n1netails.api.model.request.TailRequest;
 import com.n1netails.n1netails.api.model.response.TailResponse;
@@ -11,6 +12,9 @@ import com.n1netails.n1netails.api.service.TailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -213,5 +217,23 @@ public class TailServiceImpl implements TailService {
         });
         tailResponse.setMetadata(metadata);
         return tailResponse;
+    }
+
+    @Override
+    public Page<TailResponse> getTails(TailPageRequest request) {
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
+        Page<TailEntity> tailPage = tailRepository.findAllByOrderByTimestampDesc(pageable);
+        return tailPage.map(this::setTailResponse);
+    }
+
+    @Override
+    public List<TailResponse> getTop9NewestTails() {
+        List<TailEntity> tailEntities = tailRepository.findTop9ByOrderByTimestampDesc();
+        List<TailResponse> tailResponseList = new ArrayList<>();
+        tailEntities.forEach(tail -> {
+            TailResponse tailResponse = setTailResponse(tail);
+            tailResponseList.add(tailResponse);
+        });
+        return tailResponseList;
     }
 }

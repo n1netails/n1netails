@@ -40,6 +40,21 @@ export class DashboardComponent implements OnInit {
   totalTailsNotResolved = 0;
   mttr = 0;
 
+  // Bar Chart Options
+  barChartOptions = { responsive: true, maintainAspectRatio: false, };
+  stackedBarOptions = { 
+    responsive: true, 
+    maintainAspectRatio: false,
+    scales: { x: { stacked: true }, y: { stacked: true } } 
+  };
+
+  // Line Chart Options
+  lineChartOptions = { responsive: true, maintainAspectRatio: false, };
+  doughnutOptions = { 
+    responsive: true,
+    maintainAspectRatio: false,
+  };
+
   // Tail Resoultion Status (Pie Chart)
   alertStatusData = {
     labels: ['Resolved', 'Not Resolved'],
@@ -172,25 +187,8 @@ export class DashboardComponent implements OnInit {
       }
     ]
   };
-  
-  userAlertLoadData = {
-    labels: ['Alice', 'Bob', 'Carol'],
-    datasets: [{ label: 'Assigned Alerts', data: [12, 9, 7], backgroundColor: '#59C7FF' }]
-  };
-  
-  barChartOptions = { responsive: true, maintainAspectRatio: false, };
-  stackedBarOptions = { 
-    responsive: true, 
-    maintainAspectRatio: false,
-    scales: { x: { stacked: true }, y: { stacked: true } } 
-  };
-  lineChartOptions = { responsive: true, maintainAspectRatio: false, };
-  doughnutOptions = { 
-    responsive: true,
-    maintainAspectRatio: false,
-  };
 
-
+  
 
   getData(callback: (res: any) => void): void {
     this.http

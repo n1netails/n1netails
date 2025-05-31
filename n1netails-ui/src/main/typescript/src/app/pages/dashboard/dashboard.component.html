@@ -78,6 +78,7 @@
                   } @else {
                   <ng-container>
 
+                    <!-- Kuda Avatar -->
                     <ng-template #customAvatarTpl>
                       <nz-avatar
                         [nzSrc]="getKudaAvatar(item.level)"
@@ -85,7 +86,6 @@
                       ></nz-avatar>
                     </ng-template>
 
-                    <!-- <nz-list-item-meta nzAvatar="n1netails_icon_transparent.png" -->
                     <nz-list-item-meta [nzAvatar]="customAvatarTpl"
                       [nzDescription]="item.description">
                       <nz-list-item-meta-title>
@@ -99,7 +99,7 @@
                     <ul nz-list-item-actions>
                       <nz-list-item-action><a (click)="edit(item)">resolve</a></nz-list-item-action>
                       <!-- todo create new page to view for information on a specific tail -->
-                      <!-- <nz-list-item-action><a (click)="edit(item)">more</a></nz-list-item-action> -->
+                      <!-- <nz-list-item-action><a (click)="edit(item)">view</a></nz-list-item-action> -->
                     </ul>
                   </ng-container>
                   }

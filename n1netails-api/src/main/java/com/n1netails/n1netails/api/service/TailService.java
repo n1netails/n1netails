@@ -11,7 +11,6 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 public interface TailService {
-    // ... existing methods ...
 
     Page<TailResponse> getTails(TailPageRequest request);
     List<TailResponse> getTop9NewestTails();

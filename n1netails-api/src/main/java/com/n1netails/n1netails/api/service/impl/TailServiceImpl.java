@@ -3,7 +3,9 @@ package com.n1netails.n1netails.api.service.impl;
 import com.n1netails.n1netails.api.model.core.TailLevel;
 import com.n1netails.n1netails.api.model.core.TailStatus;
 import com.n1netails.n1netails.api.model.core.TailType;
+import com.n1netails.n1netails.api.model.dto.TailSummary;
 import com.n1netails.n1netails.api.model.entity.*;
+import com.n1netails.n1netails.api.model.request.TailPageRequest;
 import com.n1netails.n1netails.api.repository.*;
 import com.n1netails.n1netails.api.model.request.TailRequest;
 import com.n1netails.n1netails.api.model.response.TailResponse;
@@ -11,6 +13,9 @@ import com.n1netails.n1netails.api.service.TailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -30,6 +35,7 @@ public class TailServiceImpl implements TailService {
     private final TailStatusRepository statusRepository;
 //    private final TailVariableRepository variableRepository;
 
+    // todo consider removing this or adding pagination
     @Override
     public List<TailResponse> getTails() {
         List<TailEntity> tailEntities = tailRepository.findAll();
@@ -178,18 +184,22 @@ public class TailServiceImpl implements TailService {
         tailStatusEntity.setName(request.getStatus());
         tailEntity.setStatus(tailStatusEntity);
 
+        List<TailVariableEntity> tailVariableEntityList = getTailVariableEntities(request, tailEntity);
+        tailEntity.setCustomVariables(tailVariableEntityList);
+        return tailEntity;
+    }
+
+    private static List<TailVariableEntity> getTailVariableEntities(TailRequest request, TailEntity tailEntity) {
         List<TailVariableEntity> tailVariableEntityList = new ArrayList<>();
         Map<String, String> metadata = request.getMetadata();
         metadata.forEach((key, value) -> {
             TailVariableEntity tailVariableEntity = new TailVariableEntity();
             tailVariableEntity.setKey(key);
             tailVariableEntity.setValue(value);
-            // todo see if this works..
             tailVariableEntity.setTail(tailEntity);
             tailVariableEntityList.add(tailVariableEntity);
         });
-        tailEntity.setCustomVariables(tailVariableEntityList);
-        return tailEntity;
+        return tailVariableEntityList;
     }
 
     private TailResponse setTailResponse(TailEntity tailEntity) {
@@ -212,6 +222,42 @@ public class TailServiceImpl implements TailService {
            metadata.put(variable.getKey(), variable.getValue());
         });
         tailResponse.setMetadata(metadata);
+        return tailResponse;
+    }
+
+    @Override
+    public Page<TailResponse> getTails(TailPageRequest request) {
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
+        Page<TailSummary> tailPage = tailRepository.findAllByOrderByTimestampDesc(pageable);
+        return tailPage.map(this::setTailSummaryResponse);
+    }
+
+    @Override
+    public List<TailResponse> getTop9NewestTails() {
+        Page<TailSummary> tailPage = tailRepository.findAllByOrderByTimestampDesc(PageRequest.of(0,9));
+        List<TailSummary> tailSummaryList = tailPage.getContent();
+
+        List<TailResponse> tailResponseList = new ArrayList<>();
+        tailSummaryList.forEach(tail -> {
+            TailResponse tailResponse = setTailSummaryResponse(tail);
+            tailResponseList.add(tailResponse);
+        });
+        return tailResponseList;
+    }
+
+    private TailResponse setTailSummaryResponse(TailSummary tailSummary) {
+        TailResponse tailResponse  = new TailResponse();
+        tailResponse.setId(tailSummary.getId());
+        tailResponse.setTitle(tailSummary.getTitle());
+        tailResponse.setDescription(tailSummary.getDescription());
+        tailResponse.setTimestamp(tailSummary.getTimestamp());
+        tailResponse.setResolvedTimestamp(tailSummary.getResolvedTimestamp());
+        tailResponse.setAssignedUserId(tailSummary.getAssignedUserId());
+        UsersEntity user = usersRepository.findUserById(tailSummary.getAssignedUserId());
+        tailResponse.setAssignedUsername(user.getUsername());
+        tailResponse.setLevel(tailSummary.getLevel());
+        tailResponse.setType(tailSummary.getType());
+        tailResponse.setStatus(tailSummary.getStatus());
         return tailResponse;
     }
 }

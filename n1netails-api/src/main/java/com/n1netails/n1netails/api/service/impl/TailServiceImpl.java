@@ -1,10 +1,14 @@
 package com.n1netails.n1netails.api.service.impl;
 
+import com.n1netails.n1netails.api.exception.type.TailLevelNotFoundException;
+import com.n1netails.n1netails.api.exception.type.TailNotFoundException;
+import com.n1netails.n1netails.api.exception.type.TailStatusNotFoundException;
 import com.n1netails.n1netails.api.model.core.TailLevel;
 import com.n1netails.n1netails.api.model.core.TailStatus;
 import com.n1netails.n1netails.api.model.core.TailType;
 import com.n1netails.n1netails.api.model.dto.TailSummary;
 import com.n1netails.n1netails.api.model.entity.*;
+import com.n1netails.n1netails.api.model.request.ResolveTailRequest;
 import com.n1netails.n1netails.api.model.request.TailPageRequest;
 import com.n1netails.n1netails.api.repository.*;
 import com.n1netails.n1netails.api.model.request.TailRequest;
@@ -18,6 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.*;
 
 @Slf4j
@@ -34,6 +39,7 @@ public class TailServiceImpl implements TailService {
     private final TailTypeRepository typeRepository;
     private final TailStatusRepository statusRepository;
 //    private final TailVariableRepository variableRepository;
+    private final NoteRepository noteRepository;
 
     // todo consider removing this or adding pagination
     @Override
@@ -156,6 +162,32 @@ public class TailServiceImpl implements TailService {
             log.error("updateTailType - " + REQUESTED_TAIL_NOT_FOUND);
         }
         return setTailResponse(updatedTailEntity);
+    }
+
+    @Override
+    public void markResolved(ResolveTailRequest request) throws TailNotFoundException, TailStatusNotFoundException {
+
+        UsersEntity assignedUser = this.usersRepository.findUserById(request.getUserId());
+        TailEntity resolvedTail = this.tailRepository.findById(request.getTailSummary().getId())
+                .orElseThrow(() -> new TailNotFoundException("The requested tail does not exist."));
+
+        // update tail status to RESOLVED
+        TailStatusEntity resolvedStatus = this.statusRepository.findTailStatusByName("RESOLVED")
+                .orElseThrow(() -> new TailStatusNotFoundException("The requested tail status 'RESOLVED' does not exist."));
+        resolvedTail.setStatus(resolvedStatus);
+        // set tail resolved timestamp
+        resolvedTail.setResolvedTimestamp(Instant.now());
+        // set tail assigned user id to user id in request
+        resolvedTail.setAssignedUserId(assignedUser.getId());
+        NoteEntity noteEntity = new NoteEntity();
+        noteEntity.setTail(resolvedTail);
+        noteEntity.setUser(assignedUser);
+        noteEntity.setContent(request.getNote());
+        noteEntity.setCreatedAt(Instant.now());
+        // save note
+        this.noteRepository.save(noteEntity);
+        // save tail
+        this.tailRepository.save(resolvedTail);
     }
 
     private TailEntity setTail(TailRequest request) {

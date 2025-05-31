@@ -1,5 +1,8 @@
 package com.n1netails.n1netails.api.controller;
 
+import com.n1netails.n1netails.api.exception.type.TailNotFoundException;
+import com.n1netails.n1netails.api.exception.type.TailStatusNotFoundException;
+import com.n1netails.n1netails.api.model.request.ResolveTailRequest;
 import com.n1netails.n1netails.api.model.request.TailPageRequest;
 import com.n1netails.n1netails.api.model.request.TailRequest;
 import com.n1netails.n1netails.api.model.response.HttpErrorResponse;
@@ -86,7 +89,7 @@ public class TailController {
                     content = @Content(schema = @Schema(implementation = Page.class))) // Note: Ideally, you'd use a Page<TailResponse> schema
     })
     @GetMapping("/page")
-    public ResponseEntity<Page<TailResponse>> getTailsByPage(TailPageRequest request) {
+    public ResponseEntity<Page<TailResponse>> getTailsByPage(@RequestBody TailPageRequest request) {
         return ResponseEntity.ok(tailService.getTails(request));
     }
 
@@ -97,5 +100,15 @@ public class TailController {
     @GetMapping("/top9")
     public ResponseEntity<List<TailResponse>> getTop9NewestTails() {
         return ResponseEntity.ok(tailService.getTop9NewestTails());
+    }
+
+    @Operation(summary = "Mark tail as resolved", responses = {
+            @ApiResponse(responseCode = "204", description = "Tail resolved"),
+            @ApiResponse(responseCode = "404", description = "Tail or tail status not found")
+    })
+    @PostMapping("/mark/resolved")
+    public ResponseEntity<Void> markTailResolved(@RequestBody ResolveTailRequest request) throws TailNotFoundException, TailStatusNotFoundException {
+        tailService.markResolved(request);
+        return ResponseEntity.noContent().build();
     }
 }

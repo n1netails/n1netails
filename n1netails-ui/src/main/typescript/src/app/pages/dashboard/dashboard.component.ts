@@ -18,10 +18,13 @@ import { Router } from '@angular/router';
 import { TailMetricsService } from '../../service/tail-metrics.service';
 import { TailService } from '../../service/tail.service';
 import { TailTypeResponse } from '../../service/tail-type.service';
+import { NzModalModule } from 'ng-zorro-antd/modal';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [NzIconModule, NzLayoutModule, NzCardModule, NzGridModule, NzAvatarModule, NzListModule, NzSkeletonModule, NzTagModule, BaseChartDirective, HeaderComponent, SidenavComponent],
+  imports: [CommonModule, FormsModule, NzIconModule, NzModalModule, NzLayoutModule, NzCardModule, NzGridModule, NzAvatarModule, NzListModule, NzSkeletonModule, NzTagModule, BaseChartDirective, HeaderComponent, SidenavComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.less'
 })
@@ -209,7 +212,38 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  edit(item: any): void {
+  resolveModalVisible = false;
+  selectedItem: any = null;
+  resolveNote: string = '';
+
+
+  resolve(item: any): void {
+    // this.msg.success(item.email);
+    this.selectedItem = item;
+    console.log('selected item', this.selectedItem);
+    this.resolveNote = '';
+    this.resolveModalVisible = true;
+  }
+
+  // Cancel modal
+  handleResolveCancel(): void {
+    this.resolveModalVisible = false;
+    this.selectedItem = null;
+    this.resolveNote = '';
+  }
+
+  // Confirm resolve
+  handleResolveOk(): void {
+    // Implement your resolve logic here, e.g. call an API
+    // Example:
+    // this.tailService.resolveTail(this.selectedItem.id, this.resolveNote).subscribe(...)
+    this.msg.success(`Resolved "${this.selectedItem.title}" with note: ${this.resolveNote}`);
+    this.resolveModalVisible = false;
+    this.selectedItem = null;
+    this.resolveNote = '';
+  }
+
+  view(item: any): void {
     this.msg.success(item.email);
   }
 

@@ -97,9 +97,9 @@
                     <nz-tag [nzColor]="getTypeColor(item.type)" style="margin-right: 4px;">{{ item.type }}</nz-tag>
                     <nz-tag [nzColor]="getStatusColor(item.status)">{{ item.status }}</nz-tag>
                     <ul nz-list-item-actions>
-                      <nz-list-item-action><a (click)="edit(item)">resolve</a></nz-list-item-action>
+                      <nz-list-item-action><a (click)="resolve(item)">resolve</a></nz-list-item-action>
                       <!-- todo create new page to view for information on a specific tail -->
-                      <!-- <nz-list-item-action><a (click)="edit(item)">view</a></nz-list-item-action> -->
+                      <!-- <nz-list-item-action><a (click)="view(item)">view</a></nz-list-item-action> -->
                     </ul>
                   </ng-container>
                   }
@@ -114,3 +114,48 @@
 
   </nz-layout>
 </nz-layout>
+
+<nz-modal
+  [(nzVisible)]="resolveModalVisible"
+  nzTitle="Resolve Tail"
+  [nzContent]="modalContent"
+  (nzOnCancel)="handleResolveCancel()"
+  (nzOnOk)="handleResolveOk()"
+  [nzFooter]="modalFooter"
+>
+  <ng-template #modalContent>
+    <div *ngIf="selectedItem !== null" class="resolve-modal-content">
+      <div class="resolve-modal-header">
+        <nz-avatar
+          [nzSrc]="getKudaAvatar(selectedItem.level)"
+          [nzSize]="56"
+          class="resolve-modal-avatar"
+        ></nz-avatar>
+        <div class="resolve-modal-title-group">
+          <span class="resolve-modal-title">{{ selectedItem.title }}</span>
+          <div class="resolve-modal-tags">
+            <nz-tag [nzColor]="getLevelColor(selectedItem.level)" style="margin-right: 4px;">{{ selectedItem.level }}</nz-tag>
+            <nz-tag [nzColor]="getTypeColor(selectedItem.type)" style="margin-right: 4px;">{{ selectedItem.type }}</nz-tag>
+            <nz-tag [nzColor]="getStatusColor(selectedItem.status)">{{ selectedItem.status }}</nz-tag>
+          </div>
+        </div>
+      </div>
+      <div class="resolve-modal-body">
+        <p><b>Description:</b> {{ selectedItem.description }}</p>
+        <label for="resolveNote" class="resolve-modal-label"><b>Resolution Note:</b></label>
+        <textarea
+          id="resolveNote"
+          nz-input
+          [(ngModel)]="resolveNote"
+          rows="3"
+          class="resolve-modal-textarea"
+          placeholder="Add a note (optional)"
+        ></textarea>
+      </div>
+    </div>
+  </ng-template>
+  <ng-template #modalFooter>
+    <button nz-button class="cancel-btn" nzType="default" (click)="handleResolveCancel()">Cancel</button>
+    <button nz-button class="resolve-btn" nzType="primary" (click)="handleResolveOk()">Resolve</button>
+  </ng-template>
+</nz-modal>

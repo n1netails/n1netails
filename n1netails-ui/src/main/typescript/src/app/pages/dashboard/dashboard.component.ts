@@ -10,18 +10,14 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { BaseChartDirective } from 'ng2-charts';
-import { catchError, of } from 'rxjs';
 import { HeaderComponent } from "../../shared/template/header/header.component";
 import { SidenavComponent } from "../../shared/template/sidenav/sidenav.component";
 import { UiConfigService } from "../../shared/ui-config.service";
 import { AuthenticationService } from '../../service/authentication.service';
 import { Router } from '@angular/router';
 import { TailMetricsService } from '../../service/tail-metrics.service';
-import { TailResponse, TailService } from '../../service/tail.service';
-
-// todo remove
-const count = 5;
-const fakeDataUrl = 'https://randomuser.me/api/?results=5&inc=name,gender,email,nat&noinfo';
+import { TailService } from '../../service/tail.service';
+import { TailTypeResponse } from '../../service/tail-type.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -77,10 +73,14 @@ export class DashboardComponent implements OnInit {
     ]
   };
 
+  // 9 newest tails
   initLoading = true; // bug
   loadingMore = false;
   data: any[] = [];
   list: Array<{ loading: boolean; title: string, description: string, level: string, type: string, status: string }> = [];
+
+  // tail domain info
+  tailTypes: TailTypeResponse[] = [];
 
   constructor(
     private http: HttpClient,
@@ -113,6 +113,7 @@ export class DashboardComponent implements OnInit {
 
     // metrics
     this.getMetrics();
+
   }
 
   getMetrics() {
@@ -212,33 +213,44 @@ export class DashboardComponent implements OnInit {
     this.msg.success(item.email);
   }
 
-  // todo get levels list from api
   getLevelColor(level: string): string {
-    switch (level?.toLowerCase()) {
-      case 'critical': return 'red';
-      case 'warning': return 'orange';
-      case 'info': return 'blue';
+    switch (level?.toUpperCase()) {
+      case 'INFO': return 'blue';
+      case 'SUCCESS': return 'green';
+      case 'WARN': return 'orange';
+      case 'ERROR': return 'red';
+      case 'CRITICAL': return 'volcano';
       default: return 'orange';
     }
   }
 
-  // todo get type list from api
-  getTypeColor(type: string): string {
-    switch (type?.toLowerCase()) {
-      case 'email': return 'geekblue';
-      case 'system_alert': return 'purple';
-      case 'push': return 'cyan';
-      default: return 'default';
+  getStatusColor(status: string): string {
+    switch (status?.toUpperCase()) {
+      case 'NEW': return 'green';
+      case 'IN_PROGRESS': return 'gold';
+      case 'BLOCKED': return 'red';
+      case 'RESOLVED': return 'blue';
+      default: return 'orange';
     }
   }
 
-  // todo get status list from api
-  getStatusColor(status: string): string {
-    switch (status?.toLowerCase()) {
-      case 'new': return 'green';
-      case 'resolved': return 'gold';
-      case 'acknowledged': return 'volcano';
-      default: return 'default';
+  private typeColorMap: { [type: string]: string } = {};
+
+  getTypeColor(type: string): string {
+    if (!type) return 'default';
+    const key = type.toLowerCase();
+
+    const zorroColors = [
+      'purple', 'magenta', 'red', 'volcano', 'orange', 'gold', 'lime', 'green',
+      'cyan', 'blue', 'geekblue', 
+    ];
+    // Pick a color based on hash of type for consistency
+    let hash = 0;
+    for (let i = 0; i < key.length; i++) {
+      hash = key.charCodeAt(i) + ((hash << 5) - hash);
     }
+    const color = zorroColors[Math.abs(hash) % zorroColors.length];
+    this.typeColorMap[key] = color;
+    return color;
   }
 }

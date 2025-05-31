@@ -241,8 +241,8 @@ export class DashboardComponent implements OnInit {
     const key = type.toLowerCase();
 
     const zorroColors = [
-      'purple', 'magenta', 'red', 'volcano', 'orange', 'gold', 'lime', 'green',
-      'cyan', 'blue', 'geekblue', 
+      'geekblue', 'purple', 'magenta', 'red', 'volcano', 'orange', 'gold', 'lime', 'green',
+      'cyan', 'blue',  
     ];
     // Pick a color based on hash of type for consistency
     let hash = 0;
@@ -259,7 +259,7 @@ export class DashboardComponent implements OnInit {
     switch (level?.toUpperCase()) {
       case 'INFO': return 'kuda_info.jpg';
       case 'SUCCESS': return 'kuda_success.jpg';
-      case 'WARN': return 'kuda_warning.jpg';
+      case 'WARN': return 'kuda_warn.jpg';
       case 'ERROR': return 'kuda_error.jpg';
       case 'CRITICAL': return 'kuda_critical.jpg';
       default: return 'kuda.jpg';

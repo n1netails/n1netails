@@ -65,7 +65,7 @@ export class DashboardComponent implements OnInit {
     labels: ['Apr 1', 'Apr 2', 'Apr 3', 'Apr 4', 'Apr 5', 'Apr 6', 'Apr 7', 'Apr 8', 'Apr 9', 'Apr 10', 'Apr 11', 'Apr 12', 'Apr 13', 'Apr 14', 'Apr 15', 'Apr 16', 'Apr 17', 'Apr 18', 'Apr 19', 'Apr 20', 'Apr 21', 'Apr 22', 'Apr 23', 'Apr 24', 'Apr 25', 'Apr 26', 'Apr 27', 'Apr 28', 'Apr 29', '...'],
     datasets: [
       { label: 'Info', data: [0], backgroundColor: '#1E90FF' },
-      { label: 'Success', data: [0], backgroundColor: '#FFD700' },
+      { label: 'Success', data: [0], backgroundColor: 'green' },
       { label: 'Warn', data: [0], backgroundColor: '#FFA500' },
       { label: 'Error', data: [0], backgroundColor: '#FF4500' },
       { label: 'Critical', data: [0], backgroundColor: '#FF0000' },
@@ -171,7 +171,7 @@ export class DashboardComponent implements OnInit {
           // INFO
           { label: result.datasets[0].label, data: result.datasets[0].data, backgroundColor: '#1E90FF' },
           // SUCCESS
-          { label: result.datasets[1].label, data: result.datasets[1].data, backgroundColor: '#FFD700' },
+          { label: result.datasets[1].label, data: result.datasets[1].data, backgroundColor: 'green' },
           // WARN
           { label: result.datasets[2].label, data: result.datasets[2].data, backgroundColor: '#FFA500' },
           // ERROR

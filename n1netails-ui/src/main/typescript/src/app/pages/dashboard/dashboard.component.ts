@@ -253,4 +253,16 @@ export class DashboardComponent implements OnInit {
     this.typeColorMap[key] = color;
     return color;
   }
+
+  getKudaAvatar(level: string) {
+
+    switch (level?.toUpperCase()) {
+      case 'INFO': return 'kuda_info.jpg';
+      case 'SUCCESS': return 'kuda_success.jpg';
+      case 'WARN': return 'kuda_warning.jpg';
+      case 'ERROR': return 'kuda_error.jpg';
+      case 'CRITICAL': return 'kuda_critical.jpg';
+      default: return 'kuda.jpg';
+    }
+  }
 }

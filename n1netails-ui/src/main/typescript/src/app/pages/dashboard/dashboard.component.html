@@ -84,8 +84,9 @@
                         <a href="">{{ item.title }}</a>
                       </nz-list-item-meta-title>
                     </nz-list-item-meta>
-                    <!-- todo create cool tag boxes for different tail levels, types and status -->
-                    {{ item.level }} {{ item.type }} {{ item.status }}
+                    <nz-tag [nzColor]="getLevelColor(item.level)" style="margin-right: 4px;">{{ item.level }}</nz-tag>
+                    <nz-tag [nzColor]="getTypeColor(item.type)" style="margin-right: 4px;">{{ item.type }}</nz-tag>
+                    <nz-tag [nzColor]="getStatusColor(item.status)">{{ item.status }}</nz-tag>
                     <ul nz-list-item-actions>
                       <nz-list-item-action><a (click)="edit(item)">resolve</a></nz-list-item-action>
                       <!-- todo create new page to view for information on a specific tail -->

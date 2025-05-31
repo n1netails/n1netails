@@ -8,6 +8,7 @@ import { NzLayoutModule } from 'ng-zorro-antd/layout';
 import { NzListModule } from 'ng-zorro-antd/list';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
+import { NzTagModule } from 'ng-zorro-antd/tag';
 import { BaseChartDirective } from 'ng2-charts';
 import { catchError, of } from 'rxjs';
 import { HeaderComponent } from "../../shared/template/header/header.component";
@@ -24,7 +25,7 @@ const fakeDataUrl = 'https://randomuser.me/api/?results=5&inc=name,gender,email,
 
 @Component({
   selector: 'app-dashboard',
-  imports: [NzIconModule, NzLayoutModule, NzCardModule, NzGridModule, NzAvatarModule, NzListModule, NzSkeletonModule, BaseChartDirective, HeaderComponent, SidenavComponent],
+  imports: [NzIconModule, NzLayoutModule, NzCardModule, NzGridModule, NzAvatarModule, NzListModule, NzSkeletonModule, NzTagModule, BaseChartDirective, HeaderComponent, SidenavComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.less'
 })
@@ -241,5 +242,32 @@ export class DashboardComponent implements OnInit {
 
   edit(item: any): void {
     this.msg.success(item.email);
+  }
+
+  getLevelColor(level: string): string {
+    switch (level?.toLowerCase()) {
+      case 'critical': return 'red';
+      case 'warning': return 'orange';
+      case 'info': return 'blue';
+      default: return 'default';
+    }
+  }
+
+  getTypeColor(type: string): string {
+    switch (type?.toLowerCase()) {
+      case 'email': return 'geekblue';
+      case 'sms': return 'purple';
+      case 'push': return 'cyan';
+      default: return 'default';
+    }
+  }
+
+  getStatusColor(status: string): string {
+    switch (status?.toLowerCase()) {
+      case 'active': return 'green';
+      case 'resolved': return 'gold';
+      case 'acknowledged': return 'volcano';
+      default: return 'default';
+    }
   }
 }

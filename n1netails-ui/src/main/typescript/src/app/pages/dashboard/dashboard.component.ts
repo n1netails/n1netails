@@ -100,12 +100,9 @@ export class DashboardComponent implements OnInit {
     const apiUrl = this.uiConfigService.getApiUrl();
     console.log('API URL:', apiUrl); // Log the API URL to verify it's loaded correctly
 
-    this.getData((res: any) => {
+    // get top 9 newest tails
+    this.getTop9NewestTails((res: any) => {
       console.log('getData', res);
-      // this.data = res.results;
-      // console.log('data', this.data);
-      // this.list = res.results;
-      // console.log('list', this.list);
 
       this.data = res;
       console.log('data', this.data);
@@ -116,9 +113,6 @@ export class DashboardComponent implements OnInit {
 
     // metrics
     this.getMetrics();
-
-    // get top 9 newest tails
-    this.getTop9NewestTails();
   }
 
   getMetrics() {
@@ -190,15 +184,9 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  getTop9NewestTails() {
-    this.tailService.getTop9NewestTails().subscribe(result => {
-      console.log('top 9 newest tails', result);
-    });
-  }
 
 
-
-  
+  // todo get the mean time to resolve
   mttrLineData = {
     labels: ['Apr 28', 'Apr 29', 'Apr 30'],
     datasets: [
@@ -213,32 +201,12 @@ export class DashboardComponent implements OnInit {
 
   
 
-  getData(callback: (res: any) => void): void {
-    // this.http
-    //   .get(fakeDataUrl)
-    //   .pipe(catchError(() => of({ results: [] })))
-    //   .subscribe((res: any) => {
-    //     console.log('RES', res);
-    //     callback(res)});
-
+  getTop9NewestTails(callback: (res: any) => void): void {
     this.tailService.getTop9NewestTails().subscribe(result => {
       console.log('top 9 newest tails', result);
       callback(result);
     });
   }
-
-  // onLoadMore(): void {
-  //   this.loadingMore = true;
-  //   this.list = this.data.concat([...Array(count)].fill({}).map(() => ({ loading: true, name: {} })));
-  //   this.http
-  //     .get(fakeDataUrl)
-  //     .pipe(catchError(() => of({ results: [] })))
-  //     .subscribe((res: any) => {
-  //       this.data = this.data.concat(res.results);
-  //       this.list = [...this.data];
-  //       this.loadingMore = false;
-  //     });
-  // }
 
   edit(item: any): void {
     this.msg.success(item.email);

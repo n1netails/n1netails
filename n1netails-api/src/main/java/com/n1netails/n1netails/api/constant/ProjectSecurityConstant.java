@@ -20,6 +20,7 @@ public class ProjectSecurityConstant {
             "/api/user/register",
             "/api/alert/**",
 //            "/api/metrics/tails/**",
+//            "/api/tail/**",
             "/"
     };
 

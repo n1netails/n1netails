@@ -28,6 +28,7 @@ public class TailEntity {
     private Instant resolvedTimestamp;
     private Long assignedUserId;
     @Lob
+    @Basic(fetch = FetchType.LAZY)
     @Column(columnDefinition = "TEXT")
     private String details;
     @ManyToOne

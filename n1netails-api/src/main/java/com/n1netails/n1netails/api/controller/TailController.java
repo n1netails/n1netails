@@ -1,5 +1,6 @@
 package com.n1netails.n1netails.api.controller;
 
+import com.n1netails.n1netails.api.model.request.TailPageRequest;
 import com.n1netails.n1netails.api.model.request.TailRequest;
 import com.n1netails.n1netails.api.model.response.HttpErrorResponse;
 import com.n1netails.n1netails.api.model.response.TailResponse;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -77,5 +79,23 @@ public class TailController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         tailService.deleteTail(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Get tails by page", responses = {
+            @ApiResponse(responseCode = "200", description = "Page of tails",
+                    content = @Content(schema = @Schema(implementation = Page.class))) // Note: Ideally, you'd use a Page<TailResponse> schema
+    })
+    @GetMapping("/page")
+    public ResponseEntity<Page<TailResponse>> getTailsByPage(TailPageRequest request) {
+        return ResponseEntity.ok(tailService.getTails(request));
+    }
+
+    @Operation(summary = "Get top 9 newest tails", responses = {
+            @ApiResponse(responseCode = "200", description = "List of top 9 newest tails",
+                    content = @Content(schema = @Schema(implementation = TailResponse.class)))
+    })
+    @GetMapping("/top9")
+    public ResponseEntity<List<TailResponse>> getTop9NewestTails() {
+        return ResponseEntity.ok(tailService.getTop9NewestTails());
     }
 }

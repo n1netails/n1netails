@@ -8,31 +8,24 @@ import { NzLayoutModule } from 'ng-zorro-antd/layout';
 import { NzListModule } from 'ng-zorro-antd/list';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
+import { NzTagModule } from 'ng-zorro-antd/tag';
 import { BaseChartDirective } from 'ng2-charts';
-import { catchError, of } from 'rxjs';
 import { HeaderComponent } from "../../shared/template/header/header.component";
 import { SidenavComponent } from "../../shared/template/sidenav/sidenav.component";
 import { UiConfigService } from "../../shared/ui-config.service";
 import { AuthenticationService } from '../../service/authentication.service';
 import { Router } from '@angular/router';
 import { TailMetricsService } from '../../service/tail-metrics.service';
-
-// todo remove
-const count = 5;
-const fakeDataUrl = 'https://randomuser.me/api/?results=5&inc=name,gender,email,nat&noinfo';
+import { TailService } from '../../service/tail.service';
+import { TailTypeResponse } from '../../service/tail-type.service';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [NzIconModule, NzLayoutModule, NzCardModule, NzGridModule, NzAvatarModule, NzListModule, NzSkeletonModule, BaseChartDirective, HeaderComponent, SidenavComponent],
+  imports: [NzIconModule, NzLayoutModule, NzCardModule, NzGridModule, NzAvatarModule, NzListModule, NzSkeletonModule, NzTagModule, BaseChartDirective, HeaderComponent, SidenavComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.less'
 })
 export class DashboardComponent implements OnInit {
-
-  initLoading = true; // bug
-  loadingMore = false;
-  data: any[] = [];
-  list: Array<{ loading: boolean; name: any }> = [];
 
   // metrics
   totalTailAlertsToday = 0;
@@ -71,14 +64,23 @@ export class DashboardComponent implements OnInit {
   monthlyAlertsData = {
     labels: ['Apr 1', 'Apr 2', 'Apr 3', 'Apr 4', 'Apr 5', 'Apr 6', 'Apr 7', 'Apr 8', 'Apr 9', 'Apr 10', 'Apr 11', 'Apr 12', 'Apr 13', 'Apr 14', 'Apr 15', 'Apr 16', 'Apr 17', 'Apr 18', 'Apr 19', 'Apr 20', 'Apr 21', 'Apr 22', 'Apr 23', 'Apr 24', 'Apr 25', 'Apr 26', 'Apr 27', 'Apr 28', 'Apr 29', '...'],
     datasets: [
-      { label: 'Info', data: [10, 5, 2, 3, 8, 9, 3, 1, 24, 0, 5, 9, 16, 2, 1, 15 ,21 ,5 ,6 ,9 ,5 ,1 ,2 ,8, 5 , 3, 1, 4, 9], backgroundColor: '#1E90FF' },
-      { label: 'Success', data: [10, 5, 2, 3, 8, 9, 3, 1, 24, 0, 5, 9, 16, 2, 1, 15 ,21 ,5 ,6 ,9 ,5 ,1 ,2 ,8, 5 , 3, 1, 4, 9], backgroundColor: '#FFD700' },
-      { label: 'Warn', data: [20, 10, 7, 2, 5, 4, 12, 2, 5, 1, 8, 3, 4, 4, 8, 3 ,3 ,8 ,18 ,7 ,14 ,5 ,2 ,18, 3 , 1, 17, 48, 9], backgroundColor: '#FFA500' },
-      { label: 'Error', data: [20, 10, 7, 2, 5, 4, 12, 2, 5, 1, 8, 3, 4, 4, 8, 3 ,3 ,8 ,18 ,7 ,14 ,5 ,2 ,18, 3 , 1, 17, 48, 9], backgroundColor: '#FF4500' },
-      { label: 'Critical', data: [10, 5, 2, 3, 8, 9, 3, 1, 24, 0, 5, 9, 16, 2, 1, 15 ,21 ,5 ,6 ,9 ,5 ,1 ,2 ,8, 5 , 3, 1, 4, 9], backgroundColor: '#FF0000' },
-      { label: 'Kuda', data: [10, 5, 2, 3, 8, 9, 3, 1, 24, 0, 5, 9, 16, 2, 1, 15 ,21 ,5 ,6 ,9 ,5 ,1 ,2 ,8, 5 , 3, 1, 4, 9], backgroundColor: '#8B0000' },
+      { label: 'Info', data: [0], backgroundColor: '#1E90FF' },
+      { label: 'Success', data: [0], backgroundColor: '#FFD700' },
+      { label: 'Warn', data: [0], backgroundColor: '#FFA500' },
+      { label: 'Error', data: [0], backgroundColor: '#FF4500' },
+      { label: 'Critical', data: [0], backgroundColor: '#FF0000' },
+      { label: 'Kuda', data: [0], backgroundColor: '#8B0000' },
     ]
   };
+
+  // 9 newest tails
+  initLoading = true; // bug
+  loadingMore = false;
+  data: any[] = [];
+  list: Array<{ loading: boolean; title: string, description: string, level: string, type: string, status: string }> = [];
+
+  // tail domain info
+  tailTypes: TailTypeResponse[] = [];
 
   constructor(
     private http: HttpClient,
@@ -86,6 +88,7 @@ export class DashboardComponent implements OnInit {
     private uiConfigService: UiConfigService,
     private authenticationService: AuthenticationService,
     private tailMetricsService: TailMetricsService,
+    private tailService: TailService,
     private router: Router
   ) {}
 
@@ -97,14 +100,20 @@ export class DashboardComponent implements OnInit {
     const apiUrl = this.uiConfigService.getApiUrl();
     console.log('API URL:', apiUrl); // Log the API URL to verify it's loaded correctly
 
-    this.getData((res: any) => {
-      this.data = res.results;
-      this.list = res.results;
+    // get top 9 newest tails
+    this.getTop9NewestTails((res: any) => {
+      console.log('getData', res);
+
+      this.data = res;
+      console.log('data', this.data);
+      this.list = res;
+      console.log('list', this.list);
       this.initLoading = false;
     });
 
     // metrics
     this.getMetrics();
+
   }
 
   getMetrics() {
@@ -175,7 +184,10 @@ export class DashboardComponent implements OnInit {
       };
     });
   }
-  
+
+
+
+  // todo get the mean time to resolve
   mttrLineData = {
     labels: ['Apr 28', 'Apr 29', 'Apr 30'],
     datasets: [
@@ -190,27 +202,67 @@ export class DashboardComponent implements OnInit {
 
   
 
-  getData(callback: (res: any) => void): void {
-    this.http
-      .get(fakeDataUrl)
-      .pipe(catchError(() => of({ results: [] })))
-      .subscribe((res: any) => callback(res));
-  }
-
-  onLoadMore(): void {
-    this.loadingMore = true;
-    this.list = this.data.concat([...Array(count)].fill({}).map(() => ({ loading: true, name: {} })));
-    this.http
-      .get(fakeDataUrl)
-      .pipe(catchError(() => of({ results: [] })))
-      .subscribe((res: any) => {
-        this.data = this.data.concat(res.results);
-        this.list = [...this.data];
-        this.loadingMore = false;
-      });
+  getTop9NewestTails(callback: (res: any) => void): void {
+    this.tailService.getTop9NewestTails().subscribe(result => {
+      console.log('top 9 newest tails', result);
+      callback(result);
+    });
   }
 
   edit(item: any): void {
     this.msg.success(item.email);
+  }
+
+  getLevelColor(level: string): string {
+    switch (level?.toUpperCase()) {
+      case 'INFO': return 'blue';
+      case 'SUCCESS': return 'green';
+      case 'WARN': return 'orange';
+      case 'ERROR': return 'red';
+      case 'CRITICAL': return 'volcano';
+      default: return 'orange';
+    }
+  }
+
+  getStatusColor(status: string): string {
+    switch (status?.toUpperCase()) {
+      case 'NEW': return 'green';
+      case 'IN_PROGRESS': return 'gold';
+      case 'BLOCKED': return 'red';
+      case 'RESOLVED': return 'blue';
+      default: return 'orange';
+    }
+  }
+
+  private typeColorMap: { [type: string]: string } = {};
+
+  getTypeColor(type: string): string {
+    if (!type) return 'default';
+    const key = type.toLowerCase();
+
+    const zorroColors = [
+      'purple', 'magenta', 'red', 'volcano', 'orange', 'gold', 'lime', 'green',
+      'cyan', 'blue', 'geekblue', 
+    ];
+    // Pick a color based on hash of type for consistency
+    let hash = 0;
+    for (let i = 0; i < key.length; i++) {
+      hash = key.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const color = zorroColors[Math.abs(hash) % zorroColors.length];
+    this.typeColorMap[key] = color;
+    return color;
+  }
+
+  getKudaAvatar(level: string) {
+
+    switch (level?.toUpperCase()) {
+      case 'INFO': return 'kuda_info.jpg';
+      case 'SUCCESS': return 'kuda_success.jpg';
+      case 'WARN': return 'kuda_warning.jpg';
+      case 'ERROR': return 'kuda_error.jpg';
+      case 'CRITICAL': return 'kuda_critical.jpg';
+      default: return 'kuda.jpg';
+    }
   }
 }

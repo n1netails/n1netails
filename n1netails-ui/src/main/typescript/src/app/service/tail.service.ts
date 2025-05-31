@@ -65,4 +65,8 @@ export class TailService {
   deleteTail(id: number): Observable<void> {
     return this.http.delete<void>(`${this.host}/${id}`);
   }
+
+  getTop9NewestTails(): Observable<TailResponse[]> {
+    return this.http.get<TailResponse[]>(`${this.host}/top9`);
+  }
 }

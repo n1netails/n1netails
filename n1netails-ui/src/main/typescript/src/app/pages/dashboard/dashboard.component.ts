@@ -16,6 +16,7 @@ import { UiConfigService } from "../../shared/ui-config.service";
 import { AuthenticationService } from '../../service/authentication.service';
 import { Router } from '@angular/router';
 import { TailMetricsService } from '../../service/tail-metrics.service';
+import { TailResponse, TailService } from '../../service/tail.service';
 
 // todo remove
 const count = 5;
@@ -28,11 +29,6 @@ const fakeDataUrl = 'https://randomuser.me/api/?results=5&inc=name,gender,email,
   styleUrl: './dashboard.component.less'
 })
 export class DashboardComponent implements OnInit {
-
-  initLoading = true; // bug
-  loadingMore = false;
-  data: any[] = [];
-  list: Array<{ loading: boolean; name: any }> = [];
 
   // metrics
   totalTailAlertsToday = 0;
@@ -80,12 +76,18 @@ export class DashboardComponent implements OnInit {
     ]
   };
 
+  initLoading = true; // bug
+  loadingMore = false;
+  data: any[] = [];
+  list: Array<{ loading: boolean; title: any, description: any }> = [];
+
   constructor(
     private http: HttpClient,
     private msg: NzMessageService,
     private uiConfigService: UiConfigService,
     private authenticationService: AuthenticationService,
     private tailMetricsService: TailMetricsService,
+    private tailService: TailService,
     private router: Router
   ) {}
 
@@ -98,13 +100,24 @@ export class DashboardComponent implements OnInit {
     console.log('API URL:', apiUrl); // Log the API URL to verify it's loaded correctly
 
     this.getData((res: any) => {
-      this.data = res.results;
-      this.list = res.results;
+      console.log('getData', res);
+      // this.data = res.results;
+      // console.log('data', this.data);
+      // this.list = res.results;
+      // console.log('list', this.list);
+
+      this.data = res;
+      console.log('data', this.data);
+      this.list = res;
+      console.log('list', this.list);
       this.initLoading = false;
     });
 
     // metrics
     this.getMetrics();
+
+    // get top 9 newest tails
+    this.getTop9NewestTails();
   }
 
   getMetrics() {
@@ -175,6 +188,15 @@ export class DashboardComponent implements OnInit {
       };
     });
   }
+
+  getTop9NewestTails() {
+    this.tailService.getTop9NewestTails().subscribe(result => {
+      console.log('top 9 newest tails', result);
+    });
+  }
+
+
+
   
   mttrLineData = {
     labels: ['Apr 28', 'Apr 29', 'Apr 30'],
@@ -191,24 +213,31 @@ export class DashboardComponent implements OnInit {
   
 
   getData(callback: (res: any) => void): void {
-    this.http
-      .get(fakeDataUrl)
-      .pipe(catchError(() => of({ results: [] })))
-      .subscribe((res: any) => callback(res));
+    // this.http
+    //   .get(fakeDataUrl)
+    //   .pipe(catchError(() => of({ results: [] })))
+    //   .subscribe((res: any) => {
+    //     console.log('RES', res);
+    //     callback(res)});
+
+    this.tailService.getTop9NewestTails().subscribe(result => {
+      console.log('top 9 newest tails', result);
+      callback(result);
+    });
   }
 
-  onLoadMore(): void {
-    this.loadingMore = true;
-    this.list = this.data.concat([...Array(count)].fill({}).map(() => ({ loading: true, name: {} })));
-    this.http
-      .get(fakeDataUrl)
-      .pipe(catchError(() => of({ results: [] })))
-      .subscribe((res: any) => {
-        this.data = this.data.concat(res.results);
-        this.list = [...this.data];
-        this.loadingMore = false;
-      });
-  }
+  // onLoadMore(): void {
+  //   this.loadingMore = true;
+  //   this.list = this.data.concat([...Array(count)].fill({}).map(() => ({ loading: true, name: {} })));
+  //   this.http
+  //     .get(fakeDataUrl)
+  //     .pipe(catchError(() => of({ results: [] })))
+  //     .subscribe((res: any) => {
+  //       this.data = this.data.concat(res.results);
+  //       this.list = [...this.data];
+  //       this.loadingMore = false;
+  //     });
+  // }
 
   edit(item: any): void {
     this.msg.success(item.email);

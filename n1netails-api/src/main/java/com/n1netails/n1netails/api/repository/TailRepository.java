@@ -1,6 +1,7 @@
 package com.n1netails.n1netails.api.repository;
 
 import com.n1netails.n1netails.api.model.dto.TailLevelAndTimestamp;
+import com.n1netails.n1netails.api.model.dto.TailSummary;
 import com.n1netails.n1netails.api.model.entity.TailEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,11 +15,27 @@ import java.util.List;
 
 @Repository
 public interface TailRepository extends JpaRepository<TailEntity, Long> {
-    // ... existing methods ...
 
-    Page<TailEntity> findAllByOrderByTimestampDesc(Pageable pageable);
-
-    List<TailEntity> findTop9ByOrderByTimestampDesc();
+    @Query("""
+        SELECT new com.n1netails.n1netails.api.model.dto.TailSummary(
+            t.id,
+            t.title,
+            t.description,
+            t.timestamp,
+            t.resolvedTimestamp,
+            t.assignedUserId,
+            l.name,
+            ty.name,
+            s.name
+        )
+        FROM TailEntity t
+        JOIN t.level l
+        JOIN t.type ty
+        JOIN t.status s
+        WHERE t.resolvedTimestamp IS NULL
+        ORDER BY t.timestamp DESC
+    """)
+    Page<TailSummary> findAllByOrderByTimestampDesc(Pageable pageable);
 
     List<TailEntity> findByAssignedUserId(Long userId);
 

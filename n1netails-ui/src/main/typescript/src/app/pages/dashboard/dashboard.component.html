@@ -70,7 +70,7 @@
         <nz-row [nzGutter]="8">
           <nz-col [nzSpan]="24">
             <nz-card nzTitle="Active Tails" [nzBordered]="false">
-              <nz-list class="demo-loadmore-list" [nzLoading]="initLoading">
+              <nz-list [nzLoading]="initLoading">
                 @for (item of list; track item) {
                 <nz-list-item>
                   @if (item.loading) {
@@ -78,21 +78,24 @@
                   } @else {
                   <ng-container>
                     <nz-list-item-meta nzAvatar="n1netails_icon_transparent.png"
-                      nzDescription="Ant Design, a design language for background applications, is refined by Ant UED Team">
+                      [nzDescription]="item.description">
                       <nz-list-item-meta-title>
-                        <a href="https://ng.ant.design">{{ item.name.last }}</a>
+                        <!-- todo create new page to view for information on a specific tail -->
+                        <a href="">{{ item.title }}</a>
                       </nz-list-item-meta-title>
                     </nz-list-item-meta>
-                    content
+                    <!-- todo create cool tag boxes for different tail levels, types and status -->
+                    Level Type Status
                     <ul nz-list-item-actions>
-                      <nz-list-item-action><a (click)="edit(item)">edit</a></nz-list-item-action>
-                      <nz-list-item-action><a (click)="edit(item)">more</a></nz-list-item-action>
+                      <nz-list-item-action><a (click)="edit(item)">resolve</a></nz-list-item-action>
+                      <!-- todo create new page to view for information on a specific tail -->
+                      <!-- <nz-list-item-action><a (click)="edit(item)">more</a></nz-list-item-action> -->
                     </ul>
                   </ng-container>
                   }
                 </nz-list-item>
                 }
-                <div class="loadmore" nz-list-load-more>
+                <!-- <div class="loadmore" nz-list-load-more>
                   @if (!loadingMore) {
                   <button
                     style="float: right; background-color: #F06D0F; padding: 5px; border-radius: 3px; border: none;"
@@ -100,7 +103,7 @@
                     <nz-icon nzType="plus" nzTheme="outline" />
                   </button>
                   }
-                </div>
+                </div> -->
               </nz-list>
             </nz-card>
           </nz-col>

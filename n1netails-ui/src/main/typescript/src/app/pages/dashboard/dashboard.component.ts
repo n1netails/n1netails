@@ -79,7 +79,7 @@ export class DashboardComponent implements OnInit {
   initLoading = true; // bug
   loadingMore = false;
   data: any[] = [];
-  list: Array<{ loading: boolean; title: any, description: any }> = [];
+  list: Array<{ loading: boolean; title: string, description: string, level: string, type: string, status: string }> = [];
 
   constructor(
     private http: HttpClient,

@@ -244,27 +244,30 @@ export class DashboardComponent implements OnInit {
     this.msg.success(item.email);
   }
 
+  // todo get levels list from api
   getLevelColor(level: string): string {
     switch (level?.toLowerCase()) {
       case 'critical': return 'red';
       case 'warning': return 'orange';
       case 'info': return 'blue';
-      default: return 'default';
+      default: return 'orange';
     }
   }
 
+  // todo get type list from api
   getTypeColor(type: string): string {
     switch (type?.toLowerCase()) {
       case 'email': return 'geekblue';
-      case 'sms': return 'purple';
+      case 'system_alert': return 'purple';
       case 'push': return 'cyan';
       default: return 'default';
     }
   }
 
+  // todo get status list from api
   getStatusColor(status: string): string {
     switch (status?.toLowerCase()) {
-      case 'active': return 'green';
+      case 'new': return 'green';
       case 'resolved': return 'gold';
       case 'acknowledged': return 'volcano';
       default: return 'default';

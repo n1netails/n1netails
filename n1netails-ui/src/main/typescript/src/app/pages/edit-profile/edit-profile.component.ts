@@ -12,10 +12,11 @@ import { NzFormModule } from 'ng-zorro-antd/form';
 import { FormsModule, NgForm } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
+import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 
 @Component({
   selector: 'app-edit-profile',
-  imports: [NzLayoutModule,NzGridModule,NzCardModule,HeaderComponent,SidenavComponent,NzFormModule,FormsModule],
+  imports: [NzLayoutModule,NzGridModule,NzCardModule,NzAvatarModule,HeaderComponent,SidenavComponent,NzFormModule,FormsModule],
   templateUrl: './edit-profile.component.html',
   styleUrl: './edit-profile.component.less'
 })

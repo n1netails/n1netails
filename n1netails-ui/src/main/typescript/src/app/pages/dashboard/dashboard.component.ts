@@ -203,11 +203,11 @@ export class DashboardComponent implements OnInit {
 
   // todo get the mean time to resolve
   mttrLineData = {
-    labels: ['Apr 28', 'Apr 29', 'Apr 30'],
+    labels: ['Apr 24','Apr 25','Apr 26','Apr 27','Apr 28', 'Apr 29', 'Apr 30'],
     datasets: [
       {
         label: 'MTTR (hours)',
-        data: [2.5, 2.1, 1.9],
+        data: [2.5, 2.1, 1.9, 1.5, 1.2, 1.1, 1.3],
         borderColor: '#F06D0F',
         tension: 0.4
       }

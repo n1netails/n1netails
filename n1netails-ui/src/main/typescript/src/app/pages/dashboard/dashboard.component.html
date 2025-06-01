@@ -71,39 +71,43 @@
           <nz-col [nzSpan]="24">
             <nz-card nzTitle="Active Tails" [nzBordered]="false">
               <nz-list [nzLoading]="initLoading">
-                @for (item of list; track item) {
-                <nz-list-item>
-                  @if (item.loading) {
-                  <nz-skeleton [nzAvatar]="true" [nzActive]="true" [nzTitle]="false" [nzLoading]="true" />
-                  } @else {
-                  <ng-container>
+                 @if (!initLoading && (!list || list.length === 0)) {
+                  <nz-empty [nzNotFoundContent]="'No active tails found.'"></nz-empty>
+                } @else {
+                  @for (item of list; track item) {
+                  <nz-list-item>
+                    @if (item.loading) {
+                    <nz-skeleton [nzAvatar]="true" [nzActive]="true" [nzTitle]="false" [nzLoading]="true" />
+                    } @else {
+                    <ng-container>
 
-                    <!-- Kuda Avatar -->
-                    <ng-template #customAvatarTpl>
-                      <nz-avatar
-                        [nzSrc]="getKudaAvatar(item.level)"
-                        [nzSize]="32" 
-                      ></nz-avatar>
-                    </ng-template>
+                      <!-- Kuda Avatar -->
+                      <ng-template #customAvatarTpl>
+                        <nz-avatar
+                          [nzSrc]="getKudaAvatar(item.level)"
+                          [nzSize]="32" 
+                        ></nz-avatar>
+                      </ng-template>
 
-                    <nz-list-item-meta [nzAvatar]="customAvatarTpl"
-                      [nzDescription]="item.description">
-                      <nz-list-item-meta-title>
+                      <nz-list-item-meta [nzAvatar]="customAvatarTpl"
+                        [nzDescription]="item.description">
+                        <nz-list-item-meta-title>
+                          <!-- todo create new page to view for information on a specific tail -->
+                          <a href="">{{ item.title }}</a>
+                        </nz-list-item-meta-title>
+                      </nz-list-item-meta>
+                      <nz-tag [nzColor]="getLevelColor(item.level)" style="margin-right: 4px;">{{ item.level }}</nz-tag>
+                      <nz-tag [nzColor]="getTypeColor(item.type)" style="margin-right: 4px;">{{ item.type }}</nz-tag>
+                      <nz-tag [nzColor]="getStatusColor(item.status)">{{ item.status }}</nz-tag>
+                      <ul nz-list-item-actions>
+                        <nz-list-item-action><a (click)="resolve(item)">resolve</a></nz-list-item-action>
                         <!-- todo create new page to view for information on a specific tail -->
-                        <a href="">{{ item.title }}</a>
-                      </nz-list-item-meta-title>
-                    </nz-list-item-meta>
-                    <nz-tag [nzColor]="getLevelColor(item.level)" style="margin-right: 4px;">{{ item.level }}</nz-tag>
-                    <nz-tag [nzColor]="getTypeColor(item.type)" style="margin-right: 4px;">{{ item.type }}</nz-tag>
-                    <nz-tag [nzColor]="getStatusColor(item.status)">{{ item.status }}</nz-tag>
-                    <ul nz-list-item-actions>
-                      <nz-list-item-action><a (click)="resolve(item)">resolve</a></nz-list-item-action>
-                      <!-- todo create new page to view for information on a specific tail -->
-                      <!-- <nz-list-item-action><a (click)="view(item)">view</a></nz-list-item-action> -->
-                    </ul>
-                  </ng-container>
+                        <!-- <nz-list-item-action><a (click)="view(item)">view</a></nz-list-item-action> -->
+                      </ul>
+                    </ng-container>
+                    }
+                  </nz-list-item>
                   }
-                </nz-list-item>
                 }
               </nz-list>
             </nz-card>

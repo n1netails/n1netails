@@ -23,10 +23,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { User } from '../../model/user';
 import { DurationPipe } from '../../pipe/duration.pipe';
+import { NzEmptyModule } from 'ng-zorro-antd/empty';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, FormsModule, NzIconModule, NzModalModule, NzLayoutModule, NzCardModule, NzGridModule, NzAvatarModule, NzListModule, NzSkeletonModule, NzTagModule, BaseChartDirective, HeaderComponent, SidenavComponent,DurationPipe],
+  imports: [CommonModule, FormsModule,NzEmptyModule,NzIconModule, NzModalModule, NzLayoutModule, NzCardModule, NzGridModule, NzAvatarModule, NzListModule, NzSkeletonModule, NzTagModule, BaseChartDirective, HeaderComponent, SidenavComponent,DurationPipe],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.less'
 })

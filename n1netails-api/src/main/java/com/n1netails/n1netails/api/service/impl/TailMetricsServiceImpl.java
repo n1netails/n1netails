@@ -21,6 +21,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.time.LocalDate; // Added for getTailMTTRLast7Days
 
 @Slf4j
 @Service
@@ -244,6 +245,52 @@ public class TailMetricsServiceImpl implements TailMetricsService {
         }));
 
         return new TailMonthlySummaryResponse(labels, datasets);
+    }
+
+    @Override
+    public TailDatasetResponse getTailMTTRLast7Days() {
+        log.info("Calculating MTTR for the last 7 days");
+
+        Instant sevenDaysAgo = Instant.now().minus(7, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
+        // Query for tails created in the last 7 days that also have a resolved timestamp.
+        List<TailEntity> recentTails = tailRepository.findAllByTimestampAfterAndResolvedTimestampIsNotNull(sevenDaysAgo);
+
+        Map<LocalDate, List<Duration>> dailyResolutionTimes = new HashMap<>();
+        ZoneId systemZone = ZoneId.systemDefault(); // Or a specific zone if required
+
+        for (TailEntity tail : recentTails) {
+            // Both timestamp and resolvedTimestamp are guaranteed to be non-null by the query
+            LocalDate creationDay = tail.getTimestamp().atZone(systemZone).toLocalDate();
+            // Additional check to ensure the creationDay is within the last 7 days from today,
+            // as sevenDaysAgo is fixed at the start of the method.
+            if (!creationDay.isBefore(LocalDate.now(systemZone).minusDays(7))) {
+                Duration resolutionDuration = Duration.between(tail.getTimestamp(), tail.getResolvedTimestamp());
+                dailyResolutionTimes.computeIfAbsent(creationDay, k -> new ArrayList<>()).add(resolutionDuration);
+            }
+        }
+
+        List<String> labels = new ArrayList<>();
+        List<Double> data = new ArrayList<>();
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMM dd", Locale.US);
+        LocalDate today = LocalDate.now(systemZone);
+
+        for (int i = 6; i >= 0; i--) {
+            LocalDate day = today.minusDays(i);
+            labels.add(day.format(dateFormatter));
+
+            List<Duration> durationsForDay = dailyResolutionTimes.getOrDefault(day, Collections.emptyList());
+            if (durationsForDay.isEmpty()) {
+                data.add(0.0);
+            } else {
+                // Calculate average MTTR in hours
+                double totalSeconds = durationsForDay.stream().mapToLong(Duration::getSeconds).sum();
+                double averageMttrHours = (totalSeconds / (double) durationsForDay.size()) / 3600.0;
+                // Round to 2 decimal places
+                data.add(Math.round(averageMttrHours * 100.0) / 100.0);
+            }
+        }
+        log.info("Returning TailDatasetResponse for MTTR Last 7 Days with {} labels and {} data points.", labels.size(), data.size());
+        return new TailDatasetResponse(labels, data);
     }
 
     private TailResponse mapToTailResponse(TailEntity entity) {

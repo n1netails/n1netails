@@ -12,5 +12,5 @@ import lombok.Setter;
 @AllArgsConstructor
 public class TailDatasetResponse {
     private String label;
-    private List<Integer> data;
+    private List<Double> data;
 }

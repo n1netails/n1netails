@@ -1,9 +1,13 @@
 package com.n1netails.n1netails.api.model.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.Instant;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "note", schema = "ntail")
 public class NoteEntity {

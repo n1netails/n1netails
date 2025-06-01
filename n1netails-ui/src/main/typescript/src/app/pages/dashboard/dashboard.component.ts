@@ -16,16 +16,24 @@ import { UiConfigService } from "../../shared/ui-config.service";
 import { AuthenticationService } from '../../service/authentication.service';
 import { Router } from '@angular/router';
 import { TailMetricsService } from '../../service/tail-metrics.service';
-import { TailService } from '../../service/tail.service';
+import { ResolveTailRequest, TailService, TailSummary } from '../../service/tail.service';
 import { TailTypeResponse } from '../../service/tail-type.service';
+import { NzModalModule } from 'ng-zorro-antd/modal';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { User } from '../../model/user';
+import { DurationPipe } from '../../pipe/duration.pipe';
+import { NzEmptyModule } from 'ng-zorro-antd/empty';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [NzIconModule, NzLayoutModule, NzCardModule, NzGridModule, NzAvatarModule, NzListModule, NzSkeletonModule, NzTagModule, BaseChartDirective, HeaderComponent, SidenavComponent],
+  imports: [CommonModule, FormsModule,NzEmptyModule,NzIconModule, NzModalModule, NzLayoutModule, NzCardModule, NzGridModule, NzAvatarModule, NzListModule, NzSkeletonModule, NzTagModule, BaseChartDirective, HeaderComponent, SidenavComponent,DurationPipe],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.less'
 })
 export class DashboardComponent implements OnInit {
+
+  user: User;
 
   // metrics
   totalTailAlertsToday = 0;
@@ -65,7 +73,7 @@ export class DashboardComponent implements OnInit {
     labels: ['Apr 1', 'Apr 2', 'Apr 3', 'Apr 4', 'Apr 5', 'Apr 6', 'Apr 7', 'Apr 8', 'Apr 9', 'Apr 10', 'Apr 11', 'Apr 12', 'Apr 13', 'Apr 14', 'Apr 15', 'Apr 16', 'Apr 17', 'Apr 18', 'Apr 19', 'Apr 20', 'Apr 21', 'Apr 22', 'Apr 23', 'Apr 24', 'Apr 25', 'Apr 26', 'Apr 27', 'Apr 28', 'Apr 29', '...'],
     datasets: [
       { label: 'Info', data: [0], backgroundColor: '#1E90FF' },
-      { label: 'Success', data: [0], backgroundColor: '#FFD700' },
+      { label: 'Success', data: [0], backgroundColor: 'green' },
       { label: 'Warn', data: [0], backgroundColor: '#FFA500' },
       { label: 'Error', data: [0], backgroundColor: '#FF4500' },
       { label: 'Critical', data: [0], backgroundColor: '#FF0000' },
@@ -90,7 +98,9 @@ export class DashboardComponent implements OnInit {
     private tailMetricsService: TailMetricsService,
     private tailService: TailService,
     private router: Router
-  ) {}
+  ) {
+    this.user = this.authenticationService.getUserFromLocalCache();
+  }
 
   ngOnInit() {
     if (!this.authenticationService.isUserLoggedIn()) {
@@ -100,6 +110,10 @@ export class DashboardComponent implements OnInit {
     const apiUrl = this.uiConfigService.getApiUrl();
     console.log('API URL:', apiUrl); // Log the API URL to verify it's loaded correctly
 
+    this.initDashboard();
+  }
+
+  initDashboard() {
     // get top 9 newest tails
     this.getTop9NewestTails((res: any) => {
       console.log('getData', res);
@@ -113,7 +127,6 @@ export class DashboardComponent implements OnInit {
 
     // metrics
     this.getMetrics();
-
   }
 
   getMetrics() {
@@ -147,6 +160,7 @@ export class DashboardComponent implements OnInit {
 
     // mttr
     this.tailMetricsService.mttr().subscribe(result => {
+      console.log('MTTR', result);
       this.mttr = result;
     });
 
@@ -171,7 +185,7 @@ export class DashboardComponent implements OnInit {
           // INFO
           { label: result.datasets[0].label, data: result.datasets[0].data, backgroundColor: '#1E90FF' },
           // SUCCESS
-          { label: result.datasets[1].label, data: result.datasets[1].data, backgroundColor: '#FFD700' },
+          { label: result.datasets[1].label, data: result.datasets[1].data, backgroundColor: 'green' },
           // WARN
           { label: result.datasets[2].label, data: result.datasets[2].data, backgroundColor: '#FFA500' },
           // ERROR
@@ -209,7 +223,61 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  edit(item: any): void {
+  resolveModalVisible = false;
+  selectedItem: any = null;
+  resolveNote: string = '';
+
+
+  resolve(item: any): void {
+    // this.msg.success(item.email);
+    this.selectedItem = item;
+    console.log('selected item', this.selectedItem);
+    this.resolveNote = '';
+    this.resolveModalVisible = true;
+  }
+
+  // Cancel modal
+  handleResolveCancel(): void {
+    this.resolveModalVisible = false;
+    this.selectedItem = null;
+    this.resolveNote = '';
+  }
+
+  // Confirm resolve
+  handleResolveOk(): void {
+    const tailSummary: TailSummary = {
+      id: this.selectedItem.id,
+      title: this.selectedItem.title,
+      description: this.selectedItem.description,
+      timestamp: this.selectedItem.timestamp,
+      resolvedtimestamp: this.selectedItem.resolvedTimestamp,
+      assignedUserId: this.user.id,
+      level: this.selectedItem.level,
+      type: this.selectedItem.type,
+      status: this.selectedItem.status,
+    };
+
+    const tailResolveRequest: ResolveTailRequest = {
+      userId: this.user.id,
+      tailSummary: tailSummary, 
+      note: this.resolveNote,
+    };
+
+    this.tailService.markTailResolved(tailResolveRequest).subscribe({
+      next: (result) => {
+        this.msg.success(`Resolved "${this.selectedItem.title}"`);
+        this.resolveModalVisible = false;
+        this.selectedItem = null;
+        this.resolveNote = '';
+        this.initDashboard();
+      }, 
+      error: (err) => {
+        this.msg.error(`Unable to mark tail "${this.selectedItem.title}" as resolved. Error: ${err}`);
+      },
+    });
+  }
+
+  view(item: any): void {
     this.msg.success(item.email);
   }
 
@@ -241,8 +309,8 @@ export class DashboardComponent implements OnInit {
     const key = type.toLowerCase();
 
     const zorroColors = [
-      'purple', 'magenta', 'red', 'volcano', 'orange', 'gold', 'lime', 'green',
-      'cyan', 'blue', 'geekblue', 
+      'geekblue', 'purple', 'magenta', 'red', 'volcano', 'orange', 'gold', 'lime', 'green',
+      'cyan', 'blue',  
     ];
     // Pick a color based on hash of type for consistency
     let hash = 0;
@@ -259,7 +327,7 @@ export class DashboardComponent implements OnInit {
     switch (level?.toUpperCase()) {
       case 'INFO': return 'kuda_info.jpg';
       case 'SUCCESS': return 'kuda_success.jpg';
-      case 'WARN': return 'kuda_warning.jpg';
+      case 'WARN': return 'kuda_warn.jpg';
       case 'ERROR': return 'kuda_error.jpg';
       case 'CRITICAL': return 'kuda_critical.jpg';
       default: return 'kuda.jpg';

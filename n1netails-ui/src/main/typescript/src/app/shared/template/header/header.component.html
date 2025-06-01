@@ -7,7 +7,7 @@
     <div>
       <span class="pointer" nz-dropdown [nzDropdownMenu]="profile" [nzTrigger]="'click'">
         <nz-avatar *ngIf="loggedInUser.profileImageUrl === null" nzIcon="user"></nz-avatar>
-        <nz-avatar *ngIf="loggedInUser.profileImageUrl !== null" nzSize="large" [nzSrc]="loggedInUser.profileImageUrl"></nz-avatar>
+        <nz-avatar *ngIf="loggedInUser.profileImageUrl !== null" nzSize="default" [nzSrc]="loggedInUser.profileImageUrl"></nz-avatar>
       </span>
       <nz-dropdown-menu #profile="nzDropdownMenu">
         <ul nz-menu style="padding: 8px; width: 220px;">

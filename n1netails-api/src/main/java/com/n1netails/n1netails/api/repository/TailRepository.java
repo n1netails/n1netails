@@ -2,6 +2,7 @@ package com.n1netails.n1netails.api.repository;
 
 import com.n1netails.n1netails.api.model.dto.TailLevelAndTimestamp;
 import com.n1netails.n1netails.api.model.dto.TailSummary;
+import com.n1netails.n1netails.api.model.dto.TailTimestampAndResolvedTimestamp;
 import com.n1netails.n1netails.api.model.entity.TailEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -61,5 +62,7 @@ public interface TailRepository extends JpaRepository<TailEntity, Long> {
     List<TailEntity> findAllByStatusNameNot(String statusName);
     long countByStatusNameNot(String statusName);
 
-    List<TailEntity> findAllByResolvedTimestampIsNotNull();
+    @Query("SELECT new com.n1netails.n1netails.api.model.dto.TailTimestampAndResolvedTimestamp(t.timestamp, t.resolvedTimestamp)" +
+            "FROM TailEntity t WHERE t.resolvedTimestamp IS NOT NULL")
+    List<TailTimestampAndResolvedTimestamp> findOnlyTimestampAndResolvedTimestampIsNotNull();
 }

@@ -5,3 +5,99 @@ nz-header {
   width: 100%;
   z-index: 2;
 }
+
+.resolve-modal-content {
+  // background: #23272b;
+  color: #f1f1f1;
+  border-radius: 8px;
+  padding: 0;
+}
+
+.resolve-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 12px;
+}
+
+.resolve-modal-avatar {
+  border: 2px solid @primary-color;
+  background: #181a1b;
+}
+
+.resolve-modal-title-group {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.resolve-modal-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.resolve-modal-tags {
+  display: flex;
+  gap: 4px;
+}
+
+.resolve-modal-body {
+  margin-top: 8px;
+}
+
+.resolve-modal-label {
+  display: block;
+  margin: 16px 0 4px 0;
+  color: #f1f1f1;
+}
+
+.resolve-modal-textarea {
+  width: 100%;
+  background: #181a1b !important;
+  color: #fff !important;
+  border: 1px solid #444 !important;
+  border-radius: 6px !important;
+  font-size: 15px;
+  padding: 10px 14px !important;
+  resize: vertical;
+}
+
+.nz-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+button[nz-button].resolve-btn {
+  background: @primary-color !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 6px;
+  font-weight: 600;
+  padding: 4px 12px !important;
+  transition: background 0.2s;
+  margin-left: 8px;
+
+  &:hover,
+  &:focus {
+    background: @secondary-color !important;
+    color: #fff !important;
+  }
+}
+
+button[nz-button].cancel-btn {
+  background: #23272b !important;
+  color: #fff !important;
+  border: 1px solid #444 !important;
+  border-radius: 6px;
+  font-weight: 600;
+  padding: 4px 12px !important;
+
+  &:hover,
+  &:focus {
+    background: #181a1b !important;
+    color: #fff !important;
+  }
+}

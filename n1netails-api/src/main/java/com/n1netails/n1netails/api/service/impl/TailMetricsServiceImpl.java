@@ -1,6 +1,7 @@
 package com.n1netails.n1netails.api.service.impl;
 
 import com.n1netails.n1netails.api.model.dto.TailLevelAndTimestamp;
+import com.n1netails.n1netails.api.model.dto.TailTimestampAndResolvedTimestamp;
 import com.n1netails.n1netails.api.model.entity.TailEntity;
 import com.n1netails.n1netails.api.model.entity.TailLevelEntity;
 import com.n1netails.n1netails.api.model.response.TailAlertsPerHourResponse;
@@ -90,17 +91,19 @@ public class TailMetricsServiceImpl implements TailMetricsService {
 
     @Override
     public long tailAlertsMTTR() {
-        List<TailEntity> tailEntities = tailRepository.findAllByResolvedTimestampIsNotNull();
-        if (tailEntities == null || tailEntities.isEmpty()) {
+        log.info("tailAlertsMTTR");
+        List<TailTimestampAndResolvedTimestamp> resolvedTimestampList = tailRepository.findOnlyTimestampAndResolvedTimestampIsNotNull();
+        log.info("retrieved list of tail entities");
+        if (resolvedTimestampList == null || resolvedTimestampList.isEmpty()) {
             return 0;
         }
 
         long totalDurationInSeconds = 0;
         int validTailsCount = 0;
 
-        for (TailEntity entity : tailEntities) {
-            if (entity.getTimestamp() != null && entity.getResolvedTimestamp() != null) {
-                Duration duration = Duration.between(entity.getTimestamp(), entity.getResolvedTimestamp());
+        for (TailTimestampAndResolvedTimestamp resolvedTimestamp : resolvedTimestampList) {
+            if (resolvedTimestamp.getTimestamp() != null && resolvedTimestamp.getResolvedTimestamp() != null) {
+                Duration duration = Duration.between(resolvedTimestamp.getTimestamp(), resolvedTimestamp.getResolvedTimestamp());
                 totalDurationInSeconds += duration.getSeconds();
                 validTailsCount++;
             }

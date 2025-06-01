@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { TailService, TailResponse } from '../../service/tail.service.ts';
+import { TailService, TailResponse } from '../../service/tail.service';
 import { CommonModule } from '@angular/common';
 import { NzTagModule } from 'ng-zorro-antd/tag'; // For nz-tag
 import { NzSpinModule } from 'ng-zorro-antd/spin'; // For nz-spin

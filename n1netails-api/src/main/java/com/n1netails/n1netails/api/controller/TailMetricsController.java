@@ -1,9 +1,7 @@
 package com.n1netails.n1netails.api.controller;
 
 import com.n1netails.n1netails.api.model.request.TimezoneRequest;
-import com.n1netails.n1netails.api.model.response.TailAlertsPerHourResponse;
-import com.n1netails.n1netails.api.model.response.TailMonthlySummaryResponse;
-import com.n1netails.n1netails.api.model.response.TailResponse;
+import com.n1netails.n1netails.api.model.response.*;
 import com.n1netails.n1netails.api.service.TailMetricsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -95,6 +93,15 @@ public class TailMetricsController {
     @GetMapping("/mttr")
     public long getTailAlertsMTTR() {
         return tailMetricsService.tailAlertsMTTR();
+    }
+
+    @Operation(summary = "Get MTTR for the last 7 days.", responses = {
+            @ApiResponse(responseCode = "200", description = "MTTR data for the last 7 days",
+                    content = @Content(schema = @Schema(implementation = TailDatasetMttrResponse.class)))
+    })
+    @GetMapping("/mttr/last-7-days")
+    public TailDatasetMttrResponse getTailMTTRLast7Days() {
+        return tailMetricsService.getTailMTTRLast7Days();
     }
 
     @Operation(summary = "Get tail alerts count per hour for the last 9 hours.", responses = {

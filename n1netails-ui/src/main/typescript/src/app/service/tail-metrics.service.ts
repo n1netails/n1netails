@@ -8,6 +8,11 @@ export interface TailAlertsPerHourResponse {
   data: number[];
 }
 
+export interface TailDatasetMttrResponse {
+  labels: string[];
+  data: number[];
+}
+
 export interface TailMonthlySummaryResponse {
   labels: string[];
   datasets: TailDatasetResponse[];
@@ -49,6 +54,10 @@ export class TailMetricsService {
 
   mttr(): Observable<number> {
     return this.http.get<number>(`${this.host}/mttr`);
+  }
+
+  mttrLast7Days(): Observable<TailDatasetMttrResponse> {
+    return this.http.get<TailDatasetMttrResponse>(`${this.host}/mttr/last-7-days`);
   }
 
   getTailAlertsHourly(timezone: string): Observable<TailAlertsPerHourResponse> { // Added timezone parameter

@@ -4,10 +4,7 @@ import com.n1netails.n1netails.api.model.dto.TailLevelAndTimestamp;
 import com.n1netails.n1netails.api.model.dto.TailTimestampAndResolvedTimestamp;
 import com.n1netails.n1netails.api.model.entity.TailEntity;
 import com.n1netails.n1netails.api.model.entity.TailLevelEntity;
-import com.n1netails.n1netails.api.model.response.TailAlertsPerHourResponse;
-import com.n1netails.n1netails.api.model.response.TailDatasetResponse;
-import com.n1netails.n1netails.api.model.response.TailMonthlySummaryResponse;
-import com.n1netails.n1netails.api.model.response.TailResponse;
+import com.n1netails.n1netails.api.model.response.*;
 import com.n1netails.n1netails.api.repository.TailLevelRepository;
 import com.n1netails.n1netails.api.repository.TailRepository;
 import com.n1netails.n1netails.api.service.TailMetricsService;
@@ -248,17 +245,17 @@ public class TailMetricsServiceImpl implements TailMetricsService {
     }
 
     @Override
-    public TailDatasetResponse getTailMTTRLast7Days() {
+    public TailDatasetMttrResponse getTailMTTRLast7Days() {
         log.info("Calculating MTTR for the last 7 days");
 
         Instant sevenDaysAgo = Instant.now().minus(7, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
         // Query for tails created in the last 7 days that also have a resolved timestamp.
-        List<TailEntity> recentTails = tailRepository.findAllByTimestampAfterAndResolvedTimestampIsNotNull(sevenDaysAgo);
+        List<TailTimestampAndResolvedTimestamp> recentTails = tailRepository.findAllByTimestampAfterAndResolvedTimestampIsNotNull(sevenDaysAgo);
 
         Map<LocalDate, List<Duration>> dailyResolutionTimes = new HashMap<>();
         ZoneId systemZone = ZoneId.systemDefault(); // Or a specific zone if required
 
-        for (TailEntity tail : recentTails) {
+        for (TailTimestampAndResolvedTimestamp tail : recentTails) {
             // Both timestamp and resolvedTimestamp are guaranteed to be non-null by the query
             LocalDate creationDay = tail.getTimestamp().atZone(systemZone).toLocalDate();
             // Additional check to ensure the creationDay is within the last 7 days from today,
@@ -290,7 +287,7 @@ public class TailMetricsServiceImpl implements TailMetricsService {
             }
         }
         log.info("Returning TailDatasetResponse for MTTR Last 7 Days with {} labels and {} data points.", labels.size(), data.size());
-        return new TailDatasetResponse(labels, data);
+        return new TailDatasetMttrResponse(labels, data);
     }
 
     private TailResponse mapToTailResponse(TailEntity entity) {

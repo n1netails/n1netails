@@ -13,9 +13,7 @@
         <nz-row class="edit-profile" [nzGutter]="8">
           <nz-col [nzSpan]="24">
             <nz-card class="tails-primary-color" nzTitle="Edit Profile" [nzBordered]="false">
-              
               <div class="profile-flex">
-                <img class="profile-img" [src]="user.profileImageUrl">
                 <div class="profile-details">
 
                   <form nz-form #profileForm="ngForm" (ngSubmit)="onSaveProfile(profileForm)">

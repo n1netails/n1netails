@@ -81,6 +81,19 @@ export class DashboardComponent implements OnInit {
     ]
   };
 
+  // Mean Time To Resolution Hours (Line Chart)
+  mttrLineData = {
+    labels: ['Apr 24','Apr 25','Apr 26','Apr 27','Apr 28', 'Apr 29', 'Apr 30'],
+    datasets: [
+      {
+        label: 'MTTR (hours)',
+        data: [0],
+        borderColor: '#F06D0F',
+        tension: 0.4
+      }
+    ]
+  };
+
   // 9 newest tails
   initLoading = true; // bug
   loadingMore = false;
@@ -164,6 +177,22 @@ export class DashboardComponent implements OnInit {
       this.mttr = result;
     });
 
+    // mttr weekly
+    this.tailMetricsService.mttrLast7Days().subscribe(result => {
+      console.log('MTTR Weekly', result);
+      this.mttrLineData = {
+        labels: result.labels,
+        datasets: [
+          {
+            label: 'MTTR (hours)',
+            data: result.data,
+            borderColor: '#F06D0F',
+            tension: 0.4
+          }
+        ]
+      };
+    });
+
     // hourly
     // pass timezone here in getTailAlertsHourly
     this.tailMetricsService.getTailAlertsHourly(userTimezone).subscribe(result => { // Pass timezone
@@ -198,23 +227,6 @@ export class DashboardComponent implements OnInit {
       };
     });
   }
-
-
-
-  // todo get the mean time to resolve
-  mttrLineData = {
-    labels: ['Apr 28', 'Apr 29', 'Apr 30'],
-    datasets: [
-      {
-        label: 'MTTR (hours)',
-        data: [2.5, 2.1, 1.9],
-        borderColor: '#F06D0F',
-        tension: 0.4
-      }
-    ]
-  };
-
-  
 
   getTop9NewestTails(callback: (res: any) => void): void {
     this.tailService.getTop9NewestTails().subscribe(result => {

@@ -6,7 +6,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 export class DurationPipe implements PipeTransform {
   transform(value: number | null | undefined): string {
     if (value == null || isNaN(value)) return '';
-    let seconds = Math.floor(value); // value is now in seconds, not ms
+    let seconds = Math.floor(value); // convert java instant (seconds)
     const days = Math.floor(seconds / (24 * 3600));
     seconds %= 24 * 3600;
     const hours = Math.floor(seconds / 3600);

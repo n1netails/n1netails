@@ -245,10 +245,6 @@ export class DashboardComponent implements OnInit {
 
   // Confirm resolve
   handleResolveOk(): void {
-    // Implement your resolve logic here, e.g. call an API
-    // Example:
-    // this.tailService.resolveTail(this.selectedItem.id, this.resolveNote).subscribe(...)
-
     const tailSummary: TailSummary = {
       id: this.selectedItem.id,
       title: this.selectedItem.title,

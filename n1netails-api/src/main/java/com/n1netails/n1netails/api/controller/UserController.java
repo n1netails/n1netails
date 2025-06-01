@@ -1,6 +1,7 @@
 package com.n1netails.n1netails.api.controller;
 
 import com.n1netails.n1netails.api.exception.type.EmailExistException;
+import com.n1netails.n1netails.api.exception.type.PasswordRegexException;
 import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
 import com.n1netails.n1netails.api.model.UserPrincipal;
 import com.n1netails.n1netails.api.model.entity.UsersEntity;
@@ -62,9 +63,14 @@ public class UserController {
         try {
             String token = authorizationHeader.substring(TOKEN_PREFIX.length());
             String authEmail = jwtDecoder.decode(token).getSubject();
-            log.info("auth email: {}", authEmail);
-            UsersEntity editUser = userService.editUser(user);
-            return new ResponseEntity<>(editUser, OK);
+
+            if (authEmail.equals(user.getEmail())) {
+                log.info("auth email: {}", authEmail);
+                UsersEntity editUser = userService.editUser(user);
+                return new ResponseEntity<>(editUser, OK);
+            } else {
+                throw new AccessDeniedException(ACCESS_DENIED_MESSAGE);
+            }
         } catch (JwtException e) {
             throw new AccessDeniedException(ACCESS_DENIED_MESSAGE);
         }
@@ -102,15 +108,11 @@ public class UserController {
             }
     )
     @PostMapping(value = "/register", consumes = APPLICATION_JSON)
-    public ResponseEntity<UsersEntity> register(@RequestBody UserRegisterRequest user) throws UserNotFoundException, EmailExistException {
+    public ResponseEntity<UsersEntity> register(@RequestBody UserRegisterRequest user) throws UserNotFoundException, EmailExistException, PasswordRegexException {
 
         String password = user.getPassword();
-        // Regex: at least 8 chars, 1 uppercase, 1 special char
-        String passwordPattern = "^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\\-={}\\[\\]:;'\"\\\\|,.<>/?]).{8,}$";
-        if (password == null || !password.matches(passwordPattern)) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(null);
+        if (password == null || !password.matches(PASSWORD_REGEX)) {
+            throw new PasswordRegexException(PASSWORD_REGEX_EXCEPTION_MESSAGE);
         }
 
         UsersEntity newUser = userService.register(user);

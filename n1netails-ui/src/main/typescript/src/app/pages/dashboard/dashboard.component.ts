@@ -16,19 +16,23 @@ import { UiConfigService } from "../../shared/ui-config.service";
 import { AuthenticationService } from '../../service/authentication.service';
 import { Router } from '@angular/router';
 import { TailMetricsService } from '../../service/tail-metrics.service';
-import { TailService } from '../../service/tail.service';
+import { ResolveTailRequest, TailService, TailSummary } from '../../service/tail.service';
 import { TailTypeResponse } from '../../service/tail-type.service';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { User } from '../../model/user';
+import { DurationPipe } from '../../pipe/duration.pipe';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, FormsModule, NzIconModule, NzModalModule, NzLayoutModule, NzCardModule, NzGridModule, NzAvatarModule, NzListModule, NzSkeletonModule, NzTagModule, BaseChartDirective, HeaderComponent, SidenavComponent],
+  imports: [CommonModule, FormsModule, NzIconModule, NzModalModule, NzLayoutModule, NzCardModule, NzGridModule, NzAvatarModule, NzListModule, NzSkeletonModule, NzTagModule, BaseChartDirective, HeaderComponent, SidenavComponent,DurationPipe],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.less'
 })
 export class DashboardComponent implements OnInit {
+
+  user: User;
 
   // metrics
   totalTailAlertsToday = 0;
@@ -93,7 +97,9 @@ export class DashboardComponent implements OnInit {
     private tailMetricsService: TailMetricsService,
     private tailService: TailService,
     private router: Router
-  ) {}
+  ) {
+    this.user = this.authenticationService.getUserFromLocalCache();
+  }
 
   ngOnInit() {
     if (!this.authenticationService.isUserLoggedIn()) {
@@ -103,6 +109,10 @@ export class DashboardComponent implements OnInit {
     const apiUrl = this.uiConfigService.getApiUrl();
     console.log('API URL:', apiUrl); // Log the API URL to verify it's loaded correctly
 
+    this.initDashboard();
+  }
+
+  initDashboard() {
     // get top 9 newest tails
     this.getTop9NewestTails((res: any) => {
       console.log('getData', res);
@@ -116,7 +126,6 @@ export class DashboardComponent implements OnInit {
 
     // metrics
     this.getMetrics();
-
   }
 
   getMetrics() {
@@ -150,6 +159,7 @@ export class DashboardComponent implements OnInit {
 
     // mttr
     this.tailMetricsService.mttr().subscribe(result => {
+      console.log('MTTR', result);
       this.mttr = result;
     });
 
@@ -237,10 +247,37 @@ export class DashboardComponent implements OnInit {
     // Implement your resolve logic here, e.g. call an API
     // Example:
     // this.tailService.resolveTail(this.selectedItem.id, this.resolveNote).subscribe(...)
-    this.msg.success(`Resolved "${this.selectedItem.title}" with note: ${this.resolveNote}`);
-    this.resolveModalVisible = false;
-    this.selectedItem = null;
-    this.resolveNote = '';
+
+    const tailSummary: TailSummary = {
+      id: this.selectedItem.id,
+      title: this.selectedItem.title,
+      description: this.selectedItem.description,
+      timestamp: this.selectedItem.timestamp,
+      resolvedtimestamp: this.selectedItem.resolvedTimestamp,
+      assignedUserId: this.user.id,
+      level: this.selectedItem.level,
+      type: this.selectedItem.type,
+      status: this.selectedItem.status,
+    };
+
+    const tailResolveRequest: ResolveTailRequest = {
+      userId: this.user.id,
+      tailSummary: tailSummary, 
+      note: this.resolveNote,
+    };
+
+    this.tailService.markTailResolved(tailResolveRequest).subscribe({
+      next: (result) => {
+        this.msg.success(`Resolved "${this.selectedItem.title}"`);
+        this.resolveModalVisible = false;
+        this.selectedItem = null;
+        this.resolveNote = '';
+        this.initDashboard();
+      }, 
+      error: (err) => {
+        this.msg.error(`Unable to mark tail "${this.selectedItem.title}" as resolved. Error: ${err}`);
+      },
+    });
   }
 
   view(item: any): void {

@@ -30,6 +30,24 @@ export interface TailResponse {
   status: string;
 }
 
+export interface ResolveTailRequest {
+  userId: number,
+  tailSummary: TailSummary;
+  note: string;
+}
+
+export interface TailSummary {
+  id: number;
+  title: string;
+  description: string;
+  timestamp: string;
+  resolvedtimestamp: string;
+  assignedUserId: number;
+  level: string;
+  type: string;
+  status: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -68,5 +86,9 @@ export class TailService {
 
   getTop9NewestTails(): Observable<TailResponse[]> {
     return this.http.get<TailResponse[]>(`${this.host}/top9`);
+  }
+
+  markTailResolved(resolvedTailRequest: ResolveTailRequest): Observable<void> {
+    return this.http.post<void>(`${this.host}/mark/resolved`, resolvedTailRequest);
   }
 }

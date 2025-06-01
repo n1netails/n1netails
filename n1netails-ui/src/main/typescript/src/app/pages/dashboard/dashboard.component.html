@@ -22,7 +22,7 @@
             <nz-card class="tails-primary-color" nzTitle="Not Resolved" [nzBordered]="false"><b>{{ totalTailsNotResolved }}</b></nz-card>
           </nz-col>
           <nz-col [nzSpan]="6">
-            <nz-card class="tails-primary-color" nzTitle="Avg. MTTR" [nzBordered]="false"><b>{{ mttr }}</b></nz-card>
+            <nz-card class="tails-primary-color" nzTitle="Avg. MTTR" [nzBordered]="false"><b>{{ mttr | duration }}</b></nz-card>
           </nz-col>
         </nz-row>
 

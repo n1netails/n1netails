@@ -1,0 +1,45 @@
+<div class="tail-details-container">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-indicator">
+    <nz-spin nzSimple [nzSize]="'large'"></nz-spin>
+    <p>Loading tail details...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="error-message">
+    <nz-alert nzType="error" [nzMessage]="'Error'" [nzDescription]="error"></nz-alert>
+  </div>
+
+  <!-- Content Display State -->
+  <div *ngIf="!isLoading && tail" class="tail-content">
+    <h2>{{ tail.title }}</h2>
+
+    <div class="meta-info">
+      <p><strong>ID:</strong> {{ tail.id }}</p>
+      <p><strong>Timestamp:</strong> {{ tail.timestamp | date:'medium' }}</p>
+      <p *ngIf="tail.resolvedTimestamp"><strong>Resolved At:</strong> {{ tail.resolvedTimestamp | date:'medium' }}</p>
+      <p *ngIf="tail.assignedUsername"><strong>Assigned To:</strong> {{ tail.assignedUsername }}</p>
+    </div>
+
+    <div class="tags">
+      <nz-tag [nzColor]="getLevelColor(tail.level)">{{ tail.level }}</nz-tag>
+      <nz-tag [nzColor]="getTypeColor(tail.type)">{{ tail.type }}</nz-tag>
+      <nz-tag [nzColor]="getStatusColor(tail.status)">{{ tail.status }}</nz-tag>
+    </div>
+
+    <div class="description">
+      <h3>Description</h3>
+      <p>{{ tail.description }}</p>
+    </div>
+
+    <div class="details-section">
+      <h3>Details</h3>
+      <pre><code>{{ tail.details }}</code></pre>
+    </div>
+  </div>
+
+  <!-- No Tail Data and No Error (e.g., navigated with wrong ID but API didn't error) -->
+  <div *ngIf="!isLoading && !tail && !error" class="no-data-message">
+    <nz-empty nzNotFoundImage="simple" [nzNotFoundContent]="'Tail data not found or ID is invalid.'"></nz-empty>
+  </div>
+</div>

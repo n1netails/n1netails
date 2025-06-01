@@ -81,4 +81,8 @@ export class AuthenticationService {
     this.logOut();
     return false;
   }
+
+  public resetPassword(email: string, newPassword: string): Observable<any> {
+    return this.http.post<any>(`${this.host}/api/password/reset`, { email, newPassword });
+  }
 }

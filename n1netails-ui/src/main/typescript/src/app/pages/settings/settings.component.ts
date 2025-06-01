@@ -32,6 +32,11 @@ export class SettingsComponent implements OnInit {
   isLoading: boolean = false;
   errorMessage: string = '';
 
+  // Password Reset
+  newPassword: string = '';
+  passwordResetSuccessMessage: string = '';
+  passwordResetErrorMessage: string = '';
+
   // Alert Levels, Statuses, Types
   tailLevels: TailLevelResponse[] = [];
   tailStatuses: TailStatusResponse[] = [];
@@ -187,11 +192,32 @@ export class SettingsComponent implements OnInit {
   }
 
   // Password Reset
-  newPassword: string = '';
   onPasswordReset() {
-    // Implement password reset logic here
-    this.newPassword = '';
-    // Show notification if needed
+    this.passwordResetSuccessMessage = '';
+    this.passwordResetErrorMessage = '';
+
+    if (!this.newPassword) {
+      this.passwordResetErrorMessage = 'New password cannot be empty.';
+      return;
+    }
+
+    if (!this.user || !this.user.email) {
+      this.passwordResetErrorMessage = 'User email is not available.';
+      return;
+    }
+
+    this.authenticationService.resetPassword(this.user.email, this.newPassword).subscribe({
+      next: () => {
+        this.passwordResetSuccessMessage = 'Password updated successfully.';
+        console.log('Password updated successfully.');
+        this.newPassword = '';
+      },
+      error: (error) => {
+        this.passwordResetErrorMessage = 'Failed to update password. ' + (error.error?.message || error.message || '');
+        console.error('Failed to update password:', error);
+        this.newPassword = '';
+      }
+    });
   }
 
   addAlertLevel() {

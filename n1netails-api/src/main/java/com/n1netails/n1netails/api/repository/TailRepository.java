@@ -62,8 +62,6 @@ public interface TailRepository extends JpaRepository<TailEntity, Long> {
     List<TailEntity> findAllByStatusNameNot(String statusName);
     long countByStatusNameNot(String statusName);
 
-    List<TailEntity> findAllByResolvedTimestampIsNotNull();
-
     @Query("SELECT new com.n1netails.n1netails.api.model.dto.TailTimestampAndResolvedTimestamp(t.timestamp, t.resolvedTimestamp)" +
             "FROM TailEntity t WHERE t.resolvedTimestamp IS NOT NULL")
     List<TailTimestampAndResolvedTimestamp> findOnlyTimestampAndResolvedTimestampIsNotNull();

@@ -1,6 +1,7 @@
 package com.n1netails.n1netails.api.exception;
 
 import com.n1netails.n1netails.api.exception.type.EmailExistException;
+import com.n1netails.n1netails.api.exception.type.PasswordRegexException;
 import com.n1netails.n1netails.api.exception.type.TailNotFoundException;
 import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
 import com.n1netails.n1netails.api.model.response.HttpErrorResponse;
@@ -11,22 +12,39 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.nio.file.AccessDeniedException;
+
 import static org.springframework.http.HttpStatus.*;
 
 @Slf4j
 @RestControllerAdvice
 public class ExceptionController implements ErrorController {
 
-//    /**
-//     * Bad Request Exception (400)
-//     * @param exception bad request exception
-//     * @return http error response
-//     */
-//    @ExceptionHandler()
-//    public ResponseEntity<HttpErrorResponse> badRequestException(Exception exception) {
-//        log.error(exception.getMessage());
-//        return createHttpResponse(BAD_REQUEST, exception.getMessage());
-//    }
+    /**
+     * Bad Request Exception (400)
+     * @param exception bad request exception
+     * @return http error response
+     */
+    @ExceptionHandler({
+            PasswordRegexException.class
+    })
+    public ResponseEntity<HttpErrorResponse> badRequestException(Exception exception) {
+        log.error(exception.getMessage());
+        return createHttpResponse(BAD_REQUEST, exception.getMessage());
+    }
+
+    /**
+     * Unauthorized Exception (401)
+     * @param exception unauthorized exception
+     * @return http error response
+     */
+    @ExceptionHandler({
+            AccessDeniedException.class
+    })
+    public ResponseEntity<HttpErrorResponse> unauthorizedException(Exception exception) {
+        log.error(exception.getMessage());
+        return createHttpResponse(UNAUTHORIZED, exception.getMessage());
+    }
 
     /**
      * Not Found Exception (404)

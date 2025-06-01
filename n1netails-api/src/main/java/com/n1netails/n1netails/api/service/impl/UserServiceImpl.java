@@ -142,4 +142,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             return null;
         }
     }
+
+    @Override
+    public UsersEntity updatePassword(String email, String newPassword) throws UserNotFoundException {
+        UsersEntity user = userRepository.findUserByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        return user;
+    }
 }

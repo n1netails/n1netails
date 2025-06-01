@@ -19,8 +19,6 @@ public class ProjectSecurityConstant {
             "/api/user/login",
             "/api/user/register",
             "/api/alert/**",
-//            "/api/metrics/tails/**",
-//            "/api/tail/**",
             "/"
     };
 
@@ -29,5 +27,8 @@ public class ProjectSecurityConstant {
     public static final String FORBIDDEN_MESSAGE = "You need to login in order to access this page.";
     public static final String ACCESS_DENIED_MESSAGE = "You do not have permission to access this page.";
 
+    // Regex: at least 8 chars, 1 uppercase, 1 special char
+    public static final String PASSWORD_REGEX = "^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\\-={}\\[\\]:;'\"\\\\|,.<>/?]).{8,}$";
+    public static final String PASSWORD_REGEX_EXCEPTION_MESSAGE = "The password needs to contain at least 8 characters, 1 uppercase character, and 1 special character.";
     private ProjectSecurityConstant() {}
 }

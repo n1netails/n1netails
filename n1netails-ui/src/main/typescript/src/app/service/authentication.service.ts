@@ -82,7 +82,7 @@ export class AuthenticationService {
     return false;
   }
 
-  public resetPassword(email: string, newPassword: string): Observable<any> {
-    return this.http.post<any>(`${this.host}/api/password/reset`, { email, newPassword });
+  public resetPassword(email: string, newPassword: string): Observable<string> {
+    return this.http.post(`${this.host}/api/password/reset`, { email, newPassword }, { responseType: 'text' });
   }
 }

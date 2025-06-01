@@ -167,18 +167,30 @@
           </nz-card>
 
           <nz-card nzTitle="Password Reset" class="tails-primary-color" [nzBordered]="false">
-            <form nz-form (ngSubmit)="onPasswordReset()" #passwordForm="ngForm" class="password-form">
-              <nz-form-item>
-                <nz-form-label [nzSpan]="10" nzFor="newPassword" nzRequired>New Password: </nz-form-label>
-                <nz-form-control [nzSpan]="10">
-                  <input nz-input type="password" id="newPassword" name="newPassword" [(ngModel)]="newPassword" required
-                    placeholder="Enter new password" />
-                </nz-form-control>
-              </nz-form-item>
-            </form>
-            <button nz-button nzType="primary" type="submit" [disabled]="!passwordForm.valid">Reset Password</button>
+            <div *ngIf="passwordResetErrorMessage" style="color: #ff4d4f; margin-bottom: 12px; font-weight: 500;">
+              {{ passwordResetErrorMessage }}
+            </div>
+            <div style="width: 100%;">
+              <form nz-form (ngSubmit)="onPasswordReset()" #passwordForm="ngForm" class="password-form">
+                <nz-form-item style="margin-bottom: 0;">
+                  <nz-form-label [nzSpan]="10" nzFor="newPassword" nzRequired>New Password: </nz-form-label>
+                  <nz-form-control [nzSpan]="10">
+                    <input nz-input type="password" id="newPassword" name="newPassword" [(ngModel)]="newPassword" required
+                      placeholder="Enter new password" />
+                  </nz-form-control>
+                  <button
+                    nz-button
+                    nzType="primary"
+                    type="submit"
+                    [disabled]="!passwordForm.valid"
+                    style="min-width: 140px; margin-left: 126px; display: block;"
+                  >
+                    Reset Password
+                  </button>
+                </nz-form-item>
+              </form>
+            </div>
           </nz-card>
-
         </div>
       </div>
     </nz-content>

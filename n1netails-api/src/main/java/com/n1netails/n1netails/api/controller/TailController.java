@@ -1,7 +1,9 @@
 package com.n1netails.n1netails.api.controller;
 
+import com.n1netails.n1netails.api.exception.type.TailLevelNotFoundException;
 import com.n1netails.n1netails.api.exception.type.TailNotFoundException;
 import com.n1netails.n1netails.api.exception.type.TailStatusNotFoundException;
+import com.n1netails.n1netails.api.exception.type.TailTypeNotFoundException;
 import com.n1netails.n1netails.api.model.request.ResolveTailRequest;
 import com.n1netails.n1netails.api.model.request.TailPageRequest;
 import com.n1netails.n1netails.api.model.request.TailRequest;
@@ -88,8 +90,8 @@ public class TailController {
             @ApiResponse(responseCode = "200", description = "Page of tails",
                     content = @Content(schema = @Schema(implementation = Page.class))) // Note: Ideally, you'd use a Page<TailResponse> schema
     })
-    @GetMapping("/page")
-    public ResponseEntity<Page<TailResponse>> getTailsByPage(@RequestBody TailPageRequest request) {
+    @PostMapping("/page")
+    public ResponseEntity<Page<TailResponse>> getTailsByPage(@RequestBody TailPageRequest request) throws TailTypeNotFoundException, TailLevelNotFoundException, TailStatusNotFoundException {
         return ResponseEntity.ok(tailService.getTails(request));
     }
 

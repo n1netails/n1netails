@@ -1,4 +1,3 @@
-import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzCardModule } from 'ng-zorro-antd/card';
@@ -24,6 +23,7 @@ import { FormsModule } from '@angular/forms';
 import { User } from '../../model/user';
 import { DurationPipe } from '../../pipe/duration.pipe';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
+import { TailUtilService } from '../../service/tail-util.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -104,7 +104,7 @@ export class DashboardComponent implements OnInit {
   tailTypes: TailTypeResponse[] = [];
 
   constructor(
-    private http: HttpClient,
+    public tailUtilService: TailUtilService,
     private msg: NzMessageService,
     private uiConfigService: UiConfigService,
     private authenticationService: AuthenticationService,
@@ -303,58 +303,5 @@ export class DashboardComponent implements OnInit {
 
   view(item: any): void {
     this.msg.success(item.email);
-  }
-
-  getLevelColor(level: string): string {
-    switch (level?.toUpperCase()) {
-      case 'INFO': return 'blue';
-      case 'SUCCESS': return 'green';
-      case 'WARN': return 'orange';
-      case 'ERROR': return 'red';
-      case 'CRITICAL': return 'volcano';
-      default: return 'default';
-    }
-  }
-
-  getStatusColor(status: string): string {
-    switch (status?.toUpperCase()) {
-      case 'NEW': return 'green';
-      case 'IN_PROGRESS': return 'gold';
-      case 'BLOCKED': return 'red';
-      case 'RESOLVED': return 'blue';
-      default: return 'orange';
-    }
-  }
-
-  private typeColorMap: { [type: string]: string } = {};
-
-  getTypeColor(type: string): string {
-    if (!type) return 'default';
-    const key = type.toLowerCase();
-
-    const zorroColors = [
-      'geekblue', 'purple', 'magenta', 'red', 'volcano', 'orange', 'gold', 'lime', 'green',
-      'cyan', 'blue',  
-    ];
-    // Pick a color based on hash of type for consistency
-    let hash = 0;
-    for (let i = 0; i < key.length; i++) {
-      hash = key.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    const color = zorroColors[Math.abs(hash) % zorroColors.length];
-    this.typeColorMap[key] = color;
-    return color;
-  }
-
-  getKudaAvatar(level: string) {
-
-    switch (level?.toUpperCase()) {
-      case 'INFO': return 'kuda_info.jpg';
-      case 'SUCCESS': return 'kuda_success.jpg';
-      case 'WARN': return 'kuda_warn.jpg';
-      case 'ERROR': return 'kuda_error.jpg';
-      case 'CRITICAL': return 'kuda_critical.jpg';
-      default: return 'kuda.jpg';
-    }
   }
 }

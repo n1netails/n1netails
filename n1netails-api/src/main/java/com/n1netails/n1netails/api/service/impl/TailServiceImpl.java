@@ -3,6 +3,7 @@ package com.n1netails.n1netails.api.service.impl;
 import com.n1netails.n1netails.api.exception.type.TailLevelNotFoundException;
 import com.n1netails.n1netails.api.exception.type.TailNotFoundException;
 import com.n1netails.n1netails.api.exception.type.TailStatusNotFoundException;
+import com.n1netails.n1netails.api.exception.type.TailTypeNotFoundException;
 import com.n1netails.n1netails.api.model.core.TailLevel;
 import com.n1netails.n1netails.api.model.core.TailStatus;
 import com.n1netails.n1netails.api.model.core.TailType;
@@ -23,7 +24,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -258,9 +263,52 @@ public class TailServiceImpl implements TailService {
     }
 
     @Override
-    public Page<TailResponse> getTails(TailPageRequest request) {
+    public Page<TailResponse> getTails(TailPageRequest request) throws TailStatusNotFoundException, TailTypeNotFoundException, TailLevelNotFoundException {
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
-        Page<TailSummary> tailPage = tailRepository.findAllByOrderByTimestampDesc(pageable);
+
+        String searchTerm = request.getSearchTerm() == null || request.getSearchTerm().isEmpty() ? "" : request.getSearchTerm();
+
+        List<String> statuses;
+        if (request.getFilterByStatus() == null || request.getFilterByStatus().isEmpty()) {
+            List<TailStatusEntity> statusEntities = this.statusRepository.findAll();
+            statuses = statusEntities.stream().map(TailStatusEntity::getName).toList();
+        } else {
+            TailStatusEntity tailStatusEntity = this.statusRepository.findTailStatusByName(request.getFilterByStatus())
+                    .orElseThrow(() -> new TailStatusNotFoundException("Requested status name does not exist."));
+            statuses = List.of(tailStatusEntity.getName());
+        }
+        log.info("STATUS NAMES: {}", statuses);
+
+        List<String> types;
+        if (request.getFilterByType() == null || request.getFilterByType().isEmpty()) {
+            List<TailTypeEntity> tailTypeEntities = this.typeRepository.findAll();
+            types = tailTypeEntities.stream().map(TailTypeEntity::getName).toList();
+        } else {
+            TailTypeEntity tailTypeEntity = this.typeRepository.findTailTypeByName(request.getFilterByType())
+                    .orElseThrow(() -> new TailTypeNotFoundException("Requested type name does not exist."));
+            types = List.of(tailTypeEntity.getName());
+        }
+        log.info("TYPE NAMES: {}", types);
+
+        List<String> levels;
+        if (request.getFilterByLevel() == null || request.getFilterByLevel().isEmpty()) {
+            List<TailLevelEntity> tailLevelEntities = this.levelRepository.findAll();
+            levels = tailLevelEntities.stream().map(TailLevelEntity::getName).toList();
+        } else {
+            TailLevelEntity tailLevelEntity = this.levelRepository.findTailLevelByName(request.getFilterByLevel())
+                    .orElseThrow(() -> new TailLevelNotFoundException("Requested level name does not exist."));
+            levels = List.of(tailLevelEntity.getName());
+        }
+        log.info("LEVEL NAMES: {}", levels);
+
+        Page<TailSummary> tailPage = tailRepository.findAllBySearchTermAndTailFilters(
+                searchTerm,
+                statuses,
+                types,
+                levels,
+                pageable
+        );
+
         return tailPage.map(this::setTailSummaryResponse);
     }
 

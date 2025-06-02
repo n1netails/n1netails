@@ -126,6 +126,10 @@ export class DashboardComponent implements OnInit {
     this.initDashboard();
   }
 
+  goToTail(id: number) {
+    this.router.navigate(['/tail', id]);
+  }
+
   initDashboard() {
     // get top 9 newest tails
     this.getTop9NewestTails((res: any) => {
@@ -141,6 +145,10 @@ export class DashboardComponent implements OnInit {
     // metrics
     this.getMetrics();
   }
+
+  //////////////////////////////
+  // TAIL METRICS
+  //////////////////////////////
 
   getMetrics() {
     // GETS THE USERS TIMEZONE!
@@ -235,6 +243,10 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  //////////////////////////////
+  // ACTIVE TAILS
+  //////////////////////////////
+  
   resolveModalVisible = false;
   selectedItem: any = null;
   resolveNote: string = '';

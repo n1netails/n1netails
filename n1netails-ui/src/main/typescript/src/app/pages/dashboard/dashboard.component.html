@@ -93,7 +93,7 @@
                         [nzDescription]="item.description">
                         <nz-list-item-meta-title>
                           <!-- todo create new page to view for information on a specific tail -->
-                          <a [href]="`/#/tail/${item.id}`">{{ item.title }}</a>
+                          <a (click)="goToTail(item.id)">{{ item.title }}</a>
                         </nz-list-item-meta-title>
                       </nz-list-item-meta>
                       <nz-tag [nzColor]="getLevelColor(item.level)" style="margin-right: 4px;">{{ item.level }}</nz-tag>

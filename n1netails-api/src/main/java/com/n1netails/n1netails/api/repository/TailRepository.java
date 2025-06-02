@@ -38,11 +38,33 @@ public interface TailRepository extends JpaRepository<TailEntity, Long> {
     """)
     Page<TailSummary> findAllByOrderByTimestampDesc(Pageable pageable);
 
-    Page<TailSummary> findAllByTitleContainingIgnoreCaseAndStatusNameInAndTypeNameInAndLevelNameInOrderByTimestampDesc(
-            String searchTerm,
-            List<String> statuses,
-            List<String> types,
-            List<String> levels,
+    @Query("""
+        SELECT new com.n1netails.n1netails.api.model.dto.TailSummary(
+            t.id,
+            t.title,
+            t.description,
+            t.timestamp,
+            t.resolvedTimestamp,
+            t.assignedUserId,
+            l.name,
+            ty.name,
+            s.name
+        )
+        FROM TailEntity t
+        JOIN t.level l
+        JOIN t.type ty
+        JOIN t.status s
+        WHERE s.name IN :statuses
+        AND ty.name IN :types
+        AND l.name IN :levels
+        AND (t.title LIKE %:searchTerm% OR t.description LIKE %:searchTerm%)
+        ORDER BY t.timestamp DESC
+    """)
+    Page<TailSummary> findAllBySearchTermAndTailFilters(
+            @Param("searchTerm") String searchTerm,
+            @Param("statuses") List<String> statuses,
+            @Param("types") List<String> types,
+            @Param("levels") List<String> levels,
             Pageable pageable
     );
 

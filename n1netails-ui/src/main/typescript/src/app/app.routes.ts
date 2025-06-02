@@ -3,6 +3,7 @@ import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { EditProfileComponent } from './pages/edit-profile/edit-profile.component';
 import { SettingsComponent } from './pages/settings/settings.component';
+import { TailComponent } from './pages/tail/tail.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: '/login' },
@@ -12,4 +13,5 @@ export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'settings', component: SettingsComponent },
   { path: 'welcome', loadChildren: () => import('./pages/welcome/welcome.routes').then(m => m.WELCOME_ROUTES) },
+  { path: 'tail/:id', component: TailComponent }
 ];

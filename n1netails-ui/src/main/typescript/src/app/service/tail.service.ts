@@ -28,6 +28,7 @@ export interface TailResponse {
   level: string;
   type: string;
   status: string;
+  metadata: { [key: string]: string };
 }
 
 export interface ResolveTailRequest {

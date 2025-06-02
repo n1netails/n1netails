@@ -98,7 +98,7 @@ export class DashboardComponent implements OnInit {
   initLoading = true; // bug
   loadingMore = false;
   data: any[] = [];
-  list: Array<{ loading: boolean; title: string, description: string, level: string, type: string, status: string }> = [];
+  list: Array<{ loading: boolean; id: number, title: string, description: string, level: string, type: string, status: string }> = [];
 
   // tail domain info
   tailTypes: TailTypeResponse[] = [];
@@ -126,6 +126,10 @@ export class DashboardComponent implements OnInit {
     this.initDashboard();
   }
 
+  goToTail(id: number) {
+    this.router.navigate(['/tail', id]);
+  }
+
   initDashboard() {
     // get top 9 newest tails
     this.getTop9NewestTails((res: any) => {
@@ -141,6 +145,10 @@ export class DashboardComponent implements OnInit {
     // metrics
     this.getMetrics();
   }
+
+  //////////////////////////////
+  // TAIL METRICS
+  //////////////////////////////
 
   getMetrics() {
     // GETS THE USERS TIMEZONE!
@@ -235,6 +243,10 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  //////////////////////////////
+  // ACTIVE TAILS
+  //////////////////////////////
+
   resolveModalVisible = false;
   selectedItem: any = null;
   resolveNote: string = '';
@@ -300,7 +312,7 @@ export class DashboardComponent implements OnInit {
       case 'WARN': return 'orange';
       case 'ERROR': return 'red';
       case 'CRITICAL': return 'volcano';
-      default: return 'orange';
+      default: return 'default';
     }
   }
 

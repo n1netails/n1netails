@@ -52,7 +52,7 @@
                     <nz-tag [nzColor]="getStatusColor(tail.status)">{{ tail.status }}</nz-tag>
                   </div>
 
-                  <div class="metadata" *ngIf="tail.metadata && metadataKeys.length > 0">
+                  <div class="metadata" *ngIf="tail.metadata && metadataKeys">
                     <h4 style="display: flex; align-items: center; gap: 12px;">
                       Metadata
                       <a (click)="showMetadata = !showMetadata" style="cursor: pointer;">
@@ -71,12 +71,12 @@
                     </table>
                   </div>
 
-                  <div class="description" *ngIf="tail.description">
+                  <div class="description">
                     <h3>Description</h3>
                     <p>{{ tail.description }}</p>
                   </div>
 
-                  <div class="details-section" *ngIf="tail.details">
+                  <div class="details-section">
                     <h3>Details</h3>
                     <pre><code>{{ tail.details }}</code></pre>
                   </div>

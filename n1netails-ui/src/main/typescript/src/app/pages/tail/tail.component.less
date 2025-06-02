@@ -1,8 +1,12 @@
+@import '../../../variables.less';
+
+nz-header {
+  padding: 0;
+  width: 100%;
+  z-index: 2;
+}
+
 .tail-details-container {
-  padding: 24px;
-  background: #181a1b;
-  min-height: 100vh;
-  color: #f1f1f1;
 
   .loading-indicator,
   .error-message,
@@ -13,18 +17,20 @@
   }
 
   .tail-content {
-    background: #23272b;
-    border-radius: 10px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.6);
-    padding: 32px 28px;
-    margin: 0 auto;
 
-    h2 {
+    h3 {
       margin-bottom: 18px;
       color: #fff;
-      font-size: 2rem;
+      font-size: 1rem;
       font-weight: 700;
       letter-spacing: 0.5px;
+    }
+
+    .tail-header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 12px;
     }
 
     .meta-info {
@@ -48,12 +54,13 @@
       }
     }
 
+    .metadata,
     .description,
     .details-section {
       margin-bottom: 20px;
       h3 {
         margin-bottom: 8px;
-        color: #f38a3f;
+        color: @primary-color;
         border-bottom: 1px solid #333;
         padding-bottom: 5px;
         font-size: 1.1rem;
@@ -62,19 +69,6 @@
       p {
         color: #e0e0e0;
         line-height: 1.7;
-      }
-      pre {
-        background-color: #181a1b;
-        color: #f1f1f1;
-        padding: 18px;
-        border-radius: 6px;
-        overflow-x: auto;
-        font-size: 15px;
-        border: 1px solid #292929;
-        code {
-          font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-          color: #f38a3f;
-        }
       }
     }
   }
@@ -87,5 +81,49 @@
 
   .ant-empty-description {
     color: #b3b3b3 !important;
+  }
+}
+
+.details-section pre, .details-section code {
+  background: #181a1b;
+  color: #f1f1f1;
+  border-radius: 6px;
+  padding: 18px 16px;
+  font-size: 15px;
+  line-height: 1.7;
+  font-family: 'Fira Mono', 'Consolas', 'Menlo', 'Monaco', 'Liberation Mono', monospace;
+  border: 1px solid #292929;
+  overflow-x: auto;
+  white-space: pre-wrap; // allows wrapping for long lines
+  word-break: break-all;
+  display: block;
+  margin: 0;
+}
+
+.metadata-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+  background: #181a1b;
+  border-radius: 6px;
+  overflow: hidden;
+  font-size: 15px;
+  color: #f1f1f1;
+
+  tr {
+    border-bottom: 1px solid #292929;
+  }
+  td {
+    padding: 8px 12px;
+  }
+  .meta-key {
+    color: @primary-color;
+    font-weight: 600;
+    width: 120px;
+    white-space: nowrap;
+  }
+  .meta-value {
+    color: #fff;
+    word-break: break-all;
   }
 }

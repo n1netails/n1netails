@@ -246,7 +246,7 @@ export class DashboardComponent implements OnInit {
   //////////////////////////////
   // ACTIVE TAILS
   //////////////////////////////
-  
+
   resolveModalVisible = false;
   selectedItem: any = null;
   resolveNote: string = '';
@@ -312,7 +312,7 @@ export class DashboardComponent implements OnInit {
       case 'WARN': return 'orange';
       case 'ERROR': return 'red';
       case 'CRITICAL': return 'volcano';
-      default: return 'orange';
+      default: return 'default';
     }
   }
 

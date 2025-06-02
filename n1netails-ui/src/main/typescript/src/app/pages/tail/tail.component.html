@@ -30,9 +30,14 @@
                 <!-- Content Display State -->
                 <div *ngIf="!isLoading && tail" class="tail-content">
 
+                  <!-- todo implement process to resolve tail -->
+                  <div class="tail-resolve">
+                    <a style="float: right;" href="">resolve</a>
+                  </div>
+
                   <div class="tail-header">
                     <nz-avatar
-                      [nzSrc]="getKudaAvatar(tail.level)"
+                      [nzSrc]="tailUtilService.getKudaAvatar(tail.level)"
                       [nzSize]="224"
                       class="tail-avatar"
                     ></nz-avatar>
@@ -47,12 +52,12 @@
                   </div>
 
                   <div class="tags">
-                    <nz-tag [nzColor]="getLevelColor(tail.level)">{{ tail.level }}</nz-tag>
-                    <nz-tag [nzColor]="getTypeColor(tail.type)">{{ tail.type }}</nz-tag>
-                    <nz-tag [nzColor]="getStatusColor(tail.status)">{{ tail.status }}</nz-tag>
+                    <nz-tag [nzColor]="tailUtilService.getLevelColor(tail.level)">{{ tail.level }}</nz-tag>
+                    <nz-tag [nzColor]="tailUtilService.getTypeColor(tail.type)">{{ tail.type }}</nz-tag>
+                    <nz-tag [nzColor]="tailUtilService.getStatusColor(tail.status)">{{ tail.status }}</nz-tag>
                   </div>
 
-                  <div class="metadata" *ngIf="tail.metadata && metadataKeys">
+                  <div class="metadata" *ngIf="tail.metadata && metadataKeys.length > 0">
                     <h4 style="display: flex; align-items: center; gap: 12px;">
                       Metadata
                       <a (click)="showMetadata = !showMetadata" style="cursor: pointer;">
@@ -60,10 +65,7 @@
                       </a>
                     </h4>
 
-                    <table
-                      class="metadata-table"
-                      *ngIf="tail.metadata && showMetadata"
-                    >
+                    <table class="metadata-table" *ngIf="tail.metadata && showMetadata">
                       <tr *ngFor="let key of metadataKeys">
                         <td class="meta-key">{{ key }}</td>
                         <td class="meta-value">{{ tail.metadata[key] }}</td>
@@ -71,12 +73,12 @@
                     </table>
                   </div>
 
-                  <div class="description">
+                  <div class="description" *ngIf="tail.description">
                     <h3>Description</h3>
                     <p>{{ tail.description }}</p>
                   </div>
 
-                  <div class="details-section">
+                  <div class="details-section" *ngIf="tail.details">
                     <h3>Details</h3>
                     <pre><code>{{ tail.details }}</code></pre>
                   </div>

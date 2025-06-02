@@ -84,7 +84,7 @@
                       <!-- Kuda Avatar -->
                       <ng-template #customAvatarTpl>
                         <nz-avatar
-                          [nzSrc]="getKudaAvatar(item.level)"
+                          [nzSrc]="tailUtilService.getKudaAvatar(item.level)"
                           [nzSize]="32" 
                         ></nz-avatar>
                       </ng-template>
@@ -96,9 +96,9 @@
                           <a (click)="goToTail(item.id)">{{ item.title }}</a>
                         </nz-list-item-meta-title>
                       </nz-list-item-meta>
-                      <nz-tag [nzColor]="getLevelColor(item.level)" style="margin-right: 4px;">{{ item.level }}</nz-tag>
-                      <nz-tag [nzColor]="getTypeColor(item.type)" style="margin-right: 4px;">{{ item.type }}</nz-tag>
-                      <nz-tag [nzColor]="getStatusColor(item.status)">{{ item.status }}</nz-tag>
+                      <nz-tag [nzColor]="tailUtilService.getLevelColor(item.level)" style="margin-right: 4px;">{{ item.level }}</nz-tag>
+                      <nz-tag [nzColor]="tailUtilService.getTypeColor(item.type)" style="margin-right: 4px;">{{ item.type }}</nz-tag>
+                      <nz-tag [nzColor]="tailUtilService.getStatusColor(item.status)">{{ item.status }}</nz-tag>
                       <ul nz-list-item-actions>
                         <nz-list-item-action><a (click)="resolve(item)">resolve</a></nz-list-item-action>
                         <!-- todo create new page to view for information on a specific tail -->
@@ -131,16 +131,16 @@
     <div *ngIf="selectedItem !== null" class="resolve-modal-content">
       <div class="resolve-modal-header">
         <nz-avatar
-          [nzSrc]="getKudaAvatar(selectedItem.level)"
+          [nzSrc]="tailUtilService.getKudaAvatar(selectedItem.level)"
           [nzSize]="56"
           class="resolve-modal-avatar"
         ></nz-avatar>
         <div class="resolve-modal-title-group">
           <span class="resolve-modal-title">{{ selectedItem.title }}</span>
           <div class="resolve-modal-tags">
-            <nz-tag [nzColor]="getLevelColor(selectedItem.level)" style="margin-right: 4px;">{{ selectedItem.level }}</nz-tag>
-            <nz-tag [nzColor]="getTypeColor(selectedItem.type)" style="margin-right: 4px;">{{ selectedItem.type }}</nz-tag>
-            <nz-tag [nzColor]="getStatusColor(selectedItem.status)">{{ selectedItem.status }}</nz-tag>
+            <nz-tag [nzColor]="tailUtilService.getLevelColor(selectedItem.level)" style="margin-right: 4px;">{{ selectedItem.level }}</nz-tag>
+            <nz-tag [nzColor]="tailUtilService.getTypeColor(selectedItem.type)" style="margin-right: 4px;">{{ selectedItem.type }}</nz-tag>
+            <nz-tag [nzColor]="tailUtilService.getStatusColor(selectedItem.status)">{{ selectedItem.status }}</nz-tag>
           </div>
         </div>
       </div>

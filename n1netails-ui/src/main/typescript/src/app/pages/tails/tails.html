@@ -1,0 +1,153 @@
+<nz-layout class="app-layout">
+  <nz-sider class="menu-sidebar" nzCollapsible nzCollapsed="true" [nzTrigger]="null">
+    <app-sidenav></app-sidenav>
+  </nz-sider>
+
+  <nz-layout>
+    <nz-header>
+      <app-header></app-header>
+    </nz-header>
+
+    <nz-content>
+      <div class="inner-content">
+        <nz-row class="edit-profile" [nzGutter]="8">
+          <nz-col [nzSpan]="24">
+            <nz-card class="tails-primary-color" nzTitle="Tail Information" [nzBordered]="false">
+
+              <!-- Search & Filters Row -->
+              <div class="filters-row">
+                <input
+                  nz-input
+                  type="text"
+                  placeholder="Search by title..."
+                  [(ngModel)]="searchTerm"
+                  (input)="onSearchTermChange()"
+                />
+                <nz-select
+                  [(ngModel)]="selectedStatus"
+                  (ngModelChange)="onFilterChange()"
+                  nzAllowClear
+                  nzPlaceHolder="Status"
+                  style="width: 140px; margin-right: 12px;"
+                >
+                  <nz-option nzValue="" nzLabel="All"></nz-option>
+                    <nz-option
+                      *ngFor="let status of tailStatusList"
+                      [nzValue]="status"
+                      [nzLabel]="status"
+                    ></nz-option>
+                </nz-select>
+                <nz-select
+                  [(ngModel)]="selectedType"
+                  (ngModelChange)="onFilterChange()"
+                  nzAllowClear
+                  nzPlaceHolder="Type"
+                  style="width: 160px; margin-right: 12px;"
+                >
+                  <nz-option nzValue="" nzLabel="All"></nz-option>
+                  <nz-option
+                    *ngFor="let type of tailTypes"
+                    [nzValue]="type"
+                    [nzLabel]="type"
+                  ></nz-option>
+                </nz-select>
+                <nz-select
+                  [(ngModel)]="selectedLevel"
+                  (ngModelChange)="onFilterChange()"
+                  nzAllowClear
+                  nzPlaceHolder="Level"
+                  style="width: 120px;"
+                >
+                  <nz-option nzValue="" nzLabel="All"></nz-option>
+                  <nz-option
+                    *ngFor="let level of tailLevels"
+                    [nzValue]="level"
+                    [nzLabel]="level"
+                  ></nz-option>
+                </nz-select>
+
+                <nz-select
+                  [(ngModel)]="pageSize"
+                  (ngModelChange)="onPageSizeChange()"
+                  nzPlaceHolder="Page Size"
+                  style="width: 100px; margin-left: 12px;"
+                >
+                  <nz-option nzValue="10" nzLabel="10"></nz-option>
+                  <nz-option nzValue="20" nzLabel="20"></nz-option>
+                  <nz-option nzValue="50" nzLabel="50"></nz-option>
+                  <nz-option nzValue="100" nzLabel="100"></nz-option>
+                </nz-select>
+
+                <button nz-button nzType="primary" (click)="onSearchTermChange()"><nz-icon nzType="search" nzTheme="outline" /></button>
+              </div>
+
+              <!-- Ng Zorro Table -->
+              <nz-table
+                #tailTable
+                [nzData]="tails"
+                [nzFrontPagination]="false"
+                [nzShowPagination]="false"
+                nzSize="middle"
+                class="dark-table"
+              >
+                <thead>
+                  <tr>
+                    <!-- todo fix select checkbox -->
+                    <!-- <th>Select</th> -->
+                    <th>Kuda</th>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Timestamp</th>
+                    <th nzWidth="9px">Status</th>
+                    <th nzWidth="9px">Type</th>
+                    <th>Level</th>
+                    <th>Assigned To</th>
+                    <th>Resolve</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- <tr *ngIf="tails.length === 0">
+                    <td colspan="9" style="text-align: center; color: #bbb; background: #181a1b;">No tails to display or loading...</td>
+                  </tr> -->
+                  <tr *ngFor="let tail of tails" [class.selected-row]="isSelected(tail)">
+                    <!-- <td>
+                      <nz-checkbox
+                        [(ngModel)]="tail.selected"
+                        (ngModelChange)="toggleSelection(tail)"
+                      ></nz-checkbox>
+                    </td> -->
+                    <td>
+                      <nz-avatar
+                        [nzSrc]="tailUtilService.getKudaAvatar(tail.level)"
+                        [nzSize]="32"
+                        class="tail-avatar"
+                      ></nz-avatar>
+                    </td>
+                    <td>{{ tail.id }}</td>
+                    <td><a (click)="goToTail(tail.id)">{{ tail.title }}</a></td>
+                    <td>{{ tail.description }}</td>
+                    <td>{{ tail.timestamp | date:'medium' }}</td>
+                    <td><nz-tag [nzColor]="tailUtilService.getStatusColor(tail.status)">{{ tail.status }}</nz-tag></td>
+                    <td><nz-tag [nzColor]="tailUtilService.getTypeColor(tail.type)">{{ tail.type }}</nz-tag></td>
+                    <td><nz-tag [nzColor]="tailUtilService.getLevelColor(tail.level)">{{ tail.level }}</nz-tag></td>
+                    <td>{{ tail.assignedUsername || tail.assignedUserId || 'N/A' }}</td>
+                    <!-- todo implement process to resolve tail -->
+                    <td><a href="">resolve</a></td>
+                  </tr>
+                </tbody>
+              </nz-table>
+
+              <div *ngIf="totalPages > 0" class="table-pagination">
+                <button nz-button nzType="default" (click)="previousPage()" [disabled]="currentPage === 0"><nz-icon nzType="left" nzTheme="outline" /></button>
+                <span style="margin: 0 12px; color: #f1f1f1;">Page {{ displayedCurrentPage }} of {{ totalPages }}</span>
+                <button nz-button nzType="default" (click)="nextPage()" [disabled]="currentPage >= totalPages - 1"><nz-icon nzType="right" nzTheme="outline" /></button>
+                <span style="margin-left: 16px;">Total items: {{ totalElements }}</span>
+              </div>
+            </nz-card>
+          </nz-col>
+        </nz-row>
+      </div>
+    </nz-content>
+  </nz-layout>
+</nz-layout>

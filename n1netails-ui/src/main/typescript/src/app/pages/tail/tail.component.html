@@ -1,0 +1,99 @@
+<nz-layout class="app-layout">
+  <nz-sider class="menu-sidebar" nzCollapsible nzCollapsed="true" [nzTrigger]="null">
+    <app-sidenav></app-sidenav>
+  </nz-sider>
+
+  <nz-layout>
+    <nz-header>
+      <app-header></app-header>
+    </nz-header>
+
+    <nz-content>
+
+      <div class="inner-content">
+        <nz-row class="edit-profile" [nzGutter]="8">
+          <nz-col [nzSpan]="24">
+            <nz-card class="tails-primary-color" nzTitle="Tail Information" [nzBordered]="false">
+
+              <div class="tail-details-container">
+                <!-- Loading State -->
+                <div *ngIf="isLoading" class="loading-indicator">
+                  <nz-spin nzSimple [nzSize]="'large'"></nz-spin>
+                  <p>Loading tail details...</p>
+                </div>
+
+                <!-- Error State -->
+                <div *ngIf="error && !isLoading" class="error-message">
+                  <nz-alert nzType="error" [nzMessage]="'Error'" [nzDescription]="error"></nz-alert>
+                </div>
+
+                <!-- Content Display State -->
+                <div *ngIf="!isLoading && tail" class="tail-content">
+
+                  <div class="tail-header">
+                    <nz-avatar
+                      [nzSrc]="getKudaAvatar(tail.level)"
+                      [nzSize]="224"
+                      class="tail-avatar"
+                    ></nz-avatar>
+                    
+                    <div class="meta-info">
+                      <h3>{{ tail.title }}</h3>
+                      <p><strong>ID:</strong> {{ tail.id }}</p>
+                      <p><strong>Timestamp:</strong> {{ tail.timestamp | date:'medium' }}</p>
+                      <p *ngIf="tail.resolvedTimestamp"><strong>Resolved At:</strong> {{ tail.resolvedTimestamp | date:'medium' }}</p>
+                      <p *ngIf="tail.assignedUsername"><strong>Assigned To:</strong> {{ tail.assignedUsername }}</p>
+                    </div>
+                  </div>
+
+                  <div class="tags">
+                    <nz-tag [nzColor]="getLevelColor(tail.level)">{{ tail.level }}</nz-tag>
+                    <nz-tag [nzColor]="getTypeColor(tail.type)">{{ tail.type }}</nz-tag>
+                    <nz-tag [nzColor]="getStatusColor(tail.status)">{{ tail.status }}</nz-tag>
+                  </div>
+
+                  <div class="metadata" *ngIf="tail.metadata && metadataKeys">
+                    <h4 style="display: flex; align-items: center; gap: 12px;">
+                      Metadata
+                      <a (click)="showMetadata = !showMetadata" style="cursor: pointer;">
+                        {{ showMetadata ? '-' : '+' }}
+                      </a>
+                    </h4>
+
+                    <table
+                      class="metadata-table"
+                      *ngIf="tail.metadata && showMetadata"
+                    >
+                      <tr *ngFor="let key of metadataKeys">
+                        <td class="meta-key">{{ key }}</td>
+                        <td class="meta-value">{{ tail.metadata[key] }}</td>
+                      </tr>
+                    </table>
+                  </div>
+
+                  <div class="description">
+                    <h3>Description</h3>
+                    <p>{{ tail.description }}</p>
+                  </div>
+
+                  <div class="details-section">
+                    <h3>Details</h3>
+                    <pre><code>{{ tail.details }}</code></pre>
+                  </div>
+                </div>
+
+                <!-- No Tail Data and No Error (e.g., navigated with wrong ID but API didn't error) -->
+                <div *ngIf="!isLoading && !tail && !error" class="no-data-message">
+                  <nz-empty nzNotFoundImage="simple" [nzNotFoundContent]="'Tail data not found or ID is invalid.'"></nz-empty>
+                </div>
+              </div>
+
+            </nz-card>
+          </nz-col>
+        </nz-row>
+      </div>
+
+    </nz-content>
+  </nz-layout>
+</nz-layout>
+

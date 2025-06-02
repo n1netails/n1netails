@@ -23,7 +23,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -260,7 +265,38 @@ public class TailServiceImpl implements TailService {
     @Override
     public Page<TailResponse> getTails(TailPageRequest request) {
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
-        Page<TailSummary> tailPage = tailRepository.findAllByOrderByTimestampDesc(pageable);
+
+        String searchTerm = request.getSearchTerm() == null || request.getSearchTerm().isEmpty() ? "" : request.getSearchTerm();
+
+        List<String> statuses;
+        if (request.getFilterByStatus() == null || request.getFilterByStatus().isEmpty()) {
+            statuses = Arrays.asList("OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"); // Default list
+        } else {
+            statuses = Arrays.asList(request.getFilterByStatus());
+        }
+
+        List<String> types;
+        if (request.getFilterByType() == null || request.getFilterByType().isEmpty()) {
+            types = Arrays.asList("BUG", "FEATURE_REQUEST", "INCIDENT", "OTHER"); // Default list
+        } else {
+            types = Arrays.asList(request.getFilterByType());
+        }
+
+        List<String> levels;
+        if (request.getFilterByLevel() == null || request.getFilterByLevel().isEmpty()) {
+            levels = Arrays.asList("CRITICAL", "HIGH", "NORMAL", "LOW"); // Default list
+        } else {
+            levels = Arrays.asList(request.getFilterByLevel());
+        }
+
+        Page<TailSummary> tailPage = tailRepository.findAllByTitleContainingIgnoreCaseAndStatusNameInAndTypeNameInAndLevelNameInOrderByTimestampDesc(
+                searchTerm,
+                statuses,
+                types,
+                levels,
+                pageable
+        );
+
         return tailPage.map(this::setTailSummaryResponse);
     }
 

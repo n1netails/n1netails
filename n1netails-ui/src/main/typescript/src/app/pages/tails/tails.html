@@ -1,0 +1,86 @@
+<div>
+  <input type="text" placeholder="Search by title..." [(ngModel)]="searchTerm" (input)="onSearchTermChange()">
+  <button (click)="onSearchTermChange()">Search</button>
+</div>
+
+<div>
+  <label for="status-filter">Status:</label>
+  <select id="status-filter" [(ngModel)]="selectedStatus" (change)="onFilterChange()">
+    <option value="">All</option>
+    <option value="OPEN">OPEN</option>
+    <option value="IN_PROGRESS">IN_PROGRESS</option>
+    <option value="RESOLVED">RESOLVED</option>
+    <option value="CLOSED">CLOSED</option>
+  </select>
+</div>
+
+<div>
+  <label for="type-filter">Type:</label>
+  <select id="type-filter" [(ngModel)]="selectedType" (change)="onFilterChange()">
+    <option value="">All</option>
+    <option value="BUG">BUG</option>
+    <option value="FEATURE_REQUEST">FEATURE_REQUEST</option>
+    <option value="INCIDENT">INCIDENT</option>
+    <option value="OTHER">OTHER</option>
+  </select>
+</div>
+
+<div>
+  <label for="level-filter">Level:</label>
+  <select id="level-filter" [(ngModel)]="selectedLevel" (change)="onFilterChange()">
+    <option value="">All</option>
+    <option value="CRITICAL">CRITICAL</option>
+    <option value="HIGH">HIGH</option>
+    <option value="NORMAL">NORMAL</option>
+    <option value="LOW">LOW</option>
+  </select>
+</div>
+
+<hr>
+
+<table>
+  <thead>
+    <tr>
+      <th>Select</th>
+      <th>ID</th>
+      <th>Title</th>
+      <th>Description</th>
+      <th>Timestamp</th>
+      <th>Status</th>
+      <th>Type</th>
+      <th>Level</th>
+      <th>Assigned To</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngIf="tails.length === 0">
+      <td colspan="9" style="text-align: center;">No tails to display or loading...</td>
+    </tr>
+    <tr *ngFor="let tail of tails" [class.selected-row]="isSelected(tail)">
+      <td>
+        <input type="checkbox" [checked]="isSelected(tail)" (change)="toggleSelection(tail)">
+      </td>
+      <td>{{ tail.id }}</td>
+      <td>{{ tail.title }}</td>
+      <td>{{ tail.description }}</td>
+      <td>{{ tail.timestamp | date:'medium' }}</td> <!-- Example of using a date pipe -->
+      <td>{{ tail.status }}</td>
+      <td>{{ tail.type }}</td>
+      <td>{{ tail.level }}</td>
+      <td>{{ tail.assignedUsername || tail.assignedUserId || 'N/A' }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<div *ngIf="totalPages > 0">
+  <button (click)="previousPage()" [disabled]="currentPage === 0">Previous</button>
+  <span>Page {{ displayedCurrentPage }} of {{ totalPages }}</span>
+  <button (click)="nextPage()" [disabled]="currentPage >= totalPages - 1">Next</button>
+  <br>
+  <span>Total items: {{ totalElements }}</span>
+</div>
+<div *ngIf="totalPages === 0 && searchTerm === '' && selectedStatus === '' && selectedType === '' && selectedLevel === ''">
+  <!-- Show this only if no filters applied and still no data -->
+</div>

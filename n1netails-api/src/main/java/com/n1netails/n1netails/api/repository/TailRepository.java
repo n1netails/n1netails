@@ -38,6 +38,14 @@ public interface TailRepository extends JpaRepository<TailEntity, Long> {
     """)
     Page<TailSummary> findAllByOrderByTimestampDesc(Pageable pageable);
 
+    Page<TailSummary> findAllByTitleContainingIgnoreCaseAndStatusNameInAndTypeNameInAndLevelNameInOrderByTimestampDesc(
+            String searchTerm,
+            List<String> statuses,
+            List<String> types,
+            List<String> levels,
+            Pageable pageable
+    );
+
     List<TailEntity> findByAssignedUserId(Long userId);
 
     long countByTimestampBetween(Instant startOfDay, Instant endOfDay);

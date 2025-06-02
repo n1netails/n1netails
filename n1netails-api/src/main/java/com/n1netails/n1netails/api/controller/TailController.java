@@ -88,7 +88,7 @@ public class TailController {
             @ApiResponse(responseCode = "200", description = "Page of tails",
                     content = @Content(schema = @Schema(implementation = Page.class))) // Note: Ideally, you'd use a Page<TailResponse> schema
     })
-    @GetMapping("/page")
+    @PostMapping("/page")
     public ResponseEntity<Page<TailResponse>> getTailsByPage(@RequestBody TailPageRequest request) {
         return ResponseEntity.ok(tailService.getTails(request));
     }

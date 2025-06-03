@@ -17,17 +17,20 @@ import { Router } from '@angular/router';
 import { TailMetricsService } from '../../service/tail-metrics.service';
 import { ResolveTailRequest, TailService, TailSummary } from '../../service/tail.service';
 import { TailTypeResponse } from '../../service/tail-type.service';
-import { NzModalModule } from 'ng-zorro-antd/modal';
+// NzModalModule is likely not needed directly by DashboardComponent anymore for *this* modal
+// import { NzModalModule } from 'ng-zorro-antd/modal';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { User } from '../../model/user';
 import { DurationPipe } from '../../pipe/duration.pipe';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { TailUtilService } from '../../service/tail-util.service';
+import { ResolveTailModalComponent } from '../../shared/components/resolve-tail-modal/resolve-tail-modal.component'; // Added import
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, FormsModule,NzEmptyModule,NzIconModule, NzModalModule, NzLayoutModule, NzCardModule, NzGridModule, NzAvatarModule, NzListModule, NzSkeletonModule, NzTagModule, BaseChartDirective, HeaderComponent, SidenavComponent,DurationPipe],
+  // Added ResolveTailModalComponent to imports. Removed NzModalModule as it's now encapsulated.
+  imports: [CommonModule, FormsModule,NzEmptyModule,NzIconModule, /* NzModalModule, */ NzLayoutModule, NzCardModule, NzGridModule, NzAvatarModule, NzListModule, NzSkeletonModule, NzTagModule, BaseChartDirective, HeaderComponent, SidenavComponent,DurationPipe, ResolveTailModalComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.less'
 })
@@ -104,7 +107,7 @@ export class DashboardComponent implements OnInit {
   tailTypes: TailTypeResponse[] = [];
 
   constructor(
-    public tailUtilService: TailUtilService,
+    public tailUtilService: TailUtilService, // This can be removed if not used elsewhere in the template directly
     private msg: NzMessageService,
     private uiConfigService: UiConfigService,
     private authenticationService: AuthenticationService,
@@ -121,7 +124,7 @@ export class DashboardComponent implements OnInit {
     }
 
     const apiUrl = this.uiConfigService.getApiUrl();
-    console.log('API URL:', apiUrl); // Log the API URL to verify it's loaded correctly
+    console.log('API URL:', apiUrl);
 
     this.initDashboard();
   }
@@ -131,144 +134,83 @@ export class DashboardComponent implements OnInit {
   }
 
   initDashboard() {
-    // get top 9 newest tails
     this.getTop9NewestTails((res: any) => {
-      console.log('getData', res);
-
       this.data = res;
-      console.log('data', this.data);
       this.list = res;
-      console.log('list', this.list);
       this.initLoading = false;
     });
-
-    // metrics
     this.getMetrics();
   }
 
-  //////////////////////////////
-  // TAIL METRICS
-  //////////////////////////////
-
   getMetrics() {
-    // GETS THE USERS TIMEZONE!
-    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone; // Get user's timezone
-
-    // pass timezone here in countTailAlertsToday
-    this.tailMetricsService.countTailAlertsToday(userTimezone).subscribe(result => { // Pass timezone
+    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    this.tailMetricsService.countTailAlertsToday(userTimezone).subscribe(result => {
       this.totalTailAlertsToday = result;
     });
-
     this.tailMetricsService.countTailAlertsResolved().subscribe(result => {
       this.totalTailsResolved = result;
-
-      // todo make this better load after totalTailsResolved and totalTailsNotResolved data has been received
-      this.alertStatusData = {
-        labels: ['Resolved', 'Not Resolved'],
-        datasets: [{ data: [this.totalTailsResolved, this.totalTailsNotResolved], backgroundColor: ['#F06D0F', '#F00F21'], borderWidth: 1, borderColor: '#F38A3F'}]
-      };
+      this.updateAlertStatusData();
     });
-
     this.tailMetricsService.countTailAlertsNotResolved().subscribe(result => {
       this.totalTailsNotResolved = result;
-
-      // todo make this better load after totalTailsResolved and totalTailsNotResolved data has been received
-      this.alertStatusData = {
-        labels: ['Resolved', 'Not Resolved'],
-        datasets: [{ data: [this.totalTailsResolved, this.totalTailsNotResolved], backgroundColor: ['#F06D0F', '#F00F21'], borderWidth: 1, borderColor: '#F38A3F'}]
-      };
+      this.updateAlertStatusData();
     });
-
-    // mttr
     this.tailMetricsService.mttr().subscribe(result => {
-      console.log('MTTR', result);
       this.mttr = result;
     });
-
-    // mttr weekly
     this.tailMetricsService.mttrLast7Days().subscribe(result => {
-      console.log('MTTR Weekly', result);
       this.mttrLineData = {
         labels: result.labels,
-        datasets: [
-          {
-            label: 'MTTR (hours)',
-            data: result.data,
-            borderColor: '#F06D0F',
-            tension: 0.4
-          }
-        ]
+        datasets: [{ label: 'MTTR (hours)', data: result.data, borderColor: '#F06D0F', tension: 0.4 }]
       };
     });
-
-    // hourly
-    // pass timezone here in getTailAlertsHourly
-    this.tailMetricsService.getTailAlertsHourly(userTimezone).subscribe(result => { // Pass timezone
-
-      console.log('ALERTS TODAY', result);
+    this.tailMetricsService.getTailAlertsHourly(userTimezone).subscribe(result => {
       this.alertsTodayData = {
         labels: result.labels,
         datasets: [{ label: 'Alerts', data: result.data, backgroundColor: '#F06D0F' }]
       };
     });
-
-    // monthly
     this.tailMetricsService.getTailMonthlySummary(userTimezone).subscribe(result => {
-      console.log('ALERTS THIS MONTH', result);
-      console.log('size {}', result.datasets.length);
       this.monthlyAlertsData = {
         labels: result.labels,
-        datasets: [
-          // INFO
-          { label: result.datasets[0].label, data: result.datasets[0].data, backgroundColor: '#1E90FF' },
-          // SUCCESS
-          { label: result.datasets[1].label, data: result.datasets[1].data, backgroundColor: 'green' },
-          // WARN
-          { label: result.datasets[2].label, data: result.datasets[2].data, backgroundColor: '#FFA500' },
-          // ERROR
-          { label: result.datasets[3].label, data: result.datasets[3].data, backgroundColor: '#FF4500' },
-          // CRITICAL
-          { label: result.datasets[4].label, data: result.datasets[4].data, backgroundColor: '#FF0000' },
-          // KUDA
-          { label: result.datasets[5].label, data: result.datasets[5].data, backgroundColor: '#8B0000' },
-        ]
+        datasets: result.datasets.map((ds: any) => ({ ...ds })) // simple clone
       };
     });
   }
 
+  updateAlertStatusData() {
+    this.alertStatusData = {
+      labels: ['Resolved', 'Not Resolved'],
+      datasets: [{ data: [this.totalTailsResolved, this.totalTailsNotResolved], backgroundColor: ['#F06D0F', '#F00F21'], borderWidth: 1, borderColor: '#F38A3F'}]
+    };
+  }
+
   getTop9NewestTails(callback: (res: any) => void): void {
     this.tailService.getTop9NewestTails().subscribe(result => {
-      console.log('top 9 newest tails', result);
       callback(result);
     });
   }
 
-  //////////////////////////////
-  // ACTIVE TAILS
-  //////////////////////////////
-
   resolveModalVisible = false;
   selectedItem: any = null;
-  resolveNote: string = '';
-
+  // resolveNote: string = ''; // No longer needed here for ngModel
 
   resolve(item: any): void {
-    // this.msg.success(item.email);
     this.selectedItem = item;
-    console.log('selected item', this.selectedItem);
-    this.resolveNote = '';
+    // this.resolveNote = ''; // Resetting note is handled by shared component
     this.resolveModalVisible = true;
   }
 
-  // Cancel modal
   handleResolveCancel(): void {
     this.resolveModalVisible = false;
     this.selectedItem = null;
-    this.resolveNote = '';
+    // this.resolveNote = ''; // Resetting note is handled by shared component
   }
 
-  // Confirm resolve
-  handleResolveOk(): void {
+  // Modified to accept the note from the event
+  handleResolveOk(note: string): void {
+    if (!this.selectedItem) return; // Guard clause
+
     const tailSummary: TailSummary = {
       id: this.selectedItem.id,
       title: this.selectedItem.title,
@@ -284,7 +226,7 @@ export class DashboardComponent implements OnInit {
     const tailResolveRequest: ResolveTailRequest = {
       userId: this.user.id,
       tailSummary: tailSummary, 
-      note: this.resolveNote,
+      note: note, // Use the note from the event
     };
 
     this.tailService.markTailResolved(tailResolveRequest).subscribe({
@@ -292,11 +234,11 @@ export class DashboardComponent implements OnInit {
         this.msg.success(`Resolved "${this.selectedItem.title}"`);
         this.resolveModalVisible = false;
         this.selectedItem = null;
-        this.resolveNote = '';
-        this.initDashboard();
+        // this.resolveNote = ''; // Resetting note is handled by shared component
+        this.initDashboard(); // Refresh data
       }, 
       error: (err) => {
-        this.msg.error(`Unable to mark tail "${this.selectedItem.title}" as resolved. Error: ${err}`);
+        this.msg.error(`Unable to mark tail "${this.selectedItem.title}" as resolved. Error: ${err.message || err}`);
       },
     });
   }

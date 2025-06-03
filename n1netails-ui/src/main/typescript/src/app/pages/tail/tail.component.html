@@ -16,23 +16,21 @@
             <nz-card class="tails-primary-color" nzTitle="Tail Information" [nzBordered]="false">
 
               <div class="tail-details-container">
-                <!-- Loading State -->
                 <div *ngIf="isLoading" class="loading-indicator">
                   <nz-spin nzSimple [nzSize]="'large'"></nz-spin>
                   <p>Loading tail details...</p>
                 </div>
 
-                <!-- Error State -->
                 <div *ngIf="error && !isLoading" class="error-message">
                   <nz-alert nzType="error" [nzMessage]="'Error'" [nzDescription]="error"></nz-alert>
                 </div>
 
-                <!-- Content Display State -->
                 <div *ngIf="!isLoading && tail" class="tail-content">
 
-                  <!-- todo implement process to resolve tail -->
                   <div class="tail-resolve">
-                    <a style="float: right;" href="">resolve</a>
+                    <button nz-button nzType="primary" (click)="openResolveModal()" style="float: right;" *ngIf="tail && tail.status !== 'RESOLVED' && tail.status !== 'CLOSED'">
+                      Resolve Tail
+                    </button>
                   </div>
 
                   <div class="tail-header">
@@ -84,7 +82,6 @@
                   </div>
                 </div>
 
-                <!-- No Tail Data and No Error (e.g., navigated with wrong ID but API didn't error) -->
                 <div *ngIf="!isLoading && !tail && !error" class="no-data-message">
                   <nz-empty nzNotFoundImage="simple" [nzNotFoundContent]="'Tail data not found or ID is invalid.'"></nz-empty>
                 </div>
@@ -99,3 +96,9 @@
   </nz-layout>
 </nz-layout>
 
+<app-resolve-tail-modal
+  [isVisible]="resolveModalVisible"
+  [selectedItem]="tail"
+  (onOk)="handleModalOk($event)"
+  (onCancel)="handleModalCancel()"
+></app-resolve-tail-modal>

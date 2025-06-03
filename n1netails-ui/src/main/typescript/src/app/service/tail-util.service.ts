@@ -48,12 +48,12 @@ export class TailUtilService {
 
   getKudaAvatar(level: string): string {
     switch (level?.toUpperCase()) {
-      case 'INFO': return 'kuda_info.jpg';
-      case 'SUCCESS': return 'kuda_success.jpg';
-      case 'WARN': return 'kuda_warn.jpg';
-      case 'ERROR': return 'kuda_error.jpg';
-      case 'CRITICAL': return 'kuda_critical.jpg';
-      default: return 'kuda.jpg';
+      case 'INFO': return 'kuda1_info.jpg';
+      case 'SUCCESS': return 'kuda1_success.jpg';
+      case 'WARN': return 'kuda1_warn.jpg';
+      case 'ERROR': return 'kuda1_error.jpg';
+      case 'CRITICAL': return 'kuda1_critical.jpg';
+      default: return 'kuda1.jpg';
     }
   }
 }

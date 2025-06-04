@@ -12,6 +12,7 @@ import com.n1netails.n1netails.api.model.request.TailPageRequest;
 import com.n1netails.n1netails.api.model.request.TailRequest;
 import com.n1netails.n1netails.api.model.response.TailResponse;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.util.List;
 
@@ -20,8 +21,8 @@ public interface TailService {
     Page<TailResponse> getTails(TailPageRequest request) throws TailStatusNotFoundException, TailTypeNotFoundException, TailLevelNotFoundException;
     List<TailResponse> getTop9NewestTails();
 
-    List<TailResponse> getTails();
-    TailResponse getTailById(Long id);
+    List<TailResponse> getTails() throws TailNotFoundException;
+    TailResponse getTailById(Long id) throws TailNotFoundException, AccessDeniedException;
     TailResponse createTail(TailRequest request);
     TailResponse updateTail(Long id, TailRequest request);
     void deleteTail(Long id);

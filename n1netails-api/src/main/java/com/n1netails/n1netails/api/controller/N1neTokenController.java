@@ -49,7 +49,7 @@ public class N1neTokenController {
         try {
             if (principal == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                                     .body(new HttpErrorResponse(HttpStatus.UNAUTHORIZED.value(), "User not authenticated."));
+                                     .body(new HttpErrorResponse(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED, "", "User not authenticated."));
             }
             // If userId is not provided in request, default to the authenticated user's ID
             if (createTokenRequest.getUserId() == null) {
@@ -63,14 +63,14 @@ public class N1neTokenController {
             return ResponseEntity.ok(n1neTokenResponse);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .body(new HttpErrorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage()));
+                    .body(new HttpErrorResponse(HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND, "", e.getMessage()));
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                                 .body(new HttpErrorResponse(HttpStatus.FORBIDDEN.value(), e.getMessage()));
+                    .body(new HttpErrorResponse(HttpStatus.FORBIDDEN.value(), HttpStatus.FORBIDDEN, "", e.getMessage()));
         } catch (Exception e) {
             log.error("Error creating token: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body(new HttpErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "An unexpected error occurred."));
+                                 .body(new HttpErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR, "", "An unexpected error occurred."));
         }
     }
 
@@ -98,10 +98,10 @@ public class N1neTokenController {
             return ResponseEntity.ok(n1neTokenResponseList);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .body(new HttpErrorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage()));
+                    .body(new HttpErrorResponse(HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND, "", e.getMessage()));
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                                 .body(new HttpErrorResponse(HttpStatus.FORBIDDEN.value(), e.getMessage()));
+                    .body(new HttpErrorResponse(HttpStatus.FORBIDDEN.value(), HttpStatus.FORBIDDEN, "", e.getMessage()));
         }
     }
 
@@ -119,10 +119,10 @@ public class N1neTokenController {
             return ResponseEntity.ok(n1neTokenResponse);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .body(new HttpErrorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage()));
+                    .body(new HttpErrorResponse(HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND, "", e.getMessage()));
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                                 .body(new HttpErrorResponse(HttpStatus.FORBIDDEN.value(), e.getMessage()));
+                    .body(new HttpErrorResponse(HttpStatus.FORBIDDEN.value(), HttpStatus.FORBIDDEN, "", e.getMessage()));
         }
     }
 
@@ -138,10 +138,10 @@ public class N1neTokenController {
             return ResponseEntity.noContent().build();
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .body(new HttpErrorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage()));
+                    .body(new HttpErrorResponse(HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND, "", e.getMessage()));
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                                 .body(new HttpErrorResponse(HttpStatus.FORBIDDEN.value(), e.getMessage()));
+                    .body(new HttpErrorResponse(HttpStatus.FORBIDDEN.value(), HttpStatus.FORBIDDEN, "", e.getMessage()));
         }
     }
 
@@ -157,10 +157,10 @@ public class N1neTokenController {
             return ResponseEntity.noContent().build();
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .body(new HttpErrorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage()));
+                    .body(new HttpErrorResponse(HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND, "", e.getMessage()));
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                                 .body(new HttpErrorResponse(HttpStatus.FORBIDDEN.value(), e.getMessage()));
+                    .body(new HttpErrorResponse(HttpStatus.FORBIDDEN.value(), HttpStatus.FORBIDDEN, "", e.getMessage()));
         }
     }
 
@@ -176,10 +176,10 @@ public class N1neTokenController {
             return ResponseEntity.noContent().build();
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .body(new HttpErrorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage()));
+                                 .body(new HttpErrorResponse(HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND, "", e.getMessage()));
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                                 .body(new HttpErrorResponse(HttpStatus.FORBIDDEN.value(), e.getMessage()));
+                                 .body(new HttpErrorResponse(HttpStatus.FORBIDDEN.value(), HttpStatus.FORBIDDEN, "", e.getMessage()));
         }
     }
 }

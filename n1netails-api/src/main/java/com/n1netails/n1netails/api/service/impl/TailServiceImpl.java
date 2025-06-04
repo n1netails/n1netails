@@ -30,11 +30,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -53,7 +49,7 @@ public class TailServiceImpl implements TailService {
     private final UserService userService; // Added
 
     @Override
-    public List<TailResponse> getTails() {
+    public List<TailResponse> getTails() throws TailNotFoundException {
         // Refactored logic will be similar to getTails(TailPageRequest) but without pagination/filters,
         // or this method might be removed/restricted further.
         // For now, let's apply basic visibility.

@@ -50,7 +50,7 @@ public class TailController {
                     content = @Content(schema = @Schema(implementation = TailResponse.class)))
     })
     @GetMapping
-    public ResponseEntity<List<TailResponse>> getAll() {
+    public ResponseEntity<List<TailResponse>> getAll() throws TailNotFoundException {
         return ResponseEntity.ok(tailService.getTails());
     }
 
@@ -61,7 +61,7 @@ public class TailController {
                     content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
     })
     @GetMapping("/{id}")
-    public ResponseEntity<TailResponse> getById(@PathVariable Long id) {
+    public ResponseEntity<TailResponse> getById(@PathVariable Long id) throws TailNotFoundException {
         return ResponseEntity.ok(tailService.getTailById(id));
     }
 

@@ -23,7 +23,7 @@ import { User } from '../../model/user';
 import { DurationPipe } from '../../pipe/duration.pipe';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { TailUtilService } from '../../service/tail-util.service';
-import { ResolveTailModalComponent } from '../../shared/components/resolve-tail-modal/resolve-tail-modal.component'; // Added import
+import { ResolveTailModalComponent } from '../../shared/components/resolve-tail-modal/resolve-tail-modal.component';
 
 @Component({
   selector: 'app-dashboard',

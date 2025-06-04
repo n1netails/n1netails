@@ -22,14 +22,14 @@ public class OrganizationController {
     private final OrganizationService organizationService;
 
     @PostMapping
-    @PreAuthorize("hasAuthority('user:admin')") // Corresponds to SUPER_ADMIN_AUTHORITIES which includes 'user:admin'
+    @PreAuthorize("hasAuthority('user:super')") // Corresponds to SUPER_ADMIN_AUTHORITIES which includes 'user:admin'
     public ResponseEntity<OrganizationEntity> createOrganization(@Valid @RequestBody OrganizationRequestDto organizationDto) {
         OrganizationEntity newOrganization = organizationService.createOrganization(organizationDto);
         return new ResponseEntity<>(newOrganization, HttpStatus.CREATED);
     }
 
     @GetMapping
-    @PreAuthorize("hasAuthority('user:admin')")
+    @PreAuthorize("hasAuthority('user:super')")
     public ResponseEntity<List<OrganizationEntity>> getAllOrganizations() {
         List<OrganizationEntity> organizations = organizationService.getAllOrganizations();
         return ResponseEntity.ok(organizations);
@@ -37,14 +37,14 @@ public class OrganizationController {
 
     // Endpoints for Super Admin to manage any organization's users
     @PostMapping("/{organizationId}/users/{userId}")
-    @PreAuthorize("hasAuthority('user:admin')")
+    @PreAuthorize("hasAuthority('user:super')")
     public ResponseEntity<Void> addUserToOrganization(@PathVariable Long organizationId, @PathVariable Long userId) {
         organizationService.addUserToOrganization(organizationId, userId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{organizationId}/users/{userId}")
-    @PreAuthorize("hasAuthority('user:admin')")
+    @PreAuthorize("hasAuthority('user:super')")
     public ResponseEntity<Void> removeUserFromOrganization(@PathVariable Long organizationId, @PathVariable Long userId) {
         organizationService.removeUserFromOrganization(organizationId, userId);
         return ResponseEntity.ok().build();
@@ -52,7 +52,7 @@ public class OrganizationController {
 
     // Endpoints for Admin (of an org) to manage their own organization's members
     @PostMapping("/{organizationId}/members/{targetUserId}")
-    @PreAuthorize("hasAuthority('user:create')") // 'user:create' is in ADMIN_AUTHORITIES and SUPER_ADMIN_AUTHORITIES
+    @PreAuthorize("hasAuthority('user:admin')") // 'user:create' is in ADMIN_AUTHORITIES and SUPER_ADMIN_AUTHORITIES
     public ResponseEntity<Void> addMemberToOrganization(@PathVariable Long organizationId, @PathVariable Long targetUserId, @AuthenticationPrincipal UserDetails adminPrincipal) {
         if (adminPrincipal == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -62,7 +62,7 @@ public class OrganizationController {
     }
 
     @DeleteMapping("/{organizationId}/members/{targetUserId}")
-    @PreAuthorize("hasAuthority('user:create')")
+    @PreAuthorize("hasAuthority('user:admin')")
     public ResponseEntity<Void> removeMemberFromOrganization(@PathVariable Long organizationId, @PathVariable Long targetUserId, @AuthenticationPrincipal UserDetails adminPrincipal) {
         if (adminPrincipal == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

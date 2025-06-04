@@ -2,9 +2,14 @@ package com.n1netails.n1netails.api.service.impl;
 
 import com.n1netails.n1netails.api.exception.type.EmailExistException;
 import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
+import com.n1netails.n1netails.api.constant.Authority;
+import com.n1netails.n1netails.api.exception.type.EmailExistException;
+import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
 import com.n1netails.n1netails.api.model.UserPrincipal;
+import com.n1netails.n1netails.api.model.entity.OrganizationEntity;
 import com.n1netails.n1netails.api.model.entity.UsersEntity;
 import com.n1netails.n1netails.api.model.request.UserRegisterRequest;
+import com.n1netails.n1netails.api.repository.OrganizationRepository;
 import com.n1netails.n1netails.api.repository.UserRepository;
 import com.n1netails.n1netails.api.service.LoginAttemptService;
 import com.n1netails.n1netails.api.service.UserService;
@@ -37,6 +42,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserRepository userRepository;
     private final LoginAttemptService loginAttemptService;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final OrganizationRepository organizationRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -73,7 +79,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public UsersEntity register(UserRegisterRequest newUser) throws UserNotFoundException, EmailExistException {
-
         validateEmail("", newUser.getEmail());
         String encodedPassword = encodePassword(newUser.getPassword());
 
@@ -87,11 +92,35 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setPassword(encodedPassword);
         user.setActive(true);
         user.setNotLocked(true);
-        user.setRole(ROLE_USER.name());
-        user.setAuthorities(ROLE_USER.getAuthorities());
         user.setProfileImageUrl(getTemporaryProfileImageUrl(newUser.getUsername()));
         user.setEnabled(true);
-        userRepository.save(user);
+
+        boolean isFirstUserEver = userRepository.count() == 0;
+
+        if (isFirstUserEver) {
+            user.setRole(com.n1netails.n1netails.api.model.enumeration.Role.ROLE_SUPER_ADMIN.name());
+            user.setAuthorities(Authority.SUPER_ADMIN_AUTHORITIES);
+        } else {
+            user.setRole(com.n1netails.n1netails.api.model.enumeration.Role.ROLE_USER.name());
+            // Using Authority.USER_AUTHORITIES directly as per discussion, though ROLE_USER.getAuthorities() is equivalent here.
+            user.setAuthorities(Authority.USER_AUTHORITIES);
+        }
+
+        userRepository.save(user); // Save the user with correct role and authorities
+
+        // Associate with "n1netails" organization
+        OrganizationEntity n1netailsOrg = organizationRepository.findByName("n1netails")
+            .orElseThrow(() -> new RuntimeException("Default 'n1netails' organization not found. Liquibase script might have failed."));
+
+        // Add user to n1netails org users set, if not already part of it
+        if (n1netailsOrg.getUsers() == null) { // Defensive check
+            n1netailsOrg.setUsers(new java.util.HashSet<>());
+        }
+        if (!n1netailsOrg.getUsers().contains(user)) {
+             n1netailsOrg.getUsers().add(user);
+             organizationRepository.save(n1netailsOrg);
+        }
+
         return user;
     }
 

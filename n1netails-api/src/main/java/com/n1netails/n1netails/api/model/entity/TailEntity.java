@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.n1netails.n1netails.api.model.entity.OrganizationEntity;
 
 import java.time.Instant;
 import java.util.List;
@@ -43,4 +44,8 @@ public class TailEntity {
     private List<NoteEntity> notes;
     @OneToMany(mappedBy = "tail", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TailVariableEntity> customVariables;
+
+    @ManyToOne
+    @JoinColumn(name = "organization_id")
+    private OrganizationEntity organization;
 }

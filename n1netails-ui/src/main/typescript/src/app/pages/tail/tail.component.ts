@@ -1,6 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core'; // Added inject
-import { ActivatedRoute, Router } from '@angular/router'; // Added Router
-import { TailService, TailResponse, ResolveTailRequest, TailSummary } from '../../service/tail.service'; // Added ResolveTailRequest, TailSummary
+import { Component, OnInit, inject } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { TailService, TailResponse, ResolveTailRequest, TailSummary } from '../../service/tail.service';
 import { CommonModule } from '@angular/common';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
@@ -13,12 +13,10 @@ import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { TailUtilService } from '../../service/tail-util.service';
-import { NzButtonModule } from 'ng-zorro-antd/button'; // Added NzButtonModule
-import { NzMessageService } from 'ng-zorro-antd/message'; // Added NzMessageService
-import { AuthenticationService } from '../../service/authentication.service'; // Added AuthenticationService
-import { User } from '../../model/user'; // Added User
-
-// Import the shared modal component
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzMessageService } from 'ng-zorro-antd/message';
+import { AuthenticationService } from '../../service/authentication.service';
+import { User } from '../../model/user';
 import { ResolveTailModalComponent } from '../../shared/components/resolve-tail-modal/resolve-tail-modal.component';
 
 @Component({
@@ -34,10 +32,10 @@ import { ResolveTailModalComponent } from '../../shared/components/resolve-tail-
     NzGridModule,
     NzCardModule,
     NzAvatarModule,
-    NzButtonModule, // Added NzButtonModule
+    NzButtonModule,
     HeaderComponent,
     SidenavComponent,
-    ResolveTailModalComponent // Added ResolveTailModalComponent
+    ResolveTailModalComponent
   ],
   templateUrl: './tail.component.html',
   styleUrl: './tail.component.less'
@@ -55,14 +53,11 @@ export class TailComponent implements OnInit {
   resolveModalVisible: boolean = false;
   currentUser: User;
 
-  // Using inject for newer Angular versions
-  public tailUtilService = inject(TailUtilService); // Made public for template access
+  public tailUtilService = inject(TailUtilService);
   private tailService = inject(TailService);
   private route = inject(ActivatedRoute);
-  private router = inject(Router);
   private messageService = inject(NzMessageService);
   private authService = inject(AuthenticationService);
-
 
   constructor() {
     this.currentUser = this.authService.getUserFromLocalCache();
@@ -105,7 +100,7 @@ export class TailComponent implements OnInit {
   }
 
   openResolveModal(): void {
-    if (!this.tail) return; // Should not happen if button is only enabled when tail exists
+    if (!this.tail) return;
     this.resolveModalVisible = true;
   }
 
@@ -119,20 +114,16 @@ export class TailComponent implements OnInit {
       return;
     }
 
-    // The selectedItem for the modal is the 'this.tail' object.
-    // It should have id, title, description, level, type, status
     const tailSummary: TailSummary = {
       id: this.tail.id,
       title: this.tail.title,
-      description: this.tail.description, // Assuming TailResponse has description
-      timestamp: this.tail.timestamp, // Assuming TailResponse has timestamp
-      resolvedtimestamp: this.tail.resolvedTimestamp, // Assuming TailResponse has resolvedTimestamp
+      description: this.tail.description,
+      timestamp: this.tail.timestamp,
+      resolvedtimestamp: this.tail.resolvedTimestamp,
       assignedUserId: this.currentUser.id,
       level: this.tail.level,
       type: this.tail.type,
-      status: 'OPEN', // When resolving, we expect current status to be open/unresolved. The backend will set to RESOLVED.
-                       // Or, pass this.tail.status if the backend expects the current status.
-                       // For now, let's assume the shared modal is for "resolving" an open tail.
+      status: this.tail.status
     };
 
     const tailResolveRequest: ResolveTailRequest = {
@@ -146,9 +137,8 @@ export class TailComponent implements OnInit {
         this.messageService.success(`Resolved "${this.tail?.title}"`);
         this.resolveModalVisible = false;
         if (this.tail) {
-          this.loadTailData(this.tail.id); // Refresh tail data to show updated status
+          this.loadTailData(this.tail.id);
         }
-        // Optionally, navigate away or update UI further
       },
       error: (err) => {
         this.messageService.error(`Unable to mark tail "${this.tail?.title}" as resolved. Error: ${err.message || err}`);

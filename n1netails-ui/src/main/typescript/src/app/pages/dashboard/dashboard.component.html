@@ -92,7 +92,6 @@
                       <nz-list-item-meta [nzAvatar]="customAvatarTpl"
                         [nzDescription]="item.description">
                         <nz-list-item-meta-title>
-                          <!-- todo create new page to view for information on a specific tail -->
                           <a (click)="goToTail(item.id)">{{ item.title }}</a>
                         </nz-list-item-meta-title>
                       </nz-list-item-meta>
@@ -101,8 +100,6 @@
                       <nz-tag [nzColor]="tailUtilService.getStatusColor(item.status)">{{ item.status }}</nz-tag>
                       <ul nz-list-item-actions>
                         <nz-list-item-action><a (click)="resolve(item)">resolve</a></nz-list-item-action>
-                        <!-- todo create new page to view for information on a specific tail -->
-                        <!-- <nz-list-item-action><a (click)="view(item)">view</a></nz-list-item-action> -->
                       </ul>
                     </ng-container>
                     }
@@ -119,7 +116,6 @@
   </nz-layout>
 </nz-layout>
 
-<!-- Replaced old modal with the new shared component -->
 <app-resolve-tail-modal
   [isVisible]="resolveModalVisible"
   [selectedItem]="selectedItem"

@@ -17,8 +17,6 @@ import { Router } from '@angular/router';
 import { TailMetricsService } from '../../service/tail-metrics.service';
 import { ResolveTailRequest, TailService, TailSummary } from '../../service/tail.service';
 import { TailTypeResponse } from '../../service/tail-type.service';
-// NzModalModule is likely not needed directly by DashboardComponent anymore for *this* modal
-// import { NzModalModule } from 'ng-zorro-antd/modal';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { User } from '../../model/user';
@@ -29,8 +27,24 @@ import { ResolveTailModalComponent } from '../../shared/components/resolve-tail-
 
 @Component({
   selector: 'app-dashboard',
-  // Added ResolveTailModalComponent to imports. Removed NzModalModule as it's now encapsulated.
-  imports: [CommonModule, FormsModule,NzEmptyModule,NzIconModule, /* NzModalModule, */ NzLayoutModule, NzCardModule, NzGridModule, NzAvatarModule, NzListModule, NzSkeletonModule, NzTagModule, BaseChartDirective, HeaderComponent, SidenavComponent,DurationPipe, ResolveTailModalComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    NzEmptyModule,
+    NzIconModule,
+    NzLayoutModule,
+    NzCardModule,
+    NzGridModule,
+    NzAvatarModule,
+    NzListModule,
+    NzSkeletonModule,
+    NzTagModule,
+    BaseChartDirective,
+    HeaderComponent,
+    SidenavComponent,
+    DurationPipe,
+    ResolveTailModalComponent
+  ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.less'
 })
@@ -107,7 +121,7 @@ export class DashboardComponent implements OnInit {
   tailTypes: TailTypeResponse[] = [];
 
   constructor(
-    public tailUtilService: TailUtilService, // This can be removed if not used elsewhere in the template directly
+    public tailUtilService: TailUtilService,
     private msg: NzMessageService,
     private uiConfigService: UiConfigService,
     private authenticationService: AuthenticationService,
@@ -173,7 +187,20 @@ export class DashboardComponent implements OnInit {
     this.tailMetricsService.getTailMonthlySummary(userTimezone).subscribe(result => {
       this.monthlyAlertsData = {
         labels: result.labels,
-        datasets: result.datasets.map((ds: any) => ({ ...ds })) // simple clone
+        datasets: [
+          // INFO
+          { label: result.datasets[0].label, data: result.datasets[0].data, backgroundColor: '#1E90FF' },
+          // SUCCESS
+          { label: result.datasets[1].label, data: result.datasets[1].data, backgroundColor: 'green' },
+          // WARN
+          { label: result.datasets[2].label, data: result.datasets[2].data, backgroundColor: '#FFA500' },
+          // ERROR
+          { label: result.datasets[3].label, data: result.datasets[3].data, backgroundColor: '#FF4500' },
+          // CRITICAL
+          { label: result.datasets[4].label, data: result.datasets[4].data, backgroundColor: '#FF0000' },
+          // KUDA
+          { label: result.datasets[5].label, data: result.datasets[5].data, backgroundColor: '#8B0000' },
+        ]
       };
     });
   }
@@ -191,25 +218,22 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  // Modal properties
   resolveModalVisible = false;
   selectedItem: any = null;
-  // resolveNote: string = ''; // No longer needed here for ngModel
 
   resolve(item: any): void {
     this.selectedItem = item;
-    // this.resolveNote = ''; // Resetting note is handled by shared component
     this.resolveModalVisible = true;
   }
 
   handleResolveCancel(): void {
     this.resolveModalVisible = false;
     this.selectedItem = null;
-    // this.resolveNote = ''; // Resetting note is handled by shared component
   }
 
-  // Modified to accept the note from the event
   handleResolveOk(note: string): void {
-    if (!this.selectedItem) return; // Guard clause
+    if (!this.selectedItem) return;
 
     const tailSummary: TailSummary = {
       id: this.selectedItem.id,
@@ -226,7 +250,7 @@ export class DashboardComponent implements OnInit {
     const tailResolveRequest: ResolveTailRequest = {
       userId: this.user.id,
       tailSummary: tailSummary, 
-      note: note, // Use the note from the event
+      note: note,
     };
 
     this.tailService.markTailResolved(tailResolveRequest).subscribe({
@@ -234,16 +258,11 @@ export class DashboardComponent implements OnInit {
         this.msg.success(`Resolved "${this.selectedItem.title}"`);
         this.resolveModalVisible = false;
         this.selectedItem = null;
-        // this.resolveNote = ''; // Resetting note is handled by shared component
-        this.initDashboard(); // Refresh data
+        this.initDashboard(); 
       }, 
       error: (err) => {
         this.msg.error(`Unable to mark tail "${this.selectedItem.title}" as resolved. Error: ${err.message || err}`);
       },
     });
-  }
-
-  view(item: any): void {
-    this.msg.success(item.email);
   }
 }

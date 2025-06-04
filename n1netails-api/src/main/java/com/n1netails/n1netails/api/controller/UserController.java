@@ -2,9 +2,12 @@ package com.n1netails.n1netails.api.controller;
 
 import com.n1netails.n1netails.api.exception.type.EmailExistException;
 import com.n1netails.n1netails.api.exception.type.PasswordRegexException;
+import com.n1netails.n1netails.api.exception.type.EmailExistException;
+import com.n1netails.n1netails.api.exception.type.PasswordRegexException;
 import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
 import com.n1netails.n1netails.api.model.UserPrincipal;
 import com.n1netails.n1netails.api.model.entity.UsersEntity;
+import com.n1netails.n1netails.api.model.request.UpdateUserRoleRequestDto;
 import com.n1netails.n1netails.api.model.request.UserLoginRequest;
 import com.n1netails.n1netails.api.model.request.UserRegisterRequest;
 import com.n1netails.n1netails.api.model.response.HttpErrorResponse;
@@ -14,10 +17,18 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -149,5 +160,21 @@ public class UserController {
         return userPrincipal.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(" "));
+    }
+
+    @PutMapping("/{userId}/role")
+    @PreAuthorize("hasAuthority('user:delete')") // 'user:delete' is unique to SUPER_ADMIN_AUTHORITIES
+    public ResponseEntity<?> updateUserRole(@PathVariable Long userId, @Valid @RequestBody UpdateUserRoleRequestDto roleDto) {
+        try {
+            UsersEntity updatedUser = userService.updateUserRole(userId, roleDto.getRoleName());
+            return ResponseEntity.ok(updatedUser);
+        } catch (UserNotFoundException e) {
+            // Consider using @ControllerAdvice for exception handling
+            // Returning a more structured error response could be beneficial
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new HttpErrorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage()));
+        } catch (RuntimeException e) {
+            // Catching generic runtime for invalid role name or unsupported role
+            return ResponseEntity.badRequest().body(new HttpErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
+        }
     }
 }

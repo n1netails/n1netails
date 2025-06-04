@@ -13,4 +13,9 @@ public interface N1neTokenRepository extends JpaRepository<N1neTokenEntity, Long
 
     List<N1neTokenEntity> findByUserId(Long userId);
     Optional<N1neTokenEntity> findByToken(UUID token);
+    List<N1neTokenEntity> findByOrganizationId(Long organizationId);
+    List<N1neTokenEntity> findByOrganizationIdIn(List<Long> organizationIds);
+    Optional<N1neTokenEntity> findByIdAndUserId(Long id, Long userId);
+    List<N1neTokenEntity> findByUserIdIn(List<Long> userIds);
+    List<N1neTokenEntity> findByUserIdAndOrganizationIsNull(Long userId); // For Admin's getAll()
 }

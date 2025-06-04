@@ -180,4 +180,48 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userRepository.save(user);
         return user;
     }
+
+    @Override
+    public UsersEntity updateUserRole(Long userId, String newRoleName) throws UserNotFoundException {
+        UsersEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
+
+        com.n1netails.n1netails.api.model.enumeration.Role targetRole;
+        try {
+            // Ensure roleName is in uppercase to match enum constants
+            targetRole = com.n1netails.n1netails.api.model.enumeration.Role.valueOf(newRoleName.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid role name: " + newRoleName); // Or a custom, more specific exception
+        }
+
+        user.setRole(targetRole.name());
+        switch (targetRole) {
+            case ROLE_USER:
+                user.setAuthorities(Authority.USER_AUTHORITIES);
+                break;
+            case ROLE_ADMIN:
+                user.setAuthorities(Authority.ADMIN_AUTHORITIES);
+                break;
+            case ROLE_SUPER_ADMIN:
+                user.setAuthorities(Authority.SUPER_ADMIN_AUTHORITIES);
+                break;
+            // Assuming HR and MANAGER roles are not managed via this simple Super Admin endpoint
+            // If they were, cases for ROLE_HR, ROLE_MANAGER would be added here.
+            case ROLE_HR: // Example if HR were assignable
+                 user.setAuthorities(Authority.HR_AUTHORITIES);
+                 break;
+            case ROLE_MANAGER: // Example if MANAGER were assignable
+                 user.setAuthorities(Authority.MANAGER_AUTHORITIES);
+                 break;
+            case ROLE_OIDC_USER: // OIDC users likely managed differently, but if assignable:
+                user.setAuthorities(Authority.USER_AUTHORITIES); // Or specific OIDC authorities if different
+                break;
+            default:
+                // This case should ideally not be reached if valueOf succeeded and all enum values are handled.
+                // However, it's a good safeguard.
+                throw new RuntimeException("Unsupported role for authority mapping: " + newRoleName);
+        }
+
+        return userRepository.save(user);
+    }
 }

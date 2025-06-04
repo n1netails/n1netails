@@ -23,6 +23,29 @@ public class OrganizationServiceImpl implements OrganizationService {
     private final OrganizationRepository organizationRepository;
     private final UserRepository userRepository;
 
+    private static final String N1NETAILS_ORG_NAME = "n1netails";
+
+
+    private void prepareUserForOrganizationAssignment(UsersEntity user, OrganizationEntity targetOrganization, OrganizationEntity n1netailsOrgInstance) {
+        // Ensure user's organizations are loaded if potentially detached or LAZY and not in current session scope
+        // However, since 'user' is typically fetched within the same @Transactional method calling this,
+        // its 'organizations' set should be accessible.
+
+        if (N1NETAILS_ORG_NAME.equalsIgnoreCase(targetOrganization.getName())) {
+            boolean inOtherOrgs = user.getOrganizations().stream()
+                    .anyMatch(org -> !N1NETAILS_ORG_NAME.equalsIgnoreCase(org.getName()));
+            if (inOtherOrgs) {
+                throw new IllegalStateException("User " + user.getEmail() + " is already a member of other organizations and cannot be added to '" + N1NETAILS_ORG_NAME + "'.");
+            }
+        } else { // Target is not "n1netails"
+            if (n1netailsOrgInstance != null && user.getOrganizations().contains(n1netailsOrgInstance)) {
+                n1netailsOrgInstance.getUsers().remove(user);
+                // user.getOrganizations().remove(n1netailsOrgInstance); // Not strictly needed as OrganizationEntity owns the relationship
+                organizationRepository.save(n1netailsOrgInstance);
+            }
+        }
+    }
+
     @Override
     public OrganizationEntity createOrganization(OrganizationRequestDto organizationDto) {
         // Check if organization with the same name already exists
@@ -55,22 +78,18 @@ public class OrganizationServiceImpl implements OrganizationService {
         UsersEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId));
 
-        // Crucial "n1netails" logic
-        if (!"n1netails".equalsIgnoreCase(targetOrganization.getName())) {
-            Optional<OrganizationEntity> n1netailsOrgOpt = organizationRepository.findByName("n1netails");
-            if (n1netailsOrgOpt.isPresent()) {
-                OrganizationEntity n1netailsOrg = n1netailsOrgOpt.get();
-                if (n1netailsOrg.getUsers().contains(user)) {
-                    n1netailsOrg.getUsers().remove(user);
-                    organizationRepository.save(n1netailsOrg);
-                }
-            } else {
-                // This case should ideally not happen if Liquibase scripts ran correctly.
-                // Consider logging a warning or throwing a specific exception.
-                throw new EntityNotFoundException("'n1netails' organization not found, cannot perform user transfer.");
-            }
-        }
+        // It's important that 'user.getOrganizations()' is populated.
+        // findById should work within a @Transactional service method.
 
+        OrganizationEntity n1netailsOrgInstance = organizationRepository.findByName(N1NETAILS_ORG_NAME)
+            .orElseThrow(() -> new EntityNotFoundException("'" + N1NETAILS_ORG_NAME + "' organization not found. Critical setup issue."));
+            // If n1netailsOrgInstance is the target, it's fine. Helper handles it.
+
+        prepareUserForOrganizationAssignment(user, targetOrganization, n1netailsOrgInstance);
+
+        if (targetOrganization.getUsers().contains(user)) {
+             throw new IllegalStateException("User " + user.getEmail() + " is already a member of organization " + targetOrganization.getName());
+        }
         targetOrganization.getUsers().add(user);
         organizationRepository.save(targetOrganization);
     }
@@ -107,26 +126,21 @@ public class OrganizationServiceImpl implements OrganizationService {
                 .orElseThrow(() -> new EntityNotFoundException("Admin user not found with email: " + adminUserEmail));
 
         // Admin Authorization Check
-        if (!organization.getUsers().contains(adminUser)) {
+        if (!organization.getUsers().contains(adminUser)) { // Assumes adminUser.organizations is loaded or accessible
             throw new AccessDeniedException("Admin user " + adminUserEmail + " is not a member of organization " + organizationId);
         }
 
-        // "n1netails" logic (same as for Super Admin)
-        if (!"n1netails".equalsIgnoreCase(organization.getName())) {
-            Optional<OrganizationEntity> n1netailsOrgOpt = organizationRepository.findByName("n1netails");
-            if (n1netailsOrgOpt.isPresent()) {
-                OrganizationEntity n1netailsOrg = n1netailsOrgOpt.get();
-                if (n1netailsOrg.getUsers().contains(targetUser)) {
-                    n1netailsOrg.getUsers().remove(targetUser);
-                    organizationRepository.save(n1netailsOrg);
-                }
-            } else {
-                throw new EntityNotFoundException("'n1netails' organization not found, cannot perform user transfer.");
-            }
-        }
+        // Ensure targetUser's organizations are available for the helper method
+        // Re-fetching targetUser or ensuring it's fully loaded might be needed if it wasn't the first entity loaded.
+        // However, findById in a @Transactional method should generally allow access to LAZY collections.
+
+        OrganizationEntity n1netailsOrgInstance = organizationRepository.findByName(N1NETAILS_ORG_NAME)
+            .orElseThrow(() -> new EntityNotFoundException("'" + N1NETAILS_ORG_NAME + "' organization not found. Critical setup issue."));
+
+        prepareUserForOrganizationAssignment(targetUser, organization, n1netailsOrgInstance);
 
         if(organization.getUsers().contains(targetUser)){
-            throw new RuntimeException("Target user with ID " + targetUserId + " is already a member of organization " + organizationId);
+            throw new IllegalStateException("Target user " + targetUser.getEmail() + " is already a member of organization " + organization.getName());
         }
 
         organization.getUsers().add(targetUser);

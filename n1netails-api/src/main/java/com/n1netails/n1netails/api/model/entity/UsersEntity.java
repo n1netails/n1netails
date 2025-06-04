@@ -5,8 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.n1netails.n1netails.api.model.entity.OrganizationEntity; // Added import
 
 import java.util.Date;
+import java.util.Set; // Added import
+import java.util.HashSet; // Added import
 
 @Entity
 @Getter
@@ -36,4 +39,7 @@ public class UsersEntity {
     private boolean isActive;
     private boolean isNotLocked;
     private boolean enabled;
+
+    @ManyToMany(mappedBy = "users", fetch = FetchType.LAZY)
+    private Set<OrganizationEntity> organizations = new HashSet<>();
 }

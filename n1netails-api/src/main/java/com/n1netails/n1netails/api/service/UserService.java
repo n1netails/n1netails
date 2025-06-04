@@ -11,4 +11,5 @@ public interface UserService {
     UsersEntity register(UserRegisterRequest user) throws UserNotFoundException, EmailExistException;
     UsersEntity editUser(UsersEntity user);
     UsersEntity updatePassword(String email, String newPassword) throws UserNotFoundException;
+    UsersEntity updateUserRole(Long userId, String newRoleName) throws UserNotFoundException;
 }

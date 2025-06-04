@@ -18,10 +18,15 @@ import { TailTypeService } from '../../service/tail-type.service';
 import { Router } from '@angular/router';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { TailUtilService } from '../../service/tail-util.service';
+import { ResolveTailModalComponent } from '../../shared/components/resolve-tail-modal/resolve-tail-modal.component';
+import { User } from '../../model/user';
+import { AuthenticationService } from '../../service/authentication.service';
+import { ResolveTailRequest, TailService, TailSummary } from '../../service/tail.service';
+import { NzMessageService } from 'ng-zorro-antd/message';
 
 @Component({
   selector: 'app-tails',
-  standalone: true, // Explicitly marking as standalone
+  standalone: true,
   imports: [
     NzLayoutModule,
     NzGridModule,
@@ -35,12 +40,14 @@ import { TailUtilService } from '../../service/tail-util.service';
     CommonModule,
     FormsModule,
     HeaderComponent,
-    SidenavComponent
+    SidenavComponent,
+    ResolveTailModalComponent
   ],
   templateUrl: './tails.html',
   styleUrl: './tails.less'
 })
-export class TailsComponent implements OnInit { // Renamed class to follow Angular style guide (TailsComponent)
+export class TailsComponent implements OnInit {
+
   tails: Tail[] = [];
   currentPage: number = 0;
   pageSize: number = 10;
@@ -58,14 +65,24 @@ export class TailsComponent implements OnInit { // Renamed class to follow Angul
   tailStatusList: string[] = [];
   tailTypes: string[] = [];
 
+  // Modal properties
+  resolveModalVisible: boolean = false;
+  currentUser: User;
+  selectedTail: any = null;
+
   constructor(
     public tailUtilService: TailUtilService,
     private tailDataService: TailDataService,
     private tailLevelService: TailLevelService,
     private tailStatusService: TailStatusService,
     private tailTypeService: TailTypeService,
+    private tailService: TailService,
+    private authenticationService: AuthenticationService,
+    private messageService: NzMessageService,
     private router: Router
-  ) {}
+  ) {
+    this.currentUser = this.authenticationService.getUserFromLocalCache();
+  }
 
   ngOnInit(): void {
     this.loadTails();
@@ -81,7 +98,6 @@ export class TailsComponent implements OnInit { // Renamed class to follow Angul
       page: this.currentPage,
       size: this.pageSize,
       searchTerm: this.searchTerm,
-      // Send filter values only if they are not empty, otherwise undefined (or backend handles empty string as "no filter")
       filterByStatus: this.selectedStatus || undefined,
       filterByType: this.selectedType || undefined,
       filterByLevel: this.selectedLevel || undefined
@@ -95,18 +111,15 @@ export class TailsComponent implements OnInit { // Renamed class to follow Angul
           this.tails.push(tail);
         });
         this.tails = response.content;
-        // this.tails.forEach(tail => tail.selected = false);
         this.totalElements = response.totalElements;
         this.totalPages = response.totalPages;
-        // Adjust currentPage if it's out of bounds (e.g., after deleting last item on a page)
         if (this.currentPage >= this.totalPages && this.totalPages > 0) {
           this.currentPage = this.totalPages - 1;
         }
       },
       error: (err) => {
         console.error('Error loading tails:', err);
-        // Potentially display user-friendly error message
-        this.tails = []; // Clear tails on error
+        this.tails = [];
         this.totalElements = 0;
         this.totalPages = 0;
       }
@@ -174,5 +187,57 @@ export class TailsComponent implements OnInit { // Renamed class to follow Angul
   onPageSizeChange(): void {
     this.currentPage = 0;
     this.loadTails();
+  }
+
+  resolve(item: any): void {
+    this.selectedTail = item;
+    this.resolveModalVisible = true;
+  }
+
+  openResolveModal(): void {
+    if (!this.selectedTail) return;
+    this.resolveModalVisible = true;
+  }
+
+  handleResolveCancel(): void {
+    this.resolveModalVisible = false;
+  }
+
+  handleResolveOk(note: string): void {
+    if (!this.selectedTail || !this.currentUser) {
+      this.messageService.error('Cannot resolve tail: Missing tail data or user information.');
+      return;
+    }
+
+    const tailSummary: TailSummary = {
+      id: this.selectedTail.id,
+      title: this.selectedTail.title,
+      description: this.selectedTail.description,
+      timestamp: this.selectedTail.timestamp,
+      resolvedtimestamp: this.selectedTail.resolvedTimestamp,
+      assignedUserId: this.currentUser.id,
+      level: this.selectedTail.level,
+      type: this.selectedTail.type,
+      status: this.selectedTail.status
+    };
+
+    const tailResolveRequest: ResolveTailRequest = {
+      userId: this.currentUser.id,
+      tailSummary: tailSummary,
+      note: note,
+    };
+
+    this.tailService.markTailResolved(tailResolveRequest).subscribe({
+      next: (result) => {
+        this.messageService.success(`Resolved "${this.selectedTail.title}"`);
+        this.resolveModalVisible = false;
+        this.selectedTail = null;
+        note = '';
+        this.loadTails();
+      }, 
+      error: (err) => {
+        this.messageService.error(`Unable to mark tail "${this.selectedTail.title}" as resolved. Error: ${err.message || err}`);
+      },
+    });
   }
 }

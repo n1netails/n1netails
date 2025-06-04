@@ -132,8 +132,7 @@
                     <td><nz-tag [nzColor]="tailUtilService.getTypeColor(tail.type)">{{ tail.type }}</nz-tag></td>
                     <td><nz-tag [nzColor]="tailUtilService.getLevelColor(tail.level)">{{ tail.level }}</nz-tag></td>
                     <td>{{ tail.assignedUsername || tail.assignedUserId || 'N/A' }}</td>
-                    <!-- todo implement process to resolve tail -->
-                    <td><a href="">resolve</a></td>
+                    <td><a (click)="resolve(tail)">resolve</a></td>
                   </tr>
                 </tbody>
               </nz-table>
@@ -151,3 +150,10 @@
     </nz-content>
   </nz-layout>
 </nz-layout>
+
+<app-resolve-tail-modal
+  [isVisible]="resolveModalVisible"
+  [selectedItem]="selectedTail"
+  (onOk)="handleResolveOk($event)"
+  (onCancel)="handleResolveCancel()"
+></app-resolve-tail-modal>

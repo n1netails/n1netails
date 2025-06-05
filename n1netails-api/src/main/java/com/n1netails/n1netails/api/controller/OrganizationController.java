@@ -58,7 +58,7 @@ public class OrganizationController {
         return ResponseEntity.ok().build();
     }
 
-    // TODO POSSIBLY REFACTOR THE @AuthenticationPrincipal TO INSTEAD AUTHENTICATE THE JWT TOKEN
+    // TODO POSSIBLY REFACTOR THE @AuthenticationPrincipal TO INSTEAD USE THE AuthorizationServiceImpl
     // Endpoints for Admin (of an org) to manage their own organization's members
     @PostMapping("/{organizationId}/members/{targetUserId}")
     @PreAuthorize("hasAuthority('user:admin')") // 'user:create' is in ADMIN_AUTHORITIES and SUPER_ADMIN_AUTHORITIES
@@ -70,7 +70,7 @@ public class OrganizationController {
         return ResponseEntity.ok().build();
     }
 
-    // TODO POSSIBLY REFACTOR THE @AuthenticationPrincipal TO INSTEAD AUTHENTICATE THE JWT TOKEN
+    // TODO POSSIBLY REFACTOR THE @AuthenticationPrincipal TO INSTEAD USE THE AuthorizationServiceImpl
     @DeleteMapping("/{organizationId}/members/{targetUserId}")
     @PreAuthorize("hasAuthority('user:admin')")
     public ResponseEntity<Void> removeMemberFromOrganization(@PathVariable Long organizationId, @PathVariable Long targetUserId, @AuthenticationPrincipal UserDetails adminPrincipal) {

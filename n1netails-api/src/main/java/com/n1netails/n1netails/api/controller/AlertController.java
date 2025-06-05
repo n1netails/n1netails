@@ -38,7 +38,6 @@ public class AlertController {
         log.info("RECEIVED KUDA REQUEST");
 
         boolean tokenValid = this.n1neTokenService.validateToken(n1neToken);
-        // todo after token is validated update N1neToken Last Used At timestamp
         if (tokenValid) {
             this.n1neTokenService.setLastUsedAt(n1neToken);
             alertService.createTail(n1neToken, request);

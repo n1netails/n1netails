@@ -75,6 +75,7 @@
                   <th>Last Used At</th>
                   <th>Status</th>
                   <th>User</th>
+                  <th>Org</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -123,6 +124,8 @@
                     <span *ngIf="!token.revoked" style="color: green;">Active</span>
                   </td>
                   <td>{{ user.username }}</td>
+                  <!-- TODO GET ORGANIATION INFO BY ORGANIZATION ID (DISPLAY ORGANIZATON NAME HERE)-->
+                  <td>{{ token.organizationId }}</td>
                   <td>
                     <button nz-button nzType="default" (click)="revokeToken(token)" *ngIf="!token.revoked" [disabled]="isLoading" nzSize="small" style="margin-right: 5px;">Revoke</button>
                     <button nz-button nzType="default" (click)="enableToken(token)" *ngIf="token.revoked" [disabled]="isLoading" nzSize="small" style="margin-right: 5px;">Enable</button>

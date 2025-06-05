@@ -1,5 +1,6 @@
 package com.n1netails.n1netails.api.service;
 
+import com.n1netails.n1netails.api.exception.type.N1neTokenNotFoundException;
 import com.n1netails.n1netails.api.model.request.CreateTokenRequest;
 import com.n1netails.n1netails.api.model.response.N1neTokenResponse;
 
@@ -15,4 +16,5 @@ public interface N1neTokenService {
     void enable(Long id);
     void delete(Long id);
     boolean validateToken(String n1neToken);
+    void setLastUsedAt(String n1neToken) throws N1neTokenNotFoundException;
 }

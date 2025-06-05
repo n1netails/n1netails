@@ -1,5 +1,6 @@
 package com.n1netails.n1netails.api.service.impl;
 
+import com.n1netails.n1netails.api.exception.type.N1neTokenNotFoundException;
 import com.n1netails.n1netails.api.model.entity.N1neTokenEntity;
 import com.n1netails.n1netails.api.model.entity.OrganizationEntity;
 import com.n1netails.n1netails.api.model.entity.UsersEntity;
@@ -79,7 +80,6 @@ public class N1neTokenServiceImpl implements N1neTokenService {
 
     @Override
     public List<N1neTokenResponse> getAllByUserId(Long userId) {
-        // TODO MAKE SURE ONLY THE USER CAN GET THEIR OWN TOKENS
         List<N1neTokenEntity> n1neTokenEntities = this.n1neTokenRepository.findByUserId(userId);
         List<N1neTokenResponse> n1neTokenResponseList = new ArrayList<>();
         n1neTokenEntities.forEach(entity -> {
@@ -90,7 +90,6 @@ public class N1neTokenServiceImpl implements N1neTokenService {
 
     @Override
     public void revoke(Long id) {
-        // TODO MAKE SURE ONLY OWNER AND ORGANIZATION ADMINS CAN REVOKE A TOKEN
         N1neTokenEntity n1neTokenEntity = this.n1neTokenRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(TOKEN_DOES_NOT_EXIST + id));
         n1neTokenEntity.setRevoked(true);
@@ -99,7 +98,6 @@ public class N1neTokenServiceImpl implements N1neTokenService {
 
     @Override
     public void enable(Long id) {
-        // TODO MAKE SURE ONLY OWNER AND ORGANIZATION ADMINS CAN ENABLE A TOKEN
         N1neTokenEntity n1neTokenEntity = this.n1neTokenRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(TOKEN_DOES_NOT_EXIST + id));
         n1neTokenEntity.setRevoked(false);
@@ -108,7 +106,6 @@ public class N1neTokenServiceImpl implements N1neTokenService {
 
     @Override
     public void delete(Long id) {
-        // TODO MAKE SURE ONLY OWNER CAN DELETE A TOKEN
         this.n1neTokenRepository.deleteById(id);
     }
 
@@ -132,6 +129,15 @@ public class N1neTokenServiceImpl implements N1neTokenService {
         return false;
     }
 
+    @Override
+    public void setLastUsedAt(String n1neToken) throws N1neTokenNotFoundException {
+        UUID token = UUID.fromString(n1neToken);
+        N1neTokenEntity n1neTokenEntity = this.n1neTokenRepository.findByToken(token)
+                .orElseThrow(() -> new N1neTokenNotFoundException("Unable to set token last used at. N1ne token not found."));
+        n1neTokenEntity.setLastUsedAt(Instant.now());
+        this.n1neTokenRepository.save(n1neTokenEntity);
+    }
+
     private static N1neTokenResponse generateN1neTokenResponse(N1neTokenEntity n1neTokenEntity) {
         N1neTokenResponse n1neTokenResponse = new N1neTokenResponse();
         n1neTokenResponse.setId(n1neTokenEntity.getId());
@@ -142,6 +148,7 @@ public class N1neTokenServiceImpl implements N1neTokenService {
         n1neTokenResponse.setName(n1neTokenEntity.getName());
         n1neTokenResponse.setUserId(n1neTokenEntity.getUser().getId());
         n1neTokenResponse.setOrganizationId(n1neTokenEntity.getOrganization().getId());
+        n1neTokenResponse.setLastUsedAt(n1neTokenEntity.getLastUsedAt());
         if (n1neTokenEntity.getOrganization() != null)
             n1neTokenResponse.setOrganizationId(n1neTokenEntity.getOrganization().getId());
         return n1neTokenResponse;

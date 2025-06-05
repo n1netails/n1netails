@@ -49,6 +49,7 @@ public class ExceptionController implements ErrorController {
      * @return http error response
      */
     @ExceptionHandler({
+            N1neTokenNotFoundException.class,
             InvalidRoleException.class,
             TailNotFoundException.class,
             UserNotFoundException.class,

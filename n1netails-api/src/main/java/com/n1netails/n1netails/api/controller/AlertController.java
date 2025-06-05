@@ -1,5 +1,6 @@
 package com.n1netails.n1netails.api.controller;
 
+import com.n1netails.n1netails.api.exception.type.N1neTokenNotFoundException;
 import com.n1netails.n1netails.api.model.request.KudaTailRequest;
 import com.n1netails.n1netails.api.service.AlertService;
 import com.n1netails.n1netails.api.service.N1neTokenService;
@@ -32,13 +33,14 @@ public class AlertController {
     public ResponseEntity<Void> create(
             @RequestHeader("N1ne-Token") String n1neToken,
             @RequestBody KudaTailRequest request
-    ) {
+    ) throws N1neTokenNotFoundException {
         log.info("=====================");
         log.info("RECEIVED KUDA REQUEST");
 
         boolean tokenValid = this.n1neTokenService.validateToken(n1neToken);
         // todo after token is validated update N1neToken Last Used At timestamp
         if (tokenValid) {
+            this.n1neTokenService.setLastUsedAt(n1neToken);
             alertService.createTail(n1neToken, request);
         }
         else {

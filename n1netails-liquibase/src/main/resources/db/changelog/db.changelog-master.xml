@@ -14,5 +14,6 @@
     <include file="db/changelog/db.changelog-00005-insert-tail-seed-data.xml"/>
     <include file="db/changelog/db.changelog-00006-create-tail-sequences.xml"/>
     <include file="db/changelog/db.changelog-00007-create-table-n1netoken.xml"/>
+    <include file="db/changelog/db.changelog-00008-insert-n1netails-organization.xml"/>
 
 </databaseChangeLog>

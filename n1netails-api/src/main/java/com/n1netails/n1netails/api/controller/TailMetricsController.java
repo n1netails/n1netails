@@ -38,6 +38,9 @@ public class TailMetricsController {
     })
     @PostMapping("/today")
     public List<TailResponse> getTailAlertsToday(@RequestBody TimezoneRequest timezoneRequest) {
+        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
+        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+
         return tailMetricsService.tailAlertsToday(timezoneRequest.getTimezone());
     }
 
@@ -47,6 +50,9 @@ public class TailMetricsController {
     })
     @PostMapping("/today/count")
     public long countTailAlertsToday(@RequestBody TimezoneRequest timezoneRequest) {
+        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
+        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+
         return tailMetricsService.countAlertsToday(timezoneRequest.getTimezone());
     }
 
@@ -56,6 +62,9 @@ public class TailMetricsController {
     })
     @GetMapping("/resolved")
     public List<TailResponse> getTailAlertsResolved() {
+        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
+        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+
         return tailMetricsService.tailAlertsResolved();
     }
 
@@ -65,6 +74,9 @@ public class TailMetricsController {
     })
     @GetMapping("/resolved/count")
     public long countTailAlertsResolved() {
+        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
+        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+
         return tailMetricsService.countAlertsResolved();
     }
 
@@ -74,6 +86,9 @@ public class TailMetricsController {
     })
     @GetMapping("/not-resolved")
     public List<TailResponse> getTailAlertsNotResolved() {
+        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
+        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+
         return tailMetricsService.tailAlertsNotResolved();
     }
 
@@ -83,6 +98,9 @@ public class TailMetricsController {
     })
     @GetMapping("/not-resolved/count")
     public long countTailAlertsNotResolved() {
+        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
+        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+
         return tailMetricsService.countAlertsNotResolved();
     }
 
@@ -92,6 +110,9 @@ public class TailMetricsController {
     })
     @GetMapping("/mttr")
     public long getTailAlertsMTTR() {
+        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
+        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+
         return tailMetricsService.tailAlertsMTTR();
     }
 
@@ -101,6 +122,9 @@ public class TailMetricsController {
     })
     @GetMapping("/mttr/last-7-days")
     public TailDatasetMttrResponse getTailMTTRLast7Days() {
+        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
+        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+
         return tailMetricsService.getTailMTTRLast7Days();
     }
 
@@ -110,6 +134,9 @@ public class TailMetricsController {
     })
     @PostMapping("/hourly")
     public TailAlertsPerHourResponse getTailAlertsHourly(@RequestBody TimezoneRequest timezoneRequest) {
+        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
+        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+
         return tailMetricsService.getTailAlertsPerHour(timezoneRequest.getTimezone());
     }
 
@@ -119,6 +146,9 @@ public class TailMetricsController {
     })
     @PostMapping("/monthly-summary")
     public TailMonthlySummaryResponse getTailMonthlySummary(@RequestBody TimezoneRequest timezoneRequest) {
+        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
+        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+
         return tailMetricsService.getTailMonthlySummary(timezoneRequest.getTimezone());
     }
 }

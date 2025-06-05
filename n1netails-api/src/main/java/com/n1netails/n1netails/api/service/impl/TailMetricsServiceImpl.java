@@ -31,6 +31,8 @@ public class TailMetricsServiceImpl implements TailMetricsService {
 
     @Override
     public List<TailResponse> tailAlertsToday(String timezoneIdString) {
+        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
+        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
 
         ZoneId userZone = ZoneId.of(timezoneIdString); // Handle potential exceptions in real code
         Instant startOfDayUserTzAsUtc = getStartOfDayInUTC(userZone);
@@ -47,6 +49,9 @@ public class TailMetricsServiceImpl implements TailMetricsService {
 
     @Override
     public long countAlertsToday(String timezoneIdString) {
+        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
+        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+
         ZoneId userZone = ZoneId.of(timezoneIdString); // Handle potential exceptions in real code
         Instant startOfDayUserTzAsUtc = getStartOfDayInUTC(userZone);
         Instant endOfDayUserTzAsUtc = getEndOfDayInUTC(userZone);
@@ -57,6 +62,9 @@ public class TailMetricsServiceImpl implements TailMetricsService {
 
     @Override
     public List<TailResponse> tailAlertsResolved() {
+        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
+        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+
         List<TailEntity> tailEntities = tailRepository.findAllByStatusName("RESOLVED");
         if (tailEntities == null || tailEntities.isEmpty()) {
             return List.of();
@@ -68,11 +76,17 @@ public class TailMetricsServiceImpl implements TailMetricsService {
 
     @Override
     public long countAlertsResolved() {
+        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
+        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+
         return tailRepository.countByStatusName("RESOLVED");
     }
 
     @Override
     public List<TailResponse> tailAlertsNotResolved() {
+        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
+        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+
         List<TailEntity> tailEntities = tailRepository.findAllByStatusNameNot("RESOLVED");
         if (tailEntities == null || tailEntities.isEmpty()) {
             return List.of();
@@ -84,11 +98,17 @@ public class TailMetricsServiceImpl implements TailMetricsService {
 
     @Override
     public long countAlertsNotResolved() {
+        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
+        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+
         return tailRepository.countByStatusNameNot("RESOLVED");
     }
 
     @Override
     public long tailAlertsMTTR() {
+        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
+        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+
         log.info("tailAlertsMTTR");
         List<TailTimestampAndResolvedTimestamp> resolvedTimestampList = tailRepository.findOnlyTimestampAndResolvedTimestampIsNotNull();
         log.info("retrieved list of tail entities");
@@ -116,6 +136,9 @@ public class TailMetricsServiceImpl implements TailMetricsService {
 
     @Override
     public TailAlertsPerHourResponse getTailAlertsPerHour(String timezoneIdString) {
+        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
+        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+
         ZoneId userZone = ZoneId.of(timezoneIdString);
         ZonedDateTime userZonedNow = ZonedDateTime.now(userZone);
         Instant nowUtc = userZonedNow.toInstant(); // Current time in UTC
@@ -159,6 +182,9 @@ public class TailMetricsServiceImpl implements TailMetricsService {
 
     @Override
     public TailMonthlySummaryResponse getTailMonthlySummary(String timezoneIdString) {
+        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
+        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+
         log.info("getTailMonthlySummary");
 
         ZoneId userZone = ZoneId.of(timezoneIdString);
@@ -246,6 +272,9 @@ public class TailMetricsServiceImpl implements TailMetricsService {
 
     @Override
     public TailDatasetMttrResponse getTailMTTRLast7Days() {
+        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
+        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+
         log.info("Calculating MTTR for the last 7 days");
 
         Instant sevenDaysAgo = Instant.now().minus(7, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);

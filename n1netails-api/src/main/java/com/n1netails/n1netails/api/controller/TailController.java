@@ -36,24 +36,6 @@ public class TailController {
 
     private final TailService tailService;
 
-    @Operation(summary = "Create a new tail", responses = {
-            @ApiResponse(responseCode = "200", description = "Tail created",
-                    content = @Content(schema = @Schema(implementation = TailResponse.class)))
-    })
-    @PostMapping(consumes = APPLICATION_JSON)
-    public ResponseEntity<TailResponse> create(@RequestBody TailRequest request) {
-        return ResponseEntity.ok(tailService.createTail(request));
-    }
-
-    @Operation(summary = "Get all tails", responses = {
-            @ApiResponse(responseCode = "200", description = "List of tails",
-                    content = @Content(schema = @Schema(implementation = TailResponse.class)))
-    })
-    @GetMapping
-    public ResponseEntity<List<TailResponse>> getAll() {
-        return ResponseEntity.ok(tailService.getTails());
-    }
-
     @Operation(summary = "Get tail by ID", responses = {
             @ApiResponse(responseCode = "200", description = "Tail found",
                     content = @Content(schema = @Schema(implementation = TailResponse.class))),
@@ -62,28 +44,8 @@ public class TailController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<TailResponse> getById(@PathVariable Long id) {
+        // TODO UPDATE THIS SO ONLY THE USER AND USERS IN THE SAME THE ORGANIZATION CAN GET THE TAIL
         return ResponseEntity.ok(tailService.getTailById(id));
-    }
-
-    @Operation(summary = "Update tail by ID", responses = {
-            @ApiResponse(responseCode = "200", description = "Tail updated",
-                    content = @Content(schema = @Schema(implementation = TailResponse.class))),
-            @ApiResponse(responseCode = "404", description = "Tail not found",
-                    content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
-    })
-    @PutMapping(value = "/{id}", consumes = APPLICATION_JSON)
-    public ResponseEntity<TailResponse> update(@PathVariable Long id, @RequestBody TailRequest request) {
-        return ResponseEntity.ok(tailService.updateTail(id, request));
-    }
-
-    @Operation(summary = "Delete tail by ID", responses = {
-            @ApiResponse(responseCode = "204", description = "Tail deleted"),
-            @ApiResponse(responseCode = "404", description = "Tail not found")
-    })
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        tailService.deleteTail(id);
-        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Get tails by page", responses = {
@@ -92,6 +54,8 @@ public class TailController {
     })
     @PostMapping("/page")
     public ResponseEntity<Page<TailResponse>> getTailsByPage(@RequestBody TailPageRequest request) throws TailTypeNotFoundException, TailLevelNotFoundException, TailStatusNotFoundException {
+        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
+        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
         return ResponseEntity.ok(tailService.getTails(request));
     }
 
@@ -101,6 +65,8 @@ public class TailController {
     })
     @GetMapping("/top9")
     public ResponseEntity<List<TailResponse>> getTop9NewestTails() {
+        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO THEIR ORGANIZATION
+        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
         return ResponseEntity.ok(tailService.getTop9NewestTails());
     }
 
@@ -110,6 +76,7 @@ public class TailController {
     })
     @PostMapping("/mark/resolved")
     public ResponseEntity<Void> markTailResolved(@RequestBody ResolveTailRequest request) throws TailNotFoundException, TailStatusNotFoundException {
+        // TODO MAKE SURE ONLY ASSIGNED USER OR AN ORGANIZATION ADMIN CAN MARK THE TAIL AS RESOLVED
         tailService.markResolved(request);
         return ResponseEntity.noContent().build();
     }

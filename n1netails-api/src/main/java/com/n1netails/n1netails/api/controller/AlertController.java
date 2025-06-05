@@ -38,7 +38,9 @@ public class AlertController {
 
         boolean tokenValid = this.n1neTokenService.validateToken(n1neToken);
         // todo after token is validated update N1neToken Last Used At timestamp
-        if (tokenValid) alertService.createTail(n1neToken, request);
+        if (tokenValid) {
+            alertService.createTail(n1neToken, request);
+        }
         else {
             // Log internally, but don’t reveal to client
             log.warn("Unauthorized access attempt with token: {}...", n1neToken.substring(0, 5));

@@ -1,10 +1,14 @@
 package com.n1netails.n1netails.api.service.impl;
 
+import com.n1netails.n1netails.api.constant.Authority;
 import com.n1netails.n1netails.api.exception.type.EmailExistException;
+import com.n1netails.n1netails.api.exception.type.InvalidRoleException;
 import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
 import com.n1netails.n1netails.api.model.UserPrincipal;
+import com.n1netails.n1netails.api.model.entity.OrganizationEntity;
 import com.n1netails.n1netails.api.model.entity.UsersEntity;
 import com.n1netails.n1netails.api.model.request.UserRegisterRequest;
+import com.n1netails.n1netails.api.repository.OrganizationRepository;
 import com.n1netails.n1netails.api.repository.UserRepository;
 import com.n1netails.n1netails.api.service.LoginAttemptService;
 import com.n1netails.n1netails.api.service.UserService;
@@ -21,6 +25,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.HashSet;
 
 import static com.n1netails.n1netails.api.model.enumeration.Role.ROLE_USER;
 
@@ -37,6 +42,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserRepository userRepository;
     private final LoginAttemptService loginAttemptService;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final OrganizationRepository organizationRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -87,10 +93,28 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setPassword(encodedPassword);
         user.setActive(true);
         user.setNotLocked(true);
-        user.setRole(ROLE_USER.name());
-        user.setAuthorities(ROLE_USER.getAuthorities());
         user.setProfileImageUrl(getTemporaryProfileImageUrl(newUser.getUsername()));
         user.setEnabled(true);
+
+        boolean isFirstUserEver = userRepository.count() == 0;
+
+        if (isFirstUserEver) {
+            user.setRole(com.n1netails.n1netails.api.model.enumeration.Role.ROLE_SUPER_ADMIN.name());
+            user.setAuthorities(Authority.SUPER_ADMIN_AUTHORITIES);
+        } else {
+            user.setRole(com.n1netails.n1netails.api.model.enumeration.Role.ROLE_USER.name());
+            user.setAuthorities(Authority.USER_AUTHORITIES);
+        }
+
+        // Associate with "n1netails" organization
+        OrganizationEntity n1netailsOrg = organizationRepository.findByName("n1netails")
+                .orElseThrow(() -> new RuntimeException("Default 'n1netails' organization not found. Liquibase script might have failed."));
+
+        // Add user to n1netails org
+        if (user.getOrganizations() == null) {
+            user.setOrganizations(new HashSet<>());
+        }
+        user.getOrganizations().add(n1netailsOrg);
         userRepository.save(user);
         return user;
     }
@@ -150,5 +174,46 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
         return user;
+    }
+
+    @Override
+    public UsersEntity updateUserRole(Long userId, String newRoleName) throws UserNotFoundException, InvalidRoleException {
+        UsersEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
+
+        com.n1netails.n1netails.api.model.enumeration.Role targetRole;
+        try {
+            targetRole = com.n1netails.n1netails.api.model.enumeration.Role.valueOf(newRoleName.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new InvalidRoleException("Invalid role name: " + newRoleName);
+        }
+
+        user.setRole(targetRole.name());
+        switch (targetRole) {
+            case ROLE_USER:
+                user.setAuthorities(Authority.USER_AUTHORITIES);
+                break;
+            case ROLE_ADMIN:
+                user.setAuthorities(Authority.ADMIN_AUTHORITIES);
+                break;
+            case ROLE_SUPER_ADMIN:
+                user.setAuthorities(Authority.SUPER_ADMIN_AUTHORITIES);
+                break;
+            case ROLE_HR:
+                user.setAuthorities(Authority.HR_AUTHORITIES);
+                break;
+            case ROLE_MANAGER:
+                user.setAuthorities(Authority.MANAGER_AUTHORITIES);
+                break;
+            case ROLE_OIDC_USER: // OIDC users likely managed differently, but if assignable:
+                user.setAuthorities(Authority.USER_AUTHORITIES); // Or specific OIDC authorities if different
+                break;
+            default:
+                // This case should ideally not be reached if valueOf succeeded and all enum values are handled.
+                // However, it's a good safeguard.
+                throw new InvalidRoleException("Unsupported role for authority mapping: " + newRoleName);
+        }
+
+        return userRepository.save(user);
     }
 }

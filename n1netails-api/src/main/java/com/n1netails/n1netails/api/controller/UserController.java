@@ -1,10 +1,12 @@
 package com.n1netails.n1netails.api.controller;
 
 import com.n1netails.n1netails.api.exception.type.EmailExistException;
+import com.n1netails.n1netails.api.exception.type.InvalidRoleException;
 import com.n1netails.n1netails.api.exception.type.PasswordRegexException;
 import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
 import com.n1netails.n1netails.api.model.UserPrincipal;
 import com.n1netails.n1netails.api.model.entity.UsersEntity;
+import com.n1netails.n1netails.api.model.request.UpdateUserRoleRequest;
 import com.n1netails.n1netails.api.model.request.UserLoginRequest;
 import com.n1netails.n1netails.api.model.request.UserRegisterRequest;
 import com.n1netails.n1netails.api.model.response.HttpErrorResponse;
@@ -14,10 +16,12 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -26,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.AccessDeniedException;
 import java.time.Instant;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATION_JSON;
@@ -92,6 +97,7 @@ public class UserController {
         log.info("attempting user login");
         authenticate(user.getEmail(), user.getPassword());
         UsersEntity loginUser = userService.findUserByEmail(user.getEmail());
+        log.info("logged in users organizations: {}", loginUser.getOrganizations());
         UserPrincipal userPrincipal = new UserPrincipal(loginUser);
         HttpHeaders jwtHeader = setJwtHeader(userPrincipal);
         return new ResponseEntity<>(loginUser, jwtHeader, OK);
@@ -122,6 +128,15 @@ public class UserController {
         return new ResponseEntity<>(newUser, jwtHeader, OK);
     }
 
+    @PutMapping("/{userId}/role")
+    @PreAuthorize("hasAuthority('user:super')") // 'user:super' is unique to SUPER_ADMIN_AUTHORITIES
+    public ResponseEntity<?> updateUserRole(@PathVariable Long userId, @Valid @RequestBody UpdateUserRoleRequest updateUserRoleRequest) throws UserNotFoundException, InvalidRoleException {
+        // TODO ENSURE THAT SUPER USERS ROLE CANNOT BE CHANGED
+        // TODO ENSURE THAT SUPER USERS ARE ONLY PART OF THE n1netails ORGANIZATION
+        UsersEntity updatedUser = userService.updateUserRole(userId, updateUserRoleRequest.getRoleName());
+        return ResponseEntity.ok(updatedUser);
+    }
+
     private void authenticate(String email, String password) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
     }
@@ -138,16 +153,16 @@ public class UserController {
                 .issuedAt(Instant.now())
                 .expiresAt(Instant.now().plusSeconds(EXPIRATION_TIME))
                 .subject(userPrincipal.getUsername())
-                .claim("scope", createScope(userPrincipal))
+                .claim("authorities", createAuthorities(userPrincipal))  // use list format
                 .build();
 
         JwtEncoderParameters parameters = JwtEncoderParameters.from(claimsSet);
         return jwtEncoder.encode(parameters).getTokenValue();
     }
 
-    private String createScope(UserPrincipal userPrincipal) {
+    private List<String> createAuthorities(UserPrincipal userPrincipal) {
         return userPrincipal.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(" "));
+                .collect(Collectors.toList());
     }
 }

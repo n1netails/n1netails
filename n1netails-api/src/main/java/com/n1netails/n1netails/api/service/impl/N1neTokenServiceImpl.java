@@ -1,10 +1,12 @@
 package com.n1netails.n1netails.api.service.impl;
 
 import com.n1netails.n1netails.api.model.entity.N1neTokenEntity;
+import com.n1netails.n1netails.api.model.entity.OrganizationEntity;
 import com.n1netails.n1netails.api.model.entity.UsersEntity;
 import com.n1netails.n1netails.api.model.request.CreateTokenRequest;
 import com.n1netails.n1netails.api.model.response.N1neTokenResponse;
 import com.n1netails.n1netails.api.repository.N1neTokenRepository;
+import com.n1netails.n1netails.api.repository.OrganizationRepository;
 import com.n1netails.n1netails.api.repository.UserRepository;
 import com.n1netails.n1netails.api.service.N1neTokenService;
 import lombok.RequiredArgsConstructor;
@@ -29,21 +31,31 @@ public class N1neTokenServiceImpl implements N1neTokenService {
 
     private final N1neTokenRepository n1neTokenRepository;
     private final UserRepository userRepository;
+    private final OrganizationRepository organizationRepository;
 
     @Override
     public N1neTokenResponse create(CreateTokenRequest createTokenRequest) {
         N1neTokenEntity n1neTokenEntity = new N1neTokenEntity();
         UsersEntity user = this.userRepository.findById(createTokenRequest.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException(USER_DOES_NOT_EXIST + createTokenRequest.getUserId()));
-        n1neTokenEntity.setUser(user);
-        n1neTokenEntity.setCreatedAt(Instant.now());
-        n1neTokenEntity.setExpiresAt(createTokenRequest.getExpiresAt());
-        n1neTokenEntity.setName(createTokenRequest.getName());
-        n1neTokenEntity.setToken(UUID.randomUUID());
-        log.info("Saving new token");
-        n1neTokenEntity = this.n1neTokenRepository.save(n1neTokenEntity);
-        log.info("Generating token response");
-        return generateN1neTokenResponse(n1neTokenEntity);
+        OrganizationEntity organization = this.organizationRepository.findById(createTokenRequest.getOrganizationId())
+                .orElseThrow(() -> new IllegalArgumentException("Organization does not exist"));
+
+        // ensure user is part of organization
+        if (user.getOrganizations().contains(organization)) {
+            n1neTokenEntity.setUser(user);
+            n1neTokenEntity.setCreatedAt(Instant.now());
+            n1neTokenEntity.setExpiresAt(createTokenRequest.getExpiresAt());
+            n1neTokenEntity.setName(createTokenRequest.getName());
+            n1neTokenEntity.setToken(UUID.randomUUID());
+            n1neTokenEntity.setOrganization(organization);
+            log.info("Saving new token");
+            n1neTokenEntity = this.n1neTokenRepository.save(n1neTokenEntity);
+            log.info("Generating token response");
+            return generateN1neTokenResponse(n1neTokenEntity);
+        } else {
+            throw new IllegalArgumentException("User is not part of requested organization");
+        }
     }
 
     @Override
@@ -55,6 +67,8 @@ public class N1neTokenServiceImpl implements N1neTokenService {
 
     @Override
     public List<N1neTokenResponse> getAll() {
+        // TODO MAKE SURE ONLY THE ORGANIZATION ADMIN CAN GET ALL TOKENS IN THEIR ORGANIZATION
+        // TODO DO NOT RETURN THE TOKEN VALUE HERE
         List<N1neTokenEntity> n1neTokenEntities = this.n1neTokenRepository.findAll();
         List<N1neTokenResponse> n1neTokenResponseList = new ArrayList<>();
         n1neTokenEntities.forEach(entity -> {
@@ -65,6 +79,7 @@ public class N1neTokenServiceImpl implements N1neTokenService {
 
     @Override
     public List<N1neTokenResponse> getAllByUserId(Long userId) {
+        // TODO MAKE SURE ONLY THE USER CAN GET THEIR OWN TOKENS
         List<N1neTokenEntity> n1neTokenEntities = this.n1neTokenRepository.findByUserId(userId);
         List<N1neTokenResponse> n1neTokenResponseList = new ArrayList<>();
         n1neTokenEntities.forEach(entity -> {
@@ -75,6 +90,7 @@ public class N1neTokenServiceImpl implements N1neTokenService {
 
     @Override
     public void revoke(Long id) {
+        // TODO MAKE SURE ONLY OWNER AND ORGANIZATION ADMINS CAN REVOKE A TOKEN
         N1neTokenEntity n1neTokenEntity = this.n1neTokenRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(TOKEN_DOES_NOT_EXIST + id));
         n1neTokenEntity.setRevoked(true);
@@ -83,6 +99,7 @@ public class N1neTokenServiceImpl implements N1neTokenService {
 
     @Override
     public void enable(Long id) {
+        // TODO MAKE SURE ONLY OWNER AND ORGANIZATION ADMINS CAN ENABLE A TOKEN
         N1neTokenEntity n1neTokenEntity = this.n1neTokenRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(TOKEN_DOES_NOT_EXIST + id));
         n1neTokenEntity.setRevoked(false);
@@ -91,6 +108,7 @@ public class N1neTokenServiceImpl implements N1neTokenService {
 
     @Override
     public void delete(Long id) {
+        // TODO MAKE SURE ONLY OWNER CAN DELETE A TOKEN
         this.n1neTokenRepository.deleteById(id);
     }
 
@@ -123,6 +141,7 @@ public class N1neTokenServiceImpl implements N1neTokenService {
         n1neTokenResponse.setExpiresAt(n1neTokenEntity.getExpiresAt());
         n1neTokenResponse.setName(n1neTokenEntity.getName());
         n1neTokenResponse.setUserId(n1neTokenEntity.getUser().getId());
+        n1neTokenResponse.setOrganizationId(n1neTokenEntity.getOrganization().getId());
         if (n1neTokenEntity.getOrganization() != null)
             n1neTokenResponse.setOrganizationId(n1neTokenEntity.getOrganization().getId());
         return n1neTokenResponse;

@@ -27,7 +27,7 @@ import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATIO
 @Tag(name = "Tail Metrics Controller", description = "Operations related to Tail Metrics")
 @SecurityRequirement(name = "bearerAuth")
 @RestController
-@RequestMapping(value = "/api/metrics/tails", produces = APPLICATION_JSON)
+@RequestMapping(value = "/ninetails/metrics/tails", produces = APPLICATION_JSON)
 public class TailMetricsController {
 
     private final TailMetricsService tailMetricsService;

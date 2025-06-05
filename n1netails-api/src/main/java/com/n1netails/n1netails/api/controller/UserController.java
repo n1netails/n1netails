@@ -42,7 +42,7 @@ import static org.springframework.http.HttpStatus.OK;
 @RequiredArgsConstructor
 @Tag(name = "Users Controller", description = "Operations related to Users")
 @RestController
-@RequestMapping(path = {"/api/user"}, produces = APPLICATION_JSON)
+@RequestMapping(path = {"/ninetails/user"}, produces = APPLICATION_JSON)
 public class UserController {
 
     private final UserService userService;

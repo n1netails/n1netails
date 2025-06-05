@@ -28,7 +28,7 @@ export interface N1neTokenResponse {
 export class N1neTokenService {
 
   host: string = '';
-  private apiUrl = '/api/n1ne-token';
+  private apiUrl = '/ninetails/n1ne-token';
 
   constructor(
     private http: HttpClient,

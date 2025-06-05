@@ -24,7 +24,7 @@ import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATIO
 @Tag(name = "Organization Controller", description = "Operations related to Organizations")
 @SecurityRequirement(name = "bearerAuth")
 @RestController
-@RequestMapping(path = {"/api/organizations"}, produces = APPLICATION_JSON)
+@RequestMapping(path = {"/ninetails/organizations"}, produces = APPLICATION_JSON)
 public class OrganizationController {
 
     private final OrganizationService organizationService;

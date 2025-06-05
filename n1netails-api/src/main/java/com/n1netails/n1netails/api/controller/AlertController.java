@@ -19,7 +19,7 @@ import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATIO
 @RequiredArgsConstructor
 @Tag(name = "Alert Controller", description = "Operations related to N1ne Alerts (Utilized by Kuda)")
 @RestController
-@RequestMapping(path = {"/api/alert"}, produces = APPLICATION_JSON)
+@RequestMapping(path = {"/ninetails/alert"}, produces = APPLICATION_JSON)
 public class AlertController {
 
     private final AlertService alertService;

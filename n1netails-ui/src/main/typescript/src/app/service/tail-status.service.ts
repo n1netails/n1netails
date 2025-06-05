@@ -20,7 +20,7 @@ export interface TailStatusResponse {
 export class TailStatusService {
 
   host: string = '';
-  private apiUrl = '/api/tail-status'; // Base URL for tail status operations
+  private apiUrl = '/ninetails/tail-status'; // Base URL for tail status operations
 
   constructor(
     private http: HttpClient,

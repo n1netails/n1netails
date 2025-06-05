@@ -29,7 +29,7 @@ export interface TailDatasetResponse {
 export class TailMetricsService {
 
   host: string = '';
-  private apiUrl = '/api/metrics/tails'; // Base URL for tail metrics operations
+  private apiUrl = '/ninetails/metrics/tails'; // Base URL for tail metrics operations
 
   constructor(
     private http: HttpClient, 

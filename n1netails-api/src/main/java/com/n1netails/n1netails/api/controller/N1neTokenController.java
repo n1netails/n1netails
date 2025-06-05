@@ -28,7 +28,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @Tag(name = "N1ne Token Controller", description = "Operations related to N1ne Tokens")
 @SecurityRequirement(name = "bearerAuth")
 @RestController
-@RequestMapping(path = {"/api/n1ne-token"}, produces = APPLICATION_JSON)
+@RequestMapping(path = {"/ninetails/n1ne-token"}, produces = APPLICATION_JSON)
 public class N1neTokenController {
 
     private final N1neTokenService n1neTokenService;

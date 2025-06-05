@@ -47,4 +47,8 @@ public class TailEntity {
     @ManyToOne
     @JoinColumn(name = "organization_id")
     private OrganizationEntity organization;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id") // Represents the owner of the tail
+    private UsersEntity user;
 }

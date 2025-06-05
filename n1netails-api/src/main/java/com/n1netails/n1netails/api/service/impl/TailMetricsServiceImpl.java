@@ -1,13 +1,18 @@
 package com.n1netails.n1netails.api.service.impl;
 
+import com.n1netails.n1netails.api.model.UserPrincipal;
 import com.n1netails.n1netails.api.model.dto.TailLevelAndTimestamp;
 import com.n1netails.n1netails.api.model.dto.TailTimestampAndResolvedTimestamp;
+import com.n1netails.n1netails.api.model.entity.OrganizationEntity;
 import com.n1netails.n1netails.api.model.entity.TailEntity;
 import com.n1netails.n1netails.api.model.entity.TailLevelEntity;
 import com.n1netails.n1netails.api.model.response.*;
+import com.n1netails.n1netails.api.model.entity.UsersEntity; // Assuming TailEntity has a direct User field
 import com.n1netails.n1netails.api.repository.TailLevelRepository;
 import com.n1netails.n1netails.api.repository.TailRepository;
 import com.n1netails.n1netails.api.service.TailMetricsService;
+import org.springframework.data.jpa.domain.Specification;
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,7 +23,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.time.LocalDate; // Added for getTailMTTRLast7Days
+// import java.time.LocalDate; // Already imported
 
 @Slf4j
 @Service
@@ -26,167 +31,183 @@ import java.time.LocalDate; // Added for getTailMTTRLast7Days
 @Qualifier("tailMetricsService")
 public class TailMetricsServiceImpl implements TailMetricsService {
 
+    private static final String N1NETAILS_ORGANIZATION_NAME = "n1netails";
     private final TailRepository tailRepository;
     private final TailLevelRepository tailLevelRepository;
 
-    @Override
-    public List<TailResponse> tailAlertsToday(String timezoneIdString) {
-        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
-        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+    // private Specification<TailEntity> getAuthSpecification(UserPrincipal currentUser) { // Unused
+    //     Set<Long> userOrgIds = currentUser.getOrganizations().stream()
+    //             .map(OrganizationEntity::getId)
+    //             .collect(Collectors.toSet());
+    //
+    //     if (userOrgIds.isEmpty()) {
+    //         return (root, query, cb) -> cb.disjunction();
+    //     }
+    //
+    //     boolean isN1neTailsOrgMember = currentUser.getOrganizations().stream()
+    //             .anyMatch(org -> N1NETAILS_ORGANIZATION_NAME.equals(org.getName()));
+    //
+    //     return (root, query, cb) -> {
+    //         Predicate orgPredicate = root.get("organization").get("id").in(userOrgIds);
+    //         if (isN1neTailsOrgMember) {
+    //             Predicate userPredicate = cb.equal(root.get("user").get("id"), currentUser.getId());
+    //             return cb.and(orgPredicate, userPredicate);
+    //         }
+    //         return orgPredicate;
+    //     };
+    // }
 
-        ZoneId userZone = ZoneId.of(timezoneIdString); // Handle potential exceptions in real code
+    private Set<Long> getUserOrganizationIds(UserPrincipal currentUser) {
+        return currentUser.getOrganizations().stream()
+            .map(OrganizationEntity::getId)
+            .collect(Collectors.toSet());
+    }
+
+    private boolean isN1neTailsMember(UserPrincipal currentUser) {
+        return currentUser.getOrganizations().stream()
+            .anyMatch(org -> N1NETAILS_ORGANIZATION_NAME.equals(org.getName()));
+    }
+
+
+    @Override
+    public List<TailResponse> tailAlertsToday(String timezoneIdString, UserPrincipal currentUser) {
+        ZoneId userZone = ZoneId.of(timezoneIdString);
         Instant startOfDayUserTzAsUtc = getStartOfDayInUTC(userZone);
         Instant endOfDayUserTzAsUtc = getEndOfDayInUTC(userZone);
 
-        List<TailEntity> tailEntities = tailRepository.findByTimestampBetween(startOfDayUserTzAsUtc, endOfDayUserTzAsUtc);
-        if (tailEntities == null || tailEntities.isEmpty()) {
-            return List.of();
-        }
+        Set<Long> orgIds = getUserOrganizationIds(currentUser);
+        if (orgIds.isEmpty()) return Collections.emptyList();
+        Long userIdForN1neTails = isN1neTailsMember(currentUser) ? currentUser.getId() : null;
+
+        List<TailEntity> tailEntities = tailRepository.findByTimestampBetweenAndOrganizationIdsAndOptionalUserId(
+                startOfDayUserTzAsUtc, endOfDayUserTzAsUtc, orgIds, userIdForN1neTails);
+
         return tailEntities.stream()
                 .map(this::mapToTailResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public long countAlertsToday(String timezoneIdString) {
-        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
-        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
-
-        ZoneId userZone = ZoneId.of(timezoneIdString); // Handle potential exceptions in real code
+    public long countAlertsToday(String timezoneIdString, UserPrincipal currentUser) {
+        ZoneId userZone = ZoneId.of(timezoneIdString);
         Instant startOfDayUserTzAsUtc = getStartOfDayInUTC(userZone);
         Instant endOfDayUserTzAsUtc = getEndOfDayInUTC(userZone);
 
-        log.info("Counting alerts for user timezone {}. UTC Start: {}, UTC End: {}", timezoneIdString, startOfDayUserTzAsUtc, endOfDayUserTzAsUtc);
-        return tailRepository.countByTimestampBetween(startOfDayUserTzAsUtc, endOfDayUserTzAsUtc);
+        Set<Long> orgIds = getUserOrganizationIds(currentUser);
+        if (orgIds.isEmpty()) return 0;
+        Long userIdForN1neTails = isN1neTailsMember(currentUser) ? currentUser.getId() : null;
+
+        return tailRepository.countByTimestampBetweenAndOrganizationIdsAndOptionalUserId(
+                startOfDayUserTzAsUtc, endOfDayUserTzAsUtc, orgIds, userIdForN1neTails);
     }
 
     @Override
-    public List<TailResponse> tailAlertsResolved() {
-        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
-        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+    public List<TailResponse> tailAlertsResolved(UserPrincipal currentUser) {
+        Set<Long> orgIds = getUserOrganizationIds(currentUser);
+        if (orgIds.isEmpty()) return Collections.emptyList();
+        Long userIdForN1neTails = isN1neTailsMember(currentUser) ? currentUser.getId() : null;
 
-        List<TailEntity> tailEntities = tailRepository.findAllByStatusName("RESOLVED");
-        if (tailEntities == null || tailEntities.isEmpty()) {
-            return List.of();
-        }
+        List<TailEntity> tailEntities = tailRepository.findAllByStatusNameAndOrganizationIdsAndOptionalUserId(
+                "RESOLVED", orgIds, userIdForN1neTails);
         return tailEntities.stream()
                 .map(this::mapToTailResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public long countAlertsResolved() {
-        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
-        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+    public long countAlertsResolved(UserPrincipal currentUser) {
+        Set<Long> orgIds = getUserOrganizationIds(currentUser);
+        if (orgIds.isEmpty()) return 0;
+        Long userIdForN1neTails = isN1neTailsMember(currentUser) ? currentUser.getId() : null;
 
-        return tailRepository.countByStatusName("RESOLVED");
+        return tailRepository.countByStatusNameAndOrganizationIdsAndOptionalUserId(
+                "RESOLVED", orgIds, userIdForN1neTails);
     }
 
     @Override
-    public List<TailResponse> tailAlertsNotResolved() {
-        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
-        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+    public List<TailResponse> tailAlertsNotResolved(UserPrincipal currentUser) {
+        Set<Long> orgIds = getUserOrganizationIds(currentUser);
+        if (orgIds.isEmpty()) return Collections.emptyList();
+        Long userIdForN1neTails = isN1neTailsMember(currentUser) ? currentUser.getId() : null;
 
-        List<TailEntity> tailEntities = tailRepository.findAllByStatusNameNot("RESOLVED");
-        if (tailEntities == null || tailEntities.isEmpty()) {
-            return List.of();
-        }
+        List<TailEntity> tailEntities = tailRepository.findAllByStatusNameNotAndOrganizationIdsAndOptionalUserId(
+                "RESOLVED", orgIds, userIdForN1neTails);
         return tailEntities.stream()
                 .map(this::mapToTailResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public long countAlertsNotResolved() {
-        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
-        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+    public long countAlertsNotResolved(UserPrincipal currentUser) {
+        Set<Long> orgIds = getUserOrganizationIds(currentUser);
+        if (orgIds.isEmpty()) return 0;
+        Long userIdForN1neTails = isN1neTailsMember(currentUser) ? currentUser.getId() : null;
 
-        return tailRepository.countByStatusNameNot("RESOLVED");
+        return tailRepository.countByStatusNameNotAndOrganizationIdsAndOptionalUserId(
+                "RESOLVED", orgIds, userIdForN1neTails);
     }
 
     @Override
-    public long tailAlertsMTTR() {
-        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
-        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+    public long tailAlertsMTTR(UserPrincipal currentUser) {
+        Set<Long> orgIds = getUserOrganizationIds(currentUser);
+        if (orgIds.isEmpty()) return 0;
+        Long userIdForN1neTails = isN1neTailsMember(currentUser) ? currentUser.getId() : null;
 
-        log.info("tailAlertsMTTR");
-        List<TailTimestampAndResolvedTimestamp> resolvedTimestampList = tailRepository.findOnlyTimestampAndResolvedTimestampIsNotNull();
-        log.info("retrieved list of tail entities");
-        if (resolvedTimestampList == null || resolvedTimestampList.isEmpty()) {
+        List<TailTimestampAndResolvedTimestamp> resolvedTimestampList =
+            tailRepository.findTimestampsForMTTRCalculation(orgIds, userIdForN1neTails);
+
+        if (resolvedTimestampList.isEmpty()) {
             return 0;
         }
 
         long totalDurationInSeconds = 0;
-        int validTailsCount = 0;
-
         for (TailTimestampAndResolvedTimestamp resolvedTimestamp : resolvedTimestampList) {
-            if (resolvedTimestamp.getTimestamp() != null && resolvedTimestamp.getResolvedTimestamp() != null) {
-                Duration duration = Duration.between(resolvedTimestamp.getTimestamp(), resolvedTimestamp.getResolvedTimestamp());
-                totalDurationInSeconds += duration.getSeconds();
-                validTailsCount++;
-            }
+            Duration duration = Duration.between(resolvedTimestamp.getTimestamp(), resolvedTimestamp.getResolvedTimestamp());
+            totalDurationInSeconds += duration.getSeconds();
         }
-
-        if (validTailsCount == 0) {
-            return 0;
-        }
-
-        return totalDurationInSeconds / validTailsCount;
+        return totalDurationInSeconds / resolvedTimestampList.size();
     }
 
     @Override
-    public TailAlertsPerHourResponse getTailAlertsPerHour(String timezoneIdString) {
-        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
-        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
-
+    public TailAlertsPerHourResponse getTailAlertsPerHour(String timezoneIdString, UserPrincipal currentUser) {
         ZoneId userZone = ZoneId.of(timezoneIdString);
         ZonedDateTime userZonedNow = ZonedDateTime.now(userZone);
-        Instant nowUtc = userZonedNow.toInstant(); // Current time in UTC
-        Instant nineHoursAgoUtc = nowUtc.minus(9, ChronoUnit.HOURS); // 9 hours ago in UTC
+        Instant nowUtc = userZonedNow.toInstant();
+        Instant nineHoursAgoUtc = nowUtc.minus(9, ChronoUnit.HOURS);
 
-        log.info("Fetching tail alerts for user timezone {}. Querying UTC from {} to {}", timezoneIdString, nineHoursAgoUtc, nowUtc);
+        Set<Long> orgIds = getUserOrganizationIds(currentUser);
+        Long userIdForN1neTails = isN1neTailsMember(currentUser) ? currentUser.getId() : null;
 
-        List<Instant> timestamps = tailRepository.findOnlyTimestampsBetween(nineHoursAgoUtc, nowUtc);
-        timestamps.forEach(instant -> log.info("ts: {}", instant));
-
-        log.info("fetch complete, {} timestamps found", timestamps.size());
+        List<Instant> timestamps;
+        if (orgIds.isEmpty()) {
+            timestamps = Collections.emptyList();
+        } else {
+            timestamps = tailRepository.findTimestampsBetweenForHourly(
+                nineHoursAgoUtc, nowUtc, orgIds, userIdForN1neTails);
+        }
 
         List<Integer> data = new ArrayList<>(Collections.nCopies(10, 0));
         List<String> labels = new ArrayList<>();
-
-        // Labels should be in user's local time hour
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:00").withZone(userZone);
 
-        // Generate labels for the last 9 hours
         for (int i = 9; i >= 0; i--) {
-            // Generate labels based on user's local time
             ZonedDateTime labelTime = userZonedNow.minusHours(i).truncatedTo(ChronoUnit.HOURS);
             labels.add(formatter.format(labelTime));
         }
 
-        // bucket alerts by hours
         Instant hourlyBucketStartUtc = nineHoursAgoUtc.truncatedTo(ChronoUnit.HOURS);
         for (Instant timestamp : timestamps) {
             long hoursDifference = ChronoUnit.HOURS.between(hourlyBucketStartUtc, timestamp.truncatedTo(ChronoUnit.HOURS));
             int index = (int) hoursDifference;
             if (index >= 0 && index < data.size()) {
                 data.set(index, data.get(index) + 1);
-            } else {
-                log.warn("Timestamp {} is outside the 9-hour UTC window calculation relative to {}.", timestamp, hourlyBucketStartUtc);
             }
         }
-
-        log.info("Returning TailAlertsPerHourResponse for timezone {} with {} labels and data points: {}", timezoneIdString, labels.size(), data);
         return new TailAlertsPerHourResponse(labels, data);
     }
 
     @Override
-    public TailMonthlySummaryResponse getTailMonthlySummary(String timezoneIdString) {
-        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
-        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
-
-        log.info("getTailMonthlySummary");
-
+    public TailMonthlySummaryResponse getTailMonthlySummary(String timezoneIdString, UserPrincipal currentUser) {
         ZoneId userZone = ZoneId.of(timezoneIdString);
         LocalDate today = LocalDate.now(userZone);
         List<String> labels = new ArrayList<>();
@@ -199,29 +220,35 @@ public class TailMetricsServiceImpl implements TailMetricsService {
         Instant endDate = today.plusDays(1).atStartOfDay().atZone(userZone).toInstant();
         Instant startDate = today.minusDays(28).atStartOfDay().atZone(userZone).toInstant();
 
-        log.info("attempting to get list of tail levels and timestamps between");
-        List<TailLevelAndTimestamp> tailLevelAndTimestampList = tailRepository.findOnlyLevelAndTimestampsBetween(startDate, endDate);
+        Set<Long> orgIds = getUserOrganizationIds(currentUser);
+        Long userIdForN1neTails = isN1neTailsMember(currentUser) ? currentUser.getId() : null;
 
-        log.info("attempting to get list of tail level entities");
-        List<TailLevelEntity> allLevels = tailLevelRepository.findAll();
+        List<TailLevelAndTimestamp> tailLevelAndTimestampList;
+        if (orgIds.isEmpty()) {
+            tailLevelAndTimestampList = Collections.emptyList();
+        } else {
+            tailLevelAndTimestampList = tailRepository.findLevelAndTimestampsBetweenForMonthlySummary(
+                startDate, endDate, orgIds, userIdForN1neTails);
+        }
+
+        List<TailLevelEntity> allLevels = tailLevelRepository.findAll(); // This doesn't need filtering by user
 
         Map<String, Map<String, Integer>> levelDateCounts = new HashMap<>();
-        DateTimeFormatter tailDateFormatter = DateTimeFormatter.ofPattern("MMM d", Locale.US).withZone(ZoneId.systemDefault());
+        DateTimeFormatter tailDateFormatter = DateTimeFormatter.ofPattern("MMM d", Locale.US).withZone(userZone); // Use userZone
 
         for (TailLevelAndTimestamp tail: tailLevelAndTimestampList) {
             if (tail.getTimestamp() != null && tail.getLevel() != null && tail.getLevel().getName() != null) {
-                String tailDateStr = tailDateFormatter.format(tail.getTimestamp());
+                // Convert tail timestamp to user's timezone before formatting
+                String tailDateStr = tail.getTimestamp().atZone(userZone).format(tailDateFormatter);
                 String levelName = tail.getLevel().getName();
                 levelDateCounts.computeIfAbsent(levelName, k -> new HashMap<>())
                         .merge(tailDateStr, 1, Integer::sum);
-            } else {
-                log.warn("Level {} is outside range. timestamp {}", tail.getLevel(), tail.getTimestamp());
             }
         }
 
         List<TailDatasetResponse> datasets = new ArrayList<>();
         List<String> standardLevels = Arrays.asList("INFO", "SUCCESS", "WARN", "ERROR", "CRITICAL");
-        Map<String, Integer> kudaCounts = new HashMap<>(); // For "Kuda" category
+        Map<String, Integer> kudaCounts = new HashMap<>();
 
         for (TailLevelEntity levelEntity : allLevels) {
             String levelName = levelEntity.getName();
@@ -232,29 +259,23 @@ public class TailMetricsServiceImpl implements TailMetricsService {
                 }
                 datasets.add(new TailDatasetResponse(levelName, levelData));
             } else {
-                // Aggregate into Kuda
                 for (String label : labels) {
                     kudaCounts.merge(label, levelDateCounts.getOrDefault(levelName, Collections.emptyMap()).getOrDefault(label, 0), Integer::sum);
                 }
             }
         }
 
-        // Add Kuda dataset if it has any counts
         List<Integer> kudaData = new ArrayList<>();
         boolean hasKudaData = false;
         for (String label : labels) {
             int count = kudaCounts.getOrDefault(label, 0);
             kudaData.add(count);
-            if (count > 0) {
-                hasKudaData = true;
-            }
+            if (count > 0) hasKudaData = true;
         }
         if (hasKudaData || allLevels.stream().anyMatch(l -> !standardLevels.contains(l.getName()))) {
             datasets.add(new TailDatasetResponse("Kuda", kudaData));
         }
 
-
-        // Order datasets
         datasets.sort(Comparator.comparingInt(ds -> {
             switch (ds.getLabel()) {
                 case "INFO": return 0;
@@ -263,66 +284,63 @@ public class TailMetricsServiceImpl implements TailMetricsService {
                 case "ERROR": return 3;
                 case "CRITICAL": return 4;
                 case "Kuda": return 5;
-                default: return 6; // Should not happen with current logic
+                default: return 6;
             }
         }));
-
         return new TailMonthlySummaryResponse(labels, datasets);
     }
 
     @Override
-    public TailDatasetMttrResponse getTailMTTRLast7Days() {
-        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
-        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
-
-        log.info("Calculating MTTR for the last 7 days");
-
+    public TailDatasetMttrResponse getTailMTTRLast7Days(UserPrincipal currentUser) {
         Instant sevenDaysAgo = Instant.now().minus(7, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
-        // Query for tails created in the last 7 days that also have a resolved timestamp.
-        List<TailTimestampAndResolvedTimestamp> recentTails = tailRepository.findAllByTimestampAfterAndResolvedTimestampIsNotNull(sevenDaysAgo);
+
+        Set<Long> orgIds = getUserOrganizationIds(currentUser);
+        Long userIdForN1neTails = isN1neTailsMember(currentUser) ? currentUser.getId() : null;
+
+        List<TailTimestampAndResolvedTimestamp> recentTails;
+        if (orgIds.isEmpty()) {
+            recentTails = Collections.emptyList();
+        } else {
+            recentTails = tailRepository.findTimestampsForMTTRLast7Days(
+                sevenDaysAgo, orgIds, userIdForN1neTails);
+        }
 
         Map<LocalDate, List<Duration>> dailyResolutionTimes = new HashMap<>();
-        ZoneId systemZone = ZoneId.systemDefault(); // Or a specific zone if required
+        // Use a consistent zone, e.g., UTC, for internal calculations to avoid DST issues with LocalDate keys
+        ZoneId calculationZone = ZoneOffset.UTC;
 
         for (TailTimestampAndResolvedTimestamp tail : recentTails) {
-            // Both timestamp and resolvedTimestamp are guaranteed to be non-null by the query
-            LocalDate creationDay = tail.getTimestamp().atZone(systemZone).toLocalDate();
-            // Additional check to ensure the creationDay is within the last 7 days from today,
-            // as sevenDaysAgo is fixed at the start of the method.
-            if (!creationDay.isBefore(LocalDate.now(systemZone).minusDays(7))) {
-                Duration resolutionDuration = Duration.between(tail.getTimestamp(), tail.getResolvedTimestamp());
-                dailyResolutionTimes.computeIfAbsent(creationDay, k -> new ArrayList<>()).add(resolutionDuration);
+            LocalDate creationDay = tail.getTimestamp().atZone(calculationZone).toLocalDate();
+             // Ensure the tail's creation day is within the 7-day window relative to today in the calculationZone
+            if (!creationDay.isBefore(LocalDate.now(calculationZone).minusDays(7))) {
+                 Duration resolutionDuration = Duration.between(tail.getTimestamp(), tail.getResolvedTimestamp());
+                 dailyResolutionTimes.computeIfAbsent(creationDay, k -> new ArrayList<>()).add(resolutionDuration);
             }
         }
 
         List<String> labels = new ArrayList<>();
         List<Double> data = new ArrayList<>();
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMM dd", Locale.US);
-        LocalDate today = LocalDate.now(systemZone);
+        LocalDate todayInCalcZone = LocalDate.now(calculationZone);
 
         for (int i = 6; i >= 0; i--) {
-            LocalDate day = today.minusDays(i);
-            labels.add(day.format(dateFormatter));
+            LocalDate day = todayInCalcZone.minusDays(i);
+            labels.add(day.format(dateFormatter)); // Label should represent the day
 
             List<Duration> durationsForDay = dailyResolutionTimes.getOrDefault(day, Collections.emptyList());
             if (durationsForDay.isEmpty()) {
                 data.add(0.0);
             } else {
-                // Calculate average MTTR in hours
                 double totalSeconds = durationsForDay.stream().mapToLong(Duration::getSeconds).sum();
                 double averageMttrHours = (totalSeconds / (double) durationsForDay.size()) / 3600.0;
-                // Round to 2 decimal places
                 data.add(Math.round(averageMttrHours * 100.0) / 100.0);
             }
         }
-        log.info("Returning TailDatasetResponse for MTTR Last 7 Days with {} labels and {} data points.", labels.size(), data.size());
         return new TailDatasetMttrResponse(labels, data);
     }
 
     private TailResponse mapToTailResponse(TailEntity entity) {
-        if (entity == null) {
-            return null;
-        }
+        if (entity == null) return null;
         TailResponse response = new TailResponse();
         response.setId(entity.getId());
         response.setTitle(entity.getTitle());
@@ -330,35 +348,30 @@ public class TailMetricsServiceImpl implements TailMetricsService {
         response.setTimestamp(entity.getTimestamp());
         response.setResolvedTimestamp(entity.getResolvedTimestamp());
         response.setDetails(entity.getDetails());
-        response.setLevel(entity.getLevel() != null ? entity.getLevel().getName() : null);
-        response.setType(entity.getType() != null ? entity.getType().getName() : null);
-        response.setStatus(entity.getStatus() != null ? entity.getStatus().getName() : null);
+        if (entity.getLevel() != null) response.setLevel(entity.getLevel().getName());
+        if (entity.getType() != null) response.setType(entity.getType().getName());
+        if (entity.getStatus() != null) response.setStatus(entity.getStatus().getName());
         response.setAssignedUserId(entity.getAssignedUserId());
-        response.setAssignedUsername(null); // As per requirement
-        response.setMetadata(null); // As per requirement
+        // Note: assignedUsername, metadata, userId (owner), organizationId are not set here
+        // This mapToTailResponse is specific to metrics, where these details might not be needed for TailResponse
+        // If they are needed, this mapping should be more comprehensive or use the one from TailServiceImpl.
         return response;
     }
 
-    // Removed getStartOfDay() and getEndOfDay() as per instructions
     private Instant getStartOfDayInUTC(ZoneId zoneId) {
-        return LocalDate.now(zoneId)
-                .atStartOfDay()
-                .atZone(zoneId)
-                .toInstant();
+        return LocalDate.now(zoneId).atStartOfDay(zoneId).toInstant();
     }
 
     private Instant getEndOfDayInUTC(ZoneId zoneId) {
-        return LocalDate.now(zoneId)
-                .atTime(LocalTime.MAX)
-                .atZone(zoneId)
-                .toInstant();
+        return LocalDate.now(zoneId).atTime(LocalTime.MAX).atZone(zoneId).toInstant();
     }
 
-    private Instant getYesterdayStartOfDay() {
-        return LocalDate.now().minusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC);
-    }
+    // These seem unused, can be removed if so.
+    // private Instant getYesterdayStartOfDay() {
+    //     return LocalDate.now().minusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC);
+    // }
 
-    private Instant getTomorrowStartOfDay() {
-        return LocalDate.now().plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC);
-    }
+    // private Instant getTomorrowStartOfDay() {
+    //     return LocalDate.now().plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC);
+    // }
 }

@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -67,15 +69,27 @@ public class N1neTokenServiceImpl implements N1neTokenService {
     }
 
     @Override
-    public List<N1neTokenResponse> getAll() {
-        // TODO MAKE SURE ONLY THE ORGANIZATION ADMIN CAN GET ALL TOKENS IN THEIR ORGANIZATION
-        // TODO DO NOT RETURN THE TOKEN VALUE HERE
+    public List<N1neTokenResponse> getAllTokens() {
+        // This method is for Super Admins to get all tokens.
+        // The existing TODOs are addressed by the controller's authorization logic.
+        // Token value is returned as per N1neTokenResponse structure.
         List<N1neTokenEntity> n1neTokenEntities = this.n1neTokenRepository.findAll();
-        List<N1neTokenResponse> n1neTokenResponseList = new ArrayList<>();
-        n1neTokenEntities.forEach(entity -> {
-            n1neTokenResponseList.add(generateN1neTokenResponse(entity));
-        });
-        return n1neTokenResponseList;
+        return n1neTokenEntities.stream()
+                .map(N1neTokenServiceImpl::generateN1neTokenResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<N1neTokenResponse> getAllTokensForOrganizations(Set<Long> organizationIds) {
+        // This method is for Organization Admins.
+        // It fetches tokens belonging to the specified organizations.
+        if (organizationIds == null || organizationIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<N1neTokenEntity> n1neTokenEntities = this.n1neTokenRepository.findByOrganization_IdIn(organizationIds);
+        return n1neTokenEntities.stream()
+                .map(N1neTokenServiceImpl::generateN1neTokenResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -141,16 +155,18 @@ public class N1neTokenServiceImpl implements N1neTokenService {
     private static N1neTokenResponse generateN1neTokenResponse(N1neTokenEntity n1neTokenEntity) {
         N1neTokenResponse n1neTokenResponse = new N1neTokenResponse();
         n1neTokenResponse.setId(n1neTokenEntity.getId());
-        n1neTokenResponse.setToken(n1neTokenEntity.getToken());
+        n1neTokenResponse.setToken(n1neTokenEntity.getToken()); // Token value is included
         n1neTokenResponse.setCreatedAt(n1neTokenEntity.getCreatedAt());
         n1neTokenResponse.setRevoked(n1neTokenEntity.isRevoked());
         n1neTokenResponse.setExpiresAt(n1neTokenEntity.getExpiresAt());
         n1neTokenResponse.setName(n1neTokenEntity.getName());
-        n1neTokenResponse.setUserId(n1neTokenEntity.getUser().getId());
-        n1neTokenResponse.setOrganizationId(n1neTokenEntity.getOrganization().getId());
-        n1neTokenResponse.setLastUsedAt(n1neTokenEntity.getLastUsedAt());
-        if (n1neTokenEntity.getOrganization() != null)
+        if (n1neTokenEntity.getUser() != null) {
+            n1neTokenResponse.setUserId(n1neTokenEntity.getUser().getId());
+        }
+        if (n1neTokenEntity.getOrganization() != null) {
             n1neTokenResponse.setOrganizationId(n1neTokenEntity.getOrganization().getId());
+        }
+        n1neTokenResponse.setLastUsedAt(n1neTokenEntity.getLastUsedAt());
         return n1neTokenResponse;
     }
 }

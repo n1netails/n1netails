@@ -7,28 +7,29 @@ import com.n1netails.n1netails.api.exception.type.TailTypeNotFoundException;
 import com.n1netails.n1netails.api.model.core.TailLevel;
 import com.n1netails.n1netails.api.model.core.TailStatus;
 import com.n1netails.n1netails.api.model.core.TailType;
+import com.n1netails.n1netails.api.model.UserPrincipal;
 import com.n1netails.n1netails.api.model.dto.TailSummary;
 import com.n1netails.n1netails.api.model.entity.*;
 import com.n1netails.n1netails.api.model.request.ResolveTailRequest;
 import com.n1netails.n1netails.api.model.request.TailPageRequest;
-import com.n1netails.n1netails.api.repository.*;
-import com.n1netails.n1netails.api.model.request.TailRequest;
 import com.n1netails.n1netails.api.model.response.TailResponse;
+import com.n1netails.n1netails.api.repository.*;
 import com.n1netails.n1netails.api.service.TailService;
+import com.n1netails.n1netails.api.util.TailSpecificationBuilder;
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -36,6 +37,7 @@ import java.util.Optional;
 @Qualifier("tailService")
 public class TailServiceImpl implements TailService {
 
+    private static final String N1NETAILS_ORGANIZATION_NAME = "n1netails";
     public static final String REQUESTED_TAIL_NOT_FOUND = "Requested Tail Not Found.";
 
     private final TailRepository tailRepository;
@@ -61,10 +63,20 @@ public class TailServiceImpl implements TailService {
     @Override
     public TailResponse getTailById(Long id) {
         // TODO UPDATE THIS SO ONLY THE USER AND USERS IN THE SAME THE ORGANIZATION CAN GET THE TAIL
-        Optional<TailEntity> tail = tailRepository.findById(id);
-        TailResponse tailResponse = new TailResponse();
-        if (tail.isPresent()) {
-            tailResponse = setTailResponse(tail.get());
+        // Authorization for getTailById is handled in TailController
+        Optional<TailEntity> tailOptional = tailRepository.findById(id);
+        if (tailOptional.isEmpty()) {
+            log.warn("Tail with ID {} not found.", id);
+            throw new TailNotFoundException(REQUESTED_TAIL_NOT_FOUND + " ID: " + id);
+        }
+        TailEntity tail = tailOptional.get();
+        TailResponse tailResponse = setTailResponse(tail);
+        // Populate organizationId and userId for the controller's authorization check
+        if (tail.getOrganization() != null) {
+            tailResponse.setOrganizationId(tail.getOrganization().getId());
+        }
+        if (tail.getUser() != null) { // Assuming TailEntity has a UserEntity field named 'user' for the owner
+            tailResponse.setUserId(tail.getUser().getId());
         }
         return tailResponse;
     }
@@ -244,107 +256,126 @@ public class TailServiceImpl implements TailService {
 //    }
 
     private TailResponse setTailResponse(TailEntity tailEntity) {
-        TailResponse tailResponse  = new TailResponse();
+        TailResponse tailResponse = new TailResponse();
         tailResponse.setId(tailEntity.getId());
         tailResponse.setTitle(tailEntity.getTitle());
         tailResponse.setDescription(tailEntity.getDescription());
         tailResponse.setTimestamp(tailEntity.getTimestamp());
         tailResponse.setResolvedTimestamp(tailEntity.getResolvedTimestamp());
         tailResponse.setAssignedUserId(tailEntity.getAssignedUserId());
-        UsersEntity user = usersRepository.findUserById(tailEntity.getAssignedUserId());
-        tailResponse.setAssignedUsername(user.getUsername());
+        if (tailEntity.getAssignedUserId() != null) {
+            UsersEntity assignedUser = usersRepository.findUserById(tailEntity.getAssignedUserId());
+            if (assignedUser != null) {
+                tailResponse.setAssignedUsername(assignedUser.getUsername());
+            }
+        }
         tailResponse.setDetails(tailEntity.getDetails());
-        tailResponse.setLevel(tailEntity.getLevel().getName());
-        tailResponse.setType(tailEntity.getType().getName());
-        tailResponse.setStatus(tailEntity.getStatus().getName());
+        if (tailEntity.getLevel() != null) tailResponse.setLevel(tailEntity.getLevel().getName());
+        if (tailEntity.getType() != null) tailResponse.setType(tailEntity.getType().getName());
+        if (tailEntity.getStatus() != null) tailResponse.setStatus(tailEntity.getStatus().getName());
+
         Map<String, String> metadata = new HashMap<>();
         List<TailVariableEntity> variables = tailEntity.getCustomVariables();
-        variables.forEach(variable -> {
-           metadata.put(variable.getKey(), variable.getValue());
-        });
+        if (variables != null) {
+            variables.forEach(variable -> metadata.put(variable.getKey(), variable.getValue()));
+        }
         tailResponse.setMetadata(metadata);
+
+        // Populate owner user ID and organization ID for authorization checks
+        if (tailEntity.getUser() != null) {
+            tailResponse.setUserId(tailEntity.getUser().getId());
+        }
+        if (tailEntity.getOrganization() != null) {
+            tailResponse.setOrganizationId(tailEntity.getOrganization().getId());
+        }
         return tailResponse;
     }
 
     @Override
-    public Page<TailResponse> getTails(TailPageRequest request) throws TailStatusNotFoundException, TailTypeNotFoundException, TailLevelNotFoundException {
-        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
-        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+    public Page<TailResponse> getTails(TailPageRequest request, UserPrincipal currentUser) throws TailStatusNotFoundException, TailTypeNotFoundException, TailLevelNotFoundException {
+        Set<Long> userOrgIds = currentUser.getOrganizations().stream()
+                .map(OrganizationEntity::getId)
+                .collect(Collectors.toSet());
 
-        Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
-
-        String searchTerm = request.getSearchTerm() == null || request.getSearchTerm().isEmpty() ? "" : request.getSearchTerm();
-
-        List<String> statuses;
-        if (request.getFilterByStatus() == null || request.getFilterByStatus().isEmpty()) {
-            List<TailStatusEntity> statusEntities = this.statusRepository.findAll();
-            statuses = statusEntities.stream().map(TailStatusEntity::getName).toList();
-        } else {
-            TailStatusEntity tailStatusEntity = this.statusRepository.findTailStatusByName(request.getFilterByStatus())
-                    .orElseThrow(() -> new TailStatusNotFoundException("Requested status name does not exist."));
-            statuses = List.of(tailStatusEntity.getName());
+        if (userOrgIds.isEmpty()) {
+            log.info("User {} has no organization memberships, returning empty page.", currentUser.getUsername());
+            return Page.empty();
         }
-        log.info("STATUS NAMES: {}", statuses);
 
-        List<String> types;
-        if (request.getFilterByType() == null || request.getFilterByType().isEmpty()) {
-            List<TailTypeEntity> tailTypeEntities = this.typeRepository.findAll();
-            types = tailTypeEntities.stream().map(TailTypeEntity::getName).toList();
-        } else {
-            TailTypeEntity tailTypeEntity = this.typeRepository.findTailTypeByName(request.getFilterByType())
-                    .orElseThrow(() -> new TailTypeNotFoundException("Requested type name does not exist."));
-            types = List.of(tailTypeEntity.getName());
-        }
-        log.info("TYPE NAMES: {}", types);
+        boolean isN1neTailsOrgMember = currentUser.getOrganizations().stream()
+                .anyMatch(org -> N1NETAILS_ORGANIZATION_NAME.equals(org.getName()));
 
-        List<String> levels;
-        if (request.getFilterByLevel() == null || request.getFilterByLevel().isEmpty()) {
-            List<TailLevelEntity> tailLevelEntities = this.levelRepository.findAll();
-            levels = tailLevelEntities.stream().map(TailLevelEntity::getName).toList();
-        } else {
-            TailLevelEntity tailLevelEntity = this.levelRepository.findTailLevelByName(request.getFilterByLevel())
-                    .orElseThrow(() -> new TailLevelNotFoundException("Requested level name does not exist."));
-            levels = List.of(tailLevelEntity.getName());
-        }
-        log.info("LEVEL NAMES: {}", levels);
+        Specification<TailEntity> authSpec = (root, query, cb) -> {
+            Predicate orgPredicate = root.get("organization").get("id").in(userOrgIds);
+            if (isN1neTailsOrgMember) {
+                // Assuming TailEntity has a 'user' field representing the owner (UsersEntity)
+                Predicate userPredicate = cb.equal(root.get("user").get("id"), currentUser.getId());
+                return cb.and(orgPredicate, userPredicate);
+            } else {
+                return orgPredicate;
+            }
+        };
 
-        Page<TailSummary> tailPage = tailRepository.findAllBySearchTermAndTailFilters(
-                searchTerm,
-                statuses,
-                types,
-                levels,
-                pageable
-        );
+        Specification<TailEntity> baseSpec = TailSpecificationBuilder.build(request, statusRepository, typeRepository, levelRepository);
+        Specification<TailEntity> finalSpec = Specification.where(authSpec).and(baseSpec);
 
-        return tailPage.map(this::setTailSummaryResponse);
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), Sort.by(Sort.Direction.DESC, "timestamp")); // Default sort
+        // Consider adding sort options from TailPageRequest if available
+
+        Page<TailEntity> tailPage = tailRepository.findAll(finalSpec, pageable);
+        return tailPage.map(this::setTailResponse); // Reuse setTailResponse which now populates all needed fields
     }
 
     @Override
-    public List<TailResponse> getTop9NewestTails() {
-        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO THEIR ORGANIZATION
-        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+    public List<TailResponse> getTop9NewestTails(UserPrincipal currentUser) {
+        Set<Long> userOrgIds = currentUser.getOrganizations().stream()
+                .map(OrganizationEntity::getId)
+                .collect(Collectors.toSet());
 
-        Page<TailSummary> tailPage = tailRepository.findAllByOrderByTimestampDesc(PageRequest.of(0,9));
-        List<TailSummary> tailSummaryList = tailPage.getContent();
+        if (userOrgIds.isEmpty()) {
+            log.info("User {} has no organization memberships, returning empty list for top 9.", currentUser.getUsername());
+            return Collections.emptyList();
+        }
 
-        List<TailResponse> tailResponseList = new ArrayList<>();
-        tailSummaryList.forEach(tail -> {
-            TailResponse tailResponse = setTailSummaryResponse(tail);
-            tailResponseList.add(tailResponse);
-        });
-        return tailResponseList;
+        boolean isN1neTailsOrgMember = currentUser.getOrganizations().stream()
+                .anyMatch(org -> N1NETAILS_ORGANIZATION_NAME.equals(org.getName()));
+
+        Pageable limit = PageRequest.of(0, 9, Sort.by(Sort.Direction.DESC, "createdAt"));
+        List<TailEntity> tailEntities;
+
+        if (isN1neTailsOrgMember) {
+            tailEntities = tailRepository.findByOrganization_IdInAndUser_IdOrderByCreatedAtDesc(userOrgIds, currentUser.getId(), limit);
+        } else {
+            tailEntities = tailRepository.findByOrganization_IdInOrderByCreatedAtDesc(userOrgIds, limit);
+        }
+
+        return tailEntities.stream().map(this::setTailResponse).collect(Collectors.toList());
     }
 
+    // This method converts TailSummary to TailResponse.
+    // We will rely on setTailResponse(TailEntity tailEntity) for consistency now.
+    // If TailSummary is still strictly needed for some paths, it might need its own population logic for orgId/userId.
     private TailResponse setTailSummaryResponse(TailSummary tailSummary) {
-        TailResponse tailResponse  = new TailResponse();
+        TailResponse tailResponse = new TailResponse();
         tailResponse.setId(tailSummary.getId());
         tailResponse.setTitle(tailSummary.getTitle());
         tailResponse.setDescription(tailSummary.getDescription());
         tailResponse.setTimestamp(tailSummary.getTimestamp());
         tailResponse.setResolvedTimestamp(tailSummary.getResolvedTimestamp());
         tailResponse.setAssignedUserId(tailSummary.getAssignedUserId());
-        UsersEntity user = usersRepository.findUserById(tailSummary.getAssignedUserId());
-        tailResponse.setAssignedUsername(user.getUsername());
+
+        // For TailSummary, we might not have the full UserEntity or OrganizationEntity.
+        // The controller methods requiring these (like getById) will use getTailById, which fetches the full TailEntity.
+        // For lists (getTails, getTop9NewestTails), the primary filtering is done in the query.
+        // If TailResponse *always* needs userId (owner) and organizationId, TailSummary might need to include them.
+        // For now, assuming this is acceptable for list views where primary auth is by query.
+
+        if (tailSummary.getAssignedUserId() != null) {
+            UsersEntity user = usersRepository.findUserById(tailSummary.getAssignedUserId());
+            if (user != null) {
+                tailResponse.setAssignedUsername(user.getUsername());
+            }
+        }
         tailResponse.setLevel(tailSummary.getLevel());
         tailResponse.setType(tailSummary.getType());
         tailResponse.setStatus(tailSummary.getStatus());

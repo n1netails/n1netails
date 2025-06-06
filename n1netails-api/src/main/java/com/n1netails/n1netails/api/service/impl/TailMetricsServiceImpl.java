@@ -6,9 +6,9 @@ import com.n1netails.n1netails.api.model.entity.TailEntity;
 import com.n1netails.n1netails.api.model.entity.TailLevelEntity;
 import com.n1netails.n1netails.api.model.response.*;
 import com.n1netails.n1netails.api.repository.TailLevelRepository;
+import com.n1netails.n1netails.api.repository.TailMetricsRepository;
 import com.n1netails.n1netails.api.repository.TailRepository;
 import com.n1netails.n1netails.api.service.TailMetricsService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -18,27 +18,40 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.time.LocalDate; // Added for getTailMTTRLast7Days
+import java.time.LocalDate;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
+// @RequiredArgsConstructor // Will be replaced by manual constructor
 @Qualifier("tailMetricsService")
 public class TailMetricsServiceImpl implements TailMetricsService {
 
     private final TailRepository tailRepository;
     private final TailLevelRepository tailLevelRepository;
+    private final TailMetricsRepository tailMetricsRepository;
+
+    public TailMetricsServiceImpl(TailRepository tailRepository, TailLevelRepository tailLevelRepository, TailMetricsRepository tailMetricsRepository) {
+        this.tailRepository = tailRepository;
+        this.tailLevelRepository = tailLevelRepository;
+        this.tailMetricsRepository = tailMetricsRepository;
+    }
 
     @Override
-    public List<TailResponse> tailAlertsToday(String timezoneIdString) {
-        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
-        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
-
+    public List<TailResponse> tailAlertsToday(String timezoneIdString, Long userId, List<Long> organizationIds) {
         ZoneId userZone = ZoneId.of(timezoneIdString); // Handle potential exceptions in real code
         Instant startOfDayUserTzAsUtc = getStartOfDayInUTC(userZone);
         Instant endOfDayUserTzAsUtc = getEndOfDayInUTC(userZone);
 
-        List<TailEntity> tailEntities = tailRepository.findByTimestampBetween(startOfDayUserTzAsUtc, endOfDayUserTzAsUtc);
+        List<TailEntity> tailEntities;
+        if (userId != null) {
+            tailEntities = tailMetricsRepository.findByTimestampBetweenAndUserId(startOfDayUserTzAsUtc, endOfDayUserTzAsUtc, userId);
+        } else if (organizationIds != null && !organizationIds.isEmpty()) {
+            tailEntities = tailMetricsRepository.findByTimestampBetweenAndOrganizationIdIn(startOfDayUserTzAsUtc, endOfDayUserTzAsUtc, organizationIds);
+        } else {
+            // This case should ideally not be reached if controller logic is correct
+            tailEntities = tailRepository.findByTimestampBetween(startOfDayUserTzAsUtc, endOfDayUserTzAsUtc);
+        }
+
         if (tailEntities == null || tailEntities.isEmpty()) {
             return List.of();
         }
@@ -48,24 +61,34 @@ public class TailMetricsServiceImpl implements TailMetricsService {
     }
 
     @Override
-    public long countAlertsToday(String timezoneIdString) {
-        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
-        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
-
+    public long countAlertsToday(String timezoneIdString, Long userId, List<Long> organizationIds) {
         ZoneId userZone = ZoneId.of(timezoneIdString); // Handle potential exceptions in real code
         Instant startOfDayUserTzAsUtc = getStartOfDayInUTC(userZone);
         Instant endOfDayUserTzAsUtc = getEndOfDayInUTC(userZone);
 
         log.info("Counting alerts for user timezone {}. UTC Start: {}, UTC End: {}", timezoneIdString, startOfDayUserTzAsUtc, endOfDayUserTzAsUtc);
-        return tailRepository.countByTimestampBetween(startOfDayUserTzAsUtc, endOfDayUserTzAsUtc);
+        if (userId != null) {
+            return tailMetricsRepository.countByTimestampBetweenAndUserId(startOfDayUserTzAsUtc, endOfDayUserTzAsUtc, userId);
+        } else if (organizationIds != null && !organizationIds.isEmpty()) {
+            return tailMetricsRepository.countByTimestampBetweenAndOrganizationIdIn(startOfDayUserTzAsUtc, endOfDayUserTzAsUtc, organizationIds);
+        } else {
+            // This case should ideally not be reached if controller logic is correct
+            return tailRepository.countByTimestampBetween(startOfDayUserTzAsUtc, endOfDayUserTzAsUtc);
+        }
     }
 
     @Override
-    public List<TailResponse> tailAlertsResolved() {
-        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
-        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+    public List<TailResponse> tailAlertsResolved(Long userId, List<Long> organizationIds) {
+        List<TailEntity> tailEntities;
+        if (userId != null) {
+            tailEntities = tailMetricsRepository.findAllByStatusNameAndUserId("RESOLVED", userId);
+        } else if (organizationIds != null && !organizationIds.isEmpty()) {
+            tailEntities = tailMetricsRepository.findAllByStatusNameAndOrganizationIdIn("RESOLVED", organizationIds);
+        } else {
+            // This case should ideally not be reached if controller logic is correct
+            tailEntities = tailRepository.findAllByStatusName("RESOLVED");
+        }
 
-        List<TailEntity> tailEntities = tailRepository.findAllByStatusName("RESOLVED");
         if (tailEntities == null || tailEntities.isEmpty()) {
             return List.of();
         }
@@ -75,19 +98,29 @@ public class TailMetricsServiceImpl implements TailMetricsService {
     }
 
     @Override
-    public long countAlertsResolved() {
-        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
-        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
-
-        return tailRepository.countByStatusName("RESOLVED");
+    public long countAlertsResolved(Long userId, List<Long> organizationIds) {
+        if (userId != null) {
+            return tailMetricsRepository.countByStatusNameAndUserId("RESOLVED", userId);
+        } else if (organizationIds != null && !organizationIds.isEmpty()) {
+            return tailMetricsRepository.countByStatusNameAndOrganizationIdIn("RESOLVED", organizationIds);
+        } else {
+            // This case should ideally not be reached if controller logic is correct
+            return tailRepository.countByStatusName("RESOLVED");
+        }
     }
 
     @Override
-    public List<TailResponse> tailAlertsNotResolved() {
-        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
-        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+    public List<TailResponse> tailAlertsNotResolved(Long userId, List<Long> organizationIds) {
+        List<TailEntity> tailEntities;
+        if (userId != null) {
+            tailEntities = tailMetricsRepository.findAllByStatusNameNotAndUserId("RESOLVED", userId);
+        } else if (organizationIds != null && !organizationIds.isEmpty()) {
+            tailEntities = tailMetricsRepository.findAllByStatusNameNotAndOrganizationIdIn("RESOLVED", organizationIds);
+        } else {
+            // This case should ideally not be reached if controller logic is correct
+            tailEntities = tailRepository.findAllByStatusNameNot("RESOLVED");
+        }
 
-        List<TailEntity> tailEntities = tailRepository.findAllByStatusNameNot("RESOLVED");
         if (tailEntities == null || tailEntities.isEmpty()) {
             return List.of();
         }
@@ -97,20 +130,29 @@ public class TailMetricsServiceImpl implements TailMetricsService {
     }
 
     @Override
-    public long countAlertsNotResolved() {
-        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
-        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
-
-        return tailRepository.countByStatusNameNot("RESOLVED");
+    public long countAlertsNotResolved(Long userId, List<Long> organizationIds) {
+        if (userId != null) {
+            return tailMetricsRepository.countByStatusNameNotAndUserId("RESOLVED", userId);
+        } else if (organizationIds != null && !organizationIds.isEmpty()) {
+            return tailMetricsRepository.countByStatusNameNotAndOrganizationIdIn("RESOLVED", organizationIds);
+        } else {
+            // This case should ideally not be reached if controller logic is correct
+            return tailRepository.countByStatusNameNot("RESOLVED");
+        }
     }
 
     @Override
-    public long tailAlertsMTTR() {
-        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
-        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
-
-        log.info("tailAlertsMTTR");
-        List<TailTimestampAndResolvedTimestamp> resolvedTimestampList = tailRepository.findOnlyTimestampAndResolvedTimestampIsNotNull();
+    public long tailAlertsMTTR(Long userId, List<Long> organizationIds) {
+        log.info("tailAlertsMTTR for userId: {}, organizationIds: {}", userId, organizationIds);
+        List<TailTimestampAndResolvedTimestamp> resolvedTimestampList;
+        if (userId != null) {
+            resolvedTimestampList = tailMetricsRepository.findOnlyTimestampAndResolvedTimestampIsNotNullAndUserId(userId);
+        } else if (organizationIds != null && !organizationIds.isEmpty()) {
+            resolvedTimestampList = tailMetricsRepository.findOnlyTimestampAndResolvedTimestampIsNotNullAndOrganizationIdIn(organizationIds);
+        } else {
+            // This case should ideally not be reached if controller logic is correct
+            resolvedTimestampList = tailRepository.findOnlyTimestampAndResolvedTimestampIsNotNull();
+        }
         log.info("retrieved list of tail entities");
         if (resolvedTimestampList == null || resolvedTimestampList.isEmpty()) {
             return 0;
@@ -135,18 +177,23 @@ public class TailMetricsServiceImpl implements TailMetricsService {
     }
 
     @Override
-    public TailAlertsPerHourResponse getTailAlertsPerHour(String timezoneIdString) {
-        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
-        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
-
+    public TailAlertsPerHourResponse getTailAlertsPerHour(String timezoneIdString, Long userId, List<Long> organizationIds) {
         ZoneId userZone = ZoneId.of(timezoneIdString);
         ZonedDateTime userZonedNow = ZonedDateTime.now(userZone);
         Instant nowUtc = userZonedNow.toInstant(); // Current time in UTC
         Instant nineHoursAgoUtc = nowUtc.minus(9, ChronoUnit.HOURS); // 9 hours ago in UTC
 
-        log.info("Fetching tail alerts for user timezone {}. Querying UTC from {} to {}", timezoneIdString, nineHoursAgoUtc, nowUtc);
+        log.info("Fetching tail alerts for user timezone {}. Querying UTC from {} to {} for userId: {}, organizationIds: {}", timezoneIdString, nineHoursAgoUtc, nowUtc, userId, organizationIds);
 
-        List<Instant> timestamps = tailRepository.findOnlyTimestampsBetween(nineHoursAgoUtc, nowUtc);
+        List<Instant> timestamps;
+        if (userId != null) {
+            timestamps = tailMetricsRepository.findOnlyTimestampsBetweenAndUserId(nineHoursAgoUtc, nowUtc, userId);
+        } else if (organizationIds != null && !organizationIds.isEmpty()) {
+            timestamps = tailMetricsRepository.findOnlyTimestampsBetweenAndOrganizationIdIn(nineHoursAgoUtc, nowUtc, organizationIds);
+        } else {
+            // This case should ideally not be reached if controller logic is correct
+            timestamps = tailRepository.findOnlyTimestampsBetween(nineHoursAgoUtc, nowUtc);
+        }
         timestamps.forEach(instant -> log.info("ts: {}", instant));
 
         log.info("fetch complete, {} timestamps found", timestamps.size());
@@ -181,11 +228,8 @@ public class TailMetricsServiceImpl implements TailMetricsService {
     }
 
     @Override
-    public TailMonthlySummaryResponse getTailMonthlySummary(String timezoneIdString) {
-        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
-        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
-
-        log.info("getTailMonthlySummary");
+    public TailMonthlySummaryResponse getTailMonthlySummary(String timezoneIdString, Long userId, List<Long> organizationIds) {
+        log.info("getTailMonthlySummary for userId: {}, organizationIds: {}", userId, organizationIds);
 
         ZoneId userZone = ZoneId.of(timezoneIdString);
         LocalDate today = LocalDate.now(userZone);
@@ -200,7 +244,15 @@ public class TailMetricsServiceImpl implements TailMetricsService {
         Instant startDate = today.minusDays(28).atStartOfDay().atZone(userZone).toInstant();
 
         log.info("attempting to get list of tail levels and timestamps between");
-        List<TailLevelAndTimestamp> tailLevelAndTimestampList = tailRepository.findOnlyLevelAndTimestampsBetween(startDate, endDate);
+        List<TailLevelAndTimestamp> tailLevelAndTimestampList;
+        if (userId != null) {
+            tailLevelAndTimestampList = tailMetricsRepository.findOnlyLevelAndTimestampsBetweenAndUserId(startDate, endDate, userId);
+        } else if (organizationIds != null && !organizationIds.isEmpty()) {
+            tailLevelAndTimestampList = tailMetricsRepository.findOnlyLevelAndTimestampsBetweenAndOrganizationIdIn(startDate, endDate, organizationIds);
+        } else {
+            // This case should ideally not be reached if controller logic is correct
+            tailLevelAndTimestampList = tailRepository.findOnlyLevelAndTimestampsBetween(startDate, endDate);
+        }
 
         log.info("attempting to get list of tail level entities");
         List<TailLevelEntity> allLevels = tailLevelRepository.findAll();
@@ -271,15 +323,20 @@ public class TailMetricsServiceImpl implements TailMetricsService {
     }
 
     @Override
-    public TailDatasetMttrResponse getTailMTTRLast7Days() {
-        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
-        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
-
-        log.info("Calculating MTTR for the last 7 days");
+    public TailDatasetMttrResponse getTailMTTRLast7Days(Long userId, List<Long> organizationIds) {
+        log.info("Calculating MTTR for the last 7 days for userId: {}, organizationIds: {}", userId, organizationIds);
 
         Instant sevenDaysAgo = Instant.now().minus(7, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
         // Query for tails created in the last 7 days that also have a resolved timestamp.
-        List<TailTimestampAndResolvedTimestamp> recentTails = tailRepository.findAllByTimestampAfterAndResolvedTimestampIsNotNull(sevenDaysAgo);
+        List<TailTimestampAndResolvedTimestamp> recentTails;
+        if (userId != null) {
+            recentTails = tailMetricsRepository.findAllByTimestampAfterAndResolvedTimestampIsNotNullAndUserId(sevenDaysAgo, userId);
+        } else if (organizationIds != null && !organizationIds.isEmpty()) {
+            recentTails = tailMetricsRepository.findAllByTimestampAfterAndResolvedTimestampIsNotNullAndOrganizationIdIn(sevenDaysAgo, organizationIds);
+        } else {
+            // This case should ideally not be reached if controller logic is correct
+            recentTails = tailRepository.findAllByTimestampAfterAndResolvedTimestampIsNotNull(sevenDaysAgo);
+        }
 
         Map<LocalDate, List<Duration>> dailyResolutionTimes = new HashMap<>();
         ZoneId systemZone = ZoneId.systemDefault(); // Or a specific zone if required

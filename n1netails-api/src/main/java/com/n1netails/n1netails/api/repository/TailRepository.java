@@ -54,6 +54,51 @@ public interface TailRepository extends JpaRepository<TailEntity, Long> {
         JOIN t.level l
         JOIN t.type ty
         JOIN t.status s
+        WHERE t.resolvedTimestamp IS NULL
+        AND t.assignedUserId = :assignedUserId
+        ORDER BY t.timestamp DESC
+    """)
+    Page<TailSummary> findTop9ByAssignedUserIdOrderByTimestampDesc(@Param("assignedUserId") Long assignedUserId, Pageable pageable);
+
+    @Query("""
+        SELECT new com.n1netails.n1netails.api.model.dto.TailSummary(
+            t.id,
+            t.title,
+            t.description,
+            t.timestamp,
+            t.resolvedTimestamp,
+            t.assignedUserId,
+            l.name,
+            ty.name,
+            s.name
+        )
+        FROM TailEntity t
+        JOIN t.level l
+        JOIN t.type ty
+        JOIN t.status s
+        JOIN t.organization o
+        WHERE t.resolvedTimestamp IS NULL
+        AND o.id IN :organizationIds
+        ORDER BY t.timestamp DESC
+    """)
+    Page<TailSummary> findTop9ByOrganizationIdInOrderByTimestampDesc(@Param("organizationIds") List<Long> organizationIds, Pageable pageable);
+
+    @Query("""
+        SELECT new com.n1netails.n1netails.api.model.dto.TailSummary(
+            t.id,
+            t.title,
+            t.description,
+            t.timestamp,
+            t.resolvedTimestamp,
+            t.assignedUserId,
+            l.name,
+            ty.name,
+            s.name
+        )
+        FROM TailEntity t
+        JOIN t.level l
+        JOIN t.type ty
+        JOIN t.status s
         WHERE s.name IN :statuses
         AND ty.name IN :types
         AND l.name IN :levels
@@ -65,6 +110,71 @@ public interface TailRepository extends JpaRepository<TailEntity, Long> {
             @Param("statuses") List<String> statuses,
             @Param("types") List<String> types,
             @Param("levels") List<String> levels,
+            Pageable pageable
+    );
+
+    @Query("""
+        SELECT new com.n1netails.n1netails.api.model.dto.TailSummary(
+            t.id,
+            t.title,
+            t.description,
+            t.timestamp,
+            t.resolvedTimestamp,
+            t.assignedUserId,
+            l.name,
+            ty.name,
+            s.name
+        )
+        FROM TailEntity t
+        JOIN t.level l
+        JOIN t.type ty
+        JOIN t.status s
+        WHERE s.name IN :statuses
+        AND ty.name IN :types
+        AND l.name IN :levels
+        AND (t.title LIKE %:searchTerm% OR t.description LIKE %:searchTerm%)
+        AND t.assignedUserId = :userId
+        ORDER BY t.timestamp DESC
+    """)
+    Page<TailSummary> findAllBySearchTermAndTailFilters(
+            @Param("searchTerm") String searchTerm,
+            @Param("statuses") List<String> statuses,
+            @Param("types") List<String> types,
+            @Param("levels") List<String> levels,
+            @Param("userId") Long userId,
+            Pageable pageable
+    );
+
+    @Query("""
+        SELECT new com.n1netails.n1netails.api.model.dto.TailSummary(
+            t.id,
+            t.title,
+            t.description,
+            t.timestamp,
+            t.resolvedTimestamp,
+            t.assignedUserId,
+            l.name,
+            ty.name,
+            s.name
+        )
+        FROM TailEntity t
+        JOIN t.level l
+        JOIN t.type ty
+        JOIN t.status s
+        JOIN t.organization o
+        WHERE s.name IN :statuses
+        AND ty.name IN :types
+        AND l.name IN :levels
+        AND (t.title LIKE %:searchTerm% OR t.description LIKE %:searchTerm%)
+        AND o.id IN :organizationIds
+        ORDER BY t.timestamp DESC
+    """)
+    Page<TailSummary> findAllBySearchTermAndTailFilters(
+            @Param("searchTerm") String searchTerm,
+            @Param("statuses") List<String> statuses,
+            @Param("types") List<String> types,
+            @Param("levels") List<String> levels,
+            @Param("organizationIds") List<Long> organizationIds,
             Pageable pageable
     );
 

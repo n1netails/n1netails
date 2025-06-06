@@ -99,7 +99,7 @@
                       <nz-tag [nzColor]="tailUtilService.getTypeColor(item.type)" style="margin-right: 4px;">{{ item.type }}</nz-tag>
                       <nz-tag [nzColor]="tailUtilService.getStatusColor(item.status)">{{ item.status }}</nz-tag>
                       <ul nz-list-item-actions>
-                        <nz-list-item-action><a (click)="resolve(item)">resolve</a></nz-list-item-action>
+                        <nz-list-item-action><a *ngIf="item.assignedUserId == user.id" (click)="resolve(item)">resolve</a></nz-list-item-action>
                       </ul>
                     </ng-container>
                     }

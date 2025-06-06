@@ -24,12 +24,12 @@ export class AuthenticationService {
 
   public login(user: User): Observable<HttpResponse<User>> {
     console.log('login API URL:', this.host); 
-    return this.http.post<User>(`${this.host}/api/user/login`, user, { observe: 'response' });
+    return this.http.post<User>(`${this.host}/ninetails/user/login`, user, { observe: 'response' });
   }
 
   public register(user: User): Observable<HttpResponse<User>> {
     console.log('register API URL:', this.host); 
-    return this.http.post<User>(`${this.host}/api/user/register`, user, { observe: 'response' });
+    return this.http.post<User>(`${this.host}/ninetails/user/register`, user, { observe: 'response' });
   }
 
   public logOut(): void {
@@ -83,6 +83,6 @@ export class AuthenticationService {
   }
 
   public resetPassword(email: string, newPassword: string): Observable<string> {
-    return this.http.post(`${this.host}/api/password/reset`, { email, newPassword }, { responseType: 'text' });
+    return this.http.post(`${this.host}/ninetails/password/reset`, { email, newPassword }, { responseType: 'text' });
   }
 }

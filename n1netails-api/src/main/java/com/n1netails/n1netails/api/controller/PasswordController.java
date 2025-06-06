@@ -22,7 +22,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @RequiredArgsConstructor
 @Tag(name = "Password Controller", description = "Operations for managing credentials")
 @RestController
-@RequestMapping(path = {"/api/password"}, produces = APPLICATION_JSON)
+@RequestMapping(path = {"/ninetails/password"}, produces = APPLICATION_JSON)
 public class PasswordController {
 
     private final UserService userService;

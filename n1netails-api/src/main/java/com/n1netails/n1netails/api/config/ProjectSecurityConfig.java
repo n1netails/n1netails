@@ -1,6 +1,5 @@
 package com.n1netails.n1netails.api.config;
 
-import com.n1netails.n1netails.api.filter.JwtAuthorizationFilter;
 import com.n1netails.n1netails.api.handler.JwtAccessDeniedHandler;
 import com.n1netails.n1netails.api.handler.JwtAuthenticationEntryHandler;
 import lombok.RequiredArgsConstructor;
@@ -11,14 +10,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.Arrays;
@@ -28,12 +28,12 @@ import static com.n1netails.n1netails.api.constant.ProjectSecurityConstant.PUBLI
 
 @Slf4j
 @RequiredArgsConstructor
+@EnableMethodSecurity
 @Configuration
 public class ProjectSecurityConfig {
 
     private final UserDetailsService userDetailsService;
     private final BCryptPasswordEncoder passwordEncoder;
-    private final JwtAuthorizationFilter jwtAuthorizationFilter;
     private final JwtAuthenticationEntryHandler jwtAuthenticationEntryHandler;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
@@ -48,7 +48,6 @@ public class ProjectSecurityConfig {
             CorsConfiguration config = new CorsConfiguration();
             config.setAllowedOrigins(Collections.singletonList("*"));
             config.setAllowedMethods(Collections.singletonList("*"));
-//            config.setAllowCredentials(true);
             config.setAllowCredentials(false);
             config.setAllowedHeaders(Collections.singletonList("*"));
             config.setExposedHeaders(Arrays.asList("Authorization", "Jwt-Token"));
@@ -64,8 +63,7 @@ public class ProjectSecurityConfig {
                 .exceptionHandling(httpSecurityExceptionHandlingConfigurer ->
                         httpSecurityExceptionHandlingConfigurer.accessDeniedHandler(jwtAccessDeniedHandler))
                 .exceptionHandling(httpSecurityExceptionHandlingConfigurer ->
-                        httpSecurityExceptionHandlingConfigurer.authenticationEntryPoint(jwtAuthenticationEntryHandler))
-                .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
+                        httpSecurityExceptionHandlingConfigurer.authenticationEntryPoint(jwtAuthenticationEntryHandler));
 
         http.authorizeHttpRequests(
                 auth -> auth
@@ -84,6 +82,12 @@ public class ProjectSecurityConfig {
     }
 
     private JwtAuthenticationConverter jwtAuthenticationConverter() {
-        return new JwtAuthenticationConverter();
+        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("authorities");
+        grantedAuthoritiesConverter.setAuthorityPrefix(""); // No ROLE_ prefix
+
+        JwtAuthenticationConverter authenticationConverter = new JwtAuthenticationConverter();
+        authenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+        return authenticationConverter;
     }
 }

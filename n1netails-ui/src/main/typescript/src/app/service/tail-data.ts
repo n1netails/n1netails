@@ -39,7 +39,7 @@ export interface Tail {
 export class TailDataService {
 
   host: string = '';
-  private apiUrl = '/api/tail'; // Backend API endpoint
+  private apiUrl = '/ninetails/tail'; // Backend API endpoint
 
   constructor(
     private http: HttpClient,

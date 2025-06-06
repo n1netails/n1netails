@@ -22,7 +22,7 @@ export interface TailLevelResponse {
 export class TailLevelService {
 
   host: string = '';
-  private apiUrl = '/api/tail-level'; // Base URL for tail level operations
+  private apiUrl = '/ninetails/tail-level'; // Base URL for tail level operations
 
   constructor(
     private http: HttpClient, 

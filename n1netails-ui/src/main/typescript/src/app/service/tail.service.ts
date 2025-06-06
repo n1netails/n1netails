@@ -55,7 +55,7 @@ export interface TailSummary {
 export class TailService {
 
   host: string = '';
-  private apiUrl = '/api/tail'; // Base URL for tail operations
+  private apiUrl = '/ninetails/tail'; // Base URL for tail operations
 
   constructor(
     private http: HttpClient,

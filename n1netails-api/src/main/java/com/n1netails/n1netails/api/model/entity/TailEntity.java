@@ -43,4 +43,8 @@ public class TailEntity {
     private List<NoteEntity> notes;
     @OneToMany(mappedBy = "tail", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TailVariableEntity> customVariables;
+
+    @ManyToOne
+    @JoinColumn(name = "organization_id")
+    private OrganizationEntity organization;
 }

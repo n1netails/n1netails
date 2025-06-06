@@ -26,7 +26,7 @@ import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATIO
 @Tag(name = "Tail Type Controller", description = "Operations related to Tail Types")
 @SecurityRequirement(name = "bearerAuth")
 @RestController
-@RequestMapping(path = {"/api/tail-type"}, produces = APPLICATION_JSON)
+@RequestMapping(path = {"/ninetails/tail-type"}, produces = APPLICATION_JSON)
 public class TailTypeController {
 
     private final TailTypeService tailTypeService;

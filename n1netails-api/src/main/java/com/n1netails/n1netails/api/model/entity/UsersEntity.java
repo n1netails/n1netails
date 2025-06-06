@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -36,4 +38,13 @@ public class UsersEntity {
     private boolean isActive;
     private boolean isNotLocked;
     private boolean enabled;
+
+    // Many-to-many relationship with Users (a user can belong to multiple organizations)
+    @ManyToMany
+    @JoinTable(
+            name = "user_organizations",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "organization_id")
+    )
+    private Set<OrganizationEntity> organizations = new HashSet<>();
 }

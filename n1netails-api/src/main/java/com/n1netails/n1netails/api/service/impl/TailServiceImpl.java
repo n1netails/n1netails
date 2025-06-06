@@ -4,15 +4,12 @@ import com.n1netails.n1netails.api.exception.type.TailLevelNotFoundException;
 import com.n1netails.n1netails.api.exception.type.TailNotFoundException;
 import com.n1netails.n1netails.api.exception.type.TailStatusNotFoundException;
 import com.n1netails.n1netails.api.exception.type.TailTypeNotFoundException;
-import com.n1netails.n1netails.api.model.core.TailLevel;
 import com.n1netails.n1netails.api.model.core.TailStatus;
-import com.n1netails.n1netails.api.model.core.TailType;
 import com.n1netails.n1netails.api.model.dto.TailSummary;
 import com.n1netails.n1netails.api.model.entity.*;
 import com.n1netails.n1netails.api.model.request.ResolveTailRequest;
 import com.n1netails.n1netails.api.model.request.TailPageRequest;
 import com.n1netails.n1netails.api.repository.*;
-import com.n1netails.n1netails.api.model.request.TailRequest;
 import com.n1netails.n1netails.api.model.response.TailResponse;
 import com.n1netails.n1netails.api.service.TailService;
 import lombok.RequiredArgsConstructor;
@@ -43,23 +40,11 @@ public class TailServiceImpl implements TailService {
     private final TailLevelRepository levelRepository;
     private final TailTypeRepository typeRepository;
     private final TailStatusRepository statusRepository;
-//    private final TailVariableRepository variableRepository;
     private final NoteRepository noteRepository;
-
-    // todo consider removing this or adding pagination
-    @Override
-    public List<TailResponse> getTails() {
-        List<TailEntity> tailEntities = tailRepository.findAll();
-        List<TailResponse> tailResponseList = new ArrayList<>();
-        tailEntities.forEach(tail -> {
-            TailResponse tailResponse = setTailResponse(tail);
-            tailResponseList.add(tailResponse);
-        });
-        return tailResponseList;
-    }
 
     @Override
     public TailResponse getTailById(Long id) {
+        // TODO UPDATE THIS SO ONLY THE USER AND USERS IN THE SAME THE ORGANIZATION CAN GET THE TAIL
         Optional<TailEntity> tail = tailRepository.findById(id);
         TailResponse tailResponse = new TailResponse();
         if (tail.isPresent()) {
@@ -69,32 +54,8 @@ public class TailServiceImpl implements TailService {
     }
 
     @Override
-    public TailResponse createTail(TailRequest request) {
-        TailEntity tailEntity = setTail(request);
-        tailEntity = tailRepository.save(tailEntity);
-        return setTailResponse(tailEntity);
-    }
-
-    @Override
-    public TailResponse updateTail(Long id, TailRequest request) {
-        TailEntity updatedTailEntity = new TailEntity();
-        Optional<TailEntity> tail = tailRepository.findById(id);
-        if (tail.isPresent()) {
-            updatedTailEntity = setTail(request, tail.get());
-            updatedTailEntity = tailRepository.save(updatedTailEntity);
-        } else {
-            log.error("updateTail - " + REQUESTED_TAIL_NOT_FOUND);
-        }
-        return setTailResponse(updatedTailEntity);
-    }
-
-    @Override
-    public void deleteTail(Long id) {
-        tailRepository.deleteById(id);
-    }
-
-    @Override
-    public TailResponse updateTailStatus(Long id, TailStatus tailStatus) {
+    public TailResponse updateStatus(Long id, TailStatus tailStatus) {
+        // TODO UPDATE THIS SO ONLY THE USER AND USERS IN THE SAME THE ORGANIZATION CAN CHANGE THE TAIL STATUS
         Optional<TailEntity> tail = tailRepository.findById(id);
         TailEntity updatedTailEntity = new TailEntity();
         if (tail.isPresent()) {
@@ -116,62 +77,8 @@ public class TailServiceImpl implements TailService {
     }
 
     @Override
-    public TailResponse updateTailLevel(Long id, TailLevel tailLevel) {
-        if (tailLevel.getDescription().isBlank()) tailLevel.setDescription(null);
-
-        Optional<TailEntity> tail = tailRepository.findById(id);
-        TailEntity updatedTailEntity = new TailEntity();
-        if (tail.isPresent()) {
-            updatedTailEntity = tail.get();
-            Optional<TailLevelEntity> newLevel = levelRepository.findTailLevelByName(tailLevel.getName());
-            if (newLevel.isPresent()) {
-                TailLevelEntity level = newLevel.get();
-                level.setDescription(tailLevel.getDescription() != null ? tailLevel.getDescription() : level.getDescription());
-                updatedTailEntity.setLevel(level);
-            } else {
-                TailLevelEntity createdLevel = new TailLevelEntity();
-                createdLevel.setName(tailLevel.getName());
-                createdLevel.setDescription(tailLevel.getDescription());
-                createdLevel = levelRepository.save(createdLevel);
-                updatedTailEntity.setLevel(createdLevel);
-            }
-            tailRepository.save(updatedTailEntity);
-        } else {
-            log.error("updateTailLevel - " + REQUESTED_TAIL_NOT_FOUND);
-        }
-        return setTailResponse(updatedTailEntity);
-    }
-
-    @Override
-    public TailResponse updateTailType(Long id, TailType tailType) {
-        if (tailType.getDescription().isBlank()) tailType.setDescription(null);
-
-        Optional<TailEntity> tail = tailRepository.findById(id);
-        TailEntity updatedTailEntity = new TailEntity();
-        if (tail.isPresent()) {
-            updatedTailEntity = tail.get();
-            Optional<TailTypeEntity> newType = typeRepository.findTailTypeByName(tailType.getName());
-            if (newType.isPresent()) {
-                TailTypeEntity type = newType.get();
-                type.setDescription(tailType.getDescription() != null ? tailType.getDescription() : type.getDescription());
-                updatedTailEntity.setType(type);
-            } else {
-                TailTypeEntity createdType = new TailTypeEntity();
-                createdType.setName(tailType.getName());
-                createdType.setDescription(tailType.getDescription());
-                createdType = typeRepository.save(createdType);
-                updatedTailEntity.setType(createdType);
-            }
-            tailRepository.save(updatedTailEntity);
-        } else {
-            log.error("updateTailType - " + REQUESTED_TAIL_NOT_FOUND);
-        }
-        return setTailResponse(updatedTailEntity);
-    }
-
-    @Override
     public void markResolved(ResolveTailRequest request) throws TailNotFoundException, TailStatusNotFoundException {
-
+        // TODO UPDATE THIS SO ONLY THE USER AND USERS IN THE SAME THE ORGANIZATION CAN MARK THE TAIL AS RESOLVED
         UsersEntity assignedUser = this.usersRepository.findUserById(request.getUserId());
         TailEntity resolvedTail = this.tailRepository.findById(request.getTailSummary().getId())
                 .orElseThrow(() -> new TailNotFoundException("The requested tail does not exist."));
@@ -193,50 +100,6 @@ public class TailServiceImpl implements TailService {
         this.noteRepository.save(noteEntity);
         // save tail
         this.tailRepository.save(resolvedTail);
-    }
-
-    private TailEntity setTail(TailRequest request) {
-        TailEntity tailEntity = new TailEntity();
-        return setTail(request, tailEntity);
-    }
-
-    private TailEntity setTail(TailRequest request, TailEntity tailEntity) {
-        tailEntity.setTitle(request.getTitle());
-        tailEntity.setDescription(request.getDescription());
-        tailEntity.setTimestamp(request.getTimestamp());
-        tailEntity.setAssignedUserId(request.getAssignedUserId());
-        tailEntity.setDetails(request.getDetails());
-
-        TailLevelEntity tailLevelEntity = new TailLevelEntity();
-        tailLevelEntity.setName(request.getLevel().getName());
-        tailLevelEntity.setDescription(request.getLevel().getDescription());
-        tailEntity.setLevel(tailLevelEntity);
-
-        TailTypeEntity tailTypeEntity = new TailTypeEntity();
-        tailTypeEntity.setName(request.getType().getName());
-        tailTypeEntity.setDescription(request.getType().getDescription());
-        tailEntity.setType(tailTypeEntity);
-
-        TailStatusEntity tailStatusEntity = new TailStatusEntity();
-        tailStatusEntity.setName(request.getStatus());
-        tailEntity.setStatus(tailStatusEntity);
-
-        List<TailVariableEntity> tailVariableEntityList = getTailVariableEntities(request, tailEntity);
-        tailEntity.setCustomVariables(tailVariableEntityList);
-        return tailEntity;
-    }
-
-    private static List<TailVariableEntity> getTailVariableEntities(TailRequest request, TailEntity tailEntity) {
-        List<TailVariableEntity> tailVariableEntityList = new ArrayList<>();
-        Map<String, String> metadata = request.getMetadata();
-        metadata.forEach((key, value) -> {
-            TailVariableEntity tailVariableEntity = new TailVariableEntity();
-            tailVariableEntity.setKey(key);
-            tailVariableEntity.setValue(value);
-            tailVariableEntity.setTail(tailEntity);
-            tailVariableEntityList.add(tailVariableEntity);
-        });
-        return tailVariableEntityList;
     }
 
     private TailResponse setTailResponse(TailEntity tailEntity) {
@@ -264,6 +127,9 @@ public class TailServiceImpl implements TailService {
 
     @Override
     public Page<TailResponse> getTails(TailPageRequest request) throws TailStatusNotFoundException, TailTypeNotFoundException, TailLevelNotFoundException {
+        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
+        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
 
         String searchTerm = request.getSearchTerm() == null || request.getSearchTerm().isEmpty() ? "" : request.getSearchTerm();
@@ -314,6 +180,9 @@ public class TailServiceImpl implements TailService {
 
     @Override
     public List<TailResponse> getTop9NewestTails() {
+        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO THEIR ORGANIZATION
+        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+
         Page<TailSummary> tailPage = tailRepository.findAllByOrderByTimestampDesc(PageRequest.of(0,9));
         List<TailSummary> tailSummaryList = tailPage.getContent();
 

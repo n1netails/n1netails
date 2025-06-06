@@ -1,5 +1,6 @@
 package com.n1netails.n1netails.api.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,11 +32,7 @@ public class OrganizationEntity {
     private Date updatedAt;
 
     // Many-to-many relationship with Users (a user can belong to multiple organizations)
-    @ManyToMany
-    @JoinTable(
-            name = "user_organizations", // Join table to map users to organizations
-            joinColumns = @JoinColumn(name = "organization_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
+    @ManyToMany(mappedBy = "organizations")
+    @JsonIgnore
     private Set<UsersEntity> users = new HashSet<>();
 }

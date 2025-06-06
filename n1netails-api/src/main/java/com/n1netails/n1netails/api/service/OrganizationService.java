@@ -12,5 +12,4 @@ public interface OrganizationService {
     void removeUserFromOrganization(Long organizationId, Long userId);
     void addMemberToMyOrganization(Long organizationId, Long targetUserId, String adminUserEmail);
     void removeMemberFromMyOrganization(Long organizationId, Long targetUserId, String adminUserEmail);
-    // TODO Add findById, update, delete methods later
 }

@@ -1,9 +1,6 @@
 package com.n1netails.n1netails.api.exception;
 
-import com.n1netails.n1netails.api.exception.type.EmailExistException;
-import com.n1netails.n1netails.api.exception.type.PasswordRegexException;
-import com.n1netails.n1netails.api.exception.type.TailNotFoundException;
-import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
+import com.n1netails.n1netails.api.exception.type.*;
 import com.n1netails.n1netails.api.model.response.HttpErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.servlet.error.ErrorController;
@@ -52,6 +49,8 @@ public class ExceptionController implements ErrorController {
      * @return http error response
      */
     @ExceptionHandler({
+            N1neTokenNotFoundException.class,
+            InvalidRoleException.class,
             TailNotFoundException.class,
             UserNotFoundException.class,
             IllegalArgumentException.class

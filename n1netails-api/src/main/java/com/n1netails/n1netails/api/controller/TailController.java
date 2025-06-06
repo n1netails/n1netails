@@ -1,14 +1,12 @@
 package com.n1netails.n1netails.api.controller;
 
-import com.n1netails.n1netails.api.exception.type.TailLevelNotFoundException;
-import com.n1netails.n1netails.api.exception.type.TailNotFoundException;
-import com.n1netails.n1netails.api.exception.type.TailStatusNotFoundException;
-import com.n1netails.n1netails.api.exception.type.TailTypeNotFoundException;
+import com.n1netails.n1netails.api.exception.type.*;
+import com.n1netails.n1netails.api.model.UserPrincipal;
 import com.n1netails.n1netails.api.model.request.ResolveTailRequest;
 import com.n1netails.n1netails.api.model.request.TailPageRequest;
-import com.n1netails.n1netails.api.model.request.TailRequest;
 import com.n1netails.n1netails.api.model.response.HttpErrorResponse;
 import com.n1netails.n1netails.api.model.response.TailResponse;
+import com.n1netails.n1netails.api.service.AuthorizationService;
 import com.n1netails.n1netails.api.service.TailService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -31,28 +29,11 @@ import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATIO
 @Tag(name = "Tail Controller", description = "Operations related to Tails")
 @SecurityRequirement(name = "bearerAuth")
 @RestController
-@RequestMapping(path = {"/api/tail"}, produces = APPLICATION_JSON)
+@RequestMapping(path = {"/ninetails/tail"}, produces = APPLICATION_JSON)
 public class TailController {
 
     private final TailService tailService;
-
-    @Operation(summary = "Create a new tail", responses = {
-            @ApiResponse(responseCode = "200", description = "Tail created",
-                    content = @Content(schema = @Schema(implementation = TailResponse.class)))
-    })
-    @PostMapping(consumes = APPLICATION_JSON)
-    public ResponseEntity<TailResponse> create(@RequestBody TailRequest request) {
-        return ResponseEntity.ok(tailService.createTail(request));
-    }
-
-    @Operation(summary = "Get all tails", responses = {
-            @ApiResponse(responseCode = "200", description = "List of tails",
-                    content = @Content(schema = @Schema(implementation = TailResponse.class)))
-    })
-    @GetMapping
-    public ResponseEntity<List<TailResponse>> getAll() {
-        return ResponseEntity.ok(tailService.getTails());
-    }
+    private final AuthorizationService authorizationService;
 
     @Operation(summary = "Get tail by ID", responses = {
             @ApiResponse(responseCode = "200", description = "Tail found",
@@ -61,29 +42,9 @@ public class TailController {
                     content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
     })
     @GetMapping("/{id}")
-    public ResponseEntity<TailResponse> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(tailService.getTailById(id));
-    }
-
-    @Operation(summary = "Update tail by ID", responses = {
-            @ApiResponse(responseCode = "200", description = "Tail updated",
-                    content = @Content(schema = @Schema(implementation = TailResponse.class))),
-            @ApiResponse(responseCode = "404", description = "Tail not found",
-                    content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
-    })
-    @PutMapping(value = "/{id}", consumes = APPLICATION_JSON)
-    public ResponseEntity<TailResponse> update(@PathVariable Long id, @RequestBody TailRequest request) {
-        return ResponseEntity.ok(tailService.updateTail(id, request));
-    }
-
-    @Operation(summary = "Delete tail by ID", responses = {
-            @ApiResponse(responseCode = "204", description = "Tail deleted"),
-            @ApiResponse(responseCode = "404", description = "Tail not found")
-    })
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        tailService.deleteTail(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<TailResponse> getById(@PathVariable Long id, @RequestHeader("Authorization") String authorizationHeader) throws UserNotFoundException, UnauthorizedException, TailNotFoundException {
+        UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
+        return ResponseEntity.ok(tailService.getTailById(id, currentUser));
     }
 
     @Operation(summary = "Get tails by page", responses = {
@@ -91,8 +52,9 @@ public class TailController {
                     content = @Content(schema = @Schema(implementation = Page.class))) // Note: Ideally, you'd use a Page<TailResponse> schema
     })
     @PostMapping("/page")
-    public ResponseEntity<Page<TailResponse>> getTailsByPage(@RequestBody TailPageRequest request) throws TailTypeNotFoundException, TailLevelNotFoundException, TailStatusNotFoundException {
-        return ResponseEntity.ok(tailService.getTails(request));
+    public ResponseEntity<Page<TailResponse>> getTailsByPage(@RequestBody TailPageRequest request, @RequestHeader("Authorization") String authorizationHeader) throws TailTypeNotFoundException, TailLevelNotFoundException, TailStatusNotFoundException, UserNotFoundException {
+        UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
+        return ResponseEntity.ok(tailService.getTails(request, currentUser));
     }
 
     @Operation(summary = "Get top 9 newest tails", responses = {
@@ -100,8 +62,9 @@ public class TailController {
                     content = @Content(schema = @Schema(implementation = TailResponse.class)))
     })
     @GetMapping("/top9")
-    public ResponseEntity<List<TailResponse>> getTop9NewestTails() {
-        return ResponseEntity.ok(tailService.getTop9NewestTails());
+    public ResponseEntity<List<TailResponse>> getTop9NewestTails(@RequestHeader("Authorization") String authorizationHeader) throws UserNotFoundException {
+        UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
+        return ResponseEntity.ok(tailService.getTop9NewestTails(currentUser));
     }
 
     @Operation(summary = "Mark tail as resolved", responses = {
@@ -109,8 +72,9 @@ public class TailController {
             @ApiResponse(responseCode = "404", description = "Tail or tail status not found")
     })
     @PostMapping("/mark/resolved")
-    public ResponseEntity<Void> markTailResolved(@RequestBody ResolveTailRequest request) throws TailNotFoundException, TailStatusNotFoundException {
-        tailService.markResolved(request);
+    public ResponseEntity<Void> markTailResolved(@RequestHeader("Authorization") String authorizationHeader, @RequestBody ResolveTailRequest request) throws TailNotFoundException, TailStatusNotFoundException, UserNotFoundException, UnauthorizedException {
+        UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
+        tailService.markResolved(request, currentUser);
         return ResponseEntity.noContent().build();
     }
 }

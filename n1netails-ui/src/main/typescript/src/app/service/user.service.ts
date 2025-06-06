@@ -19,6 +19,6 @@ export class UserService {
   }
 
   editUser(user: User): Observable<User> {
-    return this.http.post<User>(`${this.host}/api/user/edit`, user);
+    return this.http.post<User>(`${this.host}/ninetails/user/edit`, user);
   }
 }

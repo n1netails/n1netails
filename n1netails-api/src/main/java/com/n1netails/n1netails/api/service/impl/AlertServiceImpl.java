@@ -45,7 +45,7 @@ public class AlertServiceImpl implements AlertService {
         tailEntity.setDescription(request.getDescription());
         tailEntity.setTimestamp(request.getTimestamp());
         tailEntity.setDetails(request.getDetails());
-
+        tailEntity.setOrganization(n1neTokenEntity.getOrganization());
 
         log.info("finding extra tail info");
         // tail level

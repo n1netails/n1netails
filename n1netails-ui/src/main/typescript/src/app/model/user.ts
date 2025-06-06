@@ -1,3 +1,5 @@
+import { Organization } from "./organization";
+
 export class User {
     public id: number;
     public userId: string;
@@ -14,6 +16,7 @@ export class User {
     public notLocked: boolean;
     public role: string;
     public authorities: string[];
+    public organizations: Organization[];
 
     constructor() {
         this.id = 0;
@@ -31,5 +34,6 @@ export class User {
         this.notLocked = false;
         this.role = '';
         this.authorities = [];
+        this.organizations = [];
     }
 }

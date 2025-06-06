@@ -22,7 +22,7 @@ export interface TailTypeResponse {
 export class TailTypeService {
 
   host: string = '';
-  private apiUrl = '/api/tail-type'; // Base URL for tail type operations
+  private apiUrl = '/ninetails/tail-type'; // Base URL for tail type operations
 
   constructor(
     private http: HttpClient,

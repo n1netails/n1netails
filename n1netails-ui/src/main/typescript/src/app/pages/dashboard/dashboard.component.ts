@@ -115,7 +115,7 @@ export class DashboardComponent implements OnInit {
   initLoading = true; // bug
   loadingMore = false;
   data: any[] = [];
-  list: Array<{ loading: boolean; id: number, title: string, description: string, level: string, type: string, status: string }> = [];
+  list: Array<{ loading: boolean; id: number, title: string, description: string, level: string, type: string, status: string, assignedUserId: number }> = [];
 
   // tail domain info
   tailTypes: TailTypeResponse[] = [];
@@ -173,6 +173,7 @@ export class DashboardComponent implements OnInit {
       this.mttr = result;
     });
     this.tailMetricsService.mttrLast7Days().subscribe(result => {
+      console.log('MTTR weekly', result);
       this.mttrLineData = {
         labels: result.labels,
         datasets: [{ label: 'MTTR (hours)', data: result.data, borderColor: '#F06D0F', tension: 0.4 }]
@@ -185,6 +186,7 @@ export class DashboardComponent implements OnInit {
       };
     });
     this.tailMetricsService.getTailMonthlySummary(userTimezone).subscribe(result => {
+      console.log("MONTHLY ALERTS DATA", result);
       this.monthlyAlertsData = {
         labels: result.labels,
         datasets: [
@@ -199,7 +201,7 @@ export class DashboardComponent implements OnInit {
           // CRITICAL
           { label: result.datasets[4].label, data: result.datasets[4].data, backgroundColor: '#FF0000' },
           // KUDA
-          { label: result.datasets[5].label, data: result.datasets[5].data, backgroundColor: '#8B0000' },
+          { label: result.datasets[5] ? result.datasets[5].label : 'KUDA', data: result.datasets[5]?.data, backgroundColor: '#8B0000' },
         ]
       };
     });

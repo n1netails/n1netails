@@ -30,6 +30,24 @@
                 </nz-form-control>
               </nz-form-item>
               <nz-form-item>
+                <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="organization" nzRequired>Organization</nz-form-label>
+                <nz-form-control [nzSm]="14" [nzXs]="24">
+                  <nz-select
+                    id="organization"
+                    name="organization"
+                    [(ngModel)]="newTokenRequestForm.organizationId"
+                    nzPlaceHolder="Select organization"
+                    required
+                  >
+                    <nz-option
+                      *ngFor="let org of organizations"
+                      [nzValue]="org.id"
+                      [nzLabel]="org.name"
+                    ></nz-option>
+                  </nz-select>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
                 <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="tokenExpiresAt">Expiration Date (Optional)</nz-form-label>
                 <nz-form-control [nzSm]="14" [nzXs]="24">
                   <input nz-input type="datetime-local" id="tokenExpiresAt" name="expiresAt" [(ngModel)]="newTokenRequestForm.expiresAt">
@@ -57,6 +75,7 @@
                   <th>Last Used At</th>
                   <th>Status</th>
                   <th>User</th>
+                  <th>Org</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -105,6 +124,8 @@
                     <span *ngIf="!token.revoked" style="color: green;">Active</span>
                   </td>
                   <td>{{ user.username }}</td>
+                  <!-- TODO GET ORGANIATION INFO BY ORGANIZATION ID (DISPLAY ORGANIZATON NAME HERE)-->
+                  <td>{{ token.organizationId }}</td>
                   <td>
                     <button nz-button nzType="default" (click)="revokeToken(token)" *ngIf="!token.revoked" [disabled]="isLoading" nzSize="small" style="margin-right: 5px;">Revoke</button>
                     <button nz-button nzType="default" (click)="enableToken(token)" *ngIf="token.revoked" [disabled]="isLoading" nzSize="small" style="margin-right: 5px;">Enable</button>

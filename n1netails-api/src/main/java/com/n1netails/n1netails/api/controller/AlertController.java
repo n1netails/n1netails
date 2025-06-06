@@ -1,5 +1,6 @@
 package com.n1netails.n1netails.api.controller;
 
+import com.n1netails.n1netails.api.exception.type.N1neTokenNotFoundException;
 import com.n1netails.n1netails.api.model.request.KudaTailRequest;
 import com.n1netails.n1netails.api.service.AlertService;
 import com.n1netails.n1netails.api.service.N1neTokenService;
@@ -18,7 +19,7 @@ import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATIO
 @RequiredArgsConstructor
 @Tag(name = "Alert Controller", description = "Operations related to N1ne Alerts (Utilized by Kuda)")
 @RestController
-@RequestMapping(path = {"/api/alert"}, produces = APPLICATION_JSON)
+@RequestMapping(path = {"/ninetails/alert"}, produces = APPLICATION_JSON)
 public class AlertController {
 
     private final AlertService alertService;
@@ -32,13 +33,15 @@ public class AlertController {
     public ResponseEntity<Void> create(
             @RequestHeader("N1ne-Token") String n1neToken,
             @RequestBody KudaTailRequest request
-    ) {
+    ) throws N1neTokenNotFoundException {
         log.info("=====================");
         log.info("RECEIVED KUDA REQUEST");
 
         boolean tokenValid = this.n1neTokenService.validateToken(n1neToken);
-        // todo after token is validated update N1neToken Last Used At timestamp
-        if (tokenValid) alertService.createTail(n1neToken, request);
+        if (tokenValid) {
+            this.n1neTokenService.setLastUsedAt(n1neToken);
+            alertService.createTail(n1neToken, request);
+        }
         else {
             // Log internally, but don’t reveal to client
             log.warn("Unauthorized access attempt with token: {}...", n1neToken.substring(0, 5));

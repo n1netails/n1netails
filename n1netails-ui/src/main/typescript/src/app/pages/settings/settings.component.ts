@@ -16,20 +16,35 @@ import { AuthenticationService } from '../../service/authentication.service';
 import { N1neTokenService, N1neTokenResponse, CreateTokenRequest } from '../../service/n1ne-token.service';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { Organization } from '../../model/organization';
+import { NzSelectModule } from 'ng-zorro-antd/select';
 
 @Component({
   selector: 'app-settings',
-  imports: [NzLayoutModule,HeaderComponent,SidenavComponent,NzCardModule,NzFormModule,FormsModule,NzTableModule,NzCheckboxModule,CommonModule,NzDividerModule],
+  imports: [
+    NzLayoutModule,
+    HeaderComponent,
+    SidenavComponent,
+    NzCardModule,
+    NzFormModule,
+    FormsModule,
+    NzTableModule,
+    NzCheckboxModule,
+    CommonModule,
+    NzDividerModule,
+    NzSelectModule,
+  ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.less'
 })
 export class SettingsComponent implements OnInit {
 
   user: User;
+  organizations: Organization[];
 
   // N1ne Token Management
   tokens: N1neTokenResponse[] = [];
-  newTokenRequestForm: { name?: string, expiresAt?: string } = {};
+  newTokenRequestForm: { name?: string, expiresAt?: string, organizationId?: number } = {};
   isLoading: boolean = false;
   errorMessage: string = '';
 
@@ -57,6 +72,7 @@ export class SettingsComponent implements OnInit {
   ) {
     this.updateAlertTypeOptions();
     this.user = this.authenticationService.getUserFromLocalCache();
+    this.organizations = this.user.organizations;
   }
 
   ngOnInit(): void {
@@ -112,7 +128,7 @@ export class SettingsComponent implements OnInit {
     const request: CreateTokenRequest = {
       name: this.newTokenRequestForm.name,
       userId: this.user.id,
-      organizationId: 0,
+      organizationId: this.newTokenRequestForm.organizationId,
       expiresAt: ''
     };
 

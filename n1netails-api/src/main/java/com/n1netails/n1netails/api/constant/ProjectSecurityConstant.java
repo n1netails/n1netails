@@ -16,10 +16,11 @@ public class ProjectSecurityConstant {
             "/actuator/info",
             "/swagger-ui/**",
             "/v3/api-docs/**",
-            "/api/user/login",
-            "/api/user/register",
-            "/api/alert/**",
-//            "/api/tail/**",
+            "/ninetails/user/login",
+            "/ninetails/user/register",
+            "/ninetails/alert",
+            "/ninetails/alert/**",
+//            "/ninetails/tail/**",
             "/"
     };
 

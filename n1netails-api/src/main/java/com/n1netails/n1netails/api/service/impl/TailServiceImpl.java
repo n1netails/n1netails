@@ -4,6 +4,8 @@ import com.n1netails.n1netails.api.exception.type.TailLevelNotFoundException;
 import com.n1netails.n1netails.api.exception.type.TailNotFoundException;
 import com.n1netails.n1netails.api.exception.type.TailStatusNotFoundException;
 import com.n1netails.n1netails.api.exception.type.TailTypeNotFoundException;
+import com.n1netails.n1netails.api.exception.type.UnauthorizedException;
+import com.n1netails.n1netails.api.model.UserPrincipal; // Assuming it's not already here, though likely is
 import com.n1netails.n1netails.api.model.core.TailStatus;
 import com.n1netails.n1netails.api.model.dto.TailSummary;
 import com.n1netails.n1netails.api.model.entity.*;
@@ -11,6 +13,7 @@ import com.n1netails.n1netails.api.model.request.ResolveTailRequest;
 import com.n1netails.n1netails.api.model.request.TailPageRequest;
 import com.n1netails.n1netails.api.repository.*;
 import com.n1netails.n1netails.api.model.response.TailResponse;
+import com.n1netails.n1netails.api.service.AuthorizationService;
 import com.n1netails.n1netails.api.service.TailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,25 +44,49 @@ public class TailServiceImpl implements TailService {
     private final TailTypeRepository typeRepository;
     private final TailStatusRepository statusRepository;
     private final NoteRepository noteRepository;
+    private final AuthorizationService authorizationService;
 
     @Override
-    public TailResponse getTailById(Long id) {
+    public TailResponse getTailById(Long id, UserPrincipal currentUser) { // Added currentUser parameter
         // TODO UPDATE THIS SO ONLY THE USER AND USERS IN THE SAME THE ORGANIZATION CAN GET THE TAIL
-        Optional<TailEntity> tail = tailRepository.findById(id);
-        TailResponse tailResponse = new TailResponse();
-        if (tail.isPresent()) {
-            tailResponse = setTailResponse(tail.get());
+        Optional<TailEntity> tailOptional = tailRepository.findById(id);
+        if (tailOptional.isEmpty()) {
+            throw new TailNotFoundException(REQUESTED_TAIL_NOT_FOUND);
         }
-        return tailResponse;
+        TailEntity tail = tailOptional.get();
+        // UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(); // Removed
+        Long organizationId = tail.getOrganizationId();
+
+        if (!authorizationService.belongsToOrganization(currentUser, organizationId)) {
+            throw new UnauthorizedException("User does not belong to the organization associated with this tail.");
+        }
+
+        if ("n1netails".equals(currentUser.getOrganizationName()) && !authorizationService.isTailOwner(currentUser, tail)) {
+            throw new UnauthorizedException("User is not the owner of this tail.");
+        }
+
+        return setTailResponse(tail);
     }
 
     @Override
-    public TailResponse updateStatus(Long id, TailStatus tailStatus) {
-        // TODO UPDATE THIS SO ONLY THE USER AND USERS IN THE SAME THE ORGANIZATION CAN CHANGE THE TAIL STATUS
-        Optional<TailEntity> tail = tailRepository.findById(id);
-        TailEntity updatedTailEntity = new TailEntity();
-        if (tail.isPresent()) {
-            updatedTailEntity = tail.get();
+    public TailResponse updateStatus(Long id, TailStatus tailStatus, UserPrincipal currentUser) { // Added currentUser
+        // Authorization logic implemented: User must be owner or organization admin to change tail status.
+        Optional<TailEntity> tailOptional = tailRepository.findById(id);
+        if (tailOptional.isEmpty()) {
+            throw new TailNotFoundException(REQUESTED_TAIL_NOT_FOUND);
+        }
+        TailEntity tail = tailOptional.get();
+        // UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(); // Removed
+        Long organizationId = tail.getOrganizationId(); // Assuming TailEntity has getOrganizationId()
+        Long ownerUserId = tail.getAssignedUserId(); // assignedUserId is the owner
+
+        // Check if the user is the owner OR an organization admin for the tail's organization
+        if (!(authorizationService.isSelf(currentUser, ownerUserId) ||
+              authorizationService.isOrganizationAdmin(currentUser, organizationId))) {
+            throw new UnauthorizedException("User is not authorized to update the status of this tail. Must be owner or organization admin.");
+        }
+
+        TailEntity updatedTailEntity = tail;
             Optional<TailStatusEntity> newStatus = statusRepository.findTailStatusByName(tailStatus.getName());
             if (newStatus.isPresent()) {
                 updatedTailEntity.setStatus(newStatus.get());
@@ -70,36 +97,54 @@ public class TailServiceImpl implements TailService {
                 updatedTailEntity.setStatus(createdStatus);
             }
             tailRepository.save(updatedTailEntity);
-        } else {
-            log.error("updateTailStatus - " + REQUESTED_TAIL_NOT_FOUND);
         }
         return setTailResponse(updatedTailEntity);
     }
 
     @Override
-    public void markResolved(ResolveTailRequest request) throws TailNotFoundException, TailStatusNotFoundException {
-        // TODO UPDATE THIS SO ONLY THE USER AND USERS IN THE SAME THE ORGANIZATION CAN MARK THE TAIL AS RESOLVED
-        UsersEntity assignedUser = this.usersRepository.findUserById(request.getUserId());
-        TailEntity resolvedTail = this.tailRepository.findById(request.getTailSummary().getId())
+    public void markResolved(ResolveTailRequest request, UserPrincipal currentUser) throws TailNotFoundException, TailStatusNotFoundException { // Added currentUser
+        // Authorization logic implemented: User must be the assigned user or an organization admin to mark tail as resolved.
+        TailEntity tail = this.tailRepository.findById(request.getTailSummary().getId())
                 .orElseThrow(() -> new TailNotFoundException("The requested tail does not exist."));
+
+        // UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(); // Removed
+        Long organizationId = tail.getOrganizationId(); // Assuming TailEntity has getOrganizationId()
+        Long assignedUserIdFromTail = tail.getAssignedUserId();
+
+        // Check if the current user is the one to whom the tail is assigned OR an organization admin.
+        // Note: request.getUserId() is the user who will be set as the resolver,
+        // currentUser.getId() is the user performing the action.
+        if (!(authorizationService.isSelf(currentUser, assignedUserIdFromTail) ||
+              authorizationService.isOrganizationAdmin(currentUser, organizationId))) {
+            throw new UnauthorizedException("User is not authorized to mark this tail as resolved. Must be the assigned user or an organization admin.");
+        }
+
+        // The user ID from the request is the user to be marked as the resolver.
+        // This doesn't necessarily have to be the currentUser if an admin is resolving it on someone's behalf,
+        // but the currentUser must have permission (checked above).
+        UsersEntity resolverUser = this.usersRepository.findUserById(request.getUserId());
+        if (resolverUser == null) {
+            // Or handle this as a specific exception, e.g., UserNotFoundException
+            throw new RuntimeException("Resolver user not found with ID: " + request.getUserId());
+        }
 
         // update tail status to RESOLVED
         TailStatusEntity resolvedStatus = this.statusRepository.findTailStatusByName("RESOLVED")
                 .orElseThrow(() -> new TailStatusNotFoundException("The requested tail status 'RESOLVED' does not exist."));
-        resolvedTail.setStatus(resolvedStatus);
+        tail.setStatus(resolvedStatus);
         // set tail resolved timestamp
-        resolvedTail.setResolvedTimestamp(Instant.now());
-        // set tail assigned user id to user id in request
-        resolvedTail.setAssignedUserId(assignedUser.getId());
+        tail.setResolvedTimestamp(Instant.now());
+        // set tail assigned user id to the resolverUser's ID from the request
+        tail.setAssignedUserId(resolverUser.getId());
         NoteEntity noteEntity = new NoteEntity();
-        noteEntity.setTail(resolvedTail);
-        noteEntity.setUser(assignedUser);
+        noteEntity.setTail(tail);
+        noteEntity.setUser(resolverUser); // The note should be associated with the resolverUser
         noteEntity.setContent(request.getNote());
         noteEntity.setCreatedAt(Instant.now());
         // save note
         this.noteRepository.save(noteEntity);
         // save tail
-        this.tailRepository.save(resolvedTail);
+        this.tailRepository.save(tail);
     }
 
     private TailResponse setTailResponse(TailEntity tailEntity) {
@@ -126,9 +171,11 @@ public class TailServiceImpl implements TailService {
     }
 
     @Override
-    public Page<TailResponse> getTails(TailPageRequest request) throws TailStatusNotFoundException, TailTypeNotFoundException, TailLevelNotFoundException {
-        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO ORGANIZATIONS THEY ARE APART OF
-        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+    public Page<TailResponse> getTails(TailPageRequest request, UserPrincipal currentUser) throws TailStatusNotFoundException, TailTypeNotFoundException, TailLevelNotFoundException { // Added currentUser
+        // Authorization logic implemented. Users can only see tails related to their organizations.
+        // If a user is part of the n1netails organization, they can only view their own tails.
+        // UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(); // Removed
+        List<Long> organizationIds = currentUser.getOrganizationIds(); // Assuming this method exists in UserPrincipal
 
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
 
@@ -167,25 +214,65 @@ public class TailServiceImpl implements TailService {
         }
         log.info("LEVEL NAMES: {}", levels);
 
-        Page<TailSummary> tailPage = tailRepository.findAllBySearchTermAndTailFilters(
-                searchTerm,
-                statuses,
-                types,
-                levels,
-                pageable
-        );
+        Page<TailSummary> tailPage;
+        if (currentUser.getOrganizationName().equals("n1netails")) { // TODO: Use a constant for "n1netails"
+            if (currentUser.getId() == null) {
+                // Handle case where user ID is null for n1netails user, perhaps throw exception or return empty page
+                log.warn("User ID is null for n1netails user: {}", currentUser.getUsername());
+                return Page.empty(pageable);
+            }
+            tailPage = tailRepository.findAllBySearchTermAndTailFilters(
+                    searchTerm,
+                    statuses,
+                    types,
+                    levels,
+                    currentUser.getId(),
+                    pageable
+            );
+        } else {
+            if (organizationIds == null || organizationIds.isEmpty()) {
+                // Handle case where user does not belong to any organization (and is not n1netails)
+                // This might mean returning an empty page or throwing an exception, depending on business logic.
+                log.warn("User {} does not belong to any organization and is not part of n1netails.", currentUser.getUsername());
+                return Page.empty(pageable);
+            }
+            tailPage = tailRepository.findAllBySearchTermAndTailFilters(
+                    searchTerm,
+                    statuses,
+                    types,
+                    levels,
+                    organizationIds,
+                    pageable
+            );
+        }
 
         return tailPage.map(this::setTailSummaryResponse);
     }
 
     @Override
-    public List<TailResponse> getTop9NewestTails() {
-        // TODO MAKE SURE USERS CAN ONLY SEE TAILS RELATED TO THEIR ORGANIZATION
-        // TODO IF A USER IS PART OF THE n1netails ORGANIZATION THEY CAN ONLY VIEW THEIR OWN TAILS
+    public List<TailResponse> getTop9NewestTails(UserPrincipal currentUser) { // Added currentUser
+        // Authorization logic implemented. Users can only see tails related to their organizations.
+        // If a user is part of the n1netails organization, they can only view their own tails.
+        // UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(); // Removed
+        List<Long> organizationIds = currentUser.getOrganizationIds(); // Assuming this method exists
+        Pageable pageable = PageRequest.of(0, 9);
+        Page<TailSummary> tailPage;
 
-        Page<TailSummary> tailPage = tailRepository.findAllByOrderByTimestampDesc(PageRequest.of(0,9));
+        if (currentUser.getOrganizationName().equals("n1netails")) { // TODO: Use a constant for "n1netails"
+            if (currentUser.getId() == null) {
+                log.warn("User ID is null for n1netails user: {}", currentUser.getUsername());
+                return new ArrayList<>(); // Return empty list
+            }
+            tailPage = tailRepository.findTop9ByAssignedUserIdOrderByTimestampDesc(currentUser.getId(), pageable);
+        } else {
+            if (organizationIds == null || organizationIds.isEmpty()) {
+                log.warn("User {} does not belong to any organization and is not part of n1netails.", currentUser.getUsername());
+                return new ArrayList<>(); // Return empty list
+            }
+            tailPage = tailRepository.findTop9ByOrganizationIdInOrderByTimestampDesc(organizationIds, pageable);
+        }
+
         List<TailSummary> tailSummaryList = tailPage.getContent();
-
         List<TailResponse> tailResponseList = new ArrayList<>();
         tailSummaryList.forEach(tail -> {
             TailResponse tailResponse = setTailSummaryResponse(tail);

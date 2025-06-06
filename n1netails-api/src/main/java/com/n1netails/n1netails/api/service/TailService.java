@@ -8,17 +8,18 @@ import com.n1netails.n1netails.api.model.core.TailStatus;
 import com.n1netails.n1netails.api.model.request.ResolveTailRequest;
 import com.n1netails.n1netails.api.model.request.TailPageRequest;
 import com.n1netails.n1netails.api.model.response.TailResponse;
+import com.n1netails.n1netails.api.model.UserPrincipal; // Added import
 import org.springframework.data.domain.Page;
 
 import java.util.List;
 
 public interface TailService {
 
-    Page<TailResponse> getTails(TailPageRequest request) throws TailStatusNotFoundException, TailTypeNotFoundException, TailLevelNotFoundException;
-    List<TailResponse> getTop9NewestTails();
-    TailResponse getTailById(Long id);
+    Page<TailResponse> getTails(TailPageRequest request, UserPrincipal currentUser) throws TailStatusNotFoundException, TailTypeNotFoundException, TailLevelNotFoundException;
+    List<TailResponse> getTop9NewestTails(UserPrincipal currentUser);
+    TailResponse getTailById(Long id, UserPrincipal currentUser);
 
-    TailResponse updateStatus(Long id, TailStatus tailStatus);
+    TailResponse updateStatus(Long id, TailStatus tailStatus, UserPrincipal currentUser);
 
-    void markResolved(ResolveTailRequest request) throws TailNotFoundException, TailStatusNotFoundException;
+    void markResolved(ResolveTailRequest request, UserPrincipal currentUser) throws TailNotFoundException, TailStatusNotFoundException;
 }

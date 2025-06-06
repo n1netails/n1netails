@@ -1,6 +1,7 @@
 package com.n1netails.n1netails.api.controller;
 
 import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
+import com.n1netails.n1netails.api.model.UserPrincipal;
 import com.n1netails.n1netails.api.model.request.CreateTokenRequest;
 import com.n1netails.n1netails.api.model.response.N1neTokenResponse;
 import com.n1netails.n1netails.api.service.AuthorizationService;
@@ -43,7 +44,9 @@ public class N1neTokenController {
             @RequestHeader(AUTHORIZATION) String authorizationHeader,
             @RequestBody CreateTokenRequest createTokenRequest
     ) throws AccessDeniedException, UserNotFoundException {
-        if (authorizationService.isSelf(authorizationHeader, createTokenRequest.getUserId())) {
+
+        UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
+        if (authorizationService.isSelf(currentUser, createTokenRequest.getUserId())) {
             log.info("Create n1ne token");
             N1neTokenResponse n1neTokenResponse = n1neTokenService.create(createTokenRequest);
             return ResponseEntity.ok(n1neTokenResponse);
@@ -51,18 +54,6 @@ public class N1neTokenController {
             throw new AccessDeniedException("Create Token request access denied.");
         }
     }
-
-    // TODO CONSIDER IF THIS IS NEEDED SO ORGANIZATION ADMINS CAN VIEW ALL TOKENS
-//    @Operation(summary = "Get all tokens", responses = {
-//            @ApiResponse(responseCode = "200", description = "List of tokens",
-//                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = N1neTokenResponse.class))))
-//    })
-//    @GetMapping
-//    @PreAuthorize("hasAnyAuthority('user:admin')")
-//    public ResponseEntity<List<N1neTokenResponse>> getAll() {
-//        List<N1neTokenResponse> n1neTokenResponseList = n1neTokenService.getAll();
-//        return ResponseEntity.ok(n1neTokenResponseList);
-//    }
 
     @Operation(summary = "Get all tokens by user id", responses = {
             @ApiResponse(responseCode = "200", description = "List of tokens by user id",
@@ -73,7 +64,8 @@ public class N1neTokenController {
             @RequestHeader(AUTHORIZATION) String authorizationHeader,
             @PathVariable Long userId
     ) throws UserNotFoundException, AccessDeniedException {
-        if (authorizationService.isSelf(authorizationHeader, userId)) {
+        UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
+        if (authorizationService.isSelf(currentUser, userId)) {
             log.info("Get all tokens by user id");
             List<N1neTokenResponse> n1neTokenResponseList = n1neTokenService.getAllByUserId(userId);
             return ResponseEntity.ok(n1neTokenResponseList);
@@ -92,7 +84,8 @@ public class N1neTokenController {
             @PathVariable Long id
     ) throws UserNotFoundException, AccessDeniedException {
         N1neTokenResponse n1neToken = this.n1neTokenService.getById(id);
-        if (authorizationService.isOwnerOrOrganizationAdmin(authorizationHeader, n1neToken.getUserId(), n1neToken.getOrganizationId())) {
+        UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
+        if (authorizationService.isOwnerOrOrganizationAdmin(currentUser, n1neToken.getUserId(), n1neToken.getOrganizationId())) {
             n1neTokenService.revoke(id);
             return ResponseEntity.noContent().build();
         } else {
@@ -110,7 +103,8 @@ public class N1neTokenController {
             @PathVariable Long id
     ) throws AccessDeniedException, UserNotFoundException {
         N1neTokenResponse n1neToken = this.n1neTokenService.getById(id);
-        if (authorizationService.isOwnerOrOrganizationAdmin(authorizationHeader, n1neToken.getUserId(), n1neToken.getOrganizationId())) {
+        UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
+        if (authorizationService.isOwnerOrOrganizationAdmin(currentUser, n1neToken.getUserId(), n1neToken.getOrganizationId())) {
             n1neTokenService.enable(id);
             return ResponseEntity.noContent().build();
         } else {
@@ -128,7 +122,8 @@ public class N1neTokenController {
             @PathVariable Long id
     ) throws UserNotFoundException, AccessDeniedException {
         N1neTokenResponse n1neToken = this.n1neTokenService.getById(id);
-        if (authorizationService.isSelf(authorizationHeader, n1neToken.getUserId())) {
+        UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
+        if (authorizationService.isSelf(currentUser, n1neToken.getUserId())) {
             n1neTokenService.delete(id);
             return ResponseEntity.noContent().build();
         } else {

@@ -67,18 +67,6 @@ public class N1neTokenServiceImpl implements N1neTokenService {
     }
 
     @Override
-    public List<N1neTokenResponse> getAll() {
-        // TODO MAKE SURE ONLY THE ORGANIZATION ADMIN CAN GET ALL TOKENS IN THEIR ORGANIZATION
-        // TODO DO NOT RETURN THE TOKEN VALUE HERE
-        List<N1neTokenEntity> n1neTokenEntities = this.n1neTokenRepository.findAll();
-        List<N1neTokenResponse> n1neTokenResponseList = new ArrayList<>();
-        n1neTokenEntities.forEach(entity -> {
-            n1neTokenResponseList.add(generateN1neTokenResponse(entity));
-        });
-        return n1neTokenResponseList;
-    }
-
-    @Override
     public List<N1neTokenResponse> getAllByUserId(Long userId) {
         List<N1neTokenEntity> n1neTokenEntities = this.n1neTokenRepository.findByUserId(userId);
         List<N1neTokenResponse> n1neTokenResponseList = new ArrayList<>();
@@ -141,16 +129,18 @@ public class N1neTokenServiceImpl implements N1neTokenService {
     private static N1neTokenResponse generateN1neTokenResponse(N1neTokenEntity n1neTokenEntity) {
         N1neTokenResponse n1neTokenResponse = new N1neTokenResponse();
         n1neTokenResponse.setId(n1neTokenEntity.getId());
-        n1neTokenResponse.setToken(n1neTokenEntity.getToken());
+        n1neTokenResponse.setToken(n1neTokenEntity.getToken()); // Token value is included
         n1neTokenResponse.setCreatedAt(n1neTokenEntity.getCreatedAt());
         n1neTokenResponse.setRevoked(n1neTokenEntity.isRevoked());
         n1neTokenResponse.setExpiresAt(n1neTokenEntity.getExpiresAt());
         n1neTokenResponse.setName(n1neTokenEntity.getName());
-        n1neTokenResponse.setUserId(n1neTokenEntity.getUser().getId());
-        n1neTokenResponse.setOrganizationId(n1neTokenEntity.getOrganization().getId());
-        n1neTokenResponse.setLastUsedAt(n1neTokenEntity.getLastUsedAt());
-        if (n1neTokenEntity.getOrganization() != null)
+        if (n1neTokenEntity.getUser() != null) {
+            n1neTokenResponse.setUserId(n1neTokenEntity.getUser().getId());
+        }
+        if (n1neTokenEntity.getOrganization() != null) {
             n1neTokenResponse.setOrganizationId(n1neTokenEntity.getOrganization().getId());
+        }
+        n1neTokenResponse.setLastUsedAt(n1neTokenEntity.getLastUsedAt());
         return n1neTokenResponse;
     }
 }

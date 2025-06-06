@@ -9,6 +9,7 @@ import com.n1netails.n1netails.api.repository.TailLevelRepository;
 import com.n1netails.n1netails.api.repository.TailMetricsRepository;
 import com.n1netails.n1netails.api.repository.TailRepository;
 import com.n1netails.n1netails.api.service.TailMetricsService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -22,19 +23,13 @@ import java.time.LocalDate;
 
 @Slf4j
 @Service
-// @RequiredArgsConstructor // Will be replaced by manual constructor
+ @RequiredArgsConstructor
 @Qualifier("tailMetricsService")
 public class TailMetricsServiceImpl implements TailMetricsService {
 
     private final TailRepository tailRepository;
     private final TailLevelRepository tailLevelRepository;
     private final TailMetricsRepository tailMetricsRepository;
-
-    public TailMetricsServiceImpl(TailRepository tailRepository, TailLevelRepository tailLevelRepository, TailMetricsRepository tailMetricsRepository) {
-        this.tailRepository = tailRepository;
-        this.tailLevelRepository = tailLevelRepository;
-        this.tailMetricsRepository = tailMetricsRepository;
-    }
 
     @Override
     public List<TailResponse> tailAlertsToday(String timezoneIdString, Long userId, List<Long> organizationIds) {
@@ -44,7 +39,7 @@ public class TailMetricsServiceImpl implements TailMetricsService {
 
         List<TailEntity> tailEntities;
         if (userId != null) {
-            tailEntities = tailMetricsRepository.findByTimestampBetweenAndUserId(startOfDayUserTzAsUtc, endOfDayUserTzAsUtc, userId);
+            tailEntities = tailMetricsRepository.findByTimestampBetweenAndAssignedUserId(startOfDayUserTzAsUtc, endOfDayUserTzAsUtc, userId);
         } else if (organizationIds != null && !organizationIds.isEmpty()) {
             tailEntities = tailMetricsRepository.findByTimestampBetweenAndOrganizationIdIn(startOfDayUserTzAsUtc, endOfDayUserTzAsUtc, organizationIds);
         } else {
@@ -68,7 +63,7 @@ public class TailMetricsServiceImpl implements TailMetricsService {
 
         log.info("Counting alerts for user timezone {}. UTC Start: {}, UTC End: {}", timezoneIdString, startOfDayUserTzAsUtc, endOfDayUserTzAsUtc);
         if (userId != null) {
-            return tailMetricsRepository.countByTimestampBetweenAndUserId(startOfDayUserTzAsUtc, endOfDayUserTzAsUtc, userId);
+            return tailMetricsRepository.countByTimestampBetweenAndAssignedUserId(startOfDayUserTzAsUtc, endOfDayUserTzAsUtc, userId);
         } else if (organizationIds != null && !organizationIds.isEmpty()) {
             return tailMetricsRepository.countByTimestampBetweenAndOrganizationIdIn(startOfDayUserTzAsUtc, endOfDayUserTzAsUtc, organizationIds);
         } else {
@@ -81,7 +76,7 @@ public class TailMetricsServiceImpl implements TailMetricsService {
     public List<TailResponse> tailAlertsResolved(Long userId, List<Long> organizationIds) {
         List<TailEntity> tailEntities;
         if (userId != null) {
-            tailEntities = tailMetricsRepository.findAllByStatusNameAndUserId("RESOLVED", userId);
+            tailEntities = tailMetricsRepository.findAllByStatusNameAndAssignedUserId("RESOLVED", userId);
         } else if (organizationIds != null && !organizationIds.isEmpty()) {
             tailEntities = tailMetricsRepository.findAllByStatusNameAndOrganizationIdIn("RESOLVED", organizationIds);
         } else {
@@ -100,7 +95,7 @@ public class TailMetricsServiceImpl implements TailMetricsService {
     @Override
     public long countAlertsResolved(Long userId, List<Long> organizationIds) {
         if (userId != null) {
-            return tailMetricsRepository.countByStatusNameAndUserId("RESOLVED", userId);
+            return tailMetricsRepository.countByStatusNameAndAssignedUserId("RESOLVED", userId);
         } else if (organizationIds != null && !organizationIds.isEmpty()) {
             return tailMetricsRepository.countByStatusNameAndOrganizationIdIn("RESOLVED", organizationIds);
         } else {
@@ -113,7 +108,7 @@ public class TailMetricsServiceImpl implements TailMetricsService {
     public List<TailResponse> tailAlertsNotResolved(Long userId, List<Long> organizationIds) {
         List<TailEntity> tailEntities;
         if (userId != null) {
-            tailEntities = tailMetricsRepository.findAllByStatusNameNotAndUserId("RESOLVED", userId);
+            tailEntities = tailMetricsRepository.findAllByStatusNameNotAndAssignedUserId("RESOLVED", userId);
         } else if (organizationIds != null && !organizationIds.isEmpty()) {
             tailEntities = tailMetricsRepository.findAllByStatusNameNotAndOrganizationIdIn("RESOLVED", organizationIds);
         } else {
@@ -132,7 +127,7 @@ public class TailMetricsServiceImpl implements TailMetricsService {
     @Override
     public long countAlertsNotResolved(Long userId, List<Long> organizationIds) {
         if (userId != null) {
-            return tailMetricsRepository.countByStatusNameNotAndUserId("RESOLVED", userId);
+            return tailMetricsRepository.countByStatusNameNotAndAssignedUserId("RESOLVED", userId);
         } else if (organizationIds != null && !organizationIds.isEmpty()) {
             return tailMetricsRepository.countByStatusNameNotAndOrganizationIdIn("RESOLVED", organizationIds);
         } else {

@@ -1,9 +1,9 @@
 package com.n1netails.n1netails.api.controller;
 
+import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
 import com.n1netails.n1netails.api.model.request.TimezoneRequest;
 import com.n1netails.n1netails.api.model.UserPrincipal;
 import com.n1netails.n1netails.api.model.entity.OrganizationEntity;
-import com.n1netails.n1netails.api.model.request.TimezoneRequest;
 import com.n1netails.n1netails.api.model.response.*;
 import com.n1netails.n1netails.api.service.AuthorizationService;
 import com.n1netails.n1netails.api.service.TailMetricsService;
@@ -27,9 +27,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATION_JSON;
-import static com.n1netails.n1netails.api.constant.ProjectSecurityConstant.JWT_TOKEN_HEADER;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Slf4j
+@RequiredArgsConstructor
 @Tag(name = "Tail Metrics Controller", description = "Operations related to Tail Metrics")
 @SecurityRequirement(name = "bearerAuth")
 @RestController
@@ -39,23 +40,19 @@ public class TailMetricsController {
     private final TailMetricsService tailMetricsService;
     private final AuthorizationService authorizationService;
 
-    public TailMetricsController(TailMetricsService tailMetricsService, AuthorizationService authorizationService) {
-        this.tailMetricsService = tailMetricsService;
-        this.authorizationService = authorizationService;
-    }
-
     @Operation(summary = "Get tail alerts that occurred today.", responses = {
             @ApiResponse(responseCode = "200", description = "List of tail alerts",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = TailResponse.class))))
     })
     @PostMapping("/today")
-    public List<TailResponse> getTailAlertsToday(@RequestHeader(JWT_TOKEN_HEADER) String authorizationHeader,
-                                               @RequestBody TimezoneRequest timezoneRequest) {
+    public List<TailResponse> getTailAlertsToday(
+            @RequestHeader(AUTHORIZATION) String authorizationHeader,
+            @RequestBody TimezoneRequest timezoneRequest) throws UserNotFoundException {
         UserPrincipal principal = authorizationService.getCurrentUserPrincipal(authorizationHeader);
         Long currentUserId = principal.getId();
         List<Long> organizationIds = principal.getOrganizations().stream().map(OrganizationEntity::getId).collect(Collectors.toList());
         boolean isN1neTailsOrgMember = principal.getOrganizations().stream()
-                                           .anyMatch(org -> "n1netails".equalsIgnoreCase(org.getName()));
+                .anyMatch(org -> "n1netails".equalsIgnoreCase(org.getName()));
 
         if (isN1neTailsOrgMember) {
             return tailMetricsService.tailAlertsToday(timezoneRequest.getTimezone(), currentUserId, null);
@@ -69,13 +66,14 @@ public class TailMetricsController {
                     content = @Content(schema = @Schema(implementation = long.class)))
     })
     @PostMapping("/today/count")
-    public long countTailAlertsToday(@RequestHeader(JWT_TOKEN_HEADER) String authorizationHeader,
-                                     @RequestBody TimezoneRequest timezoneRequest) {
+    public long countTailAlertsToday(
+            @RequestHeader(AUTHORIZATION) String authorizationHeader,
+            @RequestBody TimezoneRequest timezoneRequest) throws UserNotFoundException {
         UserPrincipal principal = authorizationService.getCurrentUserPrincipal(authorizationHeader);
         Long currentUserId = principal.getId();
         List<Long> organizationIds = principal.getOrganizations().stream().map(OrganizationEntity::getId).collect(Collectors.toList());
         boolean isN1neTailsOrgMember = principal.getOrganizations().stream()
-                                           .anyMatch(org -> "n1netails".equalsIgnoreCase(org.getName()));
+                .anyMatch(org -> "n1netails".equalsIgnoreCase(org.getName()));
 
         if (isN1neTailsOrgMember) {
             return tailMetricsService.countAlertsToday(timezoneRequest.getTimezone(), currentUserId, null);
@@ -89,12 +87,12 @@ public class TailMetricsController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = TailResponse.class))))
     })
     @GetMapping("/resolved")
-    public List<TailResponse> getTailAlertsResolved(@RequestHeader(JWT_TOKEN_HEADER) String authorizationHeader) {
+    public List<TailResponse> getTailAlertsResolved(@RequestHeader(AUTHORIZATION) String authorizationHeader) throws UserNotFoundException {
         UserPrincipal principal = authorizationService.getCurrentUserPrincipal(authorizationHeader);
         Long currentUserId = principal.getId();
         List<Long> organizationIds = principal.getOrganizations().stream().map(OrganizationEntity::getId).collect(Collectors.toList());
         boolean isN1neTailsOrgMember = principal.getOrganizations().stream()
-                                           .anyMatch(org -> "n1netails".equalsIgnoreCase(org.getName()));
+                .anyMatch(org -> "n1netails".equalsIgnoreCase(org.getName()));
 
         if (isN1neTailsOrgMember) {
             return tailMetricsService.tailAlertsResolved(currentUserId, null);
@@ -108,12 +106,12 @@ public class TailMetricsController {
                     content = @Content(schema = @Schema(implementation = long.class)))
     })
     @GetMapping("/resolved/count")
-    public long countTailAlertsResolved(@RequestHeader(JWT_TOKEN_HEADER) String authorizationHeader) {
+    public long countTailAlertsResolved(@RequestHeader(AUTHORIZATION) String authorizationHeader) throws UserNotFoundException {
         UserPrincipal principal = authorizationService.getCurrentUserPrincipal(authorizationHeader);
         Long currentUserId = principal.getId();
         List<Long> organizationIds = principal.getOrganizations().stream().map(OrganizationEntity::getId).collect(Collectors.toList());
         boolean isN1neTailsOrgMember = principal.getOrganizations().stream()
-                                           .anyMatch(org -> "n1netails".equalsIgnoreCase(org.getName()));
+                .anyMatch(org -> "n1netails".equalsIgnoreCase(org.getName()));
 
         if (isN1neTailsOrgMember) {
             return tailMetricsService.countAlertsResolved(currentUserId, null);
@@ -127,12 +125,12 @@ public class TailMetricsController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = TailResponse.class))))
     })
     @GetMapping("/not-resolved")
-    public List<TailResponse> getTailAlertsNotResolved(@RequestHeader(JWT_TOKEN_HEADER) String authorizationHeader) {
+    public List<TailResponse> getTailAlertsNotResolved(@RequestHeader(AUTHORIZATION) String authorizationHeader) throws UserNotFoundException {
         UserPrincipal principal = authorizationService.getCurrentUserPrincipal(authorizationHeader);
         Long currentUserId = principal.getId();
         List<Long> organizationIds = principal.getOrganizations().stream().map(OrganizationEntity::getId).collect(Collectors.toList());
         boolean isN1neTailsOrgMember = principal.getOrganizations().stream()
-                                           .anyMatch(org -> "n1netails".equalsIgnoreCase(org.getName()));
+                .anyMatch(org -> "n1netails".equalsIgnoreCase(org.getName()));
 
         if (isN1neTailsOrgMember) {
             return tailMetricsService.tailAlertsNotResolved(currentUserId, null);
@@ -146,12 +144,12 @@ public class TailMetricsController {
                     content = @Content(schema = @Schema(implementation = long.class)))
     })
     @GetMapping("/not-resolved/count")
-    public long countTailAlertsNotResolved(@RequestHeader(JWT_TOKEN_HEADER) String authorizationHeader) {
+    public long countTailAlertsNotResolved(@RequestHeader(AUTHORIZATION) String authorizationHeader) throws UserNotFoundException {
         UserPrincipal principal = authorizationService.getCurrentUserPrincipal(authorizationHeader);
         Long currentUserId = principal.getId();
         List<Long> organizationIds = principal.getOrganizations().stream().map(OrganizationEntity::getId).collect(Collectors.toList());
         boolean isN1neTailsOrgMember = principal.getOrganizations().stream()
-                                           .anyMatch(org -> "n1netails".equalsIgnoreCase(org.getName()));
+                .anyMatch(org -> "n1netails".equalsIgnoreCase(org.getName()));
 
         if (isN1neTailsOrgMember) {
             return tailMetricsService.countAlertsNotResolved(currentUserId, null);
@@ -165,12 +163,12 @@ public class TailMetricsController {
                     content = @Content(schema = @Schema(implementation = long.class)))
     })
     @GetMapping("/mttr")
-    public long getTailAlertsMTTR(@RequestHeader(JWT_TOKEN_HEADER) String authorizationHeader) {
+    public long getTailAlertsMTTR(@RequestHeader(AUTHORIZATION) String authorizationHeader) throws UserNotFoundException {
         UserPrincipal principal = authorizationService.getCurrentUserPrincipal(authorizationHeader);
         Long currentUserId = principal.getId();
         List<Long> organizationIds = principal.getOrganizations().stream().map(OrganizationEntity::getId).collect(Collectors.toList());
         boolean isN1neTailsOrgMember = principal.getOrganizations().stream()
-                                           .anyMatch(org -> "n1netails".equalsIgnoreCase(org.getName()));
+                .anyMatch(org -> "n1netails".equalsIgnoreCase(org.getName()));
 
         if (isN1neTailsOrgMember) {
             return tailMetricsService.tailAlertsMTTR(currentUserId, null);
@@ -184,12 +182,12 @@ public class TailMetricsController {
                     content = @Content(schema = @Schema(implementation = TailDatasetMttrResponse.class)))
     })
     @GetMapping("/mttr/last-7-days")
-    public TailDatasetMttrResponse getTailMTTRLast7Days(@RequestHeader(JWT_TOKEN_HEADER) String authorizationHeader) {
+    public TailDatasetMttrResponse getTailMTTRLast7Days(@RequestHeader(AUTHORIZATION) String authorizationHeader) throws UserNotFoundException {
         UserPrincipal principal = authorizationService.getCurrentUserPrincipal(authorizationHeader);
         Long currentUserId = principal.getId();
         List<Long> organizationIds = principal.getOrganizations().stream().map(OrganizationEntity::getId).collect(Collectors.toList());
         boolean isN1neTailsOrgMember = principal.getOrganizations().stream()
-                                           .anyMatch(org -> "n1netails".equalsIgnoreCase(org.getName()));
+                .anyMatch(org -> "n1netails".equalsIgnoreCase(org.getName()));
 
         if (isN1neTailsOrgMember) {
             return tailMetricsService.getTailMTTRLast7Days(currentUserId, null);
@@ -203,13 +201,13 @@ public class TailMetricsController {
                     content = @Content(schema = @Schema(implementation = TailAlertsPerHourResponse.class)))
     })
     @PostMapping("/hourly")
-    public TailAlertsPerHourResponse getTailAlertsHourly(@RequestHeader(JWT_TOKEN_HEADER) String authorizationHeader,
-                                                       @RequestBody TimezoneRequest timezoneRequest) {
+    public TailAlertsPerHourResponse getTailAlertsHourly(@RequestHeader(AUTHORIZATION) String authorizationHeader,
+                                                         @RequestBody TimezoneRequest timezoneRequest) throws UserNotFoundException {
         UserPrincipal principal = authorizationService.getCurrentUserPrincipal(authorizationHeader);
         Long currentUserId = principal.getId();
         List<Long> organizationIds = principal.getOrganizations().stream().map(OrganizationEntity::getId).collect(Collectors.toList());
         boolean isN1neTailsOrgMember = principal.getOrganizations().stream()
-                                           .anyMatch(org -> "n1netails".equalsIgnoreCase(org.getName()));
+                .anyMatch(org -> "n1netails".equalsIgnoreCase(org.getName()));
 
         if (isN1neTailsOrgMember) {
             return tailMetricsService.getTailAlertsPerHour(timezoneRequest.getTimezone(), currentUserId, null);
@@ -223,13 +221,13 @@ public class TailMetricsController {
                     content = @Content(schema = @Schema(implementation = TailMonthlySummaryResponse.class)))
     })
     @PostMapping("/monthly-summary")
-    public TailMonthlySummaryResponse getTailMonthlySummary(@RequestHeader(JWT_TOKEN_HEADER) String authorizationHeader,
-                                                          @RequestBody TimezoneRequest timezoneRequest) {
+    public TailMonthlySummaryResponse getTailMonthlySummary(@RequestHeader(AUTHORIZATION) String authorizationHeader,
+                                                            @RequestBody TimezoneRequest timezoneRequest) throws UserNotFoundException {
         UserPrincipal principal = authorizationService.getCurrentUserPrincipal(authorizationHeader);
         Long currentUserId = principal.getId();
         List<Long> organizationIds = principal.getOrganizations().stream().map(OrganizationEntity::getId).collect(Collectors.toList());
         boolean isN1neTailsOrgMember = principal.getOrganizations().stream()
-                                           .anyMatch(org -> "n1netails".equalsIgnoreCase(org.getName()));
+                .anyMatch(org -> "n1netails".equalsIgnoreCase(org.getName()));
 
         if (isN1neTailsOrgMember) {
             return tailMetricsService.getTailMonthlySummary(timezoneRequest.getTimezone(), currentUserId, null);

@@ -23,15 +23,17 @@ Run N1netails with docker
 
 Build and run the docker container 
 
-Bash (Unix)
-```bash
-mvn clean package && docker compose up --build
-```
-PowerShell (Windows)
+#### build
 ```shell
-mvn clean package; docker-compose up --build
+mvn clean package
 ```
-Remove docker containers
+
+#### docker compose
+```shell
+docker-compose up --build
+```
+
+#### Remove docker containers
 ```bash
 docker-compose down -v 
 ```

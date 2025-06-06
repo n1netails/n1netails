@@ -153,11 +153,6 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     private void prepareUserForOrganizationAssignment(UsersEntity user, OrganizationEntity targetOrganization, OrganizationEntity n1netailsOrgInstance) {
-        // TODO IF THE USER IS A SUPER USER THEY CAN BE PART OF MULTIPLE ORGANIZATIONS INCLUDING THE n1netails ORGANIZATIONS
-        // Ensure user's organizations are loaded if potentially detached or LAZY and not in current session scope
-        // However, since 'user' is typically fetched within the same @Transactional method calling this,
-        // its 'organizations' set should be accessible.
-
         if (N1NETAILS_ORG_NAME.equalsIgnoreCase(targetOrganization.getName())) {
             boolean inOtherOrgs = user.getOrganizations().stream()
                     .anyMatch(org -> !N1NETAILS_ORG_NAME.equalsIgnoreCase(org.getName()));
@@ -167,7 +162,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         } else { // Target is not "n1netails"
             if (n1netailsOrgInstance != null && user.getOrganizations().contains(n1netailsOrgInstance)) {
                 n1netailsOrgInstance.getUsers().remove(user);
-                // user.getOrganizations().remove(n1netailsOrgInstance); // Not strictly needed as OrganizationEntity owns the relationship
+                // user.getOrganizations().remove(n1netailsOrgInstance);
                 organizationRepository.save(n1netailsOrgInstance);
             }
         }

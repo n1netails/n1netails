@@ -27,7 +27,7 @@
 
                 <div *ngIf="!isLoading && tail" class="tail-content">
 
-                  <div class="tail-resolve">
+                  <div class="tail-resolve" *ngIf="tail.assignedUserId == currentUser.id.toString()">
                     <button nz-button nzType="primary" (click)="openResolveModal()" style="float: right;" *ngIf="tail && tail.status !== 'RESOLVED' && tail.status !== 'CLOSED'">
                       Resolve Tail
                     </button>

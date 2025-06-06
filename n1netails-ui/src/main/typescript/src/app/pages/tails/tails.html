@@ -132,7 +132,7 @@
                     <td><nz-tag [nzColor]="tailUtilService.getTypeColor(tail.type)">{{ tail.type }}</nz-tag></td>
                     <td><nz-tag [nzColor]="tailUtilService.getLevelColor(tail.level)">{{ tail.level }}</nz-tag></td>
                     <td>{{ tail.assignedUsername || tail.assignedUserId || 'N/A' }}</td>
-                    <td><a (click)="resolve(tail)">resolve</a></td>
+                    <td><a *ngIf="tail.assignedUserId == currentUser.id" (click)="resolve(tail)">resolve</a></td>
                   </tr>
                 </tbody>
               </nz-table>

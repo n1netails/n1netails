@@ -76,8 +76,9 @@ public interface TailRepository extends JpaRepository<TailEntity, Long> {
         JOIN t.level l
         JOIN t.type ty
         JOIN t.status s
+        JOIN t.organization o
         WHERE t.resolvedTimestamp IS NULL
-        AND t.organizationId IN :organizationIds
+        AND o.id IN :organizationIds
         ORDER BY t.timestamp DESC
     """)
     Page<TailSummary> findTop9ByOrganizationIdInOrderByTimestampDesc(@Param("organizationIds") List<Long> organizationIds, Pageable pageable);
@@ -160,11 +161,12 @@ public interface TailRepository extends JpaRepository<TailEntity, Long> {
         JOIN t.level l
         JOIN t.type ty
         JOIN t.status s
+        JOIN t.organization o
         WHERE s.name IN :statuses
         AND ty.name IN :types
         AND l.name IN :levels
         AND (t.title LIKE %:searchTerm% OR t.description LIKE %:searchTerm%)
-        AND t.organizationId IN :organizationIds
+        AND o.id IN :organizationIds
         ORDER BY t.timestamp DESC
     """)
     Page<TailSummary> findAllBySearchTermAndTailFilters(

@@ -1,9 +1,6 @@
 package com.n1netails.n1netails.api.service;
 
-import com.n1netails.n1netails.api.exception.type.TailLevelNotFoundException;
-import com.n1netails.n1netails.api.exception.type.TailNotFoundException;
-import com.n1netails.n1netails.api.exception.type.TailStatusNotFoundException;
-import com.n1netails.n1netails.api.exception.type.TailTypeNotFoundException;
+import com.n1netails.n1netails.api.exception.type.*;
 import com.n1netails.n1netails.api.model.core.TailStatus;
 import com.n1netails.n1netails.api.model.request.ResolveTailRequest;
 import com.n1netails.n1netails.api.model.request.TailPageRequest;
@@ -17,9 +14,9 @@ public interface TailService {
 
     Page<TailResponse> getTails(TailPageRequest request, UserPrincipal currentUser) throws TailStatusNotFoundException, TailTypeNotFoundException, TailLevelNotFoundException;
     List<TailResponse> getTop9NewestTails(UserPrincipal currentUser);
-    TailResponse getTailById(Long id, UserPrincipal currentUser);
+    TailResponse getTailById(Long id, UserPrincipal currentUser) throws TailNotFoundException, UnauthorizedException;
 
-    TailResponse updateStatus(Long id, TailStatus tailStatus, UserPrincipal currentUser);
+    TailResponse updateStatus(Long id, TailStatus tailStatus, UserPrincipal currentUser) throws TailNotFoundException, UnauthorizedException;
 
-    void markResolved(ResolveTailRequest request, UserPrincipal currentUser) throws TailNotFoundException, TailStatusNotFoundException;
+    void markResolved(ResolveTailRequest request, UserPrincipal currentUser) throws TailNotFoundException, TailStatusNotFoundException, UnauthorizedException;
 }

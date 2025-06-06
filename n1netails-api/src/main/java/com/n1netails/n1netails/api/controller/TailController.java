@@ -1,13 +1,9 @@
 package com.n1netails.n1netails.api.controller;
 
-import com.n1netails.n1netails.api.exception.type.TailLevelNotFoundException;
-import com.n1netails.n1netails.api.exception.type.TailNotFoundException;
-import com.n1netails.n1netails.api.exception.type.TailStatusNotFoundException;
-import com.n1netails.n1netails.api.exception.type.TailTypeNotFoundException;
+import com.n1netails.n1netails.api.exception.type.*;
+import com.n1netails.n1netails.api.model.UserPrincipal;
 import com.n1netails.n1netails.api.model.request.ResolveTailRequest;
 import com.n1netails.n1netails.api.model.request.TailPageRequest;
-import com.n1netails.n1netails.api.model.request.TailRequest;
-import com.n1netails.n1netails.api.model.UserPrincipal;
 import com.n1netails.n1netails.api.model.response.HttpErrorResponse;
 import com.n1netails.n1netails.api.model.response.TailResponse;
 import com.n1netails.n1netails.api.service.AuthorizationService;
@@ -46,7 +42,7 @@ public class TailController {
                     content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
     })
     @GetMapping("/{id}")
-    public ResponseEntity<TailResponse> getById(@PathVariable Long id, @RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<TailResponse> getById(@PathVariable Long id, @RequestHeader("Authorization") String authorizationHeader) throws UserNotFoundException, UnauthorizedException, TailNotFoundException {
         UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
         return ResponseEntity.ok(tailService.getTailById(id, currentUser));
     }
@@ -56,7 +52,7 @@ public class TailController {
                     content = @Content(schema = @Schema(implementation = Page.class))) // Note: Ideally, you'd use a Page<TailResponse> schema
     })
     @PostMapping("/page")
-    public ResponseEntity<Page<TailResponse>> getTailsByPage(@RequestBody TailPageRequest request, @RequestHeader("Authorization") String authorizationHeader) throws TailTypeNotFoundException, TailLevelNotFoundException, TailStatusNotFoundException {
+    public ResponseEntity<Page<TailResponse>> getTailsByPage(@RequestBody TailPageRequest request, @RequestHeader("Authorization") String authorizationHeader) throws TailTypeNotFoundException, TailLevelNotFoundException, TailStatusNotFoundException, UserNotFoundException {
         UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
         return ResponseEntity.ok(tailService.getTails(request, currentUser));
     }
@@ -66,7 +62,7 @@ public class TailController {
                     content = @Content(schema = @Schema(implementation = TailResponse.class)))
     })
     @GetMapping("/top9")
-    public ResponseEntity<List<TailResponse>> getTop9NewestTails(@RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<List<TailResponse>> getTop9NewestTails(@RequestHeader("Authorization") String authorizationHeader) throws UserNotFoundException {
         UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
         return ResponseEntity.ok(tailService.getTop9NewestTails(currentUser));
     }
@@ -76,8 +72,9 @@ public class TailController {
             @ApiResponse(responseCode = "404", description = "Tail or tail status not found")
     })
     @PostMapping("/mark/resolved")
-    public ResponseEntity<Void> markTailResolved(@RequestBody ResolveTailRequest request) throws TailNotFoundException, TailStatusNotFoundException {
-        tailService.markResolved(request);
+    public ResponseEntity<Void> markTailResolved(@RequestHeader("Authorization") String authorizationHeader, @RequestBody ResolveTailRequest request) throws TailNotFoundException, TailStatusNotFoundException, UserNotFoundException, UnauthorizedException {
+        UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
+        tailService.markResolved(request, currentUser);
         return ResponseEntity.noContent().build();
     }
 }

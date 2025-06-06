@@ -115,7 +115,7 @@ export class DashboardComponent implements OnInit {
   initLoading = true; // bug
   loadingMore = false;
   data: any[] = [];
-  list: Array<{ loading: boolean; id: number, title: string, description: string, level: string, type: string, status: string }> = [];
+  list: Array<{ loading: boolean; id: number, title: string, description: string, level: string, type: string, status: string, assignedUserId: number }> = [];
 
   // tail domain info
   tailTypes: TailTypeResponse[] = [];

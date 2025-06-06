@@ -122,6 +122,9 @@ public class TailServiceImpl implements TailService {
            metadata.put(variable.getKey(), variable.getValue());
         });
         tailResponse.setMetadata(metadata);
+        if (tailEntity.getOrganization() != null) {
+            tailResponse.setOrganizationId(tailEntity.getOrganization().getId());
+        }
         return tailResponse;
     }
 
@@ -207,6 +210,7 @@ public class TailServiceImpl implements TailService {
         tailResponse.setLevel(tailSummary.getLevel());
         tailResponse.setType(tailSummary.getType());
         tailResponse.setStatus(tailSummary.getStatus());
+        tailResponse.setOrganizationId(tailSummary.getOrganizationId());
         return tailResponse;
     }
 }

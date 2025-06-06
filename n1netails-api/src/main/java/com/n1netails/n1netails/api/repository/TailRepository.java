@@ -27,7 +27,8 @@ public interface TailRepository extends JpaRepository<TailEntity, Long> {
             t.assignedUserId,
             l.name,
             ty.name,
-            s.name
+            s.name,
+            t.organization.id
         )
         FROM TailEntity t
         JOIN t.level l
@@ -48,7 +49,8 @@ public interface TailRepository extends JpaRepository<TailEntity, Long> {
             t.assignedUserId,
             l.name,
             ty.name,
-            s.name
+            s.name,
+            t.organization.id
         )
         FROM TailEntity t
         JOIN t.level l

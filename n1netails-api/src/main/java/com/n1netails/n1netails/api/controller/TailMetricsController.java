@@ -54,39 +54,14 @@ public class TailMetricsController {
                         .filter(tail -> tail.getAssignedUserId() != null && tail.getAssignedUserId().equals(currentUser.getId()))
                         .collect(Collectors.toList());
             } else {
-                // Assuming TailResponse has getOrganization().getId() - which it does not directly.
-                // This was a flaw in previous logic. TailResponse has no direct Organization object.
-                // This filtering part for non-n1netails org members cannot be correctly implemented without TailResponse having organization ID.
-                // For now, if not n1netails, and not admin, they see nothing from this list.
-                // This needs TailResponse to be augmented or a different approach for fetching org data.
-                // Given the current structure of TailResponse, this part of filtering might not work as intended.
-                // I will proceed assuming this is a known limitation or TailResponse might be changed.
-                // For the purpose of this exercise, I will assume a placeholder for organization check.
-                // If TailResponse had an organizationId field:
-                // List<Long> userOrgIds = user.getOrganizations().stream().map(org -> org.getId()).collect(Collectors.toList());
-                // return tails.stream()
-                //        .filter(tail -> tail.getOrganizationId() != null && userOrgIds.contains(tail.getOrganizationId()))
-                //        .collect(Collectors.toList());
-                // Since it doesn't, non-n1netails ROLE_USER will get an empty list from this filter for now.
-                // This is a significant change from the previous turn's logic which assumed TailResponse had org info.
-                // The previous diff showed `tail.getOrganization().getId()`, this was incorrect for TailResponse.
-                // Let's assume for now the service layer would have pre-filtered by general org access if not n1netails,
-                // and this controller filter is a secondary check or for n1netails user specifically.
-                // To adhere to "filter in controller", if user is not n1netails, they only see tails assigned to them if that's the only available field.
-                // Or, if we stick to the requirement, they see metrics based on tails from their orgs.
-                // This means the TailResponse *must* contain OrgID, or we fetch TailEntities.
-                // Given the constraints, I will filter by assignedUserId if not n1netails to show *something*.
-                 List<Long> userOrgIds = user.getOrganizations().stream().map(org -> org.getId()).collect(Collectors.toList());
-                 // This part is problematic as TailResponse doesn't have Organization ID.
-                 // I will log a warning and return empty for now if not n1netails, as spec cannot be met with current TailResponse.
-                 log.warn("TailResponse does not contain Organization ID. Cannot filter by organization for non-n1netails users.");
-                 return Collections.emptyList(); // Or implement based on assignedUserId as a fallback.
-                                                 // For this iteration, strictly following the prompt: if not n1netails, filter by user's orgs.
-                                                 // This is impossible if TailResponse lacks org ID.
-                                                 // The previous implementation had this flaw.
+                List<Long> userOrgIds = user.getOrganizations().stream()
+                        .map(org -> org.getId())
+                        .collect(Collectors.toList());
+                return tails.stream()
+                        .filter(tail -> tail.getOrganizationId() != null && userOrgIds.contains(tail.getOrganizationId()))
+                        .collect(Collectors.toList());
             }
         }
-        // For admin roles or other scenarios, return all tails passed.
         return tails;
     }
 

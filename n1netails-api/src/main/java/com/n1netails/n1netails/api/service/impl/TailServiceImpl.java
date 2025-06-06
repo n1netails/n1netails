@@ -110,8 +110,12 @@ public class TailServiceImpl implements TailService {
         tailResponse.setTimestamp(tailEntity.getTimestamp());
         tailResponse.setResolvedTimestamp(tailEntity.getResolvedTimestamp());
         tailResponse.setAssignedUserId(tailEntity.getAssignedUserId());
-        UsersEntity user = usersRepository.findUserById(tailEntity.getAssignedUserId());
-        tailResponse.setAssignedUsername(user.getUsername());
+        if (tailEntity.getAssignedUserId() != null) {
+            UsersEntity user = usersRepository.findUserById(tailEntity.getAssignedUserId());
+            if (user != null) {
+                tailResponse.setAssignedUsername(user.getUsername());
+            }
+        }
         tailResponse.setDetails(tailEntity.getDetails());
         tailResponse.setLevel(tailEntity.getLevel().getName());
         tailResponse.setType(tailEntity.getType().getName());
@@ -205,8 +209,12 @@ public class TailServiceImpl implements TailService {
         tailResponse.setTimestamp(tailSummary.getTimestamp());
         tailResponse.setResolvedTimestamp(tailSummary.getResolvedTimestamp());
         tailResponse.setAssignedUserId(tailSummary.getAssignedUserId());
-        UsersEntity user = usersRepository.findUserById(tailSummary.getAssignedUserId());
-        tailResponse.setAssignedUsername(user.getUsername());
+        if (tailSummary.getAssignedUserId() != null) {
+            UsersEntity user = usersRepository.findUserById(tailSummary.getAssignedUserId());
+            if (user != null) {
+                tailResponse.setAssignedUsername(user.getUsername());
+            }
+        }
         tailResponse.setLevel(tailSummary.getLevel());
         tailResponse.setType(tailSummary.getType());
         tailResponse.setStatus(tailSummary.getStatus());

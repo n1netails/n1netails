@@ -66,7 +66,7 @@ public class TailController {
                     throw new AccessDeniedException("User does not own this tail");
                 }
             } else {
-                if (!authorizationService.belongsToOrganization(currentUser, tail.getOrganization().getId())) {
+                if (!authorizationService.belongsToOrganization(currentUser, tail.getOrganizationId())) {
                     throw new AccessDeniedException("User does not belong to the tail's organization");
                 }
             }
@@ -115,7 +115,7 @@ public class TailController {
             } else {
                 List<Long> userOrgIds = user.getOrganizations().stream().map(org -> org.getId()).collect(Collectors.toList());
                 tails = tails.stream()
-                        .filter(tail -> userOrgIds.contains(tail.getOrganization().getId()))
+                        .filter(tail -> userOrgIds.contains(tail.getOrganizationId()))
                         .collect(Collectors.toList());
             }
         }
@@ -129,11 +129,12 @@ public class TailController {
     @PostMapping("/mark/resolved")
     public ResponseEntity<Void> markTailResolved(@RequestBody ResolveTailRequest request, @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) throws TailNotFoundException, TailStatusNotFoundException {
         UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
-        TailResponse tail = tailService.getTailById(request.getTailId());
+        // Using request.getTailSummary().getId() as per ResolveTailRequest structure
+        TailResponse tail = tailService.getTailById(request.getTailSummary().getId());
 
         if (currentUser.getRole().equals("ROLE_USER")) {
             if (!authorizationService.isTailOwner(currentUser, tail.getAssignedUserId()) &&
-                !authorizationService.isOrganizationAdmin(currentUser, tail.getOrganization().getId())) {
+                !authorizationService.isOrganizationAdmin(currentUser, tail.getOrganizationId())) {
                 throw new AccessDeniedException("User is not authorized to mark this tail as resolved");
             }
         }

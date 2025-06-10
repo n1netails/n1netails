@@ -1,8 +1,7 @@
 services:
   #  N1neTails API
   api:
-    build:
-      context: ./n1netails-api
+    image: shahidfo/n1netails-api:latest
     container_name: n1netails-api
     ports:
       - "9901:9901"
@@ -18,8 +17,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: postgres
   # N1neTails UI
   ui:
-    build:
-      context: ./n1netails-ui
+    image: shahidfo/n1netails-ui:latest
     container_name: n1netails-ui
     ports:
       - "9900:9900"
@@ -31,8 +29,7 @@ services:
       API_BASE_URL: http://localhost:9901
   # N1neTails Liquibase
   liquibase:
-    build:
-      context: ./n1netails-liquibase
+    image: shahidfo/n1netails-liquibase:latest
     container_name: n1netails-liquibase
     depends_on:
       db:

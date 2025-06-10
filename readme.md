@@ -11,22 +11,11 @@ N1netails is an open-source project that provides practical alerts and monitorin
 to identify issues — or if your application lacks any alerting at all — N1netails offers a straightforward way to gain 
 clarity on problems affecting your applications.
 
-## Requirements
-- Java 17
-- Maven
-- Postgres
-- Node.js
-
 # Docker
 Run N1netails with docker
 ### Useful Docker Commands
 
-Build and run the docker container 
-
-#### build
-```shell
-mvn clean package
-```
+Build and run the docker container
 
 #### docker compose
 ```shell
@@ -40,8 +29,15 @@ docker-compose down -v
 
 # Local Setup
 Set up N1netails on your local computer
-### Build Locally
-To build the project `cd` to the base of the project and run 
+
+### Build all locally
+Run the following command at the root of the `n1netails` directory.
+```shell
+mvn clean package
+```
+
+### Build individually
+To build the the different projects `cd` to the base of the project (Ex. `cd /n1netails-api`) and run 
 ```bash
 mvn clean package
 ```

@@ -67,3 +67,6 @@ Update
 ```bash
 mvn liquibase:update
 ```
+
+## Deploy Docker Image to Dockerhub
+Run the `docker-deploy.sh` file to deploy the docker image to dockerhub.

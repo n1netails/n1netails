@@ -37,7 +37,7 @@ mvn clean package
 ```
 
 ### Build individually
-To build the the different projects `cd` to the base of the project and run 
+To build the the different projects `cd` to the base of the project (Ex. `cd /n1netails-api`) and run 
 ```bash
 mvn clean package
 ```

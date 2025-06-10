@@ -33,3 +33,6 @@ Run the following command to start the angular application
 npm run start
 ```
 Read more here: [Angular Readme](src/main/typescript/README.md)
+
+## Deploy Docker Image to Dockerhub
+Run the `docker-deploy.sh` file to deploy the docker image to dockerhub.

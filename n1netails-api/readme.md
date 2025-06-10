@@ -51,3 +51,6 @@ Example:
 ```bash
 mvn spring-boot:run -DSPRING_PROFILE_ACTIVE=local -DPORT=9901 -DPOSTGRES_URL=jdbc:postgresql://localhost/n1netails -DPOSTGRES_USERNAME=postgres -DPOSTGRES_PASSWORD=postgres
 ```
+
+## Deploy Docker Image to Dockerhub
+Run the `docker-deploy.sh` file to deploy the docker image to dockerhub.

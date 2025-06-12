@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS ntail.runbook
 TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS ntail.runbook
-    OWNER to postgres;
+    OWNER to ninetails;
 
 ------------------------------
 -- Table: ntail.tail_runbooks
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS ntail.tail_runbooks
 TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS ntail.tail_runbooks
-    OWNER to postgres;
+    OWNER to ninetails;
 
 ------------------------------
 -- Table: ntail.runbook_related_tail_types
@@ -62,4 +62,4 @@ CREATE TABLE IF NOT EXISTS ntail.runbook_related_tail_types
 TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS ntail.runbook_related_tail_types
-    OWNER to postgres;
+    OWNER to ninetails;

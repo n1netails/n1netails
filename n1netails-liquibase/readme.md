@@ -7,26 +7,33 @@
 Set up postgres database create database `n1netails`
 Postgres local user
 
-username: postgres \
-password: postgres
+username: ninetails \
+password: ninetails
 
 ## Create
+### Create User
+Create the `ninetails` user in postgres (Note: the username is ninetails with a 'i' not a '1') pgAdmin 4 if none exists or use the following command to create the user:
+```sql
+CREATE USER ninetails WITH PASSWORD 'ninetails';
+```
+
 ### Create Database
 Create Database `n1netails` in postgres pgAdmin 4 if none exists or use the following command to create database:
 ```sql
 CREATE DATABASE "n1netails"
     WITH
-    OWNER = postgres
+    OWNER = ninetails
     ENCODING = 'UTF8'
     LOCALE_PROVIDER = 'libc'
     CONNECTION LIMIT = -1
     IS_TEMPLATE = False;
 ```
+
 ### Create Schema
 Create Schema `ntail` inside of the postgres `n1netails` Database with pgAdmin 4 if none exists or use the following command to create schema:
 ```sql
 CREATE SCHEMA IF NOT EXISTS ntail
-    AUTHORIZATION postgres;
+    AUTHORIZATION ninetails;
 ```
 
 ## Build

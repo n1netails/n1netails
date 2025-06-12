@@ -13,8 +13,8 @@ services:
     environment:
       SPRING_PROFILE_ACTIVE: docker
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/n1netails
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_DATASOURCE_USERNAME: ninetails
+      SPRING_DATASOURCE_PASSWORD: ninetails
   # N1neTails UI
   ui:
     image: shahidfo/n1netails-ui:latest
@@ -37,16 +37,16 @@ services:
     environment:
       SPRING_PROFILE_ACTIVE: docker
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/n1netails
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_DATASOURCE_USERNAME: ninetails
+      SPRING_DATASOURCE_PASSWORD: ninetails
   # Postgres Database
   db:
     image: postgres:16-alpine
     container_name: n1netails_db
     environment:
       POSTGRES_DB: n1netails
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: ninetails
+      POSTGRES_PASSWORD: ninetails
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./initdb:/docker-entrypoint-initdb.d

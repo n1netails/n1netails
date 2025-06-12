@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS ntail.n1ne_token
 TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS ntail.n1ne_token
-    OWNER to postgres;
+    OWNER to n1netails;
 
 -- Crate Sequence token_seq
 CREATE SEQUENCE IF NOT EXISTS token_seq START WITH 1 INCREMENT BY 1;

@@ -12,7 +12,7 @@
 
 	<groupId>com.n1netails</groupId>
 	<artifactId>n1netails-api</artifactId>
-	<version>0.2.0</version>
+	<version>0.2.1</version>
 	<name>n1netails-api</name>
 	<description>N1netails Alert Service API</description>
 

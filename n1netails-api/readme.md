@@ -7,26 +7,33 @@
 Set up postgres database create database `n1netails`
 Postgres local user 
 
-username: postgres \
-password: postgres
+username: n1netails \
+password: n1netails
 
 ## Create
+### Create User
+Create the `n1netails` user in postgres pgAdmin 4 if none exists or use the following command to create the user:
+```sql
+CREATE USER n1netails WITH PASSWORD 'n1netails';
+```
+
 ### Create Database
 Create Database `n1netails` in postgres pgAdmin 4 if none exists or use the following command to create database:
 ```sql
 CREATE DATABASE "n1netails"
     WITH
-    OWNER = postgres
+    OWNER = n1netails
     ENCODING = 'UTF8'
     LOCALE_PROVIDER = 'libc'
     CONNECTION LIMIT = -1
     IS_TEMPLATE = False;
 ```
+
 ### Create Schema
 Create Schema `ntail` inside of the postgres `n1netails` Database with pgAdmin 4 if none exists or use the following command to create schema:
 ```sql
 CREATE SCHEMA IF NOT EXISTS ntail
-    AUTHORIZATION postgres;
+    AUTHORIZATION n1netails;
 ```
 
 ## Build
@@ -44,12 +51,12 @@ mvn spring-boot:run -DSPRING_PROFILE_ACTIVE=local
 Run the project with environment variables.
 - PORT (application port)
 - POSTGRES_URL (postgres database url)
-- POSTGRES_USERNAME (postgres user)
-- POSTGRES_PASSWORD (postgres user password)
+- POSTGRES_USERNAME (n1netails user)
+- POSTGRES_PASSWORD (n1netails user password)
 
 Example:
 ```bash
-mvn spring-boot:run -DSPRING_PROFILE_ACTIVE=local -DPORT=9901 -DPOSTGRES_URL=jdbc:postgresql://localhost/n1netails -DPOSTGRES_USERNAME=postgres -DPOSTGRES_PASSWORD=postgres
+mvn spring-boot:run -DSPRING_PROFILE_ACTIVE=local -DPORT=9901 -DPOSTGRES_URL=jdbc:postgresql://localhost/n1netails -DPOSTGRES_USERNAME=n1netails -DPOSTGRES_PASSWORD=n1netails
 ```
 
 ## Deploy Docker Image to Dockerhub

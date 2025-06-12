@@ -13,8 +13,8 @@ services:
     environment:
       SPRING_PROFILE_ACTIVE: docker
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/n1netails
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_DATASOURCE_USERNAME: n1netails
+      SPRING_DATASOURCE_PASSWORD: n1netails
   # N1neTails UI
   ui:
     image: shahidfo/n1netails-ui:latest
@@ -37,23 +37,23 @@ services:
     environment:
       SPRING_PROFILE_ACTIVE: docker
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/n1netails
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_DATASOURCE_USERNAME: n1netails
+      SPRING_DATASOURCE_PASSWORD: n1netails
   # Postgres Database
   db:
     image: postgres:16-alpine
     container_name: n1netails_db
     environment:
       POSTGRES_DB: n1netails
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: n1netails
+      POSTGRES_PASSWORD: n1netails
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./initdb:/docker-entrypoint-initdb.d
     ports:
       - "5434:5432"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      test: [ "CMD-SHELL", "pg_isready -U n1netails" ]
       interval: 10s
       timeout: 5s
       retries: 60

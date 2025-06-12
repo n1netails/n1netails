@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS ntail.tail_status
 TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS ntail.tail_status
-    OWNER to postgres;
+    OWNER to n1netails;
 
 ------------------------------
 -- Table: ntail.tail_type
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS ntail.tail_type
 TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS ntail.tail_type
-    OWNER to postgres;
+    OWNER to n1netails;
 
 ------------------------------
 -- Table: ntail.tail_level
@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS ntail.tail_level
 TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS ntail.tail_level
-    OWNER to postgres;
+    OWNER to n1netails;
 
 ------------------------------
 -- Table: ntail.tail
@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS ntail.tail
 TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS ntail.tail
-    OWNER to postgres;
+    OWNER to n1netails;
 
 ------------------------------
 -- Table: ntail.tail_variable
@@ -112,4 +112,4 @@ CREATE TABLE IF NOT EXISTS ntail.tail_variable
 TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS ntail.tail_variable
-    OWNER to postgres;
+    OWNER to n1netails;

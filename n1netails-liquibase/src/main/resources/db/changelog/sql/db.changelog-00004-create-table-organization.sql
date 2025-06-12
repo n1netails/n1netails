@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS ntail.organization
 TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS ntail.organization
-    OWNER to postgres;
+    OWNER to n1netails;
 
 ------------------------------
 -- Table: ntail.user_organizations
@@ -42,4 +42,4 @@ CREATE TABLE IF NOT EXISTS ntail.user_organizations
 TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS ntail.user_organizations
-    OWNER to postgres;
+    OWNER to n1netails;

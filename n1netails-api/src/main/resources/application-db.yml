@@ -4,8 +4,8 @@ spring:
     initialization-mode: never
 #    initialization-mode: always
     url: ${POSTGRES_URL:jdbc:postgresql://localhost/n1netails}
-    username: ${POSTGRES_USERNAME:postgres}
-    password: ${POSTGRES_PASSWORD:postgres}
+    username: ${POSTGRES_USERNAME:n1netails}
+    password: ${POSTGRES_PASSWORD:n1netails}
   jpa:
     defer-datasource-initialization: true
     show-sql: true

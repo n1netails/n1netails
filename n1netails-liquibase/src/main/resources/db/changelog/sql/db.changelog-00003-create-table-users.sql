@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS ntail.users
 TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS ntail.users
-    OWNER to postgres;
+    OWNER to n1netails;
 
 ------------------------------
 -- Table: ntail.note
@@ -55,4 +55,4 @@ CREATE TABLE IF NOT EXISTS ntail.note
 TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS ntail.note
-    OWNER to postgres;
+    OWNER to n1netails;

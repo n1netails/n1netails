@@ -5,8 +5,8 @@ spring:
     name: n1netails-liquibase
   datasource:
     url: ${POSTGRES_URL:jdbc:postgresql://localhost/n1netails}
-    username: ${POSTGRES_USERNAME:ninetails}
-    password: ${POSTGRES_PASSWORD:ninetails}
+    username: ${POSTGRES_USERNAME:n1netails}
+    password: ${POSTGRES_PASSWORD:n1netails}
   driver-class-name: org.postgresql.Driver
   jpa:
     show-sql: true

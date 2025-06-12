@@ -16,7 +16,7 @@ DROP TABLE IF EXISTS ntail.n1ne_token CASCADE;
 --DROP TABLE IF EXISTS ntail.databasechangeloglock CASCADE;
 
 CREATE SCHEMA IF NOT EXISTS ntail
-    AUTHORIZATION ninetails;
+    AUTHORIZATION n1netails;
 
 -- Set UTC time
 ALTER DATABASE n1netails SET timezone TO 'Etc/UTC';

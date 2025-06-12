@@ -7,14 +7,14 @@
 Set up postgres database create database `n1netails`
 Postgres local user
 
-username: ninetails \
-password: ninetails
+username: n1netails \
+password: n1netails
 
 ## Create
 ### Create User
-Create the `ninetails` user in postgres (Note: the username is ninetails with a 'i' not a '1') pgAdmin 4 if none exists or use the following command to create the user:
+Create the `n1netails` user in postgres pgAdmin 4 if none exists or use the following command to create the user:
 ```sql
-CREATE USER ninetails WITH PASSWORD 'ninetails';
+CREATE USER n1netails WITH PASSWORD 'n1netails';
 ```
 
 ### Create Database
@@ -22,7 +22,7 @@ Create Database `n1netails` in postgres pgAdmin 4 if none exists or use the foll
 ```sql
 CREATE DATABASE "n1netails"
     WITH
-    OWNER = ninetails
+    OWNER = n1netails
     ENCODING = 'UTF8'
     LOCALE_PROVIDER = 'libc'
     CONNECTION LIMIT = -1
@@ -33,7 +33,7 @@ CREATE DATABASE "n1netails"
 Create Schema `ntail` inside of the postgres `n1netails` Database with pgAdmin 4 if none exists or use the following command to create schema:
 ```sql
 CREATE SCHEMA IF NOT EXISTS ntail
-    AUTHORIZATION ninetails;
+    AUTHORIZATION n1netails;
 ```
 
 ## Build
@@ -50,12 +50,12 @@ mvn spring-boot:run
 
 Run the project with environment variables.
 - POSTGRES_URL (postgres database url)
-- POSTGRES_USERNAME (postgres user)
-- POSTGRES_PASSWORD (postgres user password)
+- POSTGRES_USERNAME (n1netails user)
+- POSTGRES_PASSWORD (n1netails user password)
 
 Example:
 ```bash
-mvn spring-boot:run -DSPRING_PROFILE_ACTIVE=local -DPOSTGRES_URL=jdbc:postgresql://localhost/n1netails -DPOSTGRES_USERNAME=postgres -DPOSTGRES_PASSWORD=postgres
+mvn spring-boot:run -DSPRING_PROFILE_ACTIVE=local -DPOSTGRES_URL=jdbc:postgresql://localhost/n1netails -DPOSTGRES_USERNAME=n1netails -DPOSTGRES_PASSWORD=n1netails
 ```
 
 ## Liquibase Maven Commands

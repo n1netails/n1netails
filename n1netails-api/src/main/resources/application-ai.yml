@@ -1,0 +1,6 @@
+n1netails:
+  ai.llm:
+    openai:
+      apiKey: ...
+    gemini:
+      apiKey: ...

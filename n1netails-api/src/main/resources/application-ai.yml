@@ -4,3 +4,12 @@ n1netails:
       apiKey: ...
     gemini:
       apiKey: ...
+# Add the following placeholder properties for OpenAI
+# openai:
+#   api:
+#     key: YOUR_OPENAI_API_KEY
+#     url: YOUR_OPENAI_API_URL
+openai:
+  api:
+    key: YOUR_OPENAI_API_KEY
+    url: YOUR_OPENAI_API_URL

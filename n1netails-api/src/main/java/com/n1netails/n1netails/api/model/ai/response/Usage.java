@@ -1,4 +1,4 @@
-package com.n1netails.n1netails.api.model.ai.openai.response;
+package com.n1netails.n1netails.api.model.ai.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

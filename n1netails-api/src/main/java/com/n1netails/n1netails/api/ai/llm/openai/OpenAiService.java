@@ -4,15 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.n1netails.n1netails.api.ai.llm.LlmService;
 
-import com.n1netails.n1netails.api.model.ai.openai.response.TextCompletionResponse;
-import com.n1netails.n1netails.api.model.ai.openai.response.TextContent;
-import com.n1netails.n1netails.api.model.ai.openai.response.TextOutput;
+import com.n1netails.n1netails.api.model.ai.request.TextCompletionRequest;
+import com.n1netails.n1netails.api.model.ai.response.TextCompletionResponse;
+import com.n1netails.n1netails.api.model.ai.response.TextContent;
+import com.n1netails.n1netails.api.model.ai.response.TextOutput;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import java.util.Map;
 
 @Slf4j
 @Service
@@ -23,15 +22,18 @@ public class OpenAiService implements LlmService {
 
   @Override
   public String completePrompt(String prompt) {
-    Map<String, Object> requestBody = Map.of(
-            "model", "gpt-4.1",
-            "instructions", "You are a devops engineer attempting to investigate an alert. Provide information about what you think the error might be.",
-            "input", prompt
-    );
+
+    TextCompletionRequest textCompletionRequest = TextCompletionRequest.builder()
+            .model("gpt-4.1")
+            .instructions("You are a DevOps engineer responding to an alert. Based on the input provided, " +
+                    "analyze the issue and explain what the root cause might be. Do not ask any questions or seek clarification. " +
+                    "Provide only a direct, informative response as if you're writing an internal incident report.")
+            .input(prompt)
+            .build();
 
     String result = openaiWebClient.post()
             .uri("/v1/responses")
-            .bodyValue(requestBody)
+            .bodyValue(textCompletionRequest)
             .retrieve()
             .bodyToMono(String.class)
             .block();

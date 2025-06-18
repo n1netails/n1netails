@@ -48,15 +48,12 @@ public class TailServiceImpl implements TailService {
     private final AuthorizationService authorizationService;
 
     @Override
-    public TailResponse getTailById(Long id, UserPrincipal currentUser) throws TailNotFoundException, UnauthorizedException { // Added currentUser parameter
-        // TODO UPDATE THIS SO ONLY THE USER AND USERS IN THE SAME THE ORGANIZATION CAN GET THE TAIL
+    public TailResponse getTailById(Long id, UserPrincipal currentUser) throws TailNotFoundException, UnauthorizedException {
         Optional<TailEntity> tailOptional = tailRepository.findById(id);
         if (tailOptional.isEmpty()) {
             throw new TailNotFoundException(REQUESTED_TAIL_NOT_FOUND);
         }
         TailEntity tail = tailOptional.get();
-        // UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(); // Removed
-
         Long organizationId = tail.getOrganization().getId();
 
         if (!authorizationService.belongsToOrganization(currentUser, organizationId)) {
@@ -90,19 +87,18 @@ public class TailServiceImpl implements TailService {
             throw new UnauthorizedException("User is not authorized to update the status of this tail. Must be owner or organization admin.");
         }
 
-        TailEntity updatedTailEntity = tail;
-            Optional<TailStatusEntity> newStatus = statusRepository.findTailStatusByName(tailStatus.getName());
+        Optional<TailStatusEntity> newStatus = statusRepository.findTailStatusByName(tailStatus.getName());
             if (newStatus.isPresent()) {
-                updatedTailEntity.setStatus(newStatus.get());
+                tail.setStatus(newStatus.get());
             } else {
                 TailStatusEntity createdStatus = new TailStatusEntity();
                 createdStatus.setName(tailStatus.getName());
                 createdStatus = statusRepository.save(createdStatus);
-                updatedTailEntity.setStatus(createdStatus);
+                tail.setStatus(createdStatus);
             }
-            tailRepository.save(updatedTailEntity);
+            tailRepository.save(tail);
 
-        return setTailResponse(updatedTailEntity);
+        return setTailResponse(tail);
     }
 
     @Override

@@ -167,6 +167,7 @@ public class TailServiceImpl implements TailService {
            metadata.put(variable.getKey(), variable.getValue());
         });
         tailResponse.setMetadata(metadata);
+        tailResponse.setOrganizationId(tailEntity.getOrganization().getId());
         return tailResponse;
     }
 

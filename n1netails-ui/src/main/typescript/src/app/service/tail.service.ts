@@ -29,6 +29,7 @@ export interface TailResponse {
   type: string;
   status: string;
   metadata: { [key: string]: string };
+  organizationId: number;
 }
 
 export interface ResolveTailRequest {

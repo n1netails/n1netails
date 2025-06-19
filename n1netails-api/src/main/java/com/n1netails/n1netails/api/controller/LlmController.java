@@ -35,7 +35,7 @@ public class LlmController {
 
     @Operation(summary = "Investigate tail using llm provider", responses = {
             @ApiResponse(responseCode = "200", description = "Send tail data to llm provider to investigate the tail details",
-                    content = @Content(schema = @Schema(implementation = N1neTokenResponse.class)))
+                    content = @Content(schema = @Schema(implementation = LlmResponse.class)))
     })
     @PostMapping(consumes = APPLICATION_JSON)
     public ResponseEntity<LlmResponse>  investigateTail(

@@ -20,8 +20,6 @@ public class OpenaiWebClientConfig {
 
     @Bean
     public WebClient openaiWebClient() {
-        System.out.println("API KEY: " + apiKey);
-        System.out.println("API URL: " + apiUrl);
         return WebClient.builder()
                 .baseUrl(this.getApiUrl())
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)

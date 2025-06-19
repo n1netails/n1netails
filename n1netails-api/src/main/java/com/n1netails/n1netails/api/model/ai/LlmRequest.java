@@ -6,6 +6,7 @@ import lombok.Data;
 public class LlmRequest {
 
     String provider;
+    String model;
     Long tailId;
     Long userId;
     Long organizationId;

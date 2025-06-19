@@ -51,6 +51,7 @@ public class InvestigationServiceImpl implements InvestigationService {
 
         LlmResponse llmResponse = new LlmResponse();
         llmResponse.setPromptCompletionResponse(promptResult);
+        llmResponse.setTailId(tailEntity.getId());
         return llmResponse;
     }
 }

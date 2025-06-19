@@ -4,10 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.n1netails.n1netails.api.ai.llm.LlmService;
 
-import com.n1netails.n1netails.api.model.ai.request.TextCompletionRequest;
-import com.n1netails.n1netails.api.model.ai.response.TextCompletionResponse;
-import com.n1netails.n1netails.api.model.ai.response.TextContent;
-import com.n1netails.n1netails.api.model.ai.response.TextOutput;
+import com.n1netails.n1netails.api.model.ai.openai.request.TextCompletionRequest;
+import com.n1netails.n1netails.api.model.ai.openai.response.TextCompletionResponse;
+import com.n1netails.n1netails.api.model.ai.openai.response.TextContent;
+import com.n1netails.n1netails.api.model.ai.openai.response.TextOutput;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,6 +24,7 @@ public class OpenAiService implements LlmService {
   public String completePrompt(String prompt) {
 
     TextCompletionRequest textCompletionRequest = TextCompletionRequest.builder()
+            // todo get model from request
             .model("gpt-4.1")
             .instructions("You are a DevOps engineer responding to an alert. Based on the input provided, " +
                     "analyze the issue and explain what the root cause might be. Do not ask any questions or seek clarification. " +

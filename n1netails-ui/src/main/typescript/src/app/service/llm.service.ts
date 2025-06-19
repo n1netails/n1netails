@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { LlmRequest, LlmResponse } from '../model/llm.model';
 import { UiConfigService } from '../shared/ui-config.service';
@@ -21,7 +21,6 @@ export class LlmService {
   }
 
   investigateTail(request: LlmRequest): Observable<LlmResponse> {
-    // Assuming an HttpInterceptor handles the Authorization header
     return this.http.post<LlmResponse>(this.host, request);
   }
 }

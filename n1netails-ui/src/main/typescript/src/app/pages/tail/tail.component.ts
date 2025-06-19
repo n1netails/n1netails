@@ -20,6 +20,7 @@ import { User } from '../../model/user';
 import { ResolveTailModalComponent } from '../../shared/components/resolve-tail-modal/resolve-tail-modal.component';
 import { LlmService } from '../../service/llm.service';
 import { LlmRequest, LlmResponse } from '../../model/llm.model';
+import { MarkdownModule } from 'ngx-markdown';
 
 @Component({
   selector: 'app-tail',
@@ -37,7 +38,8 @@ import { LlmRequest, LlmResponse } from '../../model/llm.model';
     NzButtonModule,
     HeaderComponent,
     SidenavComponent,
-    ResolveTailModalComponent
+    ResolveTailModalComponent,
+    MarkdownModule
   ],
   templateUrl: './tail.component.html',
   styleUrl: './tail.component.less'
@@ -50,6 +52,7 @@ export class TailComponent implements OnInit {
   error: string | null = null;
   isLoading: boolean = true;
   showMetadata = false;
+  showDetails = true;
 
   // Modal properties
   resolveModalVisible: boolean = false;
@@ -89,6 +92,7 @@ export class TailComponent implements OnInit {
     this.isLoading = true;
     this.tailService.getTailById(id).subscribe({
       next: (data) => {
+        console.log('TAIL DATA', data);
         this.tail = data;
         if (this.tail && this.tail.metadata) {
           this.metadataKeys = Object.keys(this.tail.metadata);
@@ -168,17 +172,19 @@ export class TailComponent implements OnInit {
     this.llmResponse = null; // Clear previous response
 
     const llmRequest: LlmRequest = {
-      provider: 'defaultProvider', // Placeholder
-      model: 'defaultModel',       // Placeholder
+      provider: 'openai', 
+      model: 'gpt-4.1',
       tailId: this.tail.id,
       userId: this.currentUser.id,
-      organizationId: this.tail.organizationId // Corrected
+      organizationId: this.tail.organizationId
     };
 
     this.llmService.investigateTail(llmRequest).subscribe({
       next: (response) => {
         this.llmResponse = response;
         this.isInvestigating = false;
+        this.showDetails = false;
+        this.showMetadata = false;
         this.messageService.success('Investigation complete.');
       },
       error: (err) => {

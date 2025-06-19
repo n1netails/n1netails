@@ -29,7 +29,7 @@ export interface TailResponse {
   type: string;
   status: string;
   metadata: { [key: string]: string };
-  organizationId: number; // Added field
+  organizationId: number;
 }
 
 export interface ResolveTailRequest {

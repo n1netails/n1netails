@@ -42,6 +42,7 @@ public class LlmController {
             @RequestHeader(AUTHORIZATION) String authorizationHeader,
             @RequestBody LlmRequest llmRequest) throws UserNotFoundException, AccessDeniedException, TailNotFoundException {
 
+        log.info("Tail investigation request");
         UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
         if (authorizationService.belongsToOrganization(currentUser, llmRequest.getOrganizationId())) {
             log.info("Investigating tail");

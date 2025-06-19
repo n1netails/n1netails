@@ -9,6 +9,8 @@ import { environment } from '../../environments/environment';
 export class UiConfigService {
 
   private apiUrl: string = environment.n1netailsApiUrl;
+  private openaiEnabled: boolean = environment.openaiEnabled;
+  private geminiEnabled: boolean = environment.geminiEnabled;
 
   constructor(private http: HttpClient) {}
 
@@ -22,9 +24,35 @@ export class UiConfigService {
     } catch (error) {
       console.warn('Failed to load API URL from server, using fallback:', this.apiUrl);
     }
+
+    try {
+      this.openaiEnabled = await firstValueFrom(
+        this.http.get<boolean>('/ui/n1netails-config/openai-enabled')
+      );
+      console.log('Openai Enabled:', this.openaiEnabled);
+    } catch (error) {
+      console.warn('Failed to check if openai enabled, using fallback:', this.openaiEnabled);
+    }
+
+    try {
+      this.geminiEnabled = await firstValueFrom(
+        this.http.get<boolean>('/ui/n1netails-config/gemini-enabled')
+      );
+      console.log('Gemini Enabled:', this.geminiEnabled);
+    } catch (error) {
+      console.warn('Failed to check if gemini enabled, using fallback:', this.geminiEnabled);
+    }
   }
 
   getApiUrl(): string {
     return this.apiUrl;
+  }
+
+  isOpenaiEnabled(): boolean {
+    return this.openaiEnabled;
+  }
+
+  isGeminiEnabled(): boolean {
+    return this.geminiEnabled;
   }
 }

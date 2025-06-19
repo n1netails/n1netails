@@ -21,6 +21,7 @@ public class ProjectSecurityConstant {
             "/ninetails/alert",
             "/ninetails/alert/**",
 //            "/ninetails/tail/**",
+            "/ninetails/llm/**",
             "/"
     };
 

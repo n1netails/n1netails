@@ -18,6 +18,10 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { AuthenticationService } from '../../service/authentication.service';
 import { User } from '../../model/user';
 import { ResolveTailModalComponent } from '../../shared/components/resolve-tail-modal/resolve-tail-modal.component';
+import { LlmService } from '../../service/llm.service';
+import { LlmRequest, LlmResponse } from '../../model/llm.model';
+import { MarkdownModule } from 'ngx-markdown';
+import { UiConfigService } from '../../shared/ui-config.service';
 
 @Component({
   selector: 'app-tail',
@@ -35,7 +39,8 @@ import { ResolveTailModalComponent } from '../../shared/components/resolve-tail-
     NzButtonModule,
     HeaderComponent,
     SidenavComponent,
-    ResolveTailModalComponent
+    ResolveTailModalComponent,
+    MarkdownModule
   ],
   templateUrl: './tail.component.html',
   styleUrl: './tail.component.less'
@@ -48,19 +53,32 @@ export class TailComponent implements OnInit {
   error: string | null = null;
   isLoading: boolean = true;
   showMetadata = false;
+  showDetails = true;
+
+  llmEnabled = false;
+  openaiEnabled = false;
+  geminiEnabled = false;
 
   // Modal properties
   resolveModalVisible: boolean = false;
   currentUser: User;
+  llmResponse: LlmResponse | null = null;
+  isInvestigating: boolean = false;
 
   public tailUtilService = inject(TailUtilService);
   private tailService = inject(TailService);
   private route = inject(ActivatedRoute);
   private messageService = inject(NzMessageService);
   private authService = inject(AuthenticationService);
+  private llmService = inject(LlmService);
+  private uiConfigService = inject(UiConfigService);
 
   constructor() {
     this.currentUser = this.authService.getUserFromLocalCache();
+    this.openaiEnabled = this.uiConfigService.isOpenaiEnabled();
+    this.geminiEnabled = this.uiConfigService.isGeminiEnabled();
+
+    this.llmEnabled = this.openaiEnabled || this.geminiEnabled;
   }
 
   ngOnInit(): void {
@@ -84,6 +102,7 @@ export class TailComponent implements OnInit {
     this.isLoading = true;
     this.tailService.getTailById(id).subscribe({
       next: (data) => {
+        console.log('TAIL DATA', data);
         this.tail = data;
         if (this.tail && this.tail.metadata) {
           this.metadataKeys = Object.keys(this.tail.metadata);
@@ -143,6 +162,48 @@ export class TailComponent implements OnInit {
       error: (err) => {
         this.messageService.error(`Unable to mark tail "${this.tail?.title}" as resolved. Error: ${err.message || err}`);
       },
+    });
+  }
+
+  investigateTail(): void {
+    if (!this.tail || !this.currentUser) {
+      this.messageService.error('Cannot investigate tail: Missing tail data or user information.');
+      return;
+    }
+
+    // Add an explicit check for organizationId on the tail object,
+    // as it's a new field and might not be immediately available from the backend.
+    if (typeof this.tail.organizationId !== 'number') {
+        this.messageService.error('Cannot investigate tail: Organization ID is missing from tail data. The backend might need an update.');
+        return;
+    }
+
+    this.isInvestigating = true;
+    this.llmResponse = null; // Clear previous response
+
+    const llmRequest: LlmRequest = {
+      // TODO GIVE USERS OPTION TO SELECT DIFFERENT LLM PROVIDERS AND MODELS
+      provider: 'openai', 
+      model: 'gpt-4.1',
+      tailId: this.tail.id,
+      userId: this.currentUser.id,
+      organizationId: this.tail.organizationId
+    };
+
+    this.llmService.investigateTail(llmRequest).subscribe({
+      next: (response) => {
+        this.llmResponse = response;
+        this.isInvestigating = false;
+        this.showDetails = false;
+        this.showMetadata = false;
+        this.messageService.success('Investigation complete.');
+      },
+      error: (err) => {
+        console.error('Error investigating tail:', err);
+        this.llmResponse = null;
+        this.isInvestigating = false;
+        this.messageService.error(`Failed to investigate tail. Status: ${err.status}, Message: ${err.error?.message || err.message || 'Unknown error'}`);
+      }
     });
   }
 }

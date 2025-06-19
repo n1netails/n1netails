@@ -23,4 +23,5 @@ public class TailResponse {
     private String type;
     private String status;
     private Map<String, String> metadata;
+    private Long organizationId;
 }

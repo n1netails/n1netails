@@ -22,6 +22,11 @@ management:
 n1netails:
   api.url: ${API_BASE_URL:http://localhost:9901}
 
+gemini:
+  enabled: ${GEMINI_ENABLED:false}
+openai:
+  enabled: ${OPENAI_ENABLED:false}
+
 #########################################
 # Docker
 #########################################

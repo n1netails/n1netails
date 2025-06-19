@@ -1,4 +1,4 @@
-spring.profiles.active: db
+spring.profiles.active: db, ai
 spring.banner.location: classpath:banner.txt
 server:
   port: ${PORT:9901}

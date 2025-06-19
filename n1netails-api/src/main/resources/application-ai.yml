@@ -1,6 +1,11 @@
-n1netails:
-  ai.llm:
-    openai:
-      apiKey: ...
-    gemini:
-      apiKey: ...
+# GEMINI WILL BE IMPLEMENTED AT A LATER TIME (FOR NOW SET GEMINI_ENABLED = false)
+gemini:
+  enabled: ${GEMINI_ENABLED:false}
+  api:
+    key: ${GEMINI_API_KEY:your-gemini-api-key}
+    url: ${GEMINI_API_URL:https://generativelanguage.googleapis.com}
+openai:
+  enabled: ${OPENAI_ENABLED:false}
+  api:
+    key: ${OPENAI_API_KEY:your-openai-api-key}
+    url: ${OPENAI_API_URL:https://api.openai.com}

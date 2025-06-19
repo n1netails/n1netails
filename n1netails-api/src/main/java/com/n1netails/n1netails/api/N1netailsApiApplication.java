@@ -1,10 +1,8 @@
 package com.n1netails.n1netails.api;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@RequiredArgsConstructor
 @SpringBootApplication
 public class N1netailsApiApplication {
 

@@ -21,6 +21,7 @@ import { ResolveTailModalComponent } from '../../shared/components/resolve-tail-
 import { LlmService } from '../../service/llm.service';
 import { LlmRequest, LlmResponse } from '../../model/llm.model';
 import { MarkdownModule } from 'ngx-markdown';
+import { UiConfigService } from '../../shared/ui-config.service';
 
 @Component({
   selector: 'app-tail',
@@ -54,6 +55,10 @@ export class TailComponent implements OnInit {
   showMetadata = false;
   showDetails = true;
 
+  llmEnabled = false;
+  openaiEnabled = false;
+  geminiEnabled = false;
+
   // Modal properties
   resolveModalVisible: boolean = false;
   currentUser: User;
@@ -65,10 +70,15 @@ export class TailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private messageService = inject(NzMessageService);
   private authService = inject(AuthenticationService);
-  private llmService = inject(LlmService); // Added LlmService injection
+  private llmService = inject(LlmService);
+  private uiConfigService = inject(UiConfigService);
 
   constructor() {
     this.currentUser = this.authService.getUserFromLocalCache();
+    this.openaiEnabled = this.uiConfigService.isOpenaiEnabled();
+    this.geminiEnabled = this.uiConfigService.isGeminiEnabled();
+
+    this.llmEnabled = this.openaiEnabled || this.geminiEnabled;
   }
 
   ngOnInit(): void {
@@ -172,6 +182,7 @@ export class TailComponent implements OnInit {
     this.llmResponse = null; // Clear previous response
 
     const llmRequest: LlmRequest = {
+      // TODO GIVE USERS OPTION TO SELECT DIFFERENT LLM PROVIDERS AND MODELS
       provider: 'openai', 
       model: 'gpt-4.1',
       tailId: this.tail.id,

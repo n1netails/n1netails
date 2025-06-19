@@ -49,10 +49,16 @@ mvn spring-boot:run -DSPRING_PROFILE_ACTIVE=local
 ```
 
 Run the project with environment variables.
-- PORT (application port)
-- POSTGRES_URL (postgres database url)
-- POSTGRES_USERNAME (n1netails user)
-- POSTGRES_PASSWORD (n1netails user password)
+- PORT (application port defaults to 9901)
+- POSTGRES_URL (postgres database url defaults to jdbc:postgresql://localhost/n1netails)
+- POSTGRES_USERNAME (n1netails user defaults to n1netails)
+- POSTGRES_PASSWORD (n1netails user password defaults to n1netails)
+- GEMINI_ENABLED (defaults to false)
+- GEMINI_API_KEY (create your own gemini api key)
+- GEMINI_API_URL (defaults to https://generativelanguage.googleapis.com)
+- OPENAI_ENABLED (defaults to false)
+- OPENAI_API_KEY (create your own openai api key)
+- OPENAI_API_URL (defaults to https://api.openai.com)
 
 Example:
 ```bash

@@ -18,8 +18,10 @@ mvn spring-boot:run -DSPRING_PROFILE_ACTIVE=local
 ```
 
 Run the project with environment variables.
-- PORT (application port)
-- API_BASE_URL (n1netails-api url)
+- PORT (application port defaults to 9900)
+- API_BASE_URL (n1netails-api url defaults to http://localhost:9901)
+- GEMINI_ENABLED (enable gemini defaults to false)
+- OPENAI_ENABLED (enable openai defaults to false)
 
 Example:
 ```bash

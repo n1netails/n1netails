@@ -18,6 +18,8 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { AuthenticationService } from '../../service/authentication.service';
 import { User } from '../../model/user';
 import { ResolveTailModalComponent } from '../../shared/components/resolve-tail-modal/resolve-tail-modal.component';
+import { LlmService } from '../../service/llm.service';
+import { LlmRequest, LlmResponse } from '../../model/llm.model';
 
 @Component({
   selector: 'app-tail',
@@ -52,12 +54,15 @@ export class TailComponent implements OnInit {
   // Modal properties
   resolveModalVisible: boolean = false;
   currentUser: User;
+  llmResponse: LlmResponse | null = null;
+  isInvestigating: boolean = false;
 
   public tailUtilService = inject(TailUtilService);
   private tailService = inject(TailService);
   private route = inject(ActivatedRoute);
   private messageService = inject(NzMessageService);
   private authService = inject(AuthenticationService);
+  private llmService = inject(LlmService); // Added LlmService injection
 
   constructor() {
     this.currentUser = this.authService.getUserFromLocalCache();
@@ -143,6 +148,45 @@ export class TailComponent implements OnInit {
       error: (err) => {
         this.messageService.error(`Unable to mark tail "${this.tail?.title}" as resolved. Error: ${err.message || err}`);
       },
+    });
+  }
+
+  investigateTail(): void {
+    if (!this.tail || !this.currentUser) {
+      this.messageService.error('Cannot investigate tail: Missing tail data or user information.');
+      return;
+    }
+
+    // Add an explicit check for organizationId on the tail object,
+    // as it's a new field and might not be immediately available from the backend.
+    if (typeof this.tail.organizationId !== 'number') {
+        this.messageService.error('Cannot investigate tail: Organization ID is missing from tail data. The backend might need an update.');
+        return;
+    }
+
+    this.isInvestigating = true;
+    this.llmResponse = null; // Clear previous response
+
+    const llmRequest: LlmRequest = {
+      provider: 'defaultProvider', // Placeholder
+      model: 'defaultModel',       // Placeholder
+      tailId: this.tail.id,
+      userId: this.currentUser.id,
+      organizationId: this.tail.organizationId // Corrected
+    };
+
+    this.llmService.investigateTail(llmRequest).subscribe({
+      next: (response) => {
+        this.llmResponse = response;
+        this.isInvestigating = false;
+        this.messageService.success('Investigation complete.');
+      },
+      error: (err) => {
+        console.error('Error investigating tail:', err);
+        this.llmResponse = null;
+        this.isInvestigating = false;
+        this.messageService.error(`Failed to investigate tail. Status: ${err.status}, Message: ${err.error?.message || err.message || 'Unknown error'}`);
+      }
     });
   }
 }

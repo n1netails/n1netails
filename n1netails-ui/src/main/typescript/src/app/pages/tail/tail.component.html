@@ -27,9 +27,13 @@
 
                 <div *ngIf="!isLoading && tail" class="tail-content">
 
-                  <div class="tail-resolve" *ngIf="tail.assignedUserId == currentUser.id.toString()">
-                    <button nz-button nzType="primary" (click)="openResolveModal()" style="float: right;" *ngIf="tail && tail.status !== 'RESOLVED' && tail.status !== 'CLOSED'">
+                  <!-- Modified section for action buttons -->
+                  <div class="tail-actions" style="margin-bottom: 16px; text-align: right;">
+                    <button nz-button nzType="primary" (click)="openResolveModal()" *ngIf="tail && tail.status !== 'RESOLVED' && tail.status !== 'CLOSED' && tail.assignedUserId == currentUser.id.toString()" style="margin-left: 8px;">
                       Resolve Tail
+                    </button>
+                    <button nz-button nzType="default" (click)="investigateTail()" [nzLoading]="isInvestigating" [disabled]="!tail || isInvestigating" style="margin-left: 8px;">
+                      Investigate with LLM
                     </button>
                   </div>
 
@@ -88,6 +92,17 @@
               </div>
 
             </nz-card>
+
+            <!-- LLM Investigation Display Area -->
+            <div *ngIf="isInvestigating && !llmResponse" style="text-align: center; margin-top: 16px;">
+                <nz-spin nzSimple [nzSize]="'large'" nzTip="Investigating..."></nz-spin>
+            </div>
+
+            <nz-card *ngIf="llmResponse && !isInvestigating" nzTitle="LLM Investigation Analysis" [nzBordered]="true" style="margin-top: 16px;">
+              <pre>{{ llmResponse.promptCompletionResponse }}</pre>
+            </nz-card>
+            <!-- End of LLM Investigation Display Area -->
+
           </nz-col>
         </nz-row>
       </div>

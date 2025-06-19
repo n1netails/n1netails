@@ -1,6 +1,7 @@
 package com.n1netails.n1netails.api.model.ai.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.JoinColumn;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -25,6 +26,8 @@ public class TextCompletionResponse {
     private String instructions;
     @JsonProperty("max_output_tokens")
     private Integer maxOutputTokens;
+    @JsonProperty("max_tool_calls")
+    private Integer maxToolCalls;
     private String model;
     private List<TextOutput> output;
     @JsonProperty("parallel_tool_calls")

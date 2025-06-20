@@ -3,7 +3,8 @@
     <div class="chat-history-container" #chatHistoryContainer>
       <nz-list [nzDataSource]="notes" nzItemLayout="horizontal">
         <ng-template #item let-item>
-          <nz-comment [nzAuthor]="item.username" [nzDatetime]="item.timestamp | date:'short'">
+          <!-- TODO GET TIME STAMP OF NOTE -->
+          <nz-comment [nzAuthor]="item.username">
             <nz-avatar
               nz-comment-avatar
               [nzText]="item.isHuman ? item.username.substring(0, 1).toUpperCase() : 'AI'"

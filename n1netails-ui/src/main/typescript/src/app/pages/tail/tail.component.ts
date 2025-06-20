@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { TailService, TailResponse, ResolveTailRequest, TailSummary } from '../../service/tail.service';
+import { TailService } from '../../service/tail.service';
 import { CommonModule } from '@angular/common';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
@@ -23,6 +23,7 @@ import { LlmRequest, LlmResponse } from '../../model/llm.model';
 import { MarkdownModule } from 'ngx-markdown';
 import { UiConfigService } from '../../shared/ui-config.service';
 import { AiChatCardComponent } from '../../shared/components/ai-chat-card/ai-chat-card.component';
+import { ResolveTailRequest, TailResponse, TailSummary } from '../../model/tail.model';
 
 @Component({
   selector: 'app-tail',

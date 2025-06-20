@@ -3,15 +3,24 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { Note } from '../model/note.model';
 import { environment } from '../../environments/environment';
+import { UiConfigService } from '../shared/ui-config.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NoteService {
-  private http = inject(HttpClient);
-  private apiUrl = `${environment.apiUrl}/notes`; // Assuming /api/notes endpoint
 
-  constructor() { }
+  host: string = '';
+  private apiUrl = '/ninetails/note'; // Base URL for tail operations
+
+
+  constructor(
+    private http: HttpClient,
+    private uiConfigService: UiConfigService
+  ) { 
+    this.host = this.uiConfigService.getApiUrl();
+    this.host = this.host + this.apiUrl;
+  }
 
   getNotesByTailId(tailId: number): Observable<Note[]> {
     // TODO: Replace with actual API call

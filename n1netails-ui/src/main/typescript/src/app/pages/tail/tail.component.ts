@@ -22,6 +22,7 @@ import { LlmService } from '../../service/llm.service';
 import { LlmRequest, LlmResponse } from '../../model/llm.model';
 import { MarkdownModule } from 'ngx-markdown';
 import { UiConfigService } from '../../shared/ui-config.service';
+import { AiChatCardComponent } from '../../shared/components/ai-chat-card/ai-chat-card.component';
 
 @Component({
   selector: 'app-tail',
@@ -40,7 +41,8 @@ import { UiConfigService } from '../../shared/ui-config.service';
     HeaderComponent,
     SidenavComponent,
     ResolveTailModalComponent,
-    MarkdownModule
+    MarkdownModule,
+    AiChatCardComponent
   ],
   templateUrl: './tail.component.html',
   styleUrl: './tail.component.less'

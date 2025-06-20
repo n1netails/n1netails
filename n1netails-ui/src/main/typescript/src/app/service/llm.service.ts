@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { LlmRequest, LlmResponse } from '../model/llm.model';
+import { LlmRequest, LlmResponse, LlmPromptRequest, LlmPromptResponse } from '../model/llm.model';
 import { UiConfigService } from '../shared/ui-config.service';
 
 @Injectable({
@@ -22,5 +22,10 @@ export class LlmService {
 
   investigateTail(request: LlmRequest): Observable<LlmResponse> {
     return this.http.post<LlmResponse>(this.host, request);
+  }
+
+  sendPrompt(request: LlmPromptRequest): Observable<LlmPromptResponse> {
+    // The 'host' already includes '/ninetails/llm', so we just append '/prompt'
+    return this.http.post<LlmPromptResponse>(`${this.host}/prompt`, request);
   }
 }

@@ -16,10 +16,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -60,8 +64,6 @@ public class NoteServiceImpl implements NoteService {
         return setNote(noteEntity);
     }
 
-import java.util.stream.Collectors;
-
     @Override
     public List<Note> getAllByTailId(Long tailId) {
         return this.noteRepository.findAllByTailIdOrderByCreatedAtDesc(tailId)
@@ -70,8 +72,6 @@ import java.util.stream.Collectors;
                 .collect(Collectors.toList());
     }
 
-import java.util.stream.Collectors;
-
     @Override
     public List<Note> getLast9NotesByTailId(Long tailId) {
         return this.noteRepository.findTop9ByTailIdOrderByCreatedAtDesc(tailId)
@@ -79,10 +79,6 @@ import java.util.stream.Collectors;
                 .map(NoteServiceImpl::setNote)
                 .collect(Collectors.toList());
     }
-
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 
     @Override
     public Page<Note> getNotesByTailId(NotePageRequest request) {

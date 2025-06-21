@@ -26,6 +26,7 @@ import { CollectionViewer, DataSource } from '@angular/cdk/collections';
 import { BehaviorSubject, catchError, Observable, of, Subject, take, takeUntil } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgZone } from '@angular/core';
+import { AuthenticationService } from '../../../service/authentication.service';
 
 interface ChatMessage extends Note {
   isLoading?: boolean; // For AI messages that are pending
@@ -61,6 +62,7 @@ export class AiChatCardComponent implements OnInit {
 
   @ViewChild(CdkVirtualScrollViewport) viewport?: CdkVirtualScrollViewport;
 
+  // currentUser: User;
   public notes: ChatMessage[] = [];
   public newNoteText: string = '';
   public isLoadingNotes: boolean = false;
@@ -68,6 +70,7 @@ export class AiChatCardComponent implements OnInit {
 
   private noteService = inject(NoteService);
   private llmService = inject(LlmService);
+  // private authService = inject(AuthenticationService);
   private messageService = inject(NzMessageService);
   private uiConfigService = inject(UiConfigService); // To get default LLM provider/model
 
@@ -109,6 +112,7 @@ export class AiChatCardComponent implements OnInit {
 
   // TODO GET CURRENT LOGGED IN USER
   constructor() {
+    // this.currentUser = this.authService.getUserFromLocalCache();
     // Initialize default LLM settings from uiConfigService if they exist
     if (this.uiConfigService.isOpenaiEnabled()) {
         this.defaultLlmProvider = 'openai';
@@ -126,8 +130,8 @@ export class AiChatCardComponent implements OnInit {
         content: this.exampleLlmResponse,
         // noteText: this.initialLlmResponse,
         createdAt: new Date(),
-        userId: 'AI', // Or a more specific AI identifier
-        username: 'LLM Investigator',
+        userId: this.currentUser.id, // Or a more specific AI identifier
+        username: this.currentUser.username,
         llmProvider: this.defaultLlmProvider, // This might need to come from the actual response
         llmModel: this.defaultLlmModel,   // This might need to come from the actual response
         tailId: this.tail.id,
@@ -261,11 +265,17 @@ export class AiChatCardComponent implements OnInit {
 
         // Add a temporary loading message for AI response
         const loadingAiMessage: ChatMessage = {
-            userId: 'AI_temp', username: 'AI Assistant', isHuman: false,
-            tailId: this.tail.id, createdAt: new Date(), content: '...',
+            userId: this.currentUser.id, 
+            username: this.currentUser.username, 
+            isHuman: false,
+            tailId: this.tail.id, 
+            createdAt: new Date(), 
+            content: '...',
             organizationId: this.tail.organizationId,
             n1: false,
-            isLoading: true, llmProvider: llmRequest.provider, llmModel: llmRequest.model
+            isLoading: true, 
+            llmProvider: llmRequest.provider, 
+            llmModel: llmRequest.model
         };
         this.notes.push(loadingAiMessage);
 
@@ -276,8 +286,8 @@ export class AiChatCardComponent implements OnInit {
 
             // 3. Save LLM's response as an AI note
             const aiResponseNote: Note = {
-              userId: 'AI', // Or a more specific AI identifier from response if available
-              username: 'AI Assistant', // Or more specific
+              userId: this.currentUser.id,
+              username: this.currentUser.username,
               isHuman: false,
               llmProvider: llmResponse.provider,
               llmModel: llmResponse.model,

@@ -1,7 +1,6 @@
 export interface Note {
   id?: number;
-  // TODO USER ID IS ONLY A NUMBER
-  userId: string | number;
+  userId: number;
   username: string;
   isHuman: boolean;
   llmProvider?: string; // e.g., 'openai', 'gemini'

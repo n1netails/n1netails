@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { TailService, TailResponse, ResolveTailRequest, TailSummary } from '../../service/tail.service';
+import { TailService } from '../../service/tail.service';
 import { CommonModule } from '@angular/common';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
@@ -22,6 +22,8 @@ import { LlmService } from '../../service/llm.service';
 import { LlmRequest, LlmResponse } from '../../model/llm.model';
 import { MarkdownModule } from 'ngx-markdown';
 import { UiConfigService } from '../../shared/ui-config.service';
+import { AiChatCardComponent } from '../../shared/components/ai-chat-card/ai-chat-card.component';
+import { ResolveTailRequest, TailResponse, TailSummary } from '../../model/tail.model';
 
 @Component({
   selector: 'app-tail',
@@ -40,7 +42,8 @@ import { UiConfigService } from '../../shared/ui-config.service';
     HeaderComponent,
     SidenavComponent,
     ResolveTailModalComponent,
-    MarkdownModule
+    MarkdownModule,
+    AiChatCardComponent
   ],
   templateUrl: './tail.component.html',
   styleUrl: './tail.component.less'
@@ -53,7 +56,7 @@ export class TailComponent implements OnInit {
   error: string | null = null;
   isLoading: boolean = true;
   showMetadata = false;
-  showDetails = true;
+  showDetails = false;
 
   llmEnabled = false;
   openaiEnabled = false;
@@ -193,6 +196,7 @@ export class TailComponent implements OnInit {
     this.llmService.investigateTail(llmRequest).subscribe({
       next: (response) => {
         this.llmResponse = response;
+        console.log('LLM RESPONSE', this.llmResponse);
         this.isInvestigating = false;
         this.showDetails = false;
         this.showMetadata = false;

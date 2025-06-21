@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { UiConfigService } from '../shared/ui-config.service';
+import { TailResponse, TailSummary, ResolveTailRequest } from '../model/tail.model';
 
 export interface TailRequest {
   title: string;
@@ -14,40 +15,6 @@ export interface TailRequest {
   level: string;
   type: string;
   metadata: { [key: string]: string };
-}
-
-export interface TailResponse {
-  id: number;
-  title: string;
-  description: string;
-  timestamp: string;
-  resolvedTimestamp: string;
-  assignedUserId: string;
-  assignedUsername: string;
-  details: string;
-  level: string;
-  type: string;
-  status: string;
-  metadata: { [key: string]: string };
-  organizationId: number;
-}
-
-export interface ResolveTailRequest {
-  userId: number,
-  tailSummary: TailSummary;
-  note: string;
-}
-
-export interface TailSummary {
-  id: number;
-  title: string;
-  description: string;
-  timestamp: string;
-  resolvedtimestamp: string;
-  assignedUserId: number;
-  level: string;
-  type: string;
-  status: string;
 }
 
 @Injectable({

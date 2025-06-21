@@ -19,4 +19,6 @@ public interface AuthorizationService {
     boolean isSelf(UserPrincipal principal, Long userIdToCheck);
 
     boolean isOwnerOrOrganizationAdmin(UserPrincipal principal, Long ownerUserId, Long organizationId);
+
+    boolean isUserAssignedToTail(UserPrincipal principal, Long tailId);
 }

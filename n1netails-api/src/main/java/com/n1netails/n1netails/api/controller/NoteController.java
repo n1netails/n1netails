@@ -57,24 +57,13 @@ public class NoteController {
         UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
         log.info("User {} attempting to create note for tail {}", currentUser.getUsername(), noteRequest.getTailId());
 
-        if (noteRequest.getTailId() == null) {
-            // Or handle with a specific validation error/exception
-            log.warn("Tail ID is null in create note request by user {}", currentUser.getUsername());
-            throw new IllegalArgumentException("Tail ID cannot be null when creating a note.");
-        }
-
-        // Authorization Check: Only users assigned to a tail (or org admins/super admins) can create notes for that tail.
         if (!authorizationService.isUserAssignedToTail(currentUser, noteRequest.getTailId())) {
             log.warn("User {} is not authorized to create a note for tail {}", currentUser.getUsername(), noteRequest.getTailId());
             throw new UnauthorizedException("User is not authorized to create notes for this tail.");
         }
 
-        // Populate user details from the authenticated principal, not the request body for security.
         noteRequest.setUserId(currentUser.getId());
         noteRequest.setUsername(currentUser.getUsername());
-        // Assuming organizationId might also come from the tail or should be verified.
-        // For now, if it's part of the Note DTO and set by client, ensure it's consistent or derived server-side.
-        // Let NoteService handle setting/validating organizationId based on tailId if necessary.
 
         Note createdNote = noteService.add(noteRequest);
         log.info("Note created with ID {} for tail {} by user {}", createdNote.getId(), createdNote.getTailId(), currentUser.getUsername());
@@ -100,7 +89,6 @@ public class NoteController {
 
         Note note = noteService.getById(id);
 
-        // Authorization Check
         if (!authorizationService.isUserAssignedToTail(currentUser, note.getTailId())) {
             log.warn("User {} is not authorized to access note {} for tail {}", currentUser.getUsername(), id, note.getTailId());
             throw new UnauthorizedException("User is not authorized to access this note.");
@@ -122,7 +110,6 @@ public class NoteController {
         UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
         log.debug("User {} attempting to fetch all notes for tail {}", currentUser.getUsername(), tailId);
 
-        // Authorization Check
         if (!authorizationService.isUserAssignedToTail(currentUser, tailId)) {
             log.warn("User {} is not authorized to access notes for tail {}", currentUser.getUsername(), tailId);
             throw new UnauthorizedException("User is not authorized to access notes for this tail.");
@@ -146,7 +133,6 @@ public class NoteController {
         UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
         log.debug("User {} attempting to fetch latest notes for tail {}", currentUser.getUsername(), tailId);
 
-        // Authorization Check
         if (!authorizationService.isUserAssignedToTail(currentUser, tailId)) {
             log.warn("User {} is not authorized to access notes for tail {}", currentUser.getUsername(), tailId);
             throw new UnauthorizedException("User is not authorized to access notes for this tail.");
@@ -174,7 +160,6 @@ public class NoteController {
             throw new IllegalArgumentException("Tail ID cannot be null in NotePageRequest.");
         }
 
-        // Authorization Check
         if (!authorizationService.isUserAssignedToTail(currentUser, request.getTailId())) {
             log.warn("User {} is not authorized to access notes for tail {}", currentUser.getUsername(), request.getTailId());
             throw new UnauthorizedException("User is not authorized to access notes for this tail.");
@@ -200,12 +185,11 @@ public class NoteController {
         UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
         log.debug("User {} attempting to fetch N1 note for tail {}", currentUser.getUsername(), tailId);
 
-        // Authorization Check
         if (!authorizationService.isUserAssignedToTail(currentUser, tailId)) {
             log.warn("User {} is not authorized to access N1 note for tail {}", currentUser.getUsername(), tailId);
             throw new UnauthorizedException("User is not authorized to access the N1 note for this tail.");
         }
-        // NoteService.getIsN1ByTailId might throw NoteNotFoundException if no N1 note exists or TailNotFoundException implicitly.
+
         Note n1Note = noteService.getIsN1ByTailId(tailId);
         log.info("User {} fetched N1 note with ID {} for tail {}", currentUser.getUsername(), n1Note.getId(), tailId);
         return ResponseEntity.ok(n1Note);

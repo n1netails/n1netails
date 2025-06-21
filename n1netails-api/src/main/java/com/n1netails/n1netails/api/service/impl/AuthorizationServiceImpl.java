@@ -114,7 +114,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         TailEntity tail = tailRepository.findById(tailId).orElse(null);
         if (tail == null) {
             log.warn("Tail not found for ID: {} during authorization check", tailId);
-            return false; // Or throw TailNotFoundException if preferred, but for auth check, false is safer.
+            return false;
         }
 
         // Check if user is directly assigned

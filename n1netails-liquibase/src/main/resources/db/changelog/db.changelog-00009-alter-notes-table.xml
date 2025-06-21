@@ -4,20 +4,26 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
 
-    <changeSet id="00008-insert-n1netails-organization" author="jules-ai">
-        <sqlFile path="db/changelog/sql/db.changelog-00008-insert-n1netails-organization.sql"/>
+    <changeSet id="00009-alter-notes-table" author="shahidfoy">
+        <sqlFile path="db/changelog/sql/db.changelog-00009-alter-notes-table.sql"/>
         <rollback>
-            DELETE FROM ntail.n1ne_token WHERE organization_id IN (SELECT id FROM ntail.organization WHERE name = 'n1netails');
-            DELETE FROM ntail.user_organizations WHERE organization_id IN (SELECT id FROM ntail.organization WHERE name = 'n1netails');
-            DELETE FROM ntail.tail WHERE organization_id IN (SELECT id FROM ntail.organization WHERE name = 'n1netails');
-
-            ALTER TABLE ntail.tail
+            ALTER TABLE ntail.note
             DROP CONSTRAINT fk_tail_organization_id;
 
-            ALTER TABLE ntail.tail
+            ALTER TABLE ntail.note
             DROP COLUMN organization_id;
 
-            DELETE FROM ntail.organization WHERE name = 'n1netails';
+            ALTER TABLE ntail.note
+            DROP COLUMN n1;
+
+            ALTER TABLE ntail.note
+            DROP COLUMN is_human;
+
+            ALTER TABLE ntail.note
+            DROP COLUMN llm_provider;
+
+            ALTER TABLE ntail.note
+            DROP COLUMN llm_model;
         </rollback>
     </changeSet>
 

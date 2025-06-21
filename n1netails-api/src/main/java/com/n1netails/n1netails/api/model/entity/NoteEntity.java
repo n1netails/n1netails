@@ -27,4 +27,16 @@ public class NoteEntity {
     private String content;
 
     private Instant createdAt;
+
+    @ManyToOne
+    private OrganizationEntity organization;
+
+    private boolean n1;
+
+    private boolean isHuman;
+
+    private String llmProvider;
+
+    private String llmModel;
+
 }

@@ -1,5 +1,6 @@
 package com.n1netails.n1netails.api.service.impl;
 
+import com.n1netails.n1netails.api.exception.type.N1NoteAlreadyExistsException;
 import com.n1netails.n1netails.api.exception.type.NoteNotFoundException;
 import com.n1netails.n1netails.api.exception.type.TailNotFoundException;
 import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
@@ -36,7 +37,12 @@ public class NoteServiceImpl implements NoteService {
     private final TailRepository tailRepository;
 
     @Override
-    public Note add(Note note) throws TailNotFoundException, UserNotFoundException {
+    public Note add(Note note) throws TailNotFoundException, UserNotFoundException, N1NoteAlreadyExistsException {
+
+        if (note.isN1() && noteRepository.findFirstByTailIdAndN1IsTrueOrderByCreatedAtDesc(note.getTailId()).isPresent()) {
+            throw new N1NoteAlreadyExistsException("Unable to add n1 note as one already exists for this tail.");
+        }
+
         TailEntity tail = this.tailRepository.findById(note.getTailId())
                 .orElseThrow(() -> new TailNotFoundException("Tail for the requested new note does note exist."));
         UsersEntity user = this.userRepository.findById(note.getUserId())
@@ -85,6 +91,13 @@ public class NoteServiceImpl implements NoteService {
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), Sort.by("createdAt").descending());
         Page<NoteEntity> noteEntitiesPage = this.noteRepository.findAllByTailId(request.getTailId(), pageable);
         return noteEntitiesPage.map(NoteServiceImpl::setNote);
+    }
+
+    @Override
+    public Note getIsN1ByTailId(Long tailId) throws NoteNotFoundException {
+        NoteEntity noteEntity = this.noteRepository.findFirstByTailIdAndN1IsTrueOrderByCreatedAtDesc(tailId)
+                .orElseThrow(() -> new NoteNotFoundException("No n1 note exists."));
+        return setNote(noteEntity);
     }
 
     private static Note setNote(NoteEntity noteEntity) {

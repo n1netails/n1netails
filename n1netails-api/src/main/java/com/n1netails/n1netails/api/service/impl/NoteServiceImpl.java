@@ -60,22 +60,35 @@ public class NoteServiceImpl implements NoteService {
         return setNote(noteEntity);
     }
 
+import java.util.stream.Collectors;
+
     @Override
     public List<Note> getAllByTailId(Long tailId) {
-        // todo get a list of notes by tail id
-        return List.of();
+        return this.noteRepository.findAllByTailIdOrderByCreatedAtDesc(tailId)
+                .stream()
+                .map(NoteServiceImpl::setNote)
+                .collect(Collectors.toList());
     }
+
+import java.util.stream.Collectors;
 
     @Override
     public List<Note> getLast9NotesByTailId(Long tailId) {
-        // todo get the last 9 notes by tail id
-        return List.of();
+        return this.noteRepository.findTop9ByTailIdOrderByCreatedAtDesc(tailId)
+                .stream()
+                .map(NoteServiceImpl::setNote)
+                .collect(Collectors.toList());
     }
+
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
     @Override
     public Page<Note> getNotesByTailId(NotePageRequest request) {
-        // todo return page of notes by tail id
-        return null;
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), Sort.by("createdAt").descending());
+        Page<NoteEntity> noteEntitiesPage = this.noteRepository.findAllByTailId(request.getTailId(), pageable);
+        return noteEntitiesPage.map(NoteServiceImpl::setNote);
     }
 
     private static Note setNote(NoteEntity noteEntity) {

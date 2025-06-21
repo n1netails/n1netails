@@ -56,7 +56,7 @@ export class TailComponent implements OnInit {
   error: string | null = null;
   isLoading: boolean = true;
   showMetadata = false;
-  showDetails = true;
+  showDetails = false;
 
   llmEnabled = false;
   openaiEnabled = false;
@@ -196,6 +196,7 @@ export class TailComponent implements OnInit {
     this.llmService.investigateTail(llmRequest).subscribe({
       next: (response) => {
         this.llmResponse = response;
+        console.log('LLM RESPONSE', this.llmResponse);
         this.isInvestigating = false;
         this.showDetails = false;
         this.showMetadata = false;

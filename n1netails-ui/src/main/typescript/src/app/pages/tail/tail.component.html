@@ -33,7 +33,7 @@
                       Resolve Tail
                     </button>
                     <button nz-button nzType="default" (click)="investigateTail()" *ngIf="llmEnabled && tail && tail.status !== 'RESOLVED'" [nzLoading]="isInvestigating" [disabled]="!tail || isInvestigating" style="margin-left: 8px;">
-                      Investigate with LLM
+                      Investigate with Inari
                     </button>
                   </div>
 
@@ -100,11 +100,11 @@
             </nz-card>
 
             <!-- LLM Investigation Display Area -->
-            <div *ngIf="isInvestigating && !llmResponse" style="text-align: center; margin-top: 16px;">
+            <div *ngIf="isInvestigating && !llmResponse" style="text-align: center; margin-top: 8px !important;">
                 <nz-spin nzSimple [nzSize]="'large'" nzTip="Investigating..."></nz-spin>
             </div>
 
-            <nz-card *ngIf="llmResponse && !isInvestigating" nzTitle="LLM Investigation Analysis" [nzBordered]="false" style="margin-top: 16px;">
+            <nz-card *ngIf="llmResponse && !isInvestigating" nzTitle="LLM Investigation Analysis" [nzBordered]="false" style="margin-top: 8px;">
               <markdown [data]="llmResponse.promptCompletionResponse"></markdown>
             </nz-card>
             <!-- End of LLM Investigation Display Area -->

@@ -1,66 +1,68 @@
-<nz-card nzTitle="AI Chat & Notes" class="ai-chat-card dark-theme-chat">
-  <nz-spin [nzSpinning]="isLoadingNotes">
-    <div class="chat-history-container" #chatHistoryContainer>
-      <nz-list [nzDataSource]="notes" nzItemLayout="horizontal">
-        <ng-template #item let-item>
-          <!-- TODO GET TIME STAMP OF NOTE -->
-          <nz-comment [nzAuthor]="item.username">
-            <nz-avatar
-              nz-comment-avatar
-              [nzText]="item.isHuman ? item.username.substring(0, 1).toUpperCase() : 'AI'"
-              [ngStyle]="{'background-color': item.isHuman ? '#1890ff' : '#bfbfbf'}"
-            ></nz-avatar>
-            <nz-comment-content>
-              <div *ngIf="item.isLoading; else messageContent" class="loading-message-placeholder">
-                <nz-spin nzSimple [nzSize]="'small'"></nz-spin> Loading response...
-              </div>
-              <ng-template #messageContent>
-                <markdown [data]="item.noteText" class="chat-message-content"></markdown>
-                <div *ngIf="!item.isHuman && item.llmProvider" class="ai-meta">
-                  Provider: {{ item.llmProvider }} | Model: {{ item.llmModel }}
-                </div>
-              </ng-template>
-            </nz-comment-content>
-          </nz-comment>
-        </ng-template>
-        <nz-list-empty *ngIf="!notes || notes.length === 0"></nz-list-empty>
-      </nz-list>
-    </div>
-  </nz-spin>
+<nz-card nzTitle="Inari Chat & Notes" class="ai-chat-card dark-theme-chat" [nzBordered]="false">
+  <div class="chat-card-content">
 
-  <div class="chat-input-area">
-    <nz-form-item>
-      <nz-textarea-count [nzMaxCharacterCount]="2000">
-        <textarea
-          nz-input
-          rows="3"
-          [(ngModel)]="newNoteText"
-          placeholder="Type your note or prompt for the AI..."
-          (keydown.enter)="sendToLlm()"
-          [disabled]="isSendingMessage"
-        ></textarea>
-      </nz-textarea-count>
-    </nz-form-item>
-    <nz-form-item class="action-buttons">
-      <button
-        nz-button
-        nzType="default"
-        (click)="addNote()"
-        [nzLoading]="isSendingMessage && newNoteText !== ''"
-        [disabled]="!newNoteText.trim() || isSendingMessage"
-      >
-        Add Note
-      </button>
-      <button
-        nz-button
-        nzType="primary"
-        (click)="sendToLlm()"
-        [nzLoading]="isSendingMessage && newNoteText !== ''"
-        [disabled]="!newNoteText.trim() || isSendingMessage"
-        style="margin-left: 8px;"
-      >
-        Send to LLM
-      </button>
-    </nz-form-item>
+    <nz-spin [nzSpinning]="isLoadingNotes">
+
+
+      <div class="chat-virtual-scroll-container">
+        <cdk-virtual-scroll-viewport #viewport itemSize="72" class="chat-virtual-scroll-viewport">
+          <nz-list>
+            <nz-list-item *cdkVirtualFor="let item of notes">
+              @if (item) {
+                <nz-list-item-meta>
+                  <nz-list-item-meta-title>
+                    <a href="">{{ item.llmProvider }}</a>
+                  </nz-list-item-meta-title>
+                  <nz-list-item-meta-description>
+                    <markdown [data]="item.content"></markdown>
+                  </nz-list-item-meta-description>
+                </nz-list-item-meta>
+              } @else {
+                <nz-skeleton [nzParagraph]="{ rows: 1 }"></nz-skeleton>
+              }
+            </nz-list-item>
+          </nz-list>
+        </cdk-virtual-scroll-viewport>
+      </div>
+    </nz-spin>
+
+    <div class="chat-input-area" style="display: flex; align-items: flex-end; gap: 0; margin-top: 12px;">
+      <nz-form-item style="flex: 1; margin-bottom: 0;">
+        <nz-textarea-count [nzMaxCharacterCount]="2000">
+          <textarea
+            nz-input
+            rows="1"
+            [(ngModel)]="newNoteText"
+            placeholder="Type your note or prompt for the AI..."
+            (keydown.enter)="sendToLlm()"
+            [disabled]="isSendingMessage"
+            style="width: 80vw;"
+          ></textarea>
+        </nz-textarea-count>
+      </nz-form-item>
+      <nz-form-item class="action-buttons" style="margin-bottom: 0; margin-left: 12px; display: flex; gap: 8px;">
+        <button
+          nz-button
+          nzType="default"
+          (click)="addNote()"
+          [nzLoading]="isSendingMessage && newNoteText !== ''"
+          [disabled]="!newNoteText.trim() || isSendingMessage"
+        >
+          Add Note
+        </button>
+        <button
+          nz-button
+          nzType="primary"
+          (click)="sendToLlm()"
+          [nzLoading]="isSendingMessage && newNoteText !== ''"
+          [disabled]="!newNoteText.trim() || isSendingMessage"
+        >
+          Send to Inari
+        </button>
+      </nz-form-item>
+    </div>
+
   </div>
+  
+  
 </nz-card>

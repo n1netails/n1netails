@@ -1,166 +1,240 @@
 // Ensure this component inherits dark theme styles or defines its own
 // For a dark theme, you'd typically have variables for colors.
 // These are example values.
-@dark-background: #1f1f1f;
-@dark-card-background: #2a2a2a; // Slightly lighter than page background
-@dark-text-color: #e0e0e0;
-@dark-border-color: #434343;
-@dark-input-background: #303030;
-@human-message-background: #3a3a5c; // Example: a subtle blueish tint for human
-@ai-message-background: #424242;    // Example: neutral dark for AI
+// @dark-background: #1f1f1f;
+// @dark-card-background: #2a2a2a; // Slightly lighter than page background
+// @dark-text-color: #e0e0e0;
+// @dark-border-color: #434343;
+// @dark-input-background: #303030;
+// @human-message-background: #3a3a5c; // Example: a subtle blueish tint for human
+// @ai-message-background: #424242;    // Example: neutral dark for AI
+
+
+
+// .ai-chat-card {
+//   // height: 100vh;
+//   background-color: @dark-card-background;
+//   border-color: @dark-border-color;
+
+//   ::ng-deep .ant-card-head {
+//     background-color: @dark-card-background;
+//     color: @dark-text-color;
+//     border-bottom: 1px solid @dark-border-color;
+//   }
+
+//   ::ng-deep .ant-card-body {
+//     padding: 16px; // Adjust padding as needed
+//   }
+// }
+
+// .chat-history-container {
+//   height: 400px; // Or make it flexible
+//   overflow-y: auto;
+//   padding: 8px;
+//   border: 1px solid @dark-border-color;
+//   border-radius: 4px;
+//   margin-bottom: 16px;
+//   background-color: @dark-background; // Base for the chat history
+
+//   .ant-list-item {
+//     padding: 8px 0;
+//     border-bottom: 1px dashed @dark-border-color; // Softer separator
+
+//     &:last-child {
+//       border-bottom: none;
+//     }
+//   }
+
+//   .ant-comment {
+//     color: @dark-text-color;
+
+//     .ant-comment-content-author-name {
+//       color: @dark-text-color;
+//       font-weight: bold;
+//     }
+//     .ant-comment-content-author-time {
+//       color: darken(@dark-text-color, 25%);
+//     }
+//     .ant-comment-actions > li > span {
+//        color: darken(@dark-text-color, 15%);
+//     }
+//   }
+
+//   .chat-message-content {
+//     padding: 8px 12px;
+//     border-radius: 8px;
+//     margin-top: 4px;
+//     p {
+//       margin-bottom: 0.5em;
+//       &:last-child {
+//         margin-bottom: 0;
+//       }
+//     }
+//   }
+
+//   // Differentiate human vs AI messages if desired with background
+//   // nz-comment[isHuman="true"] .chat-message-content { // This won't work directly
+//   //   background-color: @human-message-background;
+//   // }
+//   // nz-comment[isHuman="false"] .chat-message-content {
+//   //   background-color: @ai-message-background;
+//   // }
+//   // Styling based on data needs to be done via ngClass or similar in the template on the element itself.
+
+
+//   .ai-meta {
+//     font-size: 0.8em;
+//     color: darken(@dark-text-color, 30%);
+//     margin-top: 4px;
+//   }
+
+//   .loading-message-placeholder {
+//     display: flex;
+//     align-items: center;
+//     gap: 8px;
+//     color: @dark-text-color;
+//     font-style: italic;
+//   }
+// }
+
+// .chat-textarea {
+//   flex: 1 1 0;
+//   min-width: 0;
+//   margin-bottom: 0;
+// }
+
+// .chat-input-area {
+//   margin-top: 16px;
+
+//   display: flex;
+//   align-items: flex-end;
+//   width: 100%;
+//   gap: 0;
+
+//   textarea.ant-input {
+//     background-color: @dark-input-background;
+//     color: @dark-text-color;
+//     border-color: @dark-border-color;
+//     resize: vertical;
+
+//     &::placeholder {
+//       color: darken(@dark-text-color, 40%);
+//     }
+//   }
+
+//   ::ng-deep .ant-input-textarea-show-count::after {
+//     color: darken(@dark-text-color, 20%);
+//   }
+
+//   .action-buttons {
+//     margin-bottom: 0;
+//     margin-left: 12px;
+//     display: flex;
+//     gap: 8px;
+
+//     .ant-btn-default {
+//       // background-color: lighten(@dark-input-background, 10%);
+//       // border-color: @dark-border-color;
+//       // color: @dark-text-color;
+//       // &:hover {
+//       //   background-color: lighten(@dark-input-background, 15%);
+//       //   border-color: lighten(@dark-border-color, 10%);
+//       // }
+//     }
+//     // Primary button usually has its own distinct styling from Ant theme
+//   }
+// }
+
+// // General dark theme for ngx-markdown if not globally set
+// ::ng-deep .markdown {
+//   color: @dark-text-color;
+//   h1, h2, h3, h4, h5, h6 {
+//     color: @dark-text-color;
+//     border-bottom: 1px solid @dark-border-color;
+//   }
+//   code {
+//     background-color: @dark-input-background; // Slightly different from main input bg for emphasis
+//     color: #c7a8ff; // Example: light purple for code text
+//     padding: 0.2em 0.4em;
+//     border-radius: 3px;
+//   }
+//   pre {
+//     background-color: @dark-input-background;
+//     padding: 10px;
+//     border-radius: 4px;
+//     code {
+//         background-color: transparent; // Code inside pre shouldn't have its own bg
+//         padding: 0;
+//     }
+//   }
+//   a {
+//     color: #1890ff; // Standard link color, or adjust for dark theme
+//   }
+//   table {
+//     th, td {
+//       border: 1px solid @dark-border-color;
+//     }
+//   }
+//   blockquote {
+//     border-left: 4px solid @dark-border-color;
+//     color: darken(@dark-text-color, 15%);
+//   }
+// }
+
+
+
+
+
+
 
 .ai-chat-card {
-  background-color: @dark-card-background;
-  border-color: @dark-border-color;
-
-  ::ng-deep .ant-card-head {
-    background-color: @dark-card-background;
-    color: @dark-text-color;
-    border-bottom: 1px solid @dark-border-color;
-  }
-
-  ::ng-deep .ant-card-body {
-    padding: 16px; // Adjust padding as needed
-  }
+    margin-top: 8px;
 }
 
-.chat-history-container {
-  height: 400px; // Or make it flexible
-  overflow-y: auto;
-  padding: 8px;
-  border: 1px solid @dark-border-color;
-  border-radius: 4px;
-  margin-bottom: 16px;
-  background-color: @dark-background; // Base for the chat history
+.ai-chat-card .chat-card-content {
 
-  .ant-list-item {
-    padding: 8px 0;
-    border-bottom: 1px dashed @dark-border-color; // Softer separator
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 400px;
+}
 
-    &:last-child {
-      border-bottom: none;
-    }
-  }
+.chat-virtual-scroll-container {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;      // Add this line
+  overflow: hidden;
+  display: flex;     // Ensure flex context for children
+  flex-direction: column;
+}
 
-  .ant-comment {
-    color: @dark-text-color;
-
-    .ant-comment-content-author-name {
-      color: @dark-text-color;
-      font-weight: bold;
-    }
-    .ant-comment-content-author-time {
-      color: darken(@dark-text-color, 25%);
-    }
-    .ant-comment-actions > li > span {
-       color: darken(@dark-text-color, 15%);
-    }
-  }
-
-  .chat-message-content {
-    padding: 8px 12px;
-    border-radius: 8px;
-    margin-top: 4px;
-    p {
-      margin-bottom: 0.5em;
-      &:last-child {
-        margin-bottom: 0;
-      }
-    }
-  }
-
-  // Differentiate human vs AI messages if desired with background
-  // nz-comment[isHuman="true"] .chat-message-content { // This won't work directly
-  //   background-color: @human-message-background;
-  // }
-  // nz-comment[isHuman="false"] .chat-message-content {
-  //   background-color: @ai-message-background;
-  // }
-  // Styling based on data needs to be done via ngClass or similar in the template on the element itself.
-
-
-  .ai-meta {
-    font-size: 0.8em;
-    color: darken(@dark-text-color, 30%);
-    margin-top: 4px;
-  }
-
-  .loading-message-placeholder {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: @dark-text-color;
-    font-style: italic;
-  }
+.chat-virtual-scroll-viewport {
+  width: 100% !important;
+  height: 100% !important;   // Ensure it fills the container
+  min-height: 500px;         // Or your preferred min height
+  flex: 1 1 auto;
+  border-radius: 8px;
+  background: transparent;
 }
 
 .chat-input-area {
-  margin-top: 16px;
-
-  textarea.ant-input {
-    background-color: @dark-input-background;
-    color: @dark-text-color;
-    border-color: @dark-border-color;
-    resize: vertical;
-
-    &::placeholder {
-      color: darken(@dark-text-color, 40%);
-    }
-  }
-
-  ::ng-deep .ant-input-textarea-show-count::after {
-    color: darken(@dark-text-color, 20%);
-  }
-
-  .action-buttons {
-    margin-top: 8px;
-    text-align: right;
-
-    .ant-btn-default {
-      // background-color: lighten(@dark-input-background, 10%);
-      // border-color: @dark-border-color;
-      // color: @dark-text-color;
-      // &:hover {
-      //   background-color: lighten(@dark-input-background, 15%);
-      //   border-color: lighten(@dark-border-color, 10%);
-      // }
-    }
-    // Primary button usually has its own distinct styling from Ant theme
-  }
+  display: flex;
+  align-items: flex-end;
+  gap: 0;
+  margin-top: 12px;
+  width: 100%;
+  background: transparent;
 }
 
-// General dark theme for ngx-markdown if not globally set
-::ng-deep .markdown {
-  color: @dark-text-color;
-  h1, h2, h3, h4, h5, h6 {
-    color: @dark-text-color;
-    border-bottom: 1px solid @dark-border-color;
-  }
-  code {
-    background-color: @dark-input-background; // Slightly different from main input bg for emphasis
-    color: #c7a8ff; // Example: light purple for code text
-    padding: 0.2em 0.4em;
-    border-radius: 3px;
-  }
-  pre {
-    background-color: @dark-input-background;
-    padding: 10px;
-    border-radius: 4px;
-    code {
-        background-color: transparent; // Code inside pre shouldn't have its own bg
-        padding: 0;
-    }
-  }
-  a {
-    color: #1890ff; // Standard link color, or adjust for dark theme
-  }
-  table {
-    th, td {
-      border: 1px solid @dark-border-color;
-    }
-  }
-  blockquote {
-    border-left: 4px solid @dark-border-color;
-    color: darken(@dark-text-color, 15%);
-  }
+.chat-textarea {
+  flex: 1 1 0;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.action-buttons {
+  margin-bottom: 0;
+  margin-left: 12px;
+  display: flex;
+  gap: 8px;
 }

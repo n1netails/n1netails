@@ -1,4 +1,5 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, Input, OnInit, ViewChild, inject } from '@angular/core';
+import { CdkFixedSizeVirtualScroll, CdkVirtualForOf, CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NzCardModule } from 'ng-zorro-antd/card';
@@ -19,6 +20,12 @@ import { NoteService } from '../../../service/note.service';
 import { LlmService } from '../../../service/llm.service';
 import { LlmPromptRequest, LlmPromptResponse } from '../../../model/llm.model';
 import { UiConfigService } from '../../ui-config.service'; // For LLM provider/model defaults
+import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
+import { HttpClient } from '@angular/common/http';
+import { CollectionViewer, DataSource } from '@angular/cdk/collections';
+import { BehaviorSubject, catchError, Observable, of, Subject, take, takeUntil } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NgZone } from '@angular/core';
 
 interface ChatMessage extends Note {
   isLoading?: boolean; // For AI messages that are pending
@@ -38,6 +45,10 @@ interface ChatMessage extends Note {
     NzAvatarModule,
     NzCommentModule,
     NzFormModule,
+    NzSkeletonModule,
+    CdkFixedSizeVirtualScroll,
+    CdkVirtualForOf,
+    ScrollingModule,
     MarkdownModule,
   ],
   templateUrl: './ai-chat-card.component.html',
@@ -47,6 +58,8 @@ export class AiChatCardComponent implements OnInit {
   @Input() tail!: TailResponse;
   @Input() currentUser!: User;
   @Input() initialLlmResponse?: string | null;
+
+  @ViewChild(CdkVirtualScrollViewport) viewport?: CdkVirtualScrollViewport;
 
   public notes: ChatMessage[] = [];
   public newNoteText: string = '';
@@ -62,6 +75,39 @@ export class AiChatCardComponent implements OnInit {
   private defaultLlmProvider: string = 'openai';
   private defaultLlmModel: string = 'gpt-4.1'; // Or fetch from uiConfigService if available
 
+
+
+
+  exampleLlmResponse = `**Incident Report: Analysis of RuntimeException**
+  
+  **Summary:**  
+  An uncaught \`java.lang.RuntimeException\` was triggered in the \`N1netailsSandboxApplication\` running on host \`shahid-pc\`. The exception message and the code structure indicate a deliberate throw to exercise or test an exception handler mechanism.
+  
+  **Root Cause Analysis:**  
+  - The exception \`java.lang.RuntimeException: This will trigger the handler\` was thrown at line 284 within the method \`runKudaExceptionHandler\` of the class \`N1netailsSandboxApplication\`.
+  - The stack trace shows this exception is thrown explicitly as part of a runnable (threaded) context.
+  - The method name and the exception message ("This will trigger the handler") strongly suggest this exception is purposely thrown, likely to test or invoke global exception handling logic configured elsewhere in the application.
+  - No underlying application error, network interruption, or system resource issue is indicated in the provided details.
+  
+  **Supporting Details:**
+  - OS: Windows 11 (version 10.0), Java: 21.0.2, 64-bit architecture.
+  - The exception propagated to the thread's run loop, indicating it was not caught within business logic or exception handling blocks upstream.
+  - Thread state was RUNNABLE at the time of exception, signifying normal operation until the forced RuntimeException.
+  
+  **Conclusion:**  
+  This is a controlled exception, likely executed to validate or trigger custom exception handling code. There is no evidence of a system fault or unintentional application error. The event appears intentional for development or operational testing purposes.
+  
+  **Recommended Actions:**  
+  - No immediate remediation is needed unless this exception was unintentionally left in production code.
+  - If this is a test artifact, consider removing or conditioning it to avoid confusion in future alerting/monitoring.
+  - Verify the intended exception handling path successfully processed this event as designed.
+  `;
+
+
+  private ngZone = inject(NgZone);
+
+
+  // TODO GET CURRENT LOGGED IN USER
   constructor() {
     // Initialize default LLM settings from uiConfigService if they exist
     if (this.uiConfigService.isOpenaiEnabled()) {
@@ -74,50 +120,65 @@ export class AiChatCardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (this.initialLlmResponse) {
+    // if (this.initialLlmResponse) {
       const aiResponseNote: ChatMessage = {
         isHuman: false,
-        noteText: this.initialLlmResponse,
-        timestamp: new Date(),
+        content: this.exampleLlmResponse,
+        // noteText: this.initialLlmResponse,
+        createdAt: new Date(),
         userId: 'AI', // Or a more specific AI identifier
         username: 'LLM Investigator',
         llmProvider: this.defaultLlmProvider, // This might need to come from the actual response
         llmModel: this.defaultLlmModel,   // This might need to come from the actual response
         tailId: this.tail.id,
-        organizationId: this.tail.organizationId
+        organizationId: this.tail.organizationId,
+        n1: true
       };
       this.notes.push(aiResponseNote);
-    }
+      console.log('init notes', this.notes);
+      // this.notes.push(aiResponseNote);
+      // this.notes.push(aiResponseNote);
+      Promise.resolve().then(() => this.scrollToBottom());
+    // }
     this.loadNotes();
   }
 
   loadNotes(): void {
-    if (!this.tail || !this.tail.id) {
-      this.messageService.error('Tail ID is missing, cannot load notes.');
-      return;
+    // if (!this.tail || !this.tail.id) {
+    //   this.messageService.error('Tail ID is missing, cannot load notes.');
+    //   return;
+    // }
+    // this.isLoadingNotes = true;
+    // this.noteService.getNotesByTailId(this.tail.id).subscribe({
+    //   next: (loadedNotes) => {
+    //     // Add loaded notes, ensuring no duplicates with initialLlmResponse if it were also a note
+    //     const existingNoteTexts = this.notes.map(n => n.noteText);
+    //     loadedNotes.forEach(note => {
+    //         if (!this.initialLlmResponse || note.noteText !== this.initialLlmResponse) {
+    //              this.notes.push(note as ChatMessage);
+    //         } else if (this.initialLlmResponse && note.noteText === this.initialLlmResponse && !existingNoteTexts.includes(note.noteText)) {
+    //             // If initialLlmResponse was somehow also saved as a note and not yet added
+    //             this.notes.push(note as ChatMessage);
+    //         }
+    //     });
+    //     this.notes.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+    //     this.isLoadingNotes = false;
+    //   },
+    //   error: (err) => {
+    //     this.messageService.error('Failed to load notes.');
+    //     console.error('Error loading notes:', err);
+    //     this.isLoadingNotes = false;
+    //   }
+    // });
+  }
+
+  // Call this after adding a note or loading notes
+  scrollToBottom(): void {
+    if (this.viewport && this.notes.length > 0) {
+      this.ngZone.onStable.pipe(take(1)).subscribe(() => {
+        this.viewport!.scrollToIndex(this.notes.length - 1, 'smooth');
+      });
     }
-    this.isLoadingNotes = true;
-    this.noteService.getNotesByTailId(this.tail.id).subscribe({
-      next: (loadedNotes) => {
-        // Add loaded notes, ensuring no duplicates with initialLlmResponse if it were also a note
-        const existingNoteTexts = this.notes.map(n => n.noteText);
-        loadedNotes.forEach(note => {
-            if (!this.initialLlmResponse || note.noteText !== this.initialLlmResponse) {
-                 this.notes.push(note as ChatMessage);
-            } else if (this.initialLlmResponse && note.noteText === this.initialLlmResponse && !existingNoteTexts.includes(note.noteText)) {
-                // If initialLlmResponse was somehow also saved as a note and not yet added
-                this.notes.push(note as ChatMessage);
-            }
-        });
-        this.notes.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
-        this.isLoadingNotes = false;
-      },
-      error: (err) => {
-        this.messageService.error('Failed to load notes.');
-        console.error('Error loading notes:', err);
-        this.isLoadingNotes = false;
-      }
-    });
   }
 
   addNote(): void {
@@ -127,26 +188,43 @@ export class AiChatCardComponent implements OnInit {
     const note: Note = {
       userId: this.currentUser.id,
       username: this.currentUser.username,
+      llmProvider: this.defaultLlmProvider,
       isHuman: true,
       tailId: this.tail.id,
-      timestamp: new Date(),
-      noteText: this.newNoteText,
-      organizationId: this.tail.organizationId
+      createdAt: new Date(),
+      content: this.newNoteText,
+      organizationId: this.tail.organizationId,
+      n1: false
     };
 
-    this.noteService.saveNote(note).subscribe({
-      next: (savedNote) => {
-        this.notes.push(savedNote as ChatMessage);
-        this.newNoteText = '';
-        this.isSendingMessage = false;
-        this.messageService.success('Note added successfully.');
-      },
-      error: (err) => {
-        this.messageService.error('Failed to save note.');
-        console.error('Error saving note:', err);
-        this.isSendingMessage = false;
-      }
-    });
+    this.notes.push(note as ChatMessage);
+
+    const tempN = this.notes;
+    this.notes = [];
+    tempN.forEach(note => this.notes.push(note));
+
+    this.newNoteText = ''; // <-- Clear the input!
+    this.isSendingMessage = false;
+
+    console.log('NOTES: ', this.notes);
+
+    // setTimeout(() => this.scrollToBottom());
+    Promise.resolve().then(() => this.scrollToBottom());
+
+    // this.loadNotes();
+    // this.noteService.saveNote(note).subscribe({
+    //   next: (savedNote) => {
+    //     this.notes.push(savedNote as ChatMessage);
+    //     this.newNoteText = '';
+    //     this.isSendingMessage = false;
+    //     this.messageService.success('Note added successfully.');
+    //   },
+    //   error: (err) => {
+    //     this.messageService.error('Failed to save note.');
+    //     console.error('Error saving note:', err);
+    //     this.isSendingMessage = false;
+    //   }
+    // });
   }
 
   sendToLlm(): void {
@@ -159,9 +237,10 @@ export class AiChatCardComponent implements OnInit {
       username: this.currentUser.username,
       isHuman: true,
       tailId: this.tail.id,
-      timestamp: new Date(), // Timestamp for user prompt
-      noteText: this.newNoteText,
+      createdAt: new Date(), // Timestamp for user prompt
+      content: this.newNoteText,
       organizationId: this.tail.organizationId,
+      n1: false
     };
 
     this.noteService.saveNote(userPromptNote).subscribe({
@@ -183,8 +262,9 @@ export class AiChatCardComponent implements OnInit {
         // Add a temporary loading message for AI response
         const loadingAiMessage: ChatMessage = {
             userId: 'AI_temp', username: 'AI Assistant', isHuman: false,
-            tailId: this.tail.id, timestamp: new Date(), noteText: '...',
+            tailId: this.tail.id, createdAt: new Date(), content: '...',
             organizationId: this.tail.organizationId,
+            n1: false,
             isLoading: true, llmProvider: llmRequest.provider, llmModel: llmRequest.model
         };
         this.notes.push(loadingAiMessage);
@@ -202,9 +282,10 @@ export class AiChatCardComponent implements OnInit {
               llmProvider: llmResponse.provider,
               llmModel: llmResponse.model,
               tailId: this.tail.id,
-              timestamp: llmResponse.timestamp || new Date(), // Timestamp for AI response
-              noteText: llmResponse.completion,
-              organizationId: this.tail.organizationId
+              createdAt: llmResponse.timestamp || new Date(), // Timestamp for AI response
+              content: llmResponse.completion,
+              organizationId: this.tail.organizationId,
+              n1: false
             };
 
             this.noteService.saveNote(aiResponseNote).subscribe({

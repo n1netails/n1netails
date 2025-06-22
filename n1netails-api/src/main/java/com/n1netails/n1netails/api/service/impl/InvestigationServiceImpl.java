@@ -7,7 +7,7 @@ import com.n1netails.n1netails.api.exception.type.TailNotFoundException;
 import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
 import com.n1netails.n1netails.api.model.ai.LlmPromptRequest;
 import com.n1netails.n1netails.api.model.ai.LlmPromptResponse;
-import com.n1netails.n1netails.api.model.ai.openai.request.PromptInput;
+import com.n1netails.n1netails.api.model.ai.PromptInput;
 import com.n1netails.n1netails.api.model.entity.NoteEntity;
 import com.n1netails.n1netails.api.model.entity.TailEntity;
 import com.n1netails.n1netails.api.model.entity.UsersEntity;

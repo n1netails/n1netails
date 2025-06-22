@@ -5,13 +5,10 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.List;
 
-import com.n1netails.n1netails.api.model.ai.openai.request.PromptInput;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 // TODO IMPLEMENT THIS LATER FOCUS ON IMPLEMENTING OPENAI FIRST
 @Service
@@ -53,9 +50,4 @@ public class GeminiService implements LlmService {
       return "Error: Failed to call Gemini API - " + e.getMessage();
     }
   }
-
-//  @Override
-//  public String completePrompt(String model, List<PromptInput> promptInputs) {
-//    return "";
-//  }
 }

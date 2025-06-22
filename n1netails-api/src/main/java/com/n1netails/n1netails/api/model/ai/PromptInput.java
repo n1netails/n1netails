@@ -1,4 +1,4 @@
-package com.n1netails.n1netails.api.model.ai.openai.request;
+package com.n1netails.n1netails.api.model.ai;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,10 +23,12 @@ public interface NoteRepository extends JpaRepository<NoteEntity, Long> {
             "ORDER BY n.createdAt ASC")
     List<NoteEntity> findAllByTailIdOrderByCreatedAtAsc(@Param("tailId") Long tailId);
 
+    @Transactional(readOnly = true)
     List<NoteEntity> findTop9ByTailIdOrderByCreatedAtDesc(Long tailId);
 
     Page<NoteEntity> findAllByTailId(Long tailId, Pageable pageable);
 
+    @Transactional(readOnly = true)
     Optional<NoteEntity> findFirstByTailIdAndN1IsTrueOrderByCreatedAtDesc(Long tailId);
 
     @Query("SELECT n FROM NoteEntity n " +

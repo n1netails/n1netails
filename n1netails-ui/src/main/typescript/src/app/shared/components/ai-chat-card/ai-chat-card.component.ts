@@ -134,11 +134,14 @@ export class AiChatCardComponent implements OnInit {
 
     this.noteService.saveNote(note).subscribe({
       next: (savedNote) => {
+
+        // TODO FIGURE OUT A WAY TO REFRESH THE NOTES ON SCREEN
         const tempN = this.notes;
         this.notes = [];
         tempN.forEach(note => {
           this.notes.push(note);
         });
+        
         this.notes.push(savedNote as ChatMessage);
         this.newNoteText = '';
         this.isSendingMessage = false;
@@ -203,6 +206,7 @@ export class AiChatCardComponent implements OnInit {
         };
         this.notes.push(loadingAiMessage);
 
+        console.log("sending prompt request");
         this.llmService.sendPrompt(llmRequest).subscribe({
           next: (llmResponse) => {
             // Remove loading message
@@ -227,6 +231,13 @@ export class AiChatCardComponent implements OnInit {
                 this.notes.push(savedAiResponse as ChatMessage);
                 this.isSendingMessage = false;
                 this.messageService.success('LLM response received and saved.');
+
+                // TODO FIGURE OUT A WAY TO REFRESH THE NOTES ON SCREEN
+                const tempN = this.notes;
+                this.notes = [];
+                tempN.forEach(note => {
+                  this.notes.push(note);
+                });
               },
               error: (err) => {
                 this.messageService.error('Failed to save LLM response as note.');

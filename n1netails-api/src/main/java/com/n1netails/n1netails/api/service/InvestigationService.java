@@ -9,4 +9,5 @@ import com.n1netails.n1netails.api.model.ai.LlmPromptResponse;
 public interface InvestigationService {
 
     LlmPromptResponse investigateWithLlm(LlmPromptRequest llmRequest) throws TailNotFoundException, UserNotFoundException, N1NoteAlreadyExistsException;
+    LlmPromptResponse promptTail(LlmPromptRequest llmRequest) throws TailNotFoundException, UserNotFoundException, N1NoteAlreadyExistsException;
 }

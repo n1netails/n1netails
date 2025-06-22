@@ -32,7 +32,7 @@
                     <button nz-button nzType="primary" (click)="openResolveModal()" *ngIf="tail && tail.status !== 'RESOLVED' && tail.assignedUserId == currentUser.id.toString()" style="margin-left: 8px;">
                       Resolve Tail
                     </button>
-                    <button nz-button nzType="default" (click)="investigateTail()" *ngIf="llmEnabled && tail && tail.status !== 'RESOLVED'" [nzLoading]="isInvestigating" [disabled]="!tail || isInvestigating" style="margin-left: 8px;">
+                    <button nz-button nzType="default" (click)="investigateTail()" *ngIf="llmEnabled && tail && tail.status !== 'RESOLVED' && n1Note.content === ''" [nzLoading]="isInvestigating" [disabled]="!tail || isInvestigating" style="margin-left: 8px;">
                       Investigate with Inari
                     </button>
                   </div>
@@ -104,8 +104,8 @@
                 <nz-spin nzSimple [nzSize]="'large'" nzTip="Investigating..."></nz-spin>
             </div>
 
-            <nz-card *ngIf="llmResponse && !isInvestigating" nzTitle="LLM Investigation Analysis" [nzBordered]="false" style="margin-top: 8px;">
-              <markdown [data]="llmResponse.promptCompletionResponse"></markdown>
+            <nz-card *ngIf="n1Note.content !== '' && !isInvestigating" nzTitle="Inari Investigation Analysis" [nzBordered]="false" style="margin-top: 8px;">
+              <markdown [data]="n1Note.content"></markdown>
             </nz-card>
             <!-- End of LLM Investigation Display Area -->
 
@@ -114,7 +114,7 @@
               *ngIf="tail && currentUser"
               [tail]="tail"
               [currentUser]="currentUser"
-              [initialLlmResponse]="llmResponse?.promptCompletionResponse"
+              [initialLlmResponse]="llmResponse?.completion"
               style="margin-top: 16px;">
             </app-ai-chat-card>
             <!-- End of AI Chat Card -->

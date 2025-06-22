@@ -1,4 +1,4 @@
-import { Component, DestroyRef, Input, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, inject } from '@angular/core';
 import { CdkFixedSizeVirtualScroll, CdkVirtualForOf, CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -13,18 +13,14 @@ import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { MarkdownModule } from 'ngx-markdown';
 
-import { TailResponse } from '../../../model/tail.model'; // Adjust path as needed
-import { User } from '../../../model/user'; // Adjust path as needed
+import { TailResponse } from '../../../model/tail.model';
+import { User } from '../../../model/user';
 import { Note } from '../../../model/note.model';
 import { NoteService } from '../../../service/note.service';
 import { LlmService } from '../../../service/llm.service';
-import { LlmPromptRequest, LlmPromptResponse } from '../../../model/llm.model';
-import { UiConfigService } from '../../ui-config.service'; // For LLM provider/model defaults
+import { LlmPromptRequest } from '../../../model/llm.model';
 import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
-import { HttpClient } from '@angular/common/http';
-import { CollectionViewer, DataSource } from '@angular/cdk/collections';
-import { BehaviorSubject, catchError, Observable, of, Subject, take, takeUntil } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { take } from 'rxjs';
 import { NgZone } from '@angular/core';
 
 interface ChatMessage extends Note {
@@ -69,86 +65,25 @@ export class AiChatCardComponent implements OnInit {
   private noteService = inject(NoteService);
   private llmService = inject(LlmService);
   private messageService = inject(NzMessageService);
-  private uiConfigService = inject(UiConfigService); // To get default LLM provider/model
   private ngZone = inject(NgZone);
 
   // Default LLM settings - could be made configurable
-  private defaultLlmProvider: string = 'openai';
-  private defaultLlmModel: string = 'gpt-4.1'; // Or fetch from uiConfigService if available
-
   llmEnabled = false;
   openaiEnabled = false;
   geminiEnabled = false;
 
   notesTitle = 'Inari Chat & Notes';
 
-  exampleLlmResponse = `**Incident Report: Analysis of RuntimeException**
-  
-  **Summary:**  
-  An uncaught \`java.lang.RuntimeException\` was triggered in the \`N1netailsSandboxApplication\` running on host \`shahid-pc\`. The exception message and the code structure indicate a deliberate throw to exercise or test an exception handler mechanism.
-  
-  **Root Cause Analysis:**  
-  - The exception \`java.lang.RuntimeException: This will trigger the handler\` was thrown at line 284 within the method \`runKudaExceptionHandler\` of the class \`N1netailsSandboxApplication\`.
-  - The stack trace shows this exception is thrown explicitly as part of a runnable (threaded) context.
-  - The method name and the exception message ("This will trigger the handler") strongly suggest this exception is purposely thrown, likely to test or invoke global exception handling logic configured elsewhere in the application.
-  - No underlying application error, network interruption, or system resource issue is indicated in the provided details.
-  
-  **Supporting Details:**
-  - OS: Windows 11 (version 10.0), Java: 21.0.2, 64-bit architecture.
-  - The exception propagated to the thread's run loop, indicating it was not caught within business logic or exception handling blocks upstream.
-  - Thread state was RUNNABLE at the time of exception, signifying normal operation until the forced RuntimeException.
-  
-  **Conclusion:**  
-  This is a controlled exception, likely executed to validate or trigger custom exception handling code. There is no evidence of a system fault or unintentional application error. The event appears intentional for development or operational testing purposes.
-  
-  **Recommended Actions:**  
-  - No immediate remediation is needed unless this exception was unintentionally left in production code.
-  - If this is a test artifact, consider removing or conditioning it to avoid confusion in future alerting/monitoring.
-  - Verify the intended exception handling path successfully processed this event as designed.
-  `;
-
   constructor() {
-    // Initialize default LLM settings from uiConfigService if they exist
-    if (this.uiConfigService.isOpenaiEnabled()) {
-        this.defaultLlmProvider = 'openai';
-        // Potentially more specific model from config if available
-    } else if (this.uiConfigService.isGeminiEnabled()) {
-        this.defaultLlmProvider = 'gemini';
-        // Potentially more specific model from config if available
-    }
-
-    this.openaiEnabled = this.uiConfigService.isOpenaiEnabled();
-    this.geminiEnabled = this.uiConfigService.isGeminiEnabled();
+    this.openaiEnabled = this.llmService.isOpenaiEnabled();
+    this.geminiEnabled = this.llmService.isGeminiEnabled();
 
     this.llmEnabled = this.openaiEnabled || this.geminiEnabled;
     if (!this.llmEnabled) this.notesTitle = 'Notes';
   }
 
   ngOnInit(): void {
-    // temp placeholder
-    this.initialLlmResponse = this.exampleLlmResponse;
-    
-    this.getN1Note();
     this.loadNotes();
-  }
-
-  // todo update this to get the n1 note
-  getN1Note() {
-    const aiResponseNote: ChatMessage = {
-        human: false,
-        content: this.initialLlmResponse,
-        // noteText: this.initialLlmResponse,
-        createdAt: new Date(),
-        userId: this.currentUser.id, // Or a more specific AI identifier
-        username: this.currentUser.username,
-        llmProvider: this.defaultLlmProvider, // This might need to come from the actual response
-        llmModel: this.defaultLlmModel,   // This might need to come from the actual response
-        tailId: this.tail.id,
-        organizationId: this.tail.organizationId,
-        n1: true
-      };
-      this.notes.push(aiResponseNote);
-      console.log('init notes', this.notes);
   }
 
   loadNotes(): void {
@@ -160,13 +95,8 @@ export class AiChatCardComponent implements OnInit {
     this.noteService.getNotesByTailId(this.tail.id).subscribe({
       next: (loadedNotes) => {
         this.notes = [];
-        this.getN1Note();
         loadedNotes.forEach(note => {
-            if (!this.initialLlmResponse || note.content !== this.initialLlmResponse) {
-                 this.notes.push(note as ChatMessage);
-            } else if (this.initialLlmResponse && note.content === this.initialLlmResponse) {
-                // this.notes.push(note as ChatMessage);
-            }
+          this.notes.push(note as ChatMessage);
         });
         this.isLoadingNotes = false;
         console.log('NOTES SIZE: ', this.notes.length);
@@ -224,6 +154,7 @@ export class AiChatCardComponent implements OnInit {
   }
 
   sendToLlm(): void {
+    // TODO GET THIS WORKING WITH NOTES
     if (!this.newNoteText.trim()) return;
     this.isSendingMessage = true;
 
@@ -247,8 +178,9 @@ export class AiChatCardComponent implements OnInit {
 
         // 2. Prepare and send request to LLM
         const llmRequest: LlmPromptRequest = {
-          provider: this.defaultLlmProvider, // Or let user choose
-          model: this.defaultLlmModel,       // Or let user choose
+          // TODO GIVE USERS OPTION TO SELECT DIFFERENT LLM PROVIDERS AND MODELS
+          provider: this.llmService.openai,
+          model: this.llmService.openAiModels[0],
           prompt: currentPromptText,
           userId: this.currentUser.id,
           organizationId: this.tail.organizationId,

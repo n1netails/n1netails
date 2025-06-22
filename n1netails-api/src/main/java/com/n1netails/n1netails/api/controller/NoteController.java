@@ -182,6 +182,8 @@ public class NoteController {
     public ResponseEntity<Note> getN1NoteByTailId(@RequestHeader("Authorization") String authorizationHeader,
                                                  @PathVariable Long tailId)
             throws UserNotFoundException, NoteNotFoundException, UnauthorizedException, TailNotFoundException {
+        log.info("Fetching N1 Note");
+
         UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
         log.debug("User {} attempting to fetch N1 note for tail {}", currentUser.getUsername(), tailId);
 

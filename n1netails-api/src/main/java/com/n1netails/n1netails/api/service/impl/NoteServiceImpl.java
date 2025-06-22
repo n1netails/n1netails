@@ -103,9 +103,13 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Note getIsN1ByTailId(Long tailId) throws NoteNotFoundException {
-        NoteEntity noteEntity = this.noteRepository.findFirstByTailIdAndN1IsTrueOrderByCreatedAtDesc(tailId)
-                .orElseThrow(() -> new NoteNotFoundException("No n1 note exists."));
+        List<NoteEntity> notes = this.noteRepository.findTopN1ByTailIdWithFetch(tailId, PageRequest.of(0, 1));
+        if (notes.isEmpty()) {
+            throw new NoteNotFoundException("No n1 note exists.");
+        }
+        NoteEntity noteEntity = notes.get(0);
         return setNote(noteEntity);
     }
 

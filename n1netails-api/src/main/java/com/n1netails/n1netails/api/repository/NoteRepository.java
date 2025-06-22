@@ -27,4 +27,12 @@ public interface NoteRepository extends JpaRepository<NoteEntity, Long> {
     Page<NoteEntity> findAllByTailId(Long tailId, Pageable pageable);
 
     Optional<NoteEntity> findFirstByTailIdAndN1IsTrueOrderByCreatedAtDesc(Long tailId);
+
+    @Query("SELECT n FROM NoteEntity n " +
+            "LEFT JOIN FETCH n.tail " +
+            "LEFT JOIN FETCH n.user " +
+            "LEFT JOIN FETCH n.organization " +
+            "WHERE n.tail.id = :tailId AND n.n1 = true " +
+            "ORDER BY n.createdAt DESC")
+    List<NoteEntity> findTopN1ByTailIdWithFetch(Long tailId, Pageable pageable);
 }

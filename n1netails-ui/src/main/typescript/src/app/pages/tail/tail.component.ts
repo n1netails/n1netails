@@ -19,11 +19,12 @@ import { AuthenticationService } from '../../service/authentication.service';
 import { User } from '../../model/user';
 import { ResolveTailModalComponent } from '../../shared/components/resolve-tail-modal/resolve-tail-modal.component';
 import { LlmService } from '../../service/llm.service';
-import { LlmRequest, LlmResponse } from '../../model/llm.model';
 import { MarkdownModule } from 'ngx-markdown';
-import { UiConfigService } from '../../shared/ui-config.service';
 import { AiChatCardComponent } from '../../shared/components/ai-chat-card/ai-chat-card.component';
 import { ResolveTailRequest, TailResponse, TailSummary } from '../../model/tail.model';
+import { LlmPromptRequest, LlmPromptResponse } from '../../model/llm.model';
+import { NoteService } from '../../service/note.service';
+import { Note } from '../../model/note.model';
 
 @Component({
   selector: 'app-tail',
@@ -65,8 +66,19 @@ export class TailComponent implements OnInit {
   // Modal properties
   resolveModalVisible: boolean = false;
   currentUser: User;
-  llmResponse: LlmResponse | null = null;
+  llmResponse: LlmPromptResponse | null = null;
   isInvestigating: boolean = false;
+
+  n1Note: Note = {
+    tailId: 0,
+    organizationId: 0,
+    userId: 0,
+    username: '',
+    human: false,
+    n1: true,
+    createdAt: new Date(),
+    content: ''
+  };
 
   public tailUtilService = inject(TailUtilService);
   private tailService = inject(TailService);
@@ -74,12 +86,12 @@ export class TailComponent implements OnInit {
   private messageService = inject(NzMessageService);
   private authService = inject(AuthenticationService);
   private llmService = inject(LlmService);
-  private uiConfigService = inject(UiConfigService);
+  private noteService = inject(NoteService);
 
   constructor() {
     this.currentUser = this.authService.getUserFromLocalCache();
-    this.openaiEnabled = this.uiConfigService.isOpenaiEnabled();
-    this.geminiEnabled = this.uiConfigService.isGeminiEnabled();
+    this.openaiEnabled = this.llmService.isOpenaiEnabled();
+    this.geminiEnabled = this.llmService.isGeminiEnabled();
 
     this.llmEnabled = this.openaiEnabled || this.geminiEnabled;
   }
@@ -112,6 +124,7 @@ export class TailComponent implements OnInit {
         }
         this.error = null;
         this.isLoading = false;
+        this.loadN1Note(id);
       },
       error: (err) => {
         console.error('Error fetching tail:', err);
@@ -119,6 +132,17 @@ export class TailComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  loadN1Note(id: number | undefined): void {
+    if (id !== undefined) {
+      this.noteService.getN1Note(id).subscribe({
+        next: (data) => {
+          console.log('N1 Note: ', data);
+          this.n1Note = data;
+        }
+      });
+    }
   }
 
   openResolveModal(): void {
@@ -184,10 +208,11 @@ export class TailComponent implements OnInit {
     this.isInvestigating = true;
     this.llmResponse = null; // Clear previous response
 
-    const llmRequest: LlmRequest = {
+    const llmRequest: LlmPromptRequest = {
       // TODO GIVE USERS OPTION TO SELECT DIFFERENT LLM PROVIDERS AND MODELS
-      provider: 'openai', 
-      model: 'gpt-4.1',
+      provider: this.llmService.openai, 
+      model: this.llmService.openAiModels[0],
+      prompt: '',
       tailId: this.tail.id,
       userId: this.currentUser.id,
       organizationId: this.tail.organizationId
@@ -201,6 +226,7 @@ export class TailComponent implements OnInit {
         this.showDetails = false;
         this.showMetadata = false;
         this.messageService.success('Investigation complete.');
+        this.loadN1Note(response.tailId);
       },
       error: (err) => {
         console.error('Error investigating tail:', err);

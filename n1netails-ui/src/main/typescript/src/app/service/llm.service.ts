@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { LlmRequest, LlmResponse } from '../model/llm.model';
+import { LlmPromptRequest, LlmPromptResponse } from '../model/llm.model';
 import { UiConfigService } from '../shared/ui-config.service';
 
 @Injectable({
@@ -9,8 +9,14 @@ import { UiConfigService } from '../shared/ui-config.service';
 })
 export class LlmService {
 
+  public openai = 'openai';
+  public openAiModels = ['gpt-4.1'];
+  
+  public gemini = 'gemini';
+  public geminiAiModels = [];
+
   host: string = '';
-  private apiUrl = '/ninetails/llm'; // Base URL for LLM operations
+  private apiUrl = '/ninetails/llm';
 
   constructor(
     private http: HttpClient,
@@ -20,7 +26,19 @@ export class LlmService {
     this.host = this.host + this.apiUrl;
   }
 
-  investigateTail(request: LlmRequest): Observable<LlmResponse> {
-    return this.http.post<LlmResponse>(this.host, request);
+  investigateTail(request: LlmPromptRequest): Observable<LlmPromptResponse> {
+    return this.http.post<LlmPromptResponse>(`${this.host}/investigate`, request);
+  }
+
+  sendPrompt(request: LlmPromptRequest): Observable<LlmPromptResponse> {
+    return this.http.post<LlmPromptResponse>(`${this.host}/prompt`, request);
+  }
+
+  isOpenaiEnabled(): boolean {
+    return this.uiConfigService.isOpenaiEnabled();
+  }
+
+  isGeminiEnabled(): boolean {
+    return this.uiConfigService.isGeminiEnabled();
   }
 }

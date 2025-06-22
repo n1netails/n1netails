@@ -9,7 +9,6 @@ import java.net.http.HttpResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 // TODO IMPLEMENT THIS LATER FOCUS ON IMPLEMENTING OPENAI FIRST
 @Service
@@ -26,7 +25,7 @@ public class GeminiService implements LlmService {
   private String apiUrl;
 
   @Override
-  public String completePrompt(String prompt) {
+  public String completePrompt(String model, String prompt) {
     HttpClient client = HttpClient.newHttpClient();
     // TODO: Update the request body to match the Gemini API specification
     String requestBody = "{\"contents\":[{\"parts\":[{\"text\":\"" + prompt + "\"}]}]}";

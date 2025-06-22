@@ -24,7 +24,20 @@ public class NoteEntity {
     private UsersEntity user;
 
     @Lob
+    @Basic(fetch = FetchType.EAGER)
     private String content;
 
     private Instant createdAt;
+
+    @ManyToOne
+    private OrganizationEntity organization;
+
+    private boolean n1;
+
+    private boolean isHuman;
+
+    private String llmProvider;
+
+    private String llmModel;
+
 }

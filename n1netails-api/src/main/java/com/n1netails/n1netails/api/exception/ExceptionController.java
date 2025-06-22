@@ -53,6 +53,7 @@ public class ExceptionController implements ErrorController {
             InvalidRoleException.class,
             TailNotFoundException.class,
             UserNotFoundException.class,
+            NoteNotFoundException.class,
             IllegalArgumentException.class
     })
     public ResponseEntity<HttpErrorResponse> notFoundException(Exception exception) {
@@ -65,7 +66,10 @@ public class ExceptionController implements ErrorController {
      * @param exception conflict exception
      * @return http error response
      */
-    @ExceptionHandler(EmailExistException.class)
+    @ExceptionHandler({
+            EmailExistException.class,
+            N1NoteAlreadyExistsException.class
+    })
     public ResponseEntity<HttpErrorResponse> conflictException(Exception exception) {
         log.error(exception.getMessage());
         return createHttpResponse(CONFLICT, exception.getMessage());

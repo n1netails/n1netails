@@ -1,0 +1,30 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="00009-alter-notes-table" author="shahidfoy">
+        <sqlFile path="db/changelog/sql/db.changelog-00009-alter-notes-table.sql"/>
+        <rollback>
+            ALTER TABLE ntail.note
+            DROP CONSTRAINT fk_tail_organization_id;
+
+            ALTER TABLE ntail.note
+            DROP COLUMN organization_id;
+
+            ALTER TABLE ntail.note
+            DROP COLUMN n1;
+
+            ALTER TABLE ntail.note
+            DROP COLUMN is_human;
+
+            ALTER TABLE ntail.note
+            DROP COLUMN llm_provider;
+
+            ALTER TABLE ntail.note
+            DROP COLUMN llm_model;
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

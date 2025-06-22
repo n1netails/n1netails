@@ -1,0 +1,70 @@
+<nz-card [nzTitle]="notesTitle" class="ai-chat-card dark-theme-chat" [nzBordered]="false">
+  <div class="chat-card-content">
+
+    <nz-spin [nzSpinning]="isLoadingNotes">
+
+      <div class="chat-virtual-scroll-container">
+        <cdk-virtual-scroll-viewport #viewport itemSize="72" class="chat-virtual-scroll-viewport">
+          <nz-list>
+            <nz-list-item *cdkVirtualFor="let item of notes">
+              @if (item) {
+                <nz-list-item-meta>
+                  <nz-list-item-meta-title>
+                    <p>
+                      {{ item.human ? item.username : item.llmProvider }}
+                    </p>
+                  </nz-list-item-meta-title>
+                  <nz-list-item-meta-description>
+                    <markdown [data]="item.content"></markdown>
+                  </nz-list-item-meta-description>
+                </nz-list-item-meta>
+              } @else {
+                <nz-skeleton [nzParagraph]="{ rows: 1 }"></nz-skeleton>
+              }
+            </nz-list-item>
+          </nz-list>
+        </cdk-virtual-scroll-viewport>
+      </div>
+    </nz-spin>
+
+    <div class="chat-input-area" style="display: flex; align-items: flex-end; gap: 0; margin-top: 12px;">
+      <nz-form-item style="flex: 1; margin-bottom: 0;">
+        <nz-textarea-count [nzMaxCharacterCount]="2000">
+          <textarea
+            nz-input
+            rows="1"
+            [(ngModel)]="newNoteText"
+            placeholder="Type your note or prompt for the AI..."
+            (keydown.enter)="sendToLlm()"
+            [disabled]="isSendingMessage"
+            style="width: 80vw;"
+          ></textarea>
+        </nz-textarea-count>
+      </nz-form-item>
+      <nz-form-item class="action-buttons" style="margin-bottom: 0; margin-left: 12px; display: flex; gap: 8px;">
+        <button
+          nz-button
+          nzType="default"
+          (click)="addNote()"
+          [nzLoading]="isSendingMessage && newNoteText !== ''"
+          [disabled]="!newNoteText.trim() || isSendingMessage"
+        >
+          Add Note
+        </button>
+        <button
+          *ngIf="llmEnabled"
+          nz-button
+          nzType="primary"
+          (click)="sendToLlm()"
+          [nzLoading]="isSendingMessage && newNoteText !== ''"
+          [disabled]="!newNoteText.trim() || isSendingMessage"
+        >
+          Send to Inari
+        </button>
+      </nz-form-item>
+    </div>
+
+  </div>
+  
+  
+</nz-card>

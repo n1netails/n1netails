@@ -21,8 +21,9 @@ import { TailUtilService } from '../../service/tail-util.service';
 import { ResolveTailModalComponent } from '../../shared/components/resolve-tail-modal/resolve-tail-modal.component';
 import { User } from '../../model/user';
 import { AuthenticationService } from '../../service/authentication.service';
-import { ResolveTailRequest, TailService, TailSummary } from '../../service/tail.service';
+import { TailService } from '../../service/tail.service';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { ResolveTailRequest, TailSummary } from '../../model/tail.model';
 
 @Component({
   selector: 'app-tails',
@@ -214,7 +215,7 @@ export class TailsComponent implements OnInit {
       title: this.selectedTail.title,
       description: this.selectedTail.description,
       timestamp: this.selectedTail.timestamp,
-      resolvedtimestamp: this.selectedTail.resolvedTimestamp,
+      resolvedTimestamp: this.selectedTail.resolvedTimestamp,
       assignedUserId: this.currentUser.id,
       level: this.selectedTail.level,
       type: this.selectedTail.type,

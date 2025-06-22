@@ -57,7 +57,7 @@ public class NoteServiceImpl implements NoteService {
         noteEntity.setCreatedAt(Instant.now());
         log.info("Note is coming from human: {}", note.isHuman());
         noteEntity.setHuman(note.isHuman());
-        noteEntity.setN1(noteEntity.isN1());
+        noteEntity.setN1(false);
         noteEntity.setOrganization(tail.getOrganization());
 
         // save note

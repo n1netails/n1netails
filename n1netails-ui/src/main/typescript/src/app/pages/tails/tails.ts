@@ -215,7 +215,7 @@ export class TailsComponent implements OnInit {
       title: this.selectedTail.title,
       description: this.selectedTail.description,
       timestamp: this.selectedTail.timestamp,
-      resolvedtimestamp: this.selectedTail.resolvedTimestamp,
+      resolvedTimestamp: this.selectedTail.resolvedTimestamp,
       assignedUserId: this.currentUser.id,
       level: this.selectedTail.level,
       type: this.selectedTail.type,

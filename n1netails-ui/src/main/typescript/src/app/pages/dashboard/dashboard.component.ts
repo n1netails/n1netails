@@ -243,7 +243,7 @@ export class DashboardComponent implements OnInit {
       title: this.selectedItem.title,
       description: this.selectedItem.description,
       timestamp: this.selectedItem.timestamp,
-      resolvedtimestamp: this.selectedItem.resolvedTimestamp,
+      resolvedTimestamp: this.selectedItem.resolvedTimestamp,
       assignedUserId: this.user.id,
       level: this.selectedItem.level,
       type: this.selectedItem.type,

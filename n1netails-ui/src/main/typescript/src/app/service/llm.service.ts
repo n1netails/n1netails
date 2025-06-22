@@ -3,23 +3,20 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { LlmPromptRequest, LlmPromptResponse } from '../model/llm.model';
 import { UiConfigService } from '../shared/ui-config.service';
-import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LlmService {
 
-  // private openaiEnabled: boolean = environment.openaiEnabled;
   public openai = 'openai';
   public openAiModels = ['gpt-4.1'];
   
-  // private geminiEnabled: boolean = environment.geminiEnabled;
   public gemini = 'gemini';
   public geminiAiModels = [];
 
   host: string = '';
-  private apiUrl = '/ninetails/llm'; // Base URL for LLM operations
+  private apiUrl = '/ninetails/llm';
 
   constructor(
     private http: HttpClient,
@@ -34,7 +31,6 @@ export class LlmService {
   }
 
   sendPrompt(request: LlmPromptRequest): Observable<LlmPromptResponse> {
-    // The 'host' already includes '/ninetails/llm', so we just append '/prompt'
     return this.http.post<LlmPromptResponse>(`${this.host}/prompt`, request);
   }
 

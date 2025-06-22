@@ -1,5 +1,3 @@
-import { Organization } from './organization'; // Assuming Organization is in the same model folder
-
 export interface TailResponse {
   id: number;
   title: string;
@@ -13,7 +11,7 @@ export interface TailResponse {
   type: string;
   status: string;
   metadata: { [key: string]: string };
-  organizationId: number; // This implies Organization might be relevant or part of what organizationId refers to.
+  organizationId: number;
 }
 
 export interface TailSummary {
@@ -21,7 +19,7 @@ export interface TailSummary {
   title: string;
   description: string;
   timestamp: string;
-  resolvedtimestamp: string; // Note: Typo in original? 'resolvedTimestamp' vs 'resolvedtimestamp'
+  resolvedTimestamp: string;
   assignedUserId: number;
   level: string;
   type: string;

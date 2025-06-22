@@ -1,9 +1,6 @@
 package com.n1netails.n1netails.api.model.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.Instant;
 
@@ -11,6 +8,7 @@ import java.time.Instant;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class Note {
 
     private Long id;
@@ -18,7 +16,7 @@ public class Note {
     private Long organizationId;
     private Long userId;
     private String username;
-    private boolean isHuman;
+    private boolean human;
     private boolean n1;
     private String llmProvider;
     private String llmModel;

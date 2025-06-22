@@ -24,6 +24,7 @@ public class NoteEntity {
     private UsersEntity user;
 
     @Lob
+    @Basic(fetch = FetchType.EAGER)
     private String content;
 
     private Instant createdAt;

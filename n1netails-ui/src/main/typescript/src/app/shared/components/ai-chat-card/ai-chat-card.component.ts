@@ -26,7 +26,6 @@ import { CollectionViewer, DataSource } from '@angular/cdk/collections';
 import { BehaviorSubject, catchError, Observable, of, Subject, take, takeUntil } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgZone } from '@angular/core';
-import { AuthenticationService } from '../../../service/authentication.service';
 
 interface ChatMessage extends Note {
   isLoading?: boolean; // For AI messages that are pending
@@ -62,7 +61,6 @@ export class AiChatCardComponent implements OnInit {
 
   @ViewChild(CdkVirtualScrollViewport) viewport?: CdkVirtualScrollViewport;
 
-  // currentUser: User;
   public notes: ChatMessage[] = [];
   public newNoteText: string = '';
   public isLoadingNotes: boolean = false;
@@ -70,16 +68,19 @@ export class AiChatCardComponent implements OnInit {
 
   private noteService = inject(NoteService);
   private llmService = inject(LlmService);
-  // private authService = inject(AuthenticationService);
   private messageService = inject(NzMessageService);
   private uiConfigService = inject(UiConfigService); // To get default LLM provider/model
+  private ngZone = inject(NgZone);
 
   // Default LLM settings - could be made configurable
   private defaultLlmProvider: string = 'openai';
   private defaultLlmModel: string = 'gpt-4.1'; // Or fetch from uiConfigService if available
 
+  llmEnabled = false;
+  openaiEnabled = false;
+  geminiEnabled = false;
 
-
+  notesTitle = 'Inari Chat & Notes';
 
   exampleLlmResponse = `**Incident Report: Analysis of RuntimeException**
   
@@ -106,11 +107,6 @@ export class AiChatCardComponent implements OnInit {
   - Verify the intended exception handling path successfully processed this event as designed.
   `;
 
-
-  private ngZone = inject(NgZone);
-
-
-  // TODO GET CURRENT LOGGED IN USER
   constructor() {
     // this.currentUser = this.authService.getUserFromLocalCache();
     // Initialize default LLM settings from uiConfigService if they exist
@@ -121,12 +117,30 @@ export class AiChatCardComponent implements OnInit {
         this.defaultLlmProvider = 'gemini';
         // Potentially more specific model from config if available
     }
+
+    this.openaiEnabled = this.uiConfigService.isOpenaiEnabled();
+    this.geminiEnabled = this.uiConfigService.isGeminiEnabled();
+
+    this.llmEnabled = this.openaiEnabled || this.geminiEnabled;
+    if (!this.llmEnabled) this.notesTitle = 'Notes';
   }
 
   ngOnInit(): void {
     // if (this.initialLlmResponse) {
-      const aiResponseNote: ChatMessage = {
-        isHuman: false,
+
+    // todo find n1 note here
+      this.getN1Note();
+      // this.notes.push(aiResponseNote);
+      // this.notes.push(aiResponseNote);
+      Promise.resolve().then(() => this.scrollToBottom());
+    // }
+    this.loadNotes();
+  }
+
+  // todo update this to get the n1 note
+  getN1Note() {
+    const aiResponseNote: ChatMessage = {
+        human: false,
         content: this.exampleLlmResponse,
         // noteText: this.initialLlmResponse,
         createdAt: new Date(),
@@ -140,40 +154,40 @@ export class AiChatCardComponent implements OnInit {
       };
       this.notes.push(aiResponseNote);
       console.log('init notes', this.notes);
-      // this.notes.push(aiResponseNote);
-      // this.notes.push(aiResponseNote);
-      Promise.resolve().then(() => this.scrollToBottom());
-    // }
-    this.loadNotes();
   }
 
   loadNotes(): void {
-    // if (!this.tail || !this.tail.id) {
-    //   this.messageService.error('Tail ID is missing, cannot load notes.');
-    //   return;
-    // }
-    // this.isLoadingNotes = true;
-    // this.noteService.getNotesByTailId(this.tail.id).subscribe({
-    //   next: (loadedNotes) => {
-    //     // Add loaded notes, ensuring no duplicates with initialLlmResponse if it were also a note
-    //     const existingNoteTexts = this.notes.map(n => n.noteText);
-    //     loadedNotes.forEach(note => {
-    //         if (!this.initialLlmResponse || note.noteText !== this.initialLlmResponse) {
-    //              this.notes.push(note as ChatMessage);
-    //         } else if (this.initialLlmResponse && note.noteText === this.initialLlmResponse && !existingNoteTexts.includes(note.noteText)) {
-    //             // If initialLlmResponse was somehow also saved as a note and not yet added
-    //             this.notes.push(note as ChatMessage);
-    //         }
-    //     });
-    //     this.notes.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
-    //     this.isLoadingNotes = false;
-    //   },
-    //   error: (err) => {
-    //     this.messageService.error('Failed to load notes.');
-    //     console.error('Error loading notes:', err);
-    //     this.isLoadingNotes = false;
-    //   }
-    // });
+    if (!this.tail || !this.tail.id) {
+      this.messageService.error('Tail ID is missing, cannot load notes.');
+      return;
+    }
+    this.isLoadingNotes = true;
+    this.noteService.getNotesByTailId(this.tail.id).subscribe({
+      next: (loadedNotes) => {
+        // Add loaded notes, ensuring no duplicates with initialLlmResponse if it were also a note
+        const existingNoteTexts = this.notes.map(n => n.content);
+        // const tempN = this.notes;
+        this.notes = [];
+        this.getN1Note();
+        // tempN.forEach(note => this.notes.push(note));
+        loadedNotes.forEach(note => {
+            if (!this.initialLlmResponse || note.content !== this.initialLlmResponse) {
+                 this.notes.push(note as ChatMessage);
+            } else if (this.initialLlmResponse && note.content === this.initialLlmResponse && !existingNoteTexts.includes(note.content)) {
+                // If initialLlmResponse was somehow also saved as a note and not yet added
+                this.notes.push(note as ChatMessage);
+            }
+        });
+        // this.notes.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+        this.isLoadingNotes = false;
+        console.log('NOTES SIZE: ', this.notes.length);
+      },
+      error: (err) => {
+        this.messageService.error('Failed to load notes.');
+        console.error('Error loading notes:', err);
+        this.isLoadingNotes = false;
+      }
+    });
   }
 
   // Call this after adding a note or loading notes
@@ -190,45 +204,46 @@ export class AiChatCardComponent implements OnInit {
     this.isSendingMessage = true;
 
     const note: Note = {
+      tailId: this.tail.id,
+      organizationId: this.tail.organizationId,
       userId: this.currentUser.id,
       username: this.currentUser.username,
-      llmProvider: this.defaultLlmProvider,
-      isHuman: true,
-      tailId: this.tail.id,
+      human: true,
+      n1: false,
       createdAt: new Date(),
-      content: this.newNoteText,
-      organizationId: this.tail.organizationId,
-      n1: false
+      content: this.newNoteText
     };
 
-    this.notes.push(note as ChatMessage);
+    // this.notes.push(note as ChatMessage);
 
-    const tempN = this.notes;
-    this.notes = [];
-    tempN.forEach(note => this.notes.push(note));
+    // const tempN = this.notes;
+    // this.notes = [];
+    // tempN.forEach(note => this.notes.push(note));
 
-    this.newNoteText = ''; // <-- Clear the input!
-    this.isSendingMessage = false;
+    // this.newNoteText = ''; // <-- Clear the input!
+    // this.isSendingMessage = false;
 
-    console.log('NOTES: ', this.notes);
+    // console.log('NOTES: ', this.notes);
 
     // setTimeout(() => this.scrollToBottom());
-    Promise.resolve().then(() => this.scrollToBottom());
+    
 
-    // this.loadNotes();
-    // this.noteService.saveNote(note).subscribe({
-    //   next: (savedNote) => {
-    //     this.notes.push(savedNote as ChatMessage);
-    //     this.newNoteText = '';
-    //     this.isSendingMessage = false;
-    //     this.messageService.success('Note added successfully.');
-    //   },
-    //   error: (err) => {
-    //     this.messageService.error('Failed to save note.');
-    //     console.error('Error saving note:', err);
-    //     this.isSendingMessage = false;
-    //   }
-    // });
+    console.log('new note: ', note);
+    this.noteService.saveNote(note).subscribe({
+      next: (savedNote) => {
+        this.notes.push(savedNote as ChatMessage);
+        this.newNoteText = '';
+        this.isSendingMessage = false;
+        this.messageService.success('Note added successfully.');
+        this.loadNotes();
+        Promise.resolve().then(() => this.scrollToBottom());
+      },
+      error: (err) => {
+        this.messageService.error('Failed to save note.');
+        console.error('Error saving note:', err);
+        this.isSendingMessage = false;
+      }
+    });
   }
 
   sendToLlm(): void {
@@ -239,7 +254,7 @@ export class AiChatCardComponent implements OnInit {
     const userPromptNote: Note = {
       userId: this.currentUser.id,
       username: this.currentUser.username,
-      isHuman: true,
+      human: true,
       tailId: this.tail.id,
       createdAt: new Date(), // Timestamp for user prompt
       content: this.newNoteText,
@@ -267,7 +282,7 @@ export class AiChatCardComponent implements OnInit {
         const loadingAiMessage: ChatMessage = {
             userId: this.currentUser.id, 
             username: this.currentUser.username, 
-            isHuman: false,
+            human: false,
             tailId: this.tail.id, 
             createdAt: new Date(), 
             content: '...',
@@ -288,7 +303,7 @@ export class AiChatCardComponent implements OnInit {
             const aiResponseNote: Note = {
               userId: this.currentUser.id,
               username: this.currentUser.username,
-              isHuman: false,
+              human: false,
               llmProvider: llmResponse.provider,
               llmModel: llmResponse.model,
               tailId: this.tail.id,

@@ -21,6 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -48,16 +49,19 @@ public class NoteServiceImpl implements NoteService {
         UsersEntity user = this.userRepository.findById(note.getUserId())
                 .orElseThrow(() -> new UserNotFoundException("User who requested to add new note does not exist."));
 
+        log.info("Creating new note entity");
         NoteEntity noteEntity = new NoteEntity();
         noteEntity.setTail(tail);
         noteEntity.setUser(user);
         noteEntity.setContent(note.getContent());
         noteEntity.setCreatedAt(Instant.now());
+        log.info("Note is coming from human: {}", note.isHuman());
         noteEntity.setHuman(note.isHuman());
         noteEntity.setN1(noteEntity.isN1());
         noteEntity.setOrganization(tail.getOrganization());
 
         // save note
+        log.info("Saving new note");
         noteEntity = this.noteRepository.save(noteEntity);
         note.setId(noteEntity.getId());
         return note;
@@ -71,8 +75,12 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Note> getAllByTailId(Long tailId) {
-        return this.noteRepository.findAllByTailIdOrderByCreatedAtDesc(tailId)
+        log.info("get all notes by tail id: {}", tailId);
+        List<NoteEntity> noteEntities = this.noteRepository.findAllByTailIdOrderByCreatedAtAsc(tailId);
+        log.info("returning list of notes");
+        return noteEntities
                 .stream()
                 .map(NoteServiceImpl::setNote)
                 .collect(Collectors.toList());

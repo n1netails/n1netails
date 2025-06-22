@@ -141,7 +141,7 @@ export class AiChatCardComponent implements OnInit {
         tempN.forEach(note => {
           this.notes.push(note);
         });
-        
+
         this.notes.push(savedNote as ChatMessage);
         this.newNoteText = '';
         this.isSendingMessage = false;
@@ -157,7 +157,6 @@ export class AiChatCardComponent implements OnInit {
   }
 
   sendToLlm(): void {
-    // TODO GET THIS WORKING WITH NOTES
     if (!this.newNoteText.trim()) return;
     this.isSendingMessage = true;
 
@@ -190,27 +189,9 @@ export class AiChatCardComponent implements OnInit {
           tailId: this.tail.id
         };
 
-        // Add a temporary loading message for AI response
-        const loadingAiMessage: ChatMessage = {
-            userId: this.currentUser.id, 
-            username: this.currentUser.username, 
-            human: false,
-            tailId: this.tail.id, 
-            createdAt: new Date(), 
-            content: '...',
-            organizationId: this.tail.organizationId,
-            n1: false,
-            isLoading: true, 
-            llmProvider: llmRequest.provider, 
-            llmModel: llmRequest.model
-        };
-        this.notes.push(loadingAiMessage);
-
         console.log("sending prompt request");
         this.llmService.sendPrompt(llmRequest).subscribe({
           next: (llmResponse) => {
-            // Remove loading message
-            this.notes.pop();
 
             // 3. Save LLM's response as an AI note
             const aiResponseNote: Note = {
@@ -226,27 +207,14 @@ export class AiChatCardComponent implements OnInit {
               n1: false
             };
 
-            this.noteService.saveNote(aiResponseNote).subscribe({
-              next: (savedAiResponse) => {
-                this.notes.push(savedAiResponse as ChatMessage);
-                this.isSendingMessage = false;
-                this.messageService.success('LLM response received and saved.');
-
-                // TODO FIGURE OUT A WAY TO REFRESH THE NOTES ON SCREEN
-                const tempN = this.notes;
-                this.notes = [];
-                tempN.forEach(note => {
-                  this.notes.push(note);
-                });
-              },
-              error: (err) => {
-                this.messageService.error('Failed to save LLM response as note.');
-                console.error('Error saving AI note:', err);
-                // Still add to local display even if save fails for now
-                this.notes.push(aiResponseNote as ChatMessage);
-                this.isSendingMessage = false;
-              }
+            // TODO FIGURE OUT A WAY TO REFRESH THE NOTES ON SCREEN
+            const tempN = this.notes;
+              this.notes = [];
+              tempN.forEach(note => {
+                this.notes.push(note);
             });
+
+            this.notes.push(aiResponseNote as ChatMessage);
           },
           error: (err) => {
             // Remove loading message

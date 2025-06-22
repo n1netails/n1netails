@@ -142,6 +142,8 @@ public class InvestigationServiceImpl implements InvestigationService {
             llmResponse.setModel(llmRequest.getModel());
             llmResponse.setUserId(llmRequest.getUserId());
             llmResponse.setOrganizationId(llmRequest.getOrganizationId());
+
+            saveNote(llmResponse, tailEntity);
             return llmResponse;
         }
     }
@@ -155,6 +157,23 @@ public class InvestigationServiceImpl implements InvestigationService {
         Optional<NoteEntity> optionalNoteEntity = this.noteRepository.findFirstByTailIdAndN1IsTrueOrderByCreatedAtDesc(tailEntity.getId());
         if (optionalNoteEntity.isPresent()) throw new N1NoteAlreadyExistsException("Unable to create n1 note as one exists already.");
 
+        NoteEntity noteEntity = getNoteEntity(llmPromptResponse, tailEntity);
+        noteEntity.setN1(true);
+        // save note
+        log.info("Saving n1 note");
+        this.noteRepository.save(noteEntity);
+    }
+
+    private void saveNote(LlmPromptResponse llmPromptResponse, TailEntity tailEntity) throws UserNotFoundException {
+
+        NoteEntity noteEntity = getNoteEntity(llmPromptResponse, tailEntity);
+        noteEntity.setN1(false);
+        // save note
+        log.info("Saving note");
+        this.noteRepository.save(noteEntity);
+    }
+
+    private NoteEntity getNoteEntity(LlmPromptResponse llmPromptResponse, TailEntity tailEntity) throws UserNotFoundException {
         UsersEntity user = this.userRepository.findById(tailEntity.getAssignedUserId())
                 .orElseThrow(() -> new UserNotFoundException("User who requested to add new note does not exist."));
 
@@ -164,13 +183,9 @@ public class InvestigationServiceImpl implements InvestigationService {
         noteEntity.setContent(llmPromptResponse.getCompletion());
         noteEntity.setCreatedAt(Instant.now());
         noteEntity.setHuman(false);
-        noteEntity.setN1(true);
         noteEntity.setLlmProvider("openai");
         noteEntity.setLlmModel(llmPromptResponse.getModel());
         noteEntity.setOrganization(tailEntity.getOrganization());
-
-        // save note
-        log.info("Saving n1 note");
-        this.noteRepository.save(noteEntity);
+        return noteEntity;
     }
 }

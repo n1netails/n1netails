@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import static com.n1netails.n1netails.api.ai.llm.constant.LlmConstant.INSTRUCTIONS;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -21,14 +23,11 @@ public class OpenAiService implements LlmService {
   private final WebClient openaiWebClient;
 
   @Override
-  public String completePrompt(String prompt) {
+  public String completePrompt(String model, String prompt) {
 
     TextCompletionRequest textCompletionRequest = TextCompletionRequest.builder()
-            // todo get model from request
-            .model("gpt-4.1")
-            .instructions("You are a DevOps engineer responding to an alert. Based on the input provided, " +
-                    "analyze the issue and explain what the root cause might be. Do not ask any questions or seek clarification. " +
-                    "Provide only a direct, informative response as if you're writing an internal incident report.")
+            .model(model)
+            .instructions(INSTRUCTIONS)
             .input(prompt)
             .build();
 

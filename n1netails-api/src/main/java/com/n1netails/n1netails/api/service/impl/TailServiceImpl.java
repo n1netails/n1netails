@@ -5,7 +5,7 @@ import com.n1netails.n1netails.api.exception.type.TailNotFoundException;
 import com.n1netails.n1netails.api.exception.type.TailStatusNotFoundException;
 import com.n1netails.n1netails.api.exception.type.TailTypeNotFoundException;
 import com.n1netails.n1netails.api.exception.type.UnauthorizedException;
-import com.n1netails.n1netails.api.model.UserPrincipal; // Assuming it's not already here, though likely is
+import com.n1netails.n1netails.api.model.UserPrincipal;
 import com.n1netails.n1netails.api.model.core.TailStatus;
 import com.n1netails.n1netails.api.model.dto.TailSummary;
 import com.n1netails.n1netails.api.model.entity.*;
@@ -141,6 +141,9 @@ public class TailServiceImpl implements TailService {
         noteEntity.setUser(resolverUser); // The note should be associated with the resolverUser
         noteEntity.setContent(request.getNote());
         noteEntity.setCreatedAt(Instant.now());
+        noteEntity.setHuman(true);
+        noteEntity.setN1(false);
+        noteEntity.setOrganization(tail.getOrganization());
         // save note
         this.noteRepository.save(noteEntity);
         // save tail

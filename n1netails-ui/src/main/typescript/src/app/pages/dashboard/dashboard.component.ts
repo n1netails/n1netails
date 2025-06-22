@@ -15,7 +15,7 @@ import { UiConfigService } from "../../shared/ui-config.service";
 import { AuthenticationService } from '../../service/authentication.service';
 import { Router } from '@angular/router';
 import { TailMetricsService } from '../../service/tail-metrics.service';
-import { ResolveTailRequest, TailService, TailSummary } from '../../service/tail.service';
+import { TailService } from '../../service/tail.service';
 import { TailTypeResponse } from '../../service/tail-type.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -24,6 +24,7 @@ import { DurationPipe } from '../../pipe/duration.pipe';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { TailUtilService } from '../../service/tail-util.service';
 import { ResolveTailModalComponent } from '../../shared/components/resolve-tail-modal/resolve-tail-modal.component';
+import { ResolveTailRequest, TailSummary } from '../../model/tail.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -242,7 +243,7 @@ export class DashboardComponent implements OnInit {
       title: this.selectedItem.title,
       description: this.selectedItem.description,
       timestamp: this.selectedItem.timestamp,
-      resolvedtimestamp: this.selectedItem.resolvedTimestamp,
+      resolvedTimestamp: this.selectedItem.resolvedTimestamp,
       assignedUserId: this.user.id,
       level: this.selectedItem.level,
       type: this.selectedItem.type,

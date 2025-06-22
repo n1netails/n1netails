@@ -3,11 +3,12 @@ package com.n1netails.n1netails.api.model.ai;
 import lombok.Data;
 
 @Data
-public class LlmRequest {
+public class LlmPromptRequest {
 
     String provider;
     String model;
-    Long tailId;
+    String prompt;
     Long userId;
     Long organizationId;
+    Long tailId;
 }

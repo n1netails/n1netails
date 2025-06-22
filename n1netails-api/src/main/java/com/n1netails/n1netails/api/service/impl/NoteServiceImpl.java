@@ -64,6 +64,7 @@ public class NoteServiceImpl implements NoteService {
         log.info("Saving new note");
         noteEntity = this.noteRepository.save(noteEntity);
         note.setId(noteEntity.getId());
+        note.setUsername(user.getUsername());
         return note;
     }
 

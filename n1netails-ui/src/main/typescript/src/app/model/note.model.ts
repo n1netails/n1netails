@@ -9,5 +9,5 @@ export interface Note {
   llmProvider?: string; // e.g., 'openai', 'gemini'
   llmModel?: string;    // e.g., 'gpt-4.1'
   createdAt: Date | string; // ISO string or Date object
-  content: string;
+  content: string | undefined | null;
 }

@@ -16,7 +16,7 @@ export interface LlmPromptRequest {
   provider: string; // e.g., 'openai', 'gemini'
   model: string;    // e.g., 'gpt-4.1', 'gemini-pro'
   prompt: string;
-  userId: string | number;
+  userId: number;
   organizationId: number;
   tailId?: number; // Optional, if the prompt is related to a specific tail
 }
@@ -27,7 +27,7 @@ export interface LlmPromptResponse {
   model: string;
   completion: string;
   timestamp: Date | string;
-  userId?: string | number; // User who initiated, if applicable
+  userId?: number; // User who initiated, if applicable
   organizationId?: number;
   tailId?: number;
 }

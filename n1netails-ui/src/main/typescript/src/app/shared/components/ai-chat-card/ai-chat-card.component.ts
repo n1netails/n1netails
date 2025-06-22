@@ -12,7 +12,6 @@ import { NzCommentModule } from 'ng-zorro-antd/comment';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { MarkdownModule } from 'ngx-markdown';
-
 import { TailResponse } from '../../../model/tail.model';
 import { User } from '../../../model/user';
 import { Note } from '../../../model/note.model';
@@ -135,14 +134,9 @@ export class AiChatCardComponent implements OnInit {
     this.noteService.saveNote(note).subscribe({
       next: (savedNote) => {
 
-        // TODO FIGURE OUT A WAY TO REFRESH THE NOTES ON SCREEN
-        const tempN = this.notes;
-        this.notes = [];
-        tempN.forEach(note => {
-          this.notes.push(note);
-        });
-
+        this.refreashNotes();
         this.notes.push(savedNote as ChatMessage);
+
         this.newNoteText = '';
         this.isSendingMessage = false;
         this.messageService.success('Note added successfully.');
@@ -192,7 +186,6 @@ export class AiChatCardComponent implements OnInit {
         console.log("sending prompt request");
         this.llmService.sendPrompt(llmRequest).subscribe({
           next: (llmResponse) => {
-
             // 3. Save LLM's response as an AI note
             const aiResponseNote: Note = {
               userId: this.currentUser.id,
@@ -207,13 +200,7 @@ export class AiChatCardComponent implements OnInit {
               n1: false
             };
 
-            // TODO FIGURE OUT A WAY TO REFRESH THE NOTES ON SCREEN
-            const tempN = this.notes;
-              this.notes = [];
-              tempN.forEach(note => {
-                this.notes.push(note);
-            });
-
+            this.refreashNotes();
             this.notes.push(aiResponseNote as ChatMessage);
           },
           error: (err) => {
@@ -232,6 +219,15 @@ export class AiChatCardComponent implements OnInit {
         console.error('Error saving user prompt note:', err);
         this.isSendingMessage = false;
       }
+    });
+  }
+
+  private refreashNotes() {
+    // TODO FIGURE OUT A WAY TO REFRESH THE NOTES ON SCREEN
+    const tempN = this.notes;
+    this.notes = [];
+    tempN.forEach(note => {
+      this.notes.push(note);
     });
   }
 }

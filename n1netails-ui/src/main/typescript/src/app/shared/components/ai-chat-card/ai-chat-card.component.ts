@@ -72,13 +72,17 @@ export class AiChatCardComponent implements OnInit {
   geminiEnabled = false;
 
   notesTitle = 'Inari Chat & Notes';
+  noteInputPlaceholder = 'Type your note or prompt for the AI...';
 
   constructor() {
     this.openaiEnabled = this.llmService.isOpenaiEnabled();
     this.geminiEnabled = this.llmService.isGeminiEnabled();
 
     this.llmEnabled = this.openaiEnabled || this.geminiEnabled;
-    if (!this.llmEnabled) this.notesTitle = 'Notes';
+    if (!this.llmEnabled) {
+      this.notesTitle = 'Notes';
+      this.noteInputPlaceholder = 'Type your notes here...';
+    }
   }
 
   ngOnInit(): void {
@@ -202,6 +206,7 @@ export class AiChatCardComponent implements OnInit {
 
             this.refreashNotes();
             this.notes.push(aiResponseNote as ChatMessage);
+            this.isSendingMessage = false;
           },
           error: (err) => {
             // Remove loading message

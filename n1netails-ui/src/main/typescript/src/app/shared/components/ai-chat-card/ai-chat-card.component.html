@@ -34,7 +34,7 @@
             nz-input
             rows="1"
             [(ngModel)]="newNoteText"
-            placeholder="Type your note or prompt for the AI..."
+            [placeholder]="noteInputPlaceholder"
             (keydown.enter)="sendToLlm()"
             [disabled]="isSendingMessage"
             style="width: 80vw;"
@@ -46,7 +46,7 @@
           nz-button
           nzType="default"
           (click)="addNote()"
-          [nzLoading]="isSendingMessage && newNoteText !== ''"
+          [nzLoading]="isSendingMessage"
           [disabled]="!newNoteText.trim() || isSendingMessage"
         >
           Add Note
@@ -56,7 +56,7 @@
           nz-button
           nzType="primary"
           (click)="sendToLlm()"
-          [nzLoading]="isSendingMessage && newNoteText !== ''"
+          [nzLoading]="isSendingMessage"
           [disabled]="!newNoteText.trim() || isSendingMessage"
         >
           Send to Inari

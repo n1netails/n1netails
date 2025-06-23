@@ -6,6 +6,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class PasskeyRegistrationStartRequestDto {
-    private String username; // User's username to associate the passkey with
+    private String email; // User's email to associate the passkey with
     private String domain; // The relying party's domain
 }

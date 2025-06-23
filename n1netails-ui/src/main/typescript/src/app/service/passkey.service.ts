@@ -58,11 +58,11 @@ export class PasskeyService {
 
   // --- REGISTRATION ---
 
-  startPasskeyRegistration(username: string, domain: string): Observable<PasskeyRegistrationStartResponseDto> {
+  startPasskeyRegistration(email: string, domain: string): Observable<PasskeyRegistrationStartResponseDto> {
     if (!this.checkWebAuthnSupport()) {
       return throwError(() => new Error('Passkey authentication (WebAuthn) is not supported by this browser.'));
     }
-    const request: PasskeyRegistrationStartRequestDto = { username, domain };
+    const request: PasskeyRegistrationStartRequestDto = { email, domain };
     return this.http.post<PasskeyRegistrationStartResponseDto>(`${this.host}/ninetails/auth/passkey/register/start`, request)
       .pipe(catchError(this.handleError));
   }
@@ -120,11 +120,11 @@ export class PasskeyService {
 
   // --- AUTHENTICATION ---
 
-  startPasskeyAuthentication(username?: string, domain?: string): Observable<PasskeyAuthenticationStartResponseDto> {
+  startPasskeyAuthentication(email?: string, domain?: string): Observable<PasskeyAuthenticationStartResponseDto> {
     if (!this.checkWebAuthnSupport()) {
       return throwError(() => new Error('Passkey authentication (WebAuthn) is not supported by this browser.'));
     }
-    const request: PasskeyAuthenticationStartRequestDto = { username, domain: domain || window.location.hostname };
+    const request: PasskeyAuthenticationStartRequestDto = { email, domain: domain || window.location.hostname };
     return this.http.post<PasskeyAuthenticationStartResponseDto>(`${this.host}/ninetails/auth/passkey/login/start`, request)
       .pipe(catchError(this.handleError));
   }

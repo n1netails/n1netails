@@ -6,6 +6,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class PasskeyAuthenticationStartRequestDto {
-    private String username; // Optional: if the user is already known
+    private String email; // Optional: if the user is already known
     private String domain;   // The relying party's domain
 }

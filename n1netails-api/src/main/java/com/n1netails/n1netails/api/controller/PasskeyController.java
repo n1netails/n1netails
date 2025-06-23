@@ -28,14 +28,14 @@ public class PasskeyController {
     @PostMapping(value = "/register/start", consumes = APPLICATION_JSON)
     public ResponseEntity<PasskeyRegistrationStartResponseDto> startRegistration(@RequestBody PasskeyRegistrationStartRequestDto request) {
         try {
-            log.info("Received request to start passkey registration for username: {}", request.getUsername());
+            log.info("Received request to start passkey registration for email: {}", request.getEmail());
             PasskeyRegistrationStartResponseDto response = passkeyService.startRegistration(request);
             return ResponseEntity.ok(response);
         } catch (UserNotFoundException e) {
-            log.warn("User not found during start passkey registration: {}", request.getUsername(), e);
+            log.warn("User not found during start passkey registration: {}", request.getEmail(), e);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
         } catch (Exception e) {
-            log.error("Error starting passkey registration for username: {}", request.getUsername(), e);
+            log.error("Error starting passkey registration for email: {}", request.getEmail(), e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error starting passkey registration", e);
         }
     }
@@ -68,11 +68,11 @@ public class PasskeyController {
         // Request can be null or empty for discoverable credentials (passkeys)
         PasskeyAuthenticationStartRequestDto actualRequest = (request == null) ? new PasskeyAuthenticationStartRequestDto() : request;
         try {
-            log.info("Received request to start passkey authentication for username: {}", actualRequest.getUsername());
+            log.info("Received request to start passkey authentication for email: {}", actualRequest.getEmail());
             PasskeyAuthenticationStartResponseDto response = passkeyService.startAuthentication(actualRequest);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            log.error("Error starting passkey authentication for username: {}", actualRequest.getUsername(), e);
+            log.error("Error starting passkey authentication for email: {}", actualRequest.getEmail(), e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error starting passkey authentication", e);
         }
     }

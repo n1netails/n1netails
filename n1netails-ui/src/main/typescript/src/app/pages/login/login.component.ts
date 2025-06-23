@@ -1,6 +1,7 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { AuthenticationService } from '../../service/authentication.service';
 import { Router, RouterModule } from '@angular/router';
+import { PasskeyService } from '../../service/passkey.service'; // Import PasskeyService
 import { Subscription } from 'rxjs';
 import { FormsModule, NgForm } from '@angular/forms';
 import { User } from '../../model/user';
@@ -23,6 +24,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   constructor(
     private notification: NzNotificationService,
     private authenticationService: AuthenticationService,
+    private passkeyService: PasskeyService, // Inject PasskeyService
     private router: Router
   ) {}
 
@@ -68,4 +70,64 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.authenticationService.saveToken(token);
     this.authenticationService.addUserToLocalCache(response.body || null);
   }
+
+  public onLoginWithPasskey(): void {
+    const username = (this.loginForm?.value as User)?.email; // Using email field as username for login
+    console.log(`Attempting to login with passkey, username (if provided): ${username}`);
+    this.isLoading = true;
+    // TODO: Call PasskeyService to start authentication flow
+    this.isLoading = true;
+    const domain = window.location.hostname; // Or a configured RP ID domain
+
+    this.subscriptions.push(
+      this.passkeyService.startPasskeyAuthentication(username || undefined, domain).subscribe({
+        next: (startResponse) => {
+          if (startResponse && startResponse.options) {
+            this.passkeyService.getPasskey(startResponse.options).subscribe({
+              next: (credential) => {
+                if (credential) {
+                  this.passkeyService.finishPasskeyAuthentication(startResponse.flowId, credential).subscribe({
+                    next: (finishResponse) => {
+                      if (finishResponse.success && finishResponse.user && finishResponse.jwtToken) {
+                        // Successful login using passkey, token and user are already saved by PasskeyService
+                        this.notification.success('Success', 'Logged in successfully with passkey!', { nzPlacement: 'topRight' });
+                        this.router.navigateByUrl('/dashboard');
+                      } else {
+                        this.presentToast(`Passkey login failed: ${finishResponse.message}`);
+                      }
+                      this.isLoading = false;
+                    },
+                    error: (err) => {
+                      console.error('Error finishing passkey authentication:', err);
+                      this.presentToast(err.message || 'An unknown error occurred while finishing passkey login.');
+                      this.isLoading = false;
+                    }
+                  });
+                } else {
+                  this.presentToast('Passkey assertion was cancelled or failed.');
+                  this.isLoading = false;
+                }
+              },
+              error: (err) => {
+                console.error('Error getting passkey credential:', err);
+                this.presentToast(err.message || 'Could not get passkey. User may have cancelled or an error occurred.');
+                this.isLoading = false;
+              }
+            });
+          } else {
+            this.presentToast('Failed to start passkey authentication process.');
+            this.isLoading = false;
+          }
+        },
+        error: (err) => {
+          console.error('Error starting passkey authentication:', err);
+          this.presentToast(err.message || 'An unknown error occurred while starting passkey login.');
+          this.isLoading = false;
+        }
+      })
+    );
+  }
+
+  // Access to the form to get values if needed
+  @ViewChild('loginForm') loginForm?: NgForm;
 }

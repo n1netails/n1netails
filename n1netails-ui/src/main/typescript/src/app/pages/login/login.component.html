@@ -41,7 +41,17 @@
       [disabled]="!loginForm.valid"
       type="submit"
     >
-      Login
+      Login with Email
+    </button>
+    <div class="or-divider">OR</div>
+    <button
+      nz-button
+      nzType="default"
+      (click)="onLoginWithPasskey()"
+      class="login-btn passkey-btn"
+      type="button"
+    >
+      Login with a Passkey
     </button>
     <div class="register-link">
       <span>Don't have an account?</span>

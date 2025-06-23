@@ -47,4 +47,7 @@ public class UsersEntity {
             inverseJoinColumns = @JoinColumn(name = "organization_id")
     )
     private Set<OrganizationEntity> organizations = new HashSet<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<PasskeyCredentialEntity> passkeyCredentials = new HashSet<>();
 }

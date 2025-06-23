@@ -56,7 +56,17 @@
       [disabled]="!registerForm.valid"
       type="submit"
     >
-      Register
+      Register with Email
+    </button>
+    <div class="or-divider">OR</div>
+    <button
+      nz-button
+      nzType="default"
+      (click)="onRegisterWithPasskey()"
+      class="login-btn passkey-btn"
+      type="button"
+    >
+      Register with a Passkey
     </button>
     <div class="register-link">
       <span>Already have an account?</span>

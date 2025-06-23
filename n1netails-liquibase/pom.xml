@@ -6,13 +6,13 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.5</version>
+		<version>3.5.3</version>
 		<relativePath/>
 	</parent>
 
 	<groupId>com.n1netails</groupId>
 	<artifactId>n1netails-liquibase</artifactId>
-	<version>0.2.2</version>
+	<version>0.2.3</version>
 	<name>n1netails-liquibase</name>
 	<description>N1netails Liquibase Database Migration Tool</description>
 

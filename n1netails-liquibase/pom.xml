@@ -12,7 +12,7 @@
 
 	<groupId>com.n1netails</groupId>
 	<artifactId>n1netails-liquibase</artifactId>
-	<version>0.2.3</version>
+	<version>0.2.4</version>
 	<name>n1netails-liquibase</name>
 	<description>N1netails Liquibase Database Migration Tool</description>
 
@@ -46,7 +46,7 @@
 		<dependency>
 			<groupId>org.liquibase</groupId>
 			<artifactId>liquibase-maven-plugin</artifactId>
-			<version>4.29.2</version>
+			<version>4.31.1</version>
 		</dependency>
 
 		<dependency>

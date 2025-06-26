@@ -27,6 +27,7 @@ public class PasskeyController {
     @Operation(summary = "Start Passkey Registration", description = "Initiates the passkey registration process for a user.")
     @PostMapping(value = "/register/start", consumes = APPLICATION_JSON)
     public ResponseEntity<PasskeyRegistrationStartResponseDto> startRegistration(@RequestBody PasskeyRegistrationStartRequestDto request) {
+        log.info("STARTING PASSKEY REGISTRATION");
         try {
             log.info("Received request to start passkey registration for email: {}", request.getEmail());
             PasskeyRegistrationStartResponseDto response = passkeyService.startRegistration(request);
@@ -43,6 +44,7 @@ public class PasskeyController {
     @Operation(summary = "Finish Passkey Registration", description = "Completes the passkey registration process.")
     @PostMapping(value = "/register/finish", consumes = APPLICATION_JSON)
     public ResponseEntity<PasskeyApiResponseDto> finishRegistration(@RequestBody PasskeyRegistrationFinishRequestDto request) {
+        log.info("FINISHING PASSKEY REGISTRATION");
         try {
             log.info("Received request to finish passkey registration with flowId: {}", request.getFlowId());
             boolean success = passkeyService.finishRegistration(request);
@@ -65,11 +67,13 @@ public class PasskeyController {
     @Operation(summary = "Start Passkey Authentication", description = "Initiates the passkey authentication process.")
     @PostMapping(value = "/login/start", consumes = APPLICATION_JSON)
     public ResponseEntity<PasskeyAuthenticationStartResponseDto> startAuthentication(@RequestBody(required = false) PasskeyAuthenticationStartRequestDto request) {
+        log.info("START PASSKEY AUTHENTICATION");
         // Request can be null or empty for discoverable credentials (passkeys)
         PasskeyAuthenticationStartRequestDto actualRequest = (request == null) ? new PasskeyAuthenticationStartRequestDto() : request;
         try {
             log.info("Received request to start passkey authentication for email: {}", actualRequest.getEmail());
             PasskeyAuthenticationStartResponseDto response = passkeyService.startAuthentication(actualRequest);
+            log.info("RETURNING START PASSKEY AUTHENTICATION RESPONSE");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("Error starting passkey authentication for email: {}", actualRequest.getEmail(), e);
@@ -80,10 +84,12 @@ public class PasskeyController {
     @Operation(summary = "Finish Passkey Authentication", description = "Completes the passkey authentication process and returns a JWT if successful.")
     @PostMapping(value = "/login/finish", consumes = APPLICATION_JSON)
     public ResponseEntity<PasskeyAuthenticationResponseDto> finishAuthentication(@RequestBody PasskeyAuthenticationFinishRequestDto request) {
+        log.info("FINISH PASSKEY AUTHENTICATION");
         try {
             log.info("Received request to finish passkey authentication with flowId: {}", request.getFlowId());
             PasskeyAuthenticationResponseDto response = passkeyService.finishAuthentication(request);
             if (response.isSuccess()) {
+                log.info("RETURNING FINISH PASSKEY AUTHENTICATION RESPONSE");
                 return ResponseEntity.ok(response);
             } else {
                 // Consider if specific errors from service layer should map to different HTTP statuses

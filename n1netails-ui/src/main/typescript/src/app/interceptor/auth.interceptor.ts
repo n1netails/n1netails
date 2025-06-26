@@ -13,8 +13,13 @@ export class AuthInterceptor implements HttpInterceptor {
 
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-        if (request.url.includes(`${this.authenticationService.host}/ninetails/user/login`) ||
-            request.url.includes(`${this.authenticationService.host}/ninetails/user/register`)     
+        if (
+            request.url.includes(`${this.authenticationService.host}/ninetails/user/login`) ||
+            request.url.includes(`${this.authenticationService.host}/ninetails/user/register`) ||
+            request.url.includes(`${this.authenticationService.host}/ninetails/auth/passkey/register/start`) ||
+            request.url.includes(`${this.authenticationService.host}/ninetails/auth/passkey/register/finish`) ||
+            request.url.includes(`${this.authenticationService.host}/ninetails/auth/passkey/login/start`) ||
+            request.url.includes(`${this.authenticationService.host}/ninetails/auth/passkey/login/finish`)
         ) {
             return next.handle(request);
         }

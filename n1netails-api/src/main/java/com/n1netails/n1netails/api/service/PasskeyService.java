@@ -3,26 +3,22 @@ package com.n1netails.n1netails.api.service;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.n1netails.n1netails.api.exception.type.UserNotFoundException; // Added this import
-import com.n1netails.n1netails.api.model.dto.passkey.PasskeyRegistrationFinishRequestDto;
-import com.n1netails.n1netails.api.model.dto.passkey.PasskeyRegistrationStartRequestDto;
-import com.n1netails.n1netails.api.model.dto.passkey.PasskeyRegistrationStartResponseDto;
+import com.n1netails.n1netails.api.model.dto.passkey.*;
 import com.n1netails.n1netails.api.model.entity.PasskeyCredentialEntity;
 import com.n1netails.n1netails.api.model.entity.UsersEntity;
 import com.n1netails.n1netails.api.repository.PasskeyCredentialRepository;
 import com.n1netails.n1netails.api.repository.UserRepository;
 import com.yubico.webauthn.*;
-import com.yubico.webauthn.data.CredentialRegistration; // Corrected import
 import com.yubico.webauthn.data.*;
 import com.n1netails.n1netails.api.model.UserPrincipal;
-import com.n1netails.n1netails.api.model.dto.passkey.PasskeyAuthenticationFinishRequestDto;
-import com.n1netails.n1netails.api.model.dto.passkey.PasskeyAuthenticationStartRequestDto;
-import com.n1netails.n1netails.api.model.dto.passkey.PasskeyAuthenticationStartResponseDto;
-import com.n1netails.n1netails.api.model.dto.passkey.PasskeyAuthenticationResponseDto;
+import com.yubico.webauthn.data.exception.Base64UrlException;
 import com.yubico.webauthn.exception.AssertionFailedException;
 import com.yubico.webauthn.exception.RegistrationFailedException;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -32,16 +28,13 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.time.Instant;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.Base64;
 
 import static com.n1netails.n1netails.api.constant.ProjectSecurityConstant.EXPIRATION_TIME;
 
@@ -53,9 +46,10 @@ public class PasskeyService {
     private final PasskeyCredentialRepository passkeyCredentialRepository;
     private final RelyingParty relyingParty;
     private final Cache<String, PublicKeyCredentialCreationOptions> registrationCache;
-    private final Cache<String, PublicKeyCredentialRequestOptions> authenticationCache;
+    private final Cache<String, AssertionRequest > authenticationCache;
     private final JwtEncoder jwtEncoder;
     private final AuthenticationManager authenticationManager; // To set authentication context
+    private final JdbcTemplate jdbcTemplate;
 
     private final SecureRandom random = new SecureRandom();
 
@@ -66,7 +60,9 @@ public class PasskeyService {
                           @Value("${n1netails.passkey.relying-party-name}") String rpName,
                           @Value("${n1netails.passkey.origins}") Set<String> origins,
                           JwtEncoder jwtEncoder,
-                          AuthenticationManager authenticationManager) {
+                          AuthenticationManager authenticationManager,
+                          JdbcTemplate jdbcTemplate
+    ) {
         this.userRepository = userRepository;
         this.passkeyCredentialRepository = passkeyCredentialRepository;
         this.jwtEncoder = jwtEncoder;
@@ -81,6 +77,7 @@ public class PasskeyService {
         this.relyingParty = RelyingParty.builder()
                 .identity(rpIdentity)
                 .credentialRepository(new JpaCredentialRepository())
+//                .credentialRepository(new PasskeyCredentialService(this.userRepository, this.passkeyCredentialRepository))
                 .origins(origins)
                 .allowUntrustedAttestation(true) // Recommended for broader authenticator support, consider risks
                 .allowOriginPort(true) // For localhost development
@@ -95,36 +92,63 @@ public class PasskeyService {
                 .maximumSize(1000)
                 .expireAfterWrite(2, TimeUnit.MINUTES)
                 .build();
+
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     // === REGISTRATION ===
-    public PasskeyRegistrationStartResponseDto startRegistration(PasskeyRegistrationStartRequestDto request) throws UserNotFoundException {
-        UsersEntity user = Optional.ofNullable(userRepository.findUserByUsername(request.getUsername()))
-                .orElseThrow(() -> new UserNotFoundException("User not found: " + request.getUsername()));
+    public PasskeyRegistrationStartResponseDto startRegistration(PasskeyRegistrationStartRequestDto request)
+            throws UserNotFoundException, Base64UrlException {
 
-        StartRegistrationOptions.Builder optionsBuilder = StartRegistrationOptions.builder()
-                .user(UserIdentity.builder()
-                        .name(user.getUsername())
-                        .displayName(user.getFirstName() + " " + user.getLastName())
-                        .id(generateUserHandle(user))
-                        .build());
+        log.info("startRegistration user entity");
+        UsersEntity user = userRepository.findUserByEmail(request.getEmail())
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + request.getEmail()));
 
-        // Exclude existing credentials for this user to prevent re-registration of the same key
-        Set<PublicKeyCredentialDescriptor> excludeCredentials = passkeyCredentialRepository.findAllByUser(user).stream()
-            .map(cred -> PublicKeyCredentialDescriptor.builder().id(ByteArray.fromBase64Url(cred.getCredentialId())).build())
-            .collect(Collectors.toSet());
-        if (!excludeCredentials.isEmpty()) {
-            optionsBuilder.excludeCredentials(excludeCredentials);
-        }
+        log.info("building user identity");
+        // Build UserIdentity using staged builder
+        UserIdentity userIdentity = UserIdentity.builder()
+                .name(user.getEmail())
+                .displayName(user.getFirstName() + " " + user.getLastName())
+                .id(generateUserHandle(user))
+                .build();
 
-        optionsBuilder.authenticatorSelection(AuthenticatorSelectionCriteria.builder()
-            .residentKey(ResidentKeyRequirement.PREFERRED) // Or .REQUIRED if you only want discoverable credentials
-            .userVerification(UserVerificationRequirement.PREFERRED) // Or .REQUIRED for more security
-            .build());
+        log.info("building exclude credentials");
+        // Build excludeCredentials using correct builder
+        List<PublicKeyCredentialDescriptor> excludeCredentials = passkeyCredentialRepository.findAllByUser(user).stream()
+                .map(cred -> {
+                    try {
+                        return PublicKeyCredentialDescriptor.builder()
+                                .id(ByteArray.fromBase64Url(cred.getCredentialId()))
+                                .build();
+                    } catch (Base64UrlException e) {
+                        throw new RuntimeException("Invalid credentialId", e);
+                    }
+                })
+                .toList();
 
-        PublicKeyCredentialCreationOptions credentialCreationOptions = relyingParty.startRegistration(optionsBuilder.build());
+        log.info("building authenticator");
+        // Build authenticator selection with builder
+        AuthenticatorSelectionCriteria authenticatorSelection = AuthenticatorSelectionCriteria.builder()
+                .residentKey(ResidentKeyRequirement.PREFERRED)
+                .userVerification(UserVerificationRequirement.PREFERRED)
+                .build();
+
+        log.info("start registration options");
+        // StartRegistrationOptions — no builder, uses constructor directly
+        StartRegistrationOptions options = StartRegistrationOptions.builder()
+                .user(userIdentity)
+                .authenticatorSelection(authenticatorSelection) // optional; omit if not needed
+                .extensions(RegistrationExtensionInputs.builder().build()) // required; empty OK
+//                .timeout(null) // optional
+                // .hints(PublicKeyCredentialHint.CLIENT_DEVICE.getValue()) // optional; include if needed
+                .build();
+
+        log.info("public key credential creations options");
+        PublicKeyCredentialCreationOptions credentialCreationOptions = relyingParty.startRegistration(options);
+
         String flowId = generateFlowId();
         registrationCache.put(flowId, credentialCreationOptions);
+        log.info("registration cache flow id: {}", flowId);
 
         log.info("Started passkey registration for user: {}, flowId: {}", user.getUsername(), flowId);
         return new PasskeyRegistrationStartResponseDto(flowId, credentialCreationOptions);
@@ -132,6 +156,8 @@ public class PasskeyService {
 
     @Transactional
     public boolean finishRegistration(PasskeyRegistrationFinishRequestDto request) throws UserNotFoundException {
+
+        log.info("finish registration public key credentials creation options");
         PublicKeyCredentialCreationOptions creationOptions = registrationCache.getIfPresent(request.getFlowId());
         if (creationOptions == null) {
             log.warn("Passkey registration flow ID {} not found or expired.", request.getFlowId());
@@ -139,21 +165,31 @@ public class PasskeyService {
         }
         // Do NOT invalidate from cache immediately, finishRegistration might need it if it internally calls credentialRepository methods that check the cache
 
+        log.info("RETRIEVING REGISTRATION RESULT");
         try {
             RegistrationResult registrationResult = relyingParty.finishRegistration(FinishRegistrationOptions.builder()
                     .request(creationOptions)
                     .response(request.getCredential())
                     .build());
 
+            log.info("extracting user entity");
             // User should exist as it was checked in startRegistration
-            UsersEntity user = Optional.ofNullable(userRepository.findUserByUsername(creationOptions.getUser().getName()))
+            UsersEntity user = userRepository.findUserByEmail(creationOptions.getUser().getName())
                  .orElseThrow(() -> new UserNotFoundException("User " + creationOptions.getUser().getName() + " not found during finish registration."));
 
 
+            log.info("passkey credential entity");
             PasskeyCredentialEntity passkeyCredential = new PasskeyCredentialEntity();
             passkeyCredential.setUser(user);
-            passkeyCredential.setCredentialId(registrationResult.getKeyId().getCredentialId().getBase64Url());
-            passkeyCredential.setPublicKeyCose(registrationResult.getPublicKeyCose().getBytes());
+            passkeyCredential.setCredentialId(
+                    Base64.getUrlEncoder().withoutPadding().encodeToString(
+                            registrationResult.getKeyId().getId().getBytes()
+                    )
+            );
+            log.info("REGISTRATION RESULT PUBLIC KEY COSE: {}", registrationResult.getPublicKeyCose().getBytes());
+            byte[] pkBytes = registrationResult.getPublicKeyCose().getBytes();
+            passkeyCredential.setPublicKeyCose(pkBytes);
+
             passkeyCredential.setSignatureCount(registrationResult.getSignatureCount());
             passkeyCredential.setUserHandle(creationOptions.getUser().getId().getBase64Url()); // Store the user handle used during registration
             passkeyCredential.setAttestationType(getAttestationType(request.getCredential())); // Helper to extract
@@ -174,18 +210,23 @@ public class PasskeyService {
                  passkeyCredential.setDeviceName("Passkey"); // Default name
             }
 
-            Set<String> transports = Optional.ofNullable(request.getCredential().getResponse().getTransports())
-                                     .orElse(Set.of())
+            Set<String> transports = request.getCredential().getResponse().getTransports()
                                      .stream()
                                      .map(AuthenticatorTransport::getId)
                                      .collect(Collectors.toSet());
             passkeyCredential.setTransports(transports);
 
-            Optional<AttestedCredentialData> attData = request.getCredential().getResponse().getAttestationObject().getAuthData().getAttestedCredentialData();
+            Optional<AttestedCredentialData> attData =
+                    request.getCredential().getResponse()
+                            .getAttestation()
+                            .getAuthenticatorData().getAttestedCredentialData();
+
             attData.ifPresent(ad -> passkeyCredential.setAaguid(ad.getAaguid().toString()));
 
 
-            passkeyCredentialRepository.save(passkeyCredential);
+            log.info("ATTEMPTING PASSKEY CREDENTIAL REPOSITORY SAVE");
+//            passkeyCredentialRepository.save(passkeyCredential);
+            this.savePasskeyCredentialManually(passkeyCredential);
             registrationCache.invalidate(request.getFlowId()); // Invalidate after successful save
             log.info("Successfully registered passkey for user: {}, credentialId: {}", user.getUsername(), passkeyCredential.getCredentialId());
             return true;
@@ -193,16 +234,40 @@ public class PasskeyService {
             registrationCache.invalidate(request.getFlowId()); // Invalidate on failure too
             log.error("Passkey registration failed for user: {}. Reason: {}", creationOptions.getUser().getName(), e.getMessage(), e);
             return false; // Or throw specific exception
-        } catch (ExecutionException e) { // This is for cache.get(), which we are not using here anymore with getIfPresent
-             registrationCache.invalidate(request.getFlowId());
-            log.error("Error during passkey registration for user: {}", creationOptions.getUser().getName(), e);
-            return false;
         }
     }
 
+    @Transactional
+    public void savePasskeyCredentialManually(PasskeyCredentialEntity p) {
+        log.info("savePasskeyCredentialManually");
+        String sql = "INSERT INTO ntail.passkey_credentials " +
+                "(aaguid, attestation_object, attestation_type, backup_eligible, backup_state, credential_id, device_name, last_used_at, public_key_cose, registered_at, signature_count, user_id, user_handle, uv_initialized) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id";
+
+        Long generatedId = jdbcTemplate.queryForObject(sql, Long.class,
+                p.getAaguid(),
+                p.getAttestationObject(),
+                p.getAttestationType(),
+                p.getBackupEligible(),
+                p.getBackupState(),
+                p.getCredentialId(),
+                p.getDeviceName(),
+                p.getLastUsedAt(),
+                p.getPublicKeyCose(),
+                p.getRegisteredAt(),
+                p.getSignatureCount(),
+                p.getUser().getId(),
+                p.getUserHandle(),
+                p.getUvInitialized()
+        );
+
+        p.setId(generatedId);
+    }
+
     private String getAttestationType(PublicKeyCredential<AuthenticatorAttestationResponse, ClientRegistrationExtensionOutputs> credential) {
+        log.info("getAttestationType");
         try {
-            return credential.getResponse().getAttestationObject().getFormat();
+            return credential.getResponse().getAttestation().getFormat();
         } catch (Exception e) {
             log.warn("Could not determine attestation format: {}", e.getMessage());
             return "unknown";
@@ -212,24 +277,38 @@ public class PasskeyService {
 
     // === AUTHENTICATION ===
     public PasskeyAuthenticationStartResponseDto startAuthentication(PasskeyAuthenticationStartRequestDto request) {
-        StartAssertionOptions.Builder optionsBuilder = StartAssertionOptions.builder()
-            .userVerification(UserVerificationRequirement.PREFERRED); // Or .REQUIRED
+        log.info("startAuthentication");
+        StartAssertionOptions options;
 
-        if (request.getUsername() != null && !request.getUsername().isBlank()) {
-            optionsBuilder.username(request.getUsername());
+        if (request.getEmail() != null && !request.getEmail().isBlank()) {
+            // Use builder with mandatory `username`
+            options = StartAssertionOptions.builder()
+                    .username(request.getEmail())
+                    .userVerification(UserVerificationRequirement.PREFERRED)
+                    .build();
+        } else {
+            // Use builder without username (means allowDiscoverableCredentials = true)
+            options = StartAssertionOptions.builder()
+                    .userVerification(UserVerificationRequirement.PREFERRED)
+                    .build();
         }
 
-        PublicKeyCredentialRequestOptions requestOptions = relyingParty.startAssertion(optionsBuilder.build());
         String flowId = generateFlowId();
-        authenticationCache.put(flowId, requestOptions);
+        AssertionRequest assertionRequest = relyingParty.startAssertion(options);
+        authenticationCache.put(flowId, assertionRequest);
 
-        log.info("Started passkey authentication, flowId: {}. For user (if provided): {}", flowId, request.getUsername());
-        return new PasskeyAuthenticationStartResponseDto(flowId, requestOptions);
+        PublicKeyCredentialRequestOptions credentialCreationOptions = assertionRequest.getPublicKeyCredentialRequestOptions();
+
+        log.info("Started passkey authentication, flowId: {}. For user (if provided): {}", flowId, request.getEmail());
+        return new PasskeyAuthenticationStartResponseDto(flowId, credentialCreationOptions);
     }
 
     @Transactional
     public PasskeyAuthenticationResponseDto finishAuthentication(PasskeyAuthenticationFinishRequestDto request) {
-        PublicKeyCredentialRequestOptions requestOptions = authenticationCache.getIfPresent(request.getFlowId());
+        log.info("finish authentication");
+        log.info("flow id: {}", request.getFlowId());
+        log.info("credential: {}", request.getCredential());
+        AssertionRequest requestOptions = authenticationCache.getIfPresent(request.getFlowId());
         if (requestOptions == null) {
             log.warn("Passkey authentication flow ID {} not found or expired.", request.getFlowId());
             return new PasskeyAuthenticationResponseDto(false, "Authentication flow expired or invalid.");
@@ -237,28 +316,50 @@ public class PasskeyService {
         // Do NOT invalidate from cache immediately for the same reasons as registration
 
         try {
+            log.info("finish authentication assertion result");
             AssertionResult assertionResult = relyingParty.finishAssertion(FinishAssertionOptions.builder()
                     .request(requestOptions)
                     .response(request.getCredential())
                     .build());
 
             if (assertionResult.isSuccess()) {
+                log.info("finish authentication assertion result success");
                 // IMPORTANT: Update the signature count in the database
                 // The JpaCredentialRepository's updateSignatureCount method will be called by the library if configured correctly.
                 // If not, or for belt-and-suspenders, ensure it's done:
-                Optional<PasskeyCredentialEntity> credEntityOpt = passkeyCredentialRepository.findByCredentialId(assertionResult.getCredentialId().getBase64Url());
-                if(credEntityOpt.isPresent()){
-                    PasskeyCredentialEntity cred = credEntityOpt.get();
+                log.info("finish authentication assertion result findByCredentialId");
+                log.info("credential: {}", assertionResult.getCredentialId());
+                log.info("credential base 64: {}", assertionResult.getCredentialId().getBase64Url());
+                Optional<PasskeySummary> optionalPasskeySummary = this.findPasskeyByCredentialId(assertionResult.getCredentialId().getBase64Url());
+
+
+//                Optional<PasskeyCredentialEntity> credEntityOpt = passkeyCredentialRepository.findByCredentialId(assertionResult.getCredentialId().getBase64Url());
+//                if(credEntityOpt.isPresent()){
+//                    PasskeyCredentialEntity cred = credEntityOpt.get();
+//                    cred.setSignatureCount(assertionResult.getSignatureCount());
+//                    cred.setLastUsedAt(new Date());
+//                    log.info("saving passkey credential");
+//                    passkeyCredentialRepository.save(cred);
+//                }
+
+                if(optionalPasskeySummary.isPresent()){
+                    PasskeySummary cred = optionalPasskeySummary.get();
                     cred.setSignatureCount(assertionResult.getSignatureCount());
                     cred.setLastUsedAt(new Date());
-                    passkeyCredentialRepository.save(cred);
-                } else {
+                    log.info("saving passkey credential");
+//                    passkeyCredentialRepository.save(cred);
+                    this.savePasskeySummary(cred);
+                }
+                else {
                      log.error("Passkey credential {} not found during finishAuthentication for signature count update.", assertionResult.getCredentialId().getBase64Url());
                      // This should not happen if authentication succeeded as the credential must exist.
                 }
 
-
-                UsersEntity user = userRepository.findUserByUsername(assertionResult.getUsername());
+                log.info("finish authentication assertion result UsersEntity");
+                log.info("assertion result username: {}", assertionResult.getUsername());
+                UsersEntity user = userRepository.findUserByEmail(assertionResult.getUsername()).orElseThrow(
+                        () -> new UserNotFoundException("user not found by email for passkey")
+                );
                 if (user == null) {
                     // This can happen if the username from assertion doesn't match any user.
                     // Or if the user was deleted between start and finish.
@@ -270,6 +371,7 @@ public class PasskeyService {
                 // Update user's last login date
                 user.setLastLoginDateDisplay(user.getLastLoginDate());
                 user.setLastLoginDate(new Date());
+                log.info("saving user");
                 userRepository.save(user);
 
                 UserPrincipal userPrincipal = new UserPrincipal(user);
@@ -287,22 +389,20 @@ public class PasskeyService {
                 log.info("Successfully authenticated user {} with passkey credentialId: {}", user.getUsername(), assertionResult.getCredentialId().getBase64Url());
                 return new PasskeyAuthenticationResponseDto(true, "Authentication successful", jwtToken, user);
             } else {
+                log.info("finish authentication assertion result fail");
                 authenticationCache.invalidate(request.getFlowId());
                 log.warn("Passkey assertion failed for credentialId: {}. Username from assertion: {}", request.getCredential().getId().getBase64Url(), assertionResult.getUsername());
                 return new PasskeyAuthenticationResponseDto(false, "Authentication failed.");
             }
-        } catch (AssertionFailedException e) {
+        } catch (AssertionFailedException | UserNotFoundException e) {
             authenticationCache.invalidate(request.getFlowId());
             log.error("Passkey assertion failed. Credential ID: {}. Message: {}", request.getCredential().getId().getBase64Url(), e.getMessage(), e);
             return new PasskeyAuthenticationResponseDto(false, "Authentication failed: " + e.getMessage());
-        } catch (ExecutionException e) { // For cache
-            authenticationCache.invalidate(request.getFlowId());
-            log.error("Error during passkey authentication", e);
-            return new PasskeyAuthenticationResponseDto(false, "An error occurred during authentication.");
         }
     }
 
     private String createToken(UserPrincipal userPrincipal) {
+        log.info("== createToken");
         JwtClaimsSet claimsSet = JwtClaimsSet.builder()
                 .issuer("self") // TODO: Make configurable
                 .issuedAt(Instant.now())
@@ -311,16 +411,18 @@ public class PasskeyService {
                 .claim("authorities", userPrincipal.getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority)
                         .collect(Collectors.toList()))
-                .claim("userId", ((UsersEntity)userPrincipal.getUser()).getUserId()) // Add userId to token
+                .claim("userId", ((UsersEntity) userPrincipal.getUser()).getUserId()) // Add userId to token
                 .build();
 
         JwtEncoderParameters parameters = JwtEncoderParameters.from(claimsSet);
+        log.info("getting JWT TOKEN: {}", jwtEncoder.encode(parameters).getTokenValue());
         return jwtEncoder.encode(parameters).getTokenValue();
     }
 
 
     // === UTILITY METHODS ===
-    private ByteArray generateUserHandle(UsersEntity user) {
+    private @NonNull ByteArray generateUserHandle(UsersEntity user) throws Base64UrlException {
+        log.info("== generateUserHandle");
         // User handle MUST be stable and unique for the user.
         // It should NOT be PII if possible, and MUST NOT change for a given user.
         // Using user.getUserId() (which seems to be a string based on UsersEntity) is a good candidate if it's stable and unique.
@@ -334,52 +436,146 @@ public class PasskeyService {
         }
         // Let's use the string representation of the user's primary ID (Long) as the user handle.
         // This is stable and unique.
-        return ByteArray.fromBase64Url(user.getId().toString()); // Using DB ID (Long) for stability
+        log.info("returning user handle");
+//        return ByteArray.fromBase64Url("n"+user.getId().toString()); // Using DB ID (Long) for stability
+//        return ByteArray.fromBase64Url(user.getEmail());
+
+//        log.info("user handle byte array: {}", ByteArray.fromBase64Url(user.getEmail()));
+//        log.info("user handle byte array: {}", new ByteArray(user.getEmail().getBytes(StandardCharsets.UTF_8)));
+//        return new ByteArray(user.getEmail().getBytes(StandardCharsets.UTF_8));
+
+        String email = user.getEmail(); // "tester@test.com"
+        String base64 = Base64.getEncoder().encodeToString(email.getBytes(StandardCharsets.UTF_8));
+        ByteArray userHandle = new ByteArray(base64.getBytes(StandardCharsets.UTF_8));
+        log.info("user handle byte array: {}", userHandle);
+        return userHandle;
     }
 
     private String generateFlowId() {
+        log.info("generateFlowId");
         byte[] randomBytes = new byte[32];
         random.nextBytes(randomBytes);
         return new ByteArray(randomBytes).getBase64Url();
     }
 
 
+    // TODO REPLACE WITH PasskeyCredentialService
     // === CREDENTIAL REPOSITORY IMPLEMENTATION (INNER CLASS) ===
     private class JpaCredentialRepository implements CredentialRepository {
 
-        @Override
-        public Set<CredentialRegistration> getRegistrationsByUsername(String username) {
-            UsersEntity user = userRepository.findUserByUsername(username);
+        public Set<CredentialRegistration> getRegistrationsByUsername(String email) throws UserNotFoundException {
+            log.info("== getRegistrationsByUsername: {}", email);
+            UsersEntity user = userRepository.findUserByEmail(email)
+                    .orElseThrow(() -> new UserNotFoundException("user not found for passkey getRegistrationsByUsername"));
             if (user == null) return Set.of();
 
-            return passkeyCredentialRepository.findAllByUser(user).stream()
-                .map(this::toCredentialRegistration)
-                .collect(Collectors.toSet());
-        }
+            Set<CredentialRegistration> set = new HashSet<>();
+            log.info("== attempting to run for loop in passkeyCredentialRepository.findAllByUser(user)");
+            // todo replace passkeyCredentialRepository.findAllByUser(user)
+            // this does not work use jdbc template
+//            for (PasskeyCredentialEntity passkeyCredentialEntity : passkeyCredentialRepository.findAllByUser(user)) {
+//                CredentialRegistration credentialRegistration = null;
+//                try {
+//                    credentialRegistration = toCredentialRegistration(passkeyCredentialEntity);
+//                } catch (Base64UrlException e) {
+//                    // todo add custom exception
+//                    throw new RuntimeException(e);
+//                }
+//                set.add(credentialRegistration);
+//            }
 
-        @Override
+            for (PasskeySummary passkeySummary : this.findPasskeyByUserIdForUserRegistration(user.getId())) {
+                CredentialRegistration credentialRegistration = null;
+                try {
+                    credentialRegistration = toCredentialRegistration(passkeySummary);
+                } catch (Base64UrlException e) {
+                    // todo add custom exception
+                    throw new RuntimeException(e);
+                }
+                set.add(credentialRegistration);
+            }
+            return set;
+        }
+        
         public Optional<CredentialRegistration> getRegistrationByUsernameAndCredentialId(String username, ByteArray credentialId) {
+            log.info("== getRegistrationByUsernameAndCredentialId");
             UsersEntity user = userRepository.findUserByUsername(username);
             if (user == null) {
                 return Optional.empty();
             }
-            return passkeyCredentialRepository.findByUserAndCredentialId(user, credentialId.getBase64Url())
-                    .map(this::toCredentialRegistration);
+            Optional<CredentialRegistration> credentialRegistration;
+            credentialRegistration = passkeyCredentialRepository.findByUserAndCredentialId(user, credentialId.getBase64Url())
+                    .map(entity -> {
+//                        PasskeyCredentialRegistration registration = new PasskeyCredentialRegistration();
+//                        registration.setEmail(entity.getUser().getEmail());
+//                        registration.setFirstName(entity.getUser().getFirstName());
+//                        registration.setLastName(entity.getUser().getLastName());
+//                        registration.setUserHandle(entity.getUserHandle());
+//                        registration.setCredentialId(entity.getCredentialId());
+//                        registration.setPublicKeyCose(entity.getPublicKeyCose());
+//                        registration.setSignatureCount(entity.getSignatureCount());
+//                        registration.setRegisteredAt(entity.getRegisteredAt());
+//
+//                        registration.setId(entity.getId());
+                        try {
+//                            return toCredentialRegistration(registration);
+                            return toCredentialRegistration(entity);
+                        } catch (Base64UrlException e) {
+                            // todo throw custom exception
+                            throw new RuntimeException(e);
+                        }
+                    });
+            return credentialRegistration;
         }
 
 
         @Override
-        public Optional<ByteArray> getUserHandleForUsername(String username) {
-            UsersEntity user = userRepository.findUserByUsername(username);
-            return Optional.ofNullable(user).map(u -> generateUserHandle(u)); // Use the same generation logic
+        public Set<PublicKeyCredentialDescriptor> getCredentialIdsForUsername(String username) {
+            log.info("== getCredentialIdsForUsername: {}", username);
+            // Fetch all registrations for the username
+            Set<CredentialRegistration> registrations = null;
+            try {
+                registrations = getRegistrationsByUsername(username);
+            } catch (UserNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+
+            // Map each registration's credential to a PublicKeyCredentialDescriptor
+            return registrations.stream()
+                    .map(reg -> PublicKeyCredentialDescriptor.builder()
+                            .id(reg.getCredential().getCredentialId())
+                            .type(PublicKeyCredentialType.PUBLIC_KEY)
+                            // Optionally include transports if you have them, e.g.:
+                            // .transports(reg.getTransports())
+                            .build())
+                    .collect(Collectors.toSet());
+        }
+
+        @Override
+        public Optional<ByteArray> getUserHandleForUsername(String email) {
+            log.info("== getUserHandleForUsername {}", email);
+            UsersEntity user = userRepository.findUserByEmail(email).orElseThrow(() -> new IllegalArgumentException("user does not exist"));
+            return Optional.ofNullable(user).map(u -> {
+                try {
+                    log.info("generate user handle");
+                    return generateUserHandle(u);
+//                    return Optional.of("tester@test.com".getBytes());
+//                    return new ByteArray(user.getEmail().getBytes(StandardCharsets.UTF_8));
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }); // Use the same generation logic
         }
 
         @Override
         public Optional<String> getUsernameForUserHandle(ByteArray userHandle) {
+            log.info("== getUsernameForUserHandle");
+
+            log.info("GET USERNAME FOR USERHANDLE");
             // This is the tricky part: mapping userHandle back to username.
             // Since we're using user.getId().toString() as base64url for userHandle:
             try {
-                Long userId = Long.parseLong(userHandle.getBase64Url()); // Assuming userHandle is base64url of the Long ID.
+//                Long userId = Long.parseLong(userHandle.getBase64Url()); // Assuming userHandle is base64url of the Long ID.
                                                                       // Actually, if it's fromBase64Url(id.toString()), then it is id.toString().
                                                                       // So, it should be new ByteArray(id.toString().getBytes(StandardCharsets.UTF_8)).getBase64Url()
                                                                       // and to reverse: new String(userHandle.getBytes(), StandardCharsets.UTF_8)
@@ -391,9 +587,25 @@ public class PasskeyService {
                 // This means the stored userHandle is effectively user.getId().toString().
                 String userIdStr = userHandle.getBase64Url(); // This is user.getId().toString()
 
+                log.info("== user id str: {}", userIdStr);
+//                List<PasskeyUserHandle> passkeyCredentialEntities = this.getPasskeyUserHandles();
+//                log.info("== passkey user handles: {}", passkeyCredentialEntities);
+//                passkeyCredentialEntities.stream()
+//                    .filter(cred -> cred.userHandle != null && cred.userHandle.equals(userIdStr))
+//                    .map(cred -> cred.getUser().getUsername())
+//                    .findFirst();
+
+
+                log.info("passkey credential find all stream");
                 return passkeyCredentialRepository.findAll().stream() // Inefficient: Iterate all credentials
-                    .filter(cred -> cred.getUserHandle() != null && cred.getUserHandle().equals(userIdStr))
-                    .map(cred -> cred.getUser().getUsername())
+                    .filter(cred -> {
+                        log.info("cred user handle: {}", cred.getUserHandle());
+                        return cred.getUserHandle() != null && cred.getUserHandle().equals(userIdStr);
+                    })
+                    .map(cred -> {
+                        log.info("cred get user email: {}", cred.getUser().getEmail());
+                        return cred.getUser().getEmail();
+                    })
                     .findFirst();
 
             } catch (NumberFormatException e) {
@@ -402,36 +614,131 @@ public class PasskeyService {
             }
         }
 
-
-        @Override
         public Set<CredentialRegistration> getRegistrationsByUserHandle(ByteArray userHandle) {
+            log.info("== getRegistrationsByUserHandle");
             // Find username from userHandle, then call getRegistrationsByUsername
-            return getUsernameForUserHandle(userHandle)
-                .map(this::getRegistrationsByUsername)
-                .orElse(Set.of());
+            Set<CredentialRegistration> credentialRegistrations = getUsernameForUserHandle(userHandle)
+                    .map(email -> {
+                        try {
+                            return getRegistrationsByUsername(email);
+                        } catch (UserNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .orElse(Set.of());
+            return credentialRegistrations;
         }
 
         // This method is used by Yubico library to look up a specific credential.
         // It's crucial for authentication.
         @Override
         public Optional<RegisteredCredential> lookup(ByteArray credentialId, ByteArray userHandle) {
+            log.info("== lookup");
             // The userHandle parameter here is the one provided by the authenticator during assertion.
             // It should match the userHandle stored with the credential.
-            return passkeyCredentialRepository.findByCredentialId(credentialId.getBase64Url())
-                .filter(cred -> cred.getUserHandle() != null && cred.getUserHandle().equals(userHandle.getBase64Url()))
-                .map(credEntity -> RegisteredCredential.builder()
-                        .credentialId(ByteArray.fromBase64Url(credEntity.getCredentialId()))
-                        .userHandle(ByteArray.fromBase64Url(credEntity.getUserHandle()))
-                        .publicKeyCose(new ByteArray(credEntity.getPublicKeyCose()))
-                        .signatureCount(credEntity.getSignatureCount())
-                        .build());
+            log.info("finding by credential id: {}", credentialId);
+            log.info("finding by credential id base 64 url: {}", credentialId.getBase64Url());
+
+            log.info("=================================");
+            log.info("PASSKEY SUMMARY");
+            Optional<PasskeySummary> optionalPasskeySummary = this.findPasskeyByCredentialId(credentialId.getBase64Url());
+//            PasskeySummary passkeySummary = new PasskeySummary();
+            if (optionalPasskeySummary.isPresent()) {
+                log.info("passkey summary: {}", optionalPasskeySummary.get());
+                PasskeySummary passkeySummary = optionalPasskeySummary.get();
+
+                try {
+                    RegisteredCredential registeredCredential = RegisteredCredential.builder()
+                            .credentialId(ByteArray.fromBase64Url(passkeySummary.credentialId))
+                            .userHandle(new ByteArray(passkeySummary.userHandle.getBytes(StandardCharsets.UTF_8)))
+                            .publicKeyCose(new ByteArray(passkeySummary.publicKeyCose))
+                            .signatureCount(passkeySummary.signatureCount)
+                            .build();
+                    log.info("REGISTERED CREDENTIAL: {}", registeredCredential);
+                    return Optional.of(registeredCredential);
+                } catch (Base64UrlException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                throw new RuntimeException("optional passkey is not present");
+            }
+
+
+
+//            log.info("=================================");
+//            Optional<PasskeyCredentialEntity> optionalPasskeyCredentialEntity = passkeyCredentialRepository.findByCredentialId(credentialId.getBase64Url());
+//            log.info("passkey credential entity present");
+//            if (optionalPasskeyCredentialEntity.isPresent()) {
+//                PasskeyCredentialEntity passkeyCredentialEntity = optionalPasskeyCredentialEntity.get();
+//                log.info("PASSKEY CREDENTIAL ENTITY: {}", passkeyCredentialEntity);
+//            }
+
+//            return passkeyCredentialRepository.findByCredentialId(credentialId.getBase64Url())
+//                .filter(cred -> {
+//                    log.info("cred get user handle: {}", cred.getUserHandle());
+//                    log.info("user handle: {}", userHandle.getBase64Url());
+//                    return cred.getUserHandle() != null && cred.getUserHandle().equals(userHandle.getBase64Url());
+//                })
+//                .map(credEntity -> {
+//                    try {
+//                        return RegisteredCredential.builder()
+//                                .credentialId(ByteArray.fromBase64Url(credEntity.getCredentialId()))
+//                                .userHandle(ByteArray.fromBase64Url(credEntity.getUserHandle()))
+//                                .publicKeyCose(new ByteArray(credEntity.getPublicKeyCose()))
+//                                .signatureCount(credEntity.getSignatureCount())
+//                                .build();
+//                    } catch (Base64UrlException e) {
+//                        // TODO ADD CUSTOM EXCEPTION HERE
+//                        throw new RuntimeException(e);
+//                    }
+//                });
+        }
+
+        public Optional<PasskeySummary> findPasskeyByCredentialId(String base64CredentialId) {
+            log.info("findPasskeyByCredentialId: {}", base64CredentialId);
+            String sql = "SELECT id, credential_id, public_key_cose, signature_count, user_handle, last_used_at, registered_at, user_id FROM ntail.passkey_credentials WHERE credential_id = ?";
+
+            List<PasskeySummary> results = jdbcTemplate.query(sql, new Object[]{base64CredentialId}, (rs, rowNum) ->
+                    new PasskeySummary(
+                            rs.getLong("id"),
+                            rs.getString("credential_id"),
+                            rs.getBytes("public_key_cose"),
+                            rs.getLong("signature_count"),
+                            rs.getString("user_handle"),
+                            rs.getDate("last_used_at"),
+                            rs.getDate("registered_at"),
+                            rs.getLong("user_id")
+//                            rs.getLong("id"),
+//                            rs.getLong("user_id"),
+//                            rs.getString("device_name")
+                    )
+            );
+
+            return results.stream().findFirst();
+        }
+
+        public List<PasskeyUserHandle> getPasskeyUserHandles() {
+            log.info("getPasskeyUserHandles");
+            String sql = "SELECT user_handle FROM ntail.passkey_credentials";
+
+            return jdbcTemplate.query(sql, (rs, rowNum) -> new PasskeyUserHandle(
+                    rs.getString("user_handle")
+            ));
+        }
+
+        @Override
+        public Set<RegisteredCredential> lookupAll(ByteArray userHandle) {
+            log.info("== lookupAll");
+            return getRegistrationsByUserHandle(userHandle).stream()
+                    .map(reg -> reg.getCredential()) // CredentialRegistration contains RegisteredCredential
+                    .collect(Collectors.toSet());
         }
 
         // This method is called by the library to persist a new credential.
         // Since we save manually in finishRegistration, this might not be strictly needed
         // if all library paths lead to our manual save. However, it's good practice to implement.
-        @Override
         public boolean addRegistration(RegisteredCredential registration) {
+            log.info("== addRegistration");
             log.warn("JpaCredentialRepository.addRegistration called. This indicates an unexpected flow or misconfiguration, as credentials should be saved via PasskeyService.finishRegistration.");
             // To prevent potential issues, avoid saving here if finishRegistration is the primary path.
             // If this method IS indeed part of a flow you intend to use, you'd implement the logic
@@ -440,8 +747,8 @@ public class PasskeyService {
             return false; // Indicate it wasn't (or shouldn't be) handled here.
         }
 
-        @Override
         public boolean removeRegistration(ByteArray userHandle, ByteArray credentialId) {
+            log.info("== removeRegistration");
             // Implementation for deleting a credential
              Optional<String> usernameOpt = getUsernameForUserHandle(userHandle);
             if (usernameOpt.isEmpty()) {
@@ -467,8 +774,8 @@ public class PasskeyService {
 
 
         // This method is crucial and is called by the library after a successful assertion.
-        @Override
         public boolean updateSignatureCount(AssertionResult assertionResult) {
+            log.info("== updateSignatureCount");
             Optional<PasskeyCredentialEntity> credEntityOpt = passkeyCredentialRepository.findByCredentialId(assertionResult.getCredentialId().getBase64Url());
             if (credEntityOpt.isPresent()) {
                 PasskeyCredentialEntity credEntity = credEntityOpt.get();
@@ -488,10 +795,14 @@ public class PasskeyService {
             }
         }
 
-        private CredentialRegistration toCredentialRegistration(PasskeyCredentialEntity entity) {
+        private CredentialRegistration toCredentialRegistration(
+//                PasskeyCredentialRegistration registration
+                PasskeyCredentialEntity entity
+        ) throws Base64UrlException {
+            log.info("== toCredentialRegistration PasskeyCredentialEntity");
             // Ensure user handle used here is what the library expects (usually the one from UserIdentity)
             UserIdentity userIdentity = UserIdentity.builder()
-                .name(entity.getUser().getUsername())
+                .name(entity.getUser().getEmail())
                 .displayName(entity.getUser().getFirstName() + " " + entity.getUser().getLastName())
                 .id(ByteArray.fromBase64Url(entity.getUserHandle())) // This MUST match the userHandle stored on the entity
                 .build();
@@ -509,5 +820,163 @@ public class PasskeyService {
                 // .transports(entity.getTransports().stream().map(AuthenticatorTransport::of).collect(Collectors.toSet()))
                 .build();
         }
+
+        private CredentialRegistration toCredentialRegistration(
+                PasskeySummary passkeySummary
+//                PasskeyCredentialEntity entity
+        ) throws Base64UrlException {
+            log.info("== toCredentialRegistration PasskeySummary");
+            log.info("passkey summary: {}", passkeySummary);
+
+            UsersEntity user = userRepository.findUserById(passkeySummary.userId);
+
+            // Ensure user handle used here is what the library expects (usually the one from UserIdentity)
+            UserIdentity userIdentity = UserIdentity.builder()
+                    .name(user.getEmail())
+                    .displayName(user.getFirstName() + " " + user.getLastName())
+                    .id(ByteArray.fromBase64Url(passkeySummary.getUserHandle())) // This MUST match the userHandle stored on the entity
+                    .build();
+
+            java.util.Date regDate = passkeySummary.getRegisteredAt();
+
+            return CredentialRegistration.builder()
+                    .credential(RegisteredCredential.builder()
+                            .credentialId(ByteArray.fromBase64Url(passkeySummary.getCredentialId()))
+                            .userHandle(userIdentity.getId()) // Use the same ID as in UserIdentity
+                            .publicKeyCose(new ByteArray(passkeySummary.getPublicKeyCose()))
+                            .signatureCount(passkeySummary.getSignatureCount())
+                            .build())
+                    .userIdentity(userIdentity)
+                    .registrationTime(Instant.now())
+//                    .registrationTime(passkeySummary.getRegisteredAt() != null ? passkeySummary.getRegisteredAt().toInstant() : Instant.now())
+                    // Optional: Add transports if your library version/config uses them here
+                    // .transports(entity.getTransports().stream().map(AuthenticatorTransport::of).collect(Collectors.toSet()))
+                    .build();
+        }
+
+
+        public List<PasskeySummary> findPasskeyByUserIdForUserRegistration(Long userId) {
+            log.info("findPasskeyByUserIdForUserRegistration: {}", userId);
+            String sql = "SELECT id, credential_id, public_key_cose, signature_count, user_handle, last_used_at, registered_at, user_id FROM ntail.passkey_credentials WHERE user_id = ?";
+
+            List<PasskeySummary> results = jdbcTemplate.query(sql, new Object[]{userId}, (rs, rowNum) ->
+                            new PasskeySummary(
+                                    rs.getLong("id"),
+                                    rs.getString("credential_id"),
+                                    rs.getBytes("public_key_cose"),
+                                    rs.getLong("signature_count"),
+                                    rs.getString("user_handle"),
+                                    rs.getDate("last_used_at"),
+                                    rs.getDate("registered_at"),
+                                    rs.getLong("user_id")
+//                            rs.getLong("id"),
+//                            rs.getLong("user_id"),
+//                            rs.getString("device_name")
+                            )
+            );
+            return results;
+        }
+    }
+
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @ToString
+    public class PasskeySummary {
+        private Long id;
+        private String credentialId;
+        private byte[] publicKeyCose;
+        private long signatureCount;
+        private String userHandle;
+        private Date lastUsedAt;
+        private Date registeredAt;
+        private Long userId;
+
+        // Getters and setters (use Lombok if you want to avoid boilerplate)
+    }
+
+//    @Getter
+//    @Setter
+//    @AllArgsConstructor
+//    @NoArgsConstructor
+//    public class PasskeyCredentialRegistration {
+//        private Long id;
+//        private String credentialId;
+//        private byte[] publicKeyCose;
+//        private long signatureCount;
+//        private String userHandle;
+//        private Date lastUsedAt;
+//        private Long userId;
+//        private String username;
+//        private String email;
+//        private String firstName;
+//        private String lastName;
+//        private Date registeredAt;
+//
+//        // Getters and setters (use Lombok if you want to avoid boilerplate)
+//    }
+
+
+//    public record PasskeySummary(
+//            Long id,
+//            String credentialId,
+//            byte[] publicKeyCose,
+//            long signatureCount,
+//            String userHandle,
+//            Date lastUsedAt
+//    ) {}
+
+    public record PasskeyUserHandle(
+            String userHandle
+    ) {}
+
+    public Optional<PasskeySummary> findPasskeyByCredentialId(String base64CredentialId) {
+        log.info("findPasskeyByCredentialId 2: {}", base64CredentialId);
+        String sql = "SELECT id, credential_id, public_key_cose, signature_count, user_handle, last_used_at, registered_at, user_id FROM ntail.passkey_credentials WHERE credential_id = ?";
+
+        List<PasskeySummary> results = jdbcTemplate.query(sql, new Object[]{base64CredentialId}, (rs, rowNum) ->
+                        new PasskeySummary(
+                                rs.getLong("id"),
+                                rs.getString("credential_id"),
+                                rs.getBytes("public_key_cose"),
+                                rs.getLong("signature_count"),
+                                rs.getString("user_handle"),
+                                rs.getDate("last_used_at"),
+                                rs.getDate("registered_at"),
+                                rs.getLong("user_id")
+//                            rs.getLong("id"),
+//                            rs.getLong("user_id"),
+//                            rs.getString("device_name")
+                        )
+        );
+        return results.stream().findFirst();
+    }
+
+    @Transactional
+    public void savePasskeySummary(PasskeySummary ps) {
+        log.info("savePasskeySummary");
+        String sql = "UPDATE ntail.passkey_credentials SET " +
+                "credential_id = ?, " +
+                "last_used_at = ?, " +
+                "public_key_cose = ?, " +
+                "signature_count = ?, " +
+                "user_handle = ? " +
+                "WHERE id = ? RETURNING id";
+
+        Long generatedId = jdbcTemplate.queryForObject(sql, Long.class,
+                ps.getCredentialId(),
+                ps.getLastUsedAt(),
+                ps.getPublicKeyCose(),
+                ps.getSignatureCount(),
+                ps.getUserHandle(),
+                ps.getId()
+        );
+
+        log.info("PASSKEY SUMMARY SAVED");
+        ps.setId(generatedId);
     }
 }
+
+

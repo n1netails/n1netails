@@ -12,7 +12,7 @@
 
 	<groupId>com.n1netails</groupId>
 	<artifactId>n1netails-api</artifactId>
-	<version>0.2.4</version>
+	<version>0.2.5</version>
 	<name>n1netails-api</name>
 	<description>N1netails Alert Service API</description>
 
@@ -95,17 +95,17 @@
 		<dependency>
 			<groupId>com.yubico</groupId>
 			<artifactId>webauthn-server-core</artifactId>
-			<version>2.2.0</version>
+			<version>2.7.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.yubico</groupId>
 			<artifactId>webauthn-server-attestation</artifactId>
-			<version>2.2.0</version>
+			<version>2.7.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.yubico</groupId>
 			<artifactId>yubico-util</artifactId>
-			<version>2.2.0</version> <!-- Often a core utility used by other yubico libs -->
+			<version>2.7.0</version> <!-- Often a core utility used by other yubico libs -->
 		</dependency>
 		<dependency>
 		    <groupId>com.fasterxml.jackson.core</groupId>

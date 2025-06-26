@@ -9,10 +9,11 @@ import { AuthenticationService } from './authentication.service'; // To handle J
 // Helper function to convert base64url to ArrayBuffer
 function base64urlToArrayBuffer(base64url: string): ArrayBuffer {
   const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
-  const binaryString = window.atob(base64);
-  const len = binaryString.length;
-  const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
+  const pad = '='.repeat((4 - (base64.length % 4)) % 4);
+  const base64Padded = base64 + pad;
+  const binaryString = atob(base64Padded);
+  const bytes = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
     bytes[i] = binaryString.charCodeAt(i);
   }
   return bytes.buffer;
@@ -35,6 +36,7 @@ function arrayBufferToBase64url(buffer: ArrayBuffer): string {
 })
 export class PasskeyService {
   private host: string;
+  private apiUrl = '/ninetails/auth/passkey';
   private isWebAuthnSupported: boolean;
 
   constructor(
@@ -43,6 +45,7 @@ export class PasskeyService {
     private authService: AuthenticationService // For saving token/user on successful login
   ) {
     this.host = this.uiConfigService.getApiUrl();
+    this.host = this.host + this.apiUrl;
     // Check if the functions exist, which implies WebAuthn support
     this.isWebAuthnSupported = typeof navigator.credentials !== 'undefined' &&
                                typeof navigator.credentials.create === 'function' &&
@@ -63,7 +66,7 @@ export class PasskeyService {
       return throwError(() => new Error('Passkey authentication (WebAuthn) is not supported by this browser.'));
     }
     const request: PasskeyRegistrationStartRequestDto = { email, domain };
-    return this.http.post<PasskeyRegistrationStartResponseDto>(`${this.host}/ninetails/auth/passkey/register/start`, request)
+    return this.http.post<PasskeyRegistrationStartResponseDto>(`${this.host}/register/start`, request)
       .pipe(catchError(this.handleError));
   }
 
@@ -90,29 +93,88 @@ export class PasskeyService {
       friendlyName: friendlyName
     };
 
-    return this.http.post<PasskeyApiResponseDto>(`${this.host}/ninetails/auth/passkey/register/finish`, requestBody);
+    return this.http.post<PasskeyApiResponseDto>(`${this.host}/register/finish`, requestBody);
   }
 
   // Wrapper for navigator.credentials.create()
   createPasskey(options: PublicKeyCredentialCreationOptions): Observable<PublicKeyCredential | null> {
+    console.log("create passkey checking for web authn support");
     if (!this.checkWebAuthnSupport()) {
       return throwError(() => new Error('Passkey authentication (WebAuthn) is not supported by this browser.'));
     }
+
+    console.log(" OPTIONS: ", options);
+
+    // options.extensions.appidExclude
     // Need to convert challenge and user.id from base64url to ArrayBuffer
-    const createOptions = {
-      ...options,
-      challenge: base64urlToArrayBuffer(options.challenge as unknown as string),
+    const createOptions: any = {
+      rp: options.rp,
+      pubKeyCredParams: options.pubKeyCredParams,
+      challenge: base64urlToArrayBuffer(
+        typeof options.challenge === 'string'
+          ? options.challenge
+          : String(options.challenge)
+      ),
       user: {
         ...options.user,
-        id: base64urlToArrayBuffer(options.user.id as unknown as string),
+        id: typeof options.user.id === 'string'
+        ? new TextEncoder().encode(options.user.id).buffer
+        : options.user.id,
       },
       // Ensure pubKeyCredParams if any are correctly formatted (usually fine)
       // Ensure excludeCredentials IDs are ArrayBuffer
       excludeCredentials: options.excludeCredentials?.map(exCred => ({
         ...exCred,
-        id: base64urlToArrayBuffer(exCred.id as unknown as string),
-      }))
+        id: base64urlToArrayBuffer(
+          typeof exCred.id === 'string'
+          ? exCred.id
+          : String(exCred.id)
+        
+        ),
+      })),
+      extensions: options.extensions ? { ...options.extensions } : undefined
     };
+
+    // createOptions.extensions.appidExclude = window.location.origin;
+    // createOptions.extensions.appidExclude = "localhost";
+
+    //   // Sanitize appid if present
+    // if (createOptions.extensions && createOptions.extensions.appid) {
+    //   try {
+    //     // Throws if not a valid URL
+    //     if (createOptions.extensions.appid) {
+    //       new URL(createOptions.extensions.appid);
+    //     }
+    //   } catch {
+    //     // If invalid, set to window.location.origin (recommended) or remove
+    //     createOptions.extensions.appid = window.location.origin;
+    //   }
+    // }
+
+    // Sanitize appidExclude if present
+    if (createOptions.extensions && (createOptions.extensions as any)['appidExclude']) {
+      try {
+        new URL((createOptions.extensions as any)['appidExclude']);
+      } catch {
+        (createOptions.extensions as any)['appidExclude'] = window.location.origin;
+        // (createOptions.extensions as any)['appidExclude'] = 'localhost';
+      }
+    }
+
+    if (createOptions.extensions) {
+      Object.keys(createOptions.extensions).forEach(key => {
+        if (createOptions.extensions[key] == null) delete createOptions.extensions[key];
+      });
+    }
+
+    console.log("CREATE OPTIONS: ", createOptions);
+
+    console.log('challenge byteLength:', createOptions.challenge.byteLength);
+    console.log('challenge instanceof ArrayBuffer:', createOptions.challenge instanceof ArrayBuffer);
+console.log('user.id instanceof Uint8Array:', createOptions.user.id instanceof Uint8Array);
+
+    console.log("NAVIGATOR CREDENTIALS CREATE");
+    console.log('CREATE OPTIONS (final):', JSON.stringify(createOptions, null, 2));
     return from(navigator.credentials.create({ publicKey: createOptions }) as Promise<PublicKeyCredential | null>)
       .pipe(catchError(this.handleNavigatorError));
   }
@@ -125,7 +187,7 @@ export class PasskeyService {
       return throwError(() => new Error('Passkey authentication (WebAuthn) is not supported by this browser.'));
     }
     const request: PasskeyAuthenticationStartRequestDto = { email, domain: domain || window.location.hostname };
-    return this.http.post<PasskeyAuthenticationStartResponseDto>(`${this.host}/ninetails/auth/passkey/login/start`, request)
+    return this.http.post<PasskeyAuthenticationStartResponseDto>(`${this.host}/login/start`, request)
       .pipe(catchError(this.handleError));
   }
 
@@ -150,7 +212,7 @@ export class PasskeyService {
         clientExtensionResults: credential.getClientExtensionResults(),
       }
     };
-    return this.http.post<PasskeyAuthenticationResponseDto>(`${this.host}/ninetails/auth/passkey/login/finish`, requestBody)
+    return this.http.post<PasskeyAuthenticationResponseDto>(`${this.host}/login/finish`, requestBody)
       .pipe(
         map(response => {
           if (response.success && response.jwtToken && response.user) {
@@ -164,17 +226,36 @@ export class PasskeyService {
 
   // Wrapper for navigator.credentials.get()
   getPasskey(options: PublicKeyCredentialRequestOptions): Observable<PublicKeyCredential | null> {
+    console.log("get passkey");
+    console.log("public key credential request options: ", options);
+    
     if (!this.checkWebAuthnSupport()) {
       return throwError(() => new Error('Passkey authentication (WebAuthn) is not supported by this browser.'));
     }
-    const getOptions = {
-      ...options,
+    const getOptions: any = {
+      // ...options,
       challenge: base64urlToArrayBuffer(options.challenge as unknown as string),
       allowCredentials: options.allowCredentials?.map(allowCred => ({
         ...allowCred,
         id: base64urlToArrayBuffer(allowCred.id as unknown as string),
       }))
     };
+
+    // Sanitize appid if present
+    if (getOptions.extensions && (getOptions.extensions as any)['appid']) {
+      try {
+        // Throws if not a valid URL
+        if (getOptions.extensions.appid) {
+          new URL((options.extensions as any)['appid']);
+        }
+      } catch {
+        // If invalid, set to window.location.origin (recommended) or remove
+        (getOptions.extensions as any)['appid'] = window.location.origin;
+        // options.extensions.appid = window.location.origin;
+      }
+    }
+
+    console.log("public key credential request get options: ", getOptions);
     return from(navigator.credentials.get({ publicKey: getOptions }) as Promise<PublicKeyCredential | null>)
       .pipe(catchError(this.handleNavigatorError));
   }

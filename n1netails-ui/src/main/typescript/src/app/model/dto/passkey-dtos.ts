@@ -2,7 +2,7 @@
 
 // --- Registration ---
 export interface PasskeyRegistrationStartRequestDto {
-  username: string;
+  email: string;
   domain: string;
 }
 
@@ -35,7 +35,7 @@ export interface PasskeyRegistrationFinishRequestDto {
 
 // --- Authentication ---
 export interface PasskeyAuthenticationStartRequestDto {
-  username?: string;
+  email?: string;
   domain?: string;
 }
 
@@ -46,6 +46,7 @@ export interface PasskeyAuthenticationStartRequestDto {
 export interface PasskeyAuthenticationStartResponseDto {
   flowId: string;
   options: PublicKeyCredentialRequestOptions;
+  // options: any;
 }
 
 export interface PasskeyAuthenticationFinishRequestDto {

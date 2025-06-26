@@ -1,12 +1,8 @@
--- liquibase formatted sql
-
--- changeset jules:00010-1
 CREATE SEQUENCE ntail.passkey_credentials_seq
     INCREMENT BY 1
     START WITH 1
     NO CYCLE;
 
--- changeset jules:00010-2
 CREATE TABLE ntail.passkey_credentials (
     id BIGINT NOT NULL DEFAULT nextval('ntail.passkey_credentials_seq'),
     user_id BIGINT NOT NULL,
@@ -27,26 +23,22 @@ CREATE TABLE ntail.passkey_credentials (
     CONSTRAINT uq_passkey_credential_id UNIQUE (credential_id)
 );
 
--- changeset jules:00010-3
 ALTER TABLE ntail.passkey_credentials
     ADD CONSTRAINT fk_passkey_credentials_user
     FOREIGN KEY (user_id)
     REFERENCES ntail.users (id);
 
--- changeset jules:00010-4
 CREATE TABLE ntail.passkey_credential_transports (
-    credential_id BIGINT NOT NULL, -- Corresponds to PasskeyCredentialEntity id
+    credential_id BIGINT NOT NULL,
     transport VARCHAR(255) NOT NULL
 );
 
--- changeset jules:00010-5
 ALTER TABLE ntail.passkey_credential_transports
     ADD CONSTRAINT fk_passkey_transports_credential
     FOREIGN KEY (credential_id)
     REFERENCES ntail.passkey_credentials (id)
     ON DELETE CASCADE;
 
--- changeset jules:00010-6
 ALTER TABLE ntail.passkey_credential_transports
     ADD CONSTRAINT pk_passkey_credential_transports
     PRIMARY KEY (credential_id, transport);

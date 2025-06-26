@@ -39,5 +39,14 @@ n1netails:
   passkey:
     relying-party-id: "localhost" # This should be your actual domain in production e.g. n1netails.com
     relying-party-name: "N1netails" # Your application's user-visible name
-    origins: ["http://localhost:8080", "http://localhost:9901", "http://localhost:4200"] # Add all expected origins (frontend, API itself if serving UI pages that use WebAuthn)
+    origins: "http://localhost:8080,http://localhost:9900,http://localhost:9901,http://localhost:4200"
+    # Add all expected origins (frontend, API itself if serving UI pages that use WebAuthn)
     # For production, this would be e.g. "https://n1netails.com", "https://app.n1netails.com"
+
+logging:
+  level:
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+#spring.jpa.show-sql: true
+#spring.jpa.properties.hibernate.format_sql: true
+#logging.level.org.hibernate.type.descriptor.sql: TRACE

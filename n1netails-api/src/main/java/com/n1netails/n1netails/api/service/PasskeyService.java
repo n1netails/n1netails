@@ -59,7 +59,7 @@ public interface PasskeyService {
      * @param assertionResponse The assertion response from the authenticator.
      * @return Optional containing the UserIdentity if authentication is successful, empty otherwise.
      */
-    Optional<UserIdentity> finishAuthentication(String relyingPartyId, String clientOrigin, AuthenticatorAssertionResponse assertionResponse);
+    Optional<UserIdentity> finishAuthentication(String relyingPartyId, String clientOrigin, AuthenticatorAssertionResponse assertionResponse, String originalRequestOptionsJson);
 
     // Additional methods can be added here, e.g., for managing credentials (listing, deleting)
 }

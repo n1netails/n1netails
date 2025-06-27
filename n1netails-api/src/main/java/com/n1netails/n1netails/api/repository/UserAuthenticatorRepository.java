@@ -1,6 +1,6 @@
 package com.n1netails.n1netails.api.repository;
 
-import com.n1netails.n1netails.api.model.UserAuthenticator;
+import com.n1netails.n1netails.api.model.entity.UserAuthenticator;
 import com.yubico.webauthn.data.ByteArray;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,7 +14,7 @@ import java.util.UUID;
 @Repository
 public interface UserAuthenticatorRepository extends JpaRepository<UserAuthenticator, UUID> {
 
-    Set<UserAuthenticator> findAllByUserId(UUID userId);
+    Set<UserAuthenticator> findAllByUserId(Long userId);
 
     // For CredentialRepository:
     // Optional<ByteArray> getUserHandleForUsername(String username);

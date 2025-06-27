@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import com.yubico.webauthn.data.ByteArray;
-import com.n1netails.n1netails.api.model.UserAuthenticator; // Correct import
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.OneToMany;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -16,7 +15,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID; // For userHandle if it's a UUID
 
 @Entity
 @Getter

@@ -1,6 +1,6 @@
 package com.n1netails.n1netails.api.service.impl;
 
-import com.n1netails.n1netails.api.model.UserAuthenticator;
+import com.n1netails.n1netails.api.model.entity.UserAuthenticator;
 import com.n1netails.n1netails.api.model.entity.UsersEntity;
 import com.n1netails.n1netails.api.repository.UserAuthenticatorRepository;
 import com.n1netails.n1netails.api.repository.UserRepository;
@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;

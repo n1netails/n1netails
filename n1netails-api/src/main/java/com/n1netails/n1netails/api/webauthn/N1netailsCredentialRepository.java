@@ -1,17 +1,16 @@
 package com.n1netails.n1netails.api.webauthn;
 
+import com.n1netails.n1netails.api.model.entity.UsersEntity;
 import com.yubico.webauthn.CredentialRepository;
 import com.yubico.webauthn.RegisteredCredential;
 import com.yubico.webauthn.data.ByteArray;
 import com.yubico.webauthn.data.PublicKeyCredentialDescriptor;
-import com.n1netails.n1netails.api.model.User;
-import com.n1netails.n1netails.api.model.UserAuthenticator; // This will be a new JPA entity
+import com.n1netails.n1netails.api.model.entity.UserAuthenticator; // This will be a new JPA entity
 import com.n1netails.n1netails.api.repository.UserAuthenticatorRepository; // New Spring Data JPA repository
 import com.n1netails.n1netails.api.repository.UserRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,7 +31,7 @@ public class N1netailsCredentialRepository implements CredentialRepository {
     @Override
     @Transactional(readOnly = true)
     public Set<PublicKeyCredentialDescriptor> getCredentialIdsForUsername(String username) {
-        Optional<User> userOptional = userRepository.findByUsername(username);
+        Optional<UsersEntity> userOptional = userRepository.findByUsername(username);
         if (userOptional.isPresent()) {
             return userAuthenticatorRepository.findAllByUserId(userOptional.get().getId())
                 .stream()
@@ -63,7 +62,7 @@ public class N1netailsCredentialRepository implements CredentialRepository {
             // Attempt to find user by user_handle if stored directly
             return userAuthenticatorRepository.findByUserHandle(userHandle)
                 .map(UserAuthenticator::getUser)
-                .map(User::getUsername);
+                .map(UsersEntity::getUsername);
             // Or, if userHandle is simply the user's ID as bytes:
             // String userIdStr = new String(userHandle.getBytes());
             // return userRepository.findById(UUID.fromString(userIdStr)).map(User::getUsername);

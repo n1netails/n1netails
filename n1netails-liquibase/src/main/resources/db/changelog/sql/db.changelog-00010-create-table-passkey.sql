@@ -1,7 +1,7 @@
 -- Create table for user authenticators
 CREATE TABLE ntail.user_authenticators (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL,
+    user_id bigint NOT NULL,
     name VARCHAR(255) NOT NULL,
     rp_id VARCHAR(255) NOT NULL, -- Relying Party ID
     credential_id BYTEA NOT NULL UNIQUE,

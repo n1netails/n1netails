@@ -1,4 +1,4 @@
-package com.n1netails.n1netails.api.model;
+package com.n1netails.n1netails.api.model.entity;
 
 import com.yubico.webauthn.data.AttestationType;
 import com.yubico.webauthn.data.AuthenticatorTransport;
@@ -32,7 +32,7 @@ public class UserAuthenticator {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private UsersEntity user;
 
     @Column(name = "name", nullable = false)
     private String name; // User-friendly name for the authenticator
@@ -131,7 +131,7 @@ public class UserAuthenticator {
             this.transports = null;
         } else {
             this.transports = transportList.stream()
-                    .map(AuthenticatorTransport::name)
+                    .map(AuthenticatorTransport::getId)
                     .collect(java.util.stream.Collectors.joining(","));
         }
     }

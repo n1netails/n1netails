@@ -56,8 +56,23 @@
       [disabled]="!registerForm.valid"
       type="submit"
     >
-      Register
+      Register with Password
     </button>
+
+    <div class="or-divider">
+      <span>OR</span>
+    </div>
+
+    <button
+      nz-button
+      type="button"
+      class="passkey-btn"
+      (click)="onRegisterWithPasskey(registerForm)"
+      [disabled]="!registerForm.get('username')?.valid || !registerForm.get('email')?.valid"
+    >
+      <i nz-icon nzType="fingerprint" nzTheme="outline"></i> Register with Passkey
+    </button>
+
     <div class="register-link">
       <span>Already have an account?</span>
       <a routerLink="/login">Login here</a>

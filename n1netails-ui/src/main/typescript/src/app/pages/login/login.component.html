@@ -41,8 +41,22 @@
       [disabled]="!loginForm.valid"
       type="submit"
     >
-      Login
+      Login with Password
     </button>
+
+    <div class="or-divider">
+      <span>OR</span>
+    </div>
+
+    <button
+      nz-button
+      type="button"
+      class="passkey-btn"
+      (click)="onLoginWithPasskey(loginForm)"
+    >
+      <i nz-icon nzType="fingerprint" nzTheme="outline"></i> Login with Passkey
+    </button>
+
     <div class="register-link">
       <span>Don't have an account?</span>
       <a routerLink="/register">Register here</a>

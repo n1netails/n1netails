@@ -34,3 +34,13 @@ management:
     web:
       exposure:
         include: health,info
+
+# WebAuthn Relying Party Configuration
+# Ensure these values are appropriate for your deployment environment.
+# For development, localhost is common. For production, use your actual domain.
+webauthn:
+  relying-party-id: "localhost" # This MUST match the domain from which your frontend is served (e.g., yourdomain.com)
+  relying-party-name: "N1netails Application" # A human-readable name for your application
+  relying-party-origins: "http://localhost:4200, http://localhost:9901" # Comma-separated list of allowed origins (frontend URL, API URL if different and involved)
+                                       # Example for production: "https://app.n1netails.com"
+                                       # The port might be important if it's non-standard for HTTP/HTTPS.

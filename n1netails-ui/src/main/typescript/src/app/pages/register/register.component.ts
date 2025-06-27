@@ -8,6 +8,8 @@ import { AuthenticationService } from '../../service/authentication.service';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { HeaderType } from '../../model/enum/header-type.enum';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
+import { PasskeyAuthService } from '../../core/services/passkey-auth.service'; // Added
+import * as WebAuthnUtils from '../../core/utils/webauthn.utils'; // Added
 
 @Component({
   selector: 'app-register',

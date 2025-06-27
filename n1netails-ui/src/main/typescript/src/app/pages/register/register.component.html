@@ -53,10 +53,24 @@
       nz-button
       nzType="primary"
       class="login-btn"
-      [disabled]="!registerForm.valid"
+      [disabled]="!registerForm.valid || isLoading"
       type="submit"
+      [nzLoading]="isLoading"
     >
-      Register
+      Register Account
+    </button>
+    <div class="form-divider">
+      <span>OR</span>
+    </div>
+    <button
+      nz-button
+      type="button"
+      (click)="onRegisterWithPasskey(registerForm)"
+      class="login-btn passkey-btn"
+      [nzLoading]="isPasskeyLoading"
+      [disabled]="!registerForm.value.email || isLoading || isPasskeyLoading"
+    >
+      Add Passkey to Existing Account (Email)
     </button>
     <div class="register-link">
       <span>Already have an account?</span>

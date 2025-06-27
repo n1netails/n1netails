@@ -34,3 +34,10 @@ management:
     web:
       exposure:
         include: health,info
+
+# N1netails specific properties
+n1netails:
+  webauthn:
+    relying-party-id: "localhost" # Replace with your actual domain in production
+    relying-party-name: "N1netails App"
+    allowed-origins: "http://localhost:4200,http://localhost:8080" # Comma-separated list of allowed client origins

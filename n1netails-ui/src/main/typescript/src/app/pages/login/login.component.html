@@ -38,11 +38,25 @@
       nz-button
       nzType="primary"
       class="login-btn"
-      [disabled]="!loginForm.valid"
+      [disabled]="!loginForm.valid || isLoading || isPasskeyLoading"
       type="submit"
+      [nzLoading]="isLoading"
     >
-      Login
+      Login with Email/Password
     </button>
+    <button
+      nz-button
+      type="button"
+      (click)="onLoginWithPasskey(loginForm)"
+      class="login-btn passkey-btn"
+      [nzLoading]="isPasskeyLoading"
+      [disabled]="isLoading || isPasskeyLoading"
+    >
+      Login with Passkey
+    </button>
+    <div class="form-divider">
+      <span>OR</span>
+    </div>
     <div class="register-link">
       <span>Don't have an account?</span>
       <a routerLink="/register">Register here</a>

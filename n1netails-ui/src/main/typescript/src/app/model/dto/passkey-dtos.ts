@@ -48,7 +48,6 @@ export interface PasskeyAuthenticationStartRequestDto {
 export interface PasskeyAuthenticationStartResponseDto {
   flowId: string;
   options: PublicKeyCredentialRequestOptions;
-  // options: any;
 }
 
 export interface PasskeyAuthenticationFinishRequestDto {
@@ -71,7 +70,7 @@ export interface PasskeyAuthenticationResponseDto {
   success: boolean;
   message: string;
   jwtToken?: string;
-  user?: User; // Replace 'any' with your User model if available client-side
+  user?: User;
 }
 
 export interface PasskeyApiResponseDto {

@@ -139,22 +139,6 @@ export class PasskeyService {
       extensions: options.extensions ? { ...options.extensions } : undefined
     };
 
-    // createOptions.extensions.appidExclude = window.location.origin;
-    // createOptions.extensions.appidExclude = "localhost";
-
-    //   // Sanitize appid if present
-    // if (createOptions.extensions && createOptions.extensions.appid) {
-    //   try {
-    //     // Throws if not a valid URL
-    //     if (createOptions.extensions.appid) {
-    //       new URL(createOptions.extensions.appid);
-    //     }
-    //   } catch {
-    //     // If invalid, set to window.location.origin (recommended) or remove
-    //     createOptions.extensions.appid = window.location.origin;
-    //   }
-    // }
-
     // Sanitize appidExclude if present
     if (createOptions.extensions && (createOptions.extensions as any)['appidExclude']) {
       try {
@@ -175,8 +159,8 @@ export class PasskeyService {
 
     console.log('challenge byteLength:', createOptions.challenge.byteLength);
     console.log('challenge instanceof ArrayBuffer:', createOptions.challenge instanceof ArrayBuffer);
-console.log('user.id instanceof Uint8Array:', createOptions.user.id instanceof Uint8Array);
-console.log('user.id: ', createOptions.user.id);
+    console.log('user.id instanceof Uint8Array:', createOptions.user.id instanceof Uint8Array);
+    console.log('user.id: ', createOptions.user.id);
 
     console.log("NAVIGATOR CREDENTIALS CREATE");
     console.log('CREATE OPTIONS (final):', JSON.stringify(createOptions, null, 2));
@@ -186,7 +170,6 @@ console.log('user.id: ', createOptions.user.id);
 
 
   // --- AUTHENTICATION ---
-
   startPasskeyAuthentication(email?: string, domain?: string): Observable<PasskeyAuthenticationStartResponseDto> {
     if (!this.checkWebAuthnSupport()) {
       return throwError(() => new Error('Passkey authentication (WebAuthn) is not supported by this browser.'));
@@ -243,10 +226,6 @@ console.log('user.id: ', createOptions.user.id);
     const getOptions: any = {
       // ...options,
       challenge: base64urlToArrayBuffer(options.challenge as unknown as string),
-      // allowCredentials: options.allowCredentials?.map(allowCred => ({
-      //   ...allowCred,
-      //   id: base64urlToArrayBuffer(allowCred.id as unknown as string),
-      // }))
       allowCredentials: options.allowCredentials?.map((cred: any) => {
         return {
           type: cred.type,
@@ -268,7 +247,6 @@ console.log('user.id: ', createOptions.user.id);
       } catch {
         // If invalid, set to window.location.origin (recommended) or remove
         (getOptions.extensions as any)['appid'] = window.location.origin;
-        // options.extensions.appid = window.location.origin;
       }
     }
 

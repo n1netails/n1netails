@@ -18,15 +18,10 @@ public class ProjectSecurityConstant {
             "/v3/api-docs/**",
             "/ninetails/user/login",
             "/ninetails/user/register",
-            "/ninetails/auth/passkey/**", // Added for passkey authentication endpoints
-//            "/ninetails/auth/passkey/register/start",
-//            "/ninetails/auth/passkey/register/finish",
-//            "/ninetails/auth/passkey/login/start",
-//            "/ninetails/auth/passkey/login/finish",
+            "/ninetails/auth/passkey/**",
             "/ninetails/alert",
             "/ninetails/alert/**",
-//            "/ninetails/tail/**",
-            "/ninetails/llm/**",
+            "/ninetails/llm/**", // remove this later
             "/"
     };
 

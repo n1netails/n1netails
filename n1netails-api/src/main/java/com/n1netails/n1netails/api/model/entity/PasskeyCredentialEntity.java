@@ -1,7 +1,5 @@
 package com.n1netails.n1netails.api.model.entity;
 
-import com.yubico.webauthn.data.ByteArray;
-import com.yubico.webauthn.data.UserVerificationRequirement;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

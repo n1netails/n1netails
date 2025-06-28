@@ -1,7 +1,5 @@
 package com.n1netails.n1netails.api.model.dto.passkey;
 
-import com.yubico.webauthn.AssertionRequest;
-import com.yubico.webauthn.data.PublicKeyCredentialCreationOptions;
 import com.yubico.webauthn.data.PublicKeyCredentialRequestOptions;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,6 +10,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PasskeyAuthenticationStartResponseDto {
     private String flowId; // To correlate start and finish requests
-//    private AssertionRequest options;
     private PublicKeyCredentialRequestOptions options;
 }

@@ -27,7 +27,6 @@ public class PasskeyController {
     @Operation(summary = "Start Passkey Registration", description = "Initiates the passkey registration process for a user.")
     @PostMapping(value = "/register/start", consumes = APPLICATION_JSON)
     public ResponseEntity<PasskeyRegistrationStartResponseDto> startRegistration(@RequestBody PasskeyRegistrationStartRequestDto request) {
-        log.info("STARTING PASSKEY REGISTRATION");
         try {
             log.info("Received request to start passkey registration for email: {}", request.getEmail());
             PasskeyRegistrationStartResponseDto response = passkeyService.startRegistration(request);
@@ -44,7 +43,6 @@ public class PasskeyController {
     @Operation(summary = "Finish Passkey Registration", description = "Completes the passkey registration process.")
     @PostMapping(value = "/register/finish", consumes = APPLICATION_JSON)
     public ResponseEntity<PasskeyApiResponseDto> finishRegistration(@RequestBody PasskeyRegistrationFinishRequestDto request) {
-        log.info("============================ FINISHING PASSKEY REGISTRATION");
         try {
             log.info("Received request to finish passkey registration with flowId: {}", request.getFlowId());
             boolean success = passkeyService.finishRegistration(request);
@@ -67,7 +65,6 @@ public class PasskeyController {
     @Operation(summary = "Start Passkey Authentication", description = "Initiates the passkey authentication process.")
     @PostMapping(value = "/login/start", consumes = APPLICATION_JSON)
     public ResponseEntity<PasskeyAuthenticationStartResponseDto> startAuthentication(@RequestBody(required = false) PasskeyAuthenticationStartRequestDto request) {
-        log.info("START PASSKEY AUTHENTICATION");
         // Request can be null or empty for discoverable credentials (passkeys)
         PasskeyAuthenticationStartRequestDto actualRequest = (request == null) ? new PasskeyAuthenticationStartRequestDto() : request;
         try {

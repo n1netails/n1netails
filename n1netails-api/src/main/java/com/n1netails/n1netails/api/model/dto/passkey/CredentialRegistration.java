@@ -2,9 +2,11 @@ package com.n1netails.n1netails.api.model.dto.passkey;
 
 import com.yubico.webauthn.RegisteredCredential;
 import com.yubico.webauthn.data.UserIdentity;
+import lombok.Getter;
 
 import java.time.Instant;
 
+@Getter
 public class CredentialRegistration {
 
     private final RegisteredCredential credential;
@@ -19,18 +21,6 @@ public class CredentialRegistration {
 
     public static Builder builder() {
         return new Builder();
-    }
-
-    public RegisteredCredential getCredential() {
-        return credential;
-    }
-
-    public UserIdentity getUserIdentity() {
-        return userIdentity;
-    }
-
-    public Instant getRegistrationTime() {
-        return registrationTime;
     }
 
     public static class Builder {

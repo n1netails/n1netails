@@ -105,30 +105,8 @@
 		<dependency>
 			<groupId>com.yubico</groupId>
 			<artifactId>yubico-util</artifactId>
-			<version>2.7.0</version> <!-- Often a core utility used by other yubico libs -->
+			<version>2.7.0</version>
 		</dependency>
-<!--		<dependency>-->
-<!--		    <groupId>com.fasterxml.jackson.core</groupId>-->
-<!--		    <artifactId>jackson-annotations</artifactId>-->
-<!--		    &lt;!&ndash; Version managed by Spring Boot BOM &ndash;&gt;-->
-<!--		</dependency>-->
-<!--		<dependency>-->
-<!--		    <groupId>com.fasterxml.jackson.core</groupId>-->
-<!--		    <artifactId>jackson-core</artifactId>-->
-<!--		    &lt;!&ndash; Version managed by Spring Boot BOM &ndash;&gt;-->
-<!--		</dependency>-->
-<!--		<dependency>-->
-<!--		    <groupId>com.fasterxml.jackson.core</groupId>-->
-<!--		    <artifactId>jackson-databind</artifactId>-->
-<!--		    &lt;!&ndash; Version managed by Spring Boot BOM &ndash;&gt;-->
-<!--		</dependency>-->
-<!--		<dependency>-->
-<!--		    <groupId>com.fasterxml.jackson.dataformat</groupId>-->
-<!--		    <artifactId>jackson-dataformat-cbor</artifactId>-->
-<!--		    &lt;!&ndash; Version managed by Spring Boot BOM, or add explicit version if needed &ndash;&gt;-->
-<!--		</dependency>-->
-
-
 	</dependencies>
 
 	<build>

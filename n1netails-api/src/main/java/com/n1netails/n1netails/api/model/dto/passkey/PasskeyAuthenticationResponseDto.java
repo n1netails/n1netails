@@ -10,7 +10,7 @@ public class PasskeyAuthenticationResponseDto {
     private boolean success;
     private String message;
     private String jwtToken;
-    private UsersEntity user; // Or a User DTO if you have one
+    private UsersEntity user;
 
     public PasskeyAuthenticationResponseDto(
             boolean success,

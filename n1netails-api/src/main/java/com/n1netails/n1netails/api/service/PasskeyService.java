@@ -490,24 +490,20 @@ public class PasskeyService {
         public Optional<String> getUsernameForUserHandle(ByteArray userHandle) {
             log.info("== getUsernameForUserHandle");
             log.info("userHandle: {}", userHandle);
+            log.info("userHandle bytes: {}", userHandle.getBytes());
 
             log.info("GET USER EMAIL FOR USERHANDLE");
             try {
-                String userIdStr = userHandle.getBase64Url();
-                log.info("userIdStr: {}", userIdStr);
-
-                log.info("passkey credential find all stream");
-                return passkeyCredentialRepository.findAll().stream() // Inefficient: Iterate all credentials
-                    .filter(cred -> {
-                        log.info("cred user handle: {}", cred.getUserHandle());
-                        return cred.getUserHandle() != null && cred.getUserHandle().equals(userIdStr);
-                    })
-                    .map(cred -> {
-                        log.info("cred get user email: {}", cred.getUser().getEmail());
-                        return cred.getUser().getEmail();
-                    })
-                    .findFirst();
-
+                Optional<PasskeySummary> optionalPasskeySummary = this.findPasskeyByUserHandle(userHandle.getBytes());
+                if (optionalPasskeySummary.isPresent()) {
+                    log.info("passkey summary is present");
+                    PasskeySummary passkeySummary = optionalPasskeySummary.get();
+                    UsersEntity user = userRepository.findUserById(passkeySummary.getUserId());
+                    return Optional.of(user.getEmail());
+                } else {
+                    log.info("passkey summary is not present");
+                    return Optional.empty();
+                }
             } catch (NumberFormatException e) {
                 log.error("Could not parse user ID from userHandle: {}", userHandle.getBase64Url(), e);
                 return Optional.empty();
@@ -561,26 +557,6 @@ public class PasskeyService {
             }
         }
 
-        public Optional<PasskeySummary> findPasskeyByCredentialId(byte[] credentialId) {
-            log.info("findPasskeyByCredentialId: {}", credentialId);
-            String sql = "SELECT id, credential_id, public_key_cose, signature_count, user_handle, last_used_at, registered_at, user_id FROM ntail.passkey_credentials WHERE credential_id = ?";
-
-            List<PasskeySummary> results = jdbcTemplate.query(sql, new Object[]{credentialId}, (rs, rowNum) ->
-                    new PasskeySummary(
-                            rs.getLong("id"),
-                            rs.getBytes("credential_id"),
-                            rs.getBytes("public_key_cose"),
-                            rs.getLong("signature_count"),
-                            rs.getBytes("user_handle"),
-                            rs.getDate("last_used_at"),
-                            rs.getDate("registered_at"),
-                            rs.getLong("user_id")
-                    )
-            );
-
-            return results.stream().findFirst();
-        }
-
         @Override
         public Set<RegisteredCredential> lookupAll(ByteArray userHandle) {
             log.info("== lookupAll");
@@ -588,78 +564,6 @@ public class PasskeyService {
             return getRegistrationsByUserHandle(userHandle).stream()
                     .map(reg -> reg.getCredential()) // CredentialRegistration contains RegisteredCredential
                     .collect(Collectors.toSet());
-        }
-
-        public boolean removeRegistration(ByteArray userHandle, ByteArray credentialId) {
-            log.info("== removeRegistration");
-            // Implementation for deleting a credential
-             Optional<String> usernameOpt = getUsernameForUserHandle(userHandle);
-            if (usernameOpt.isEmpty()) {
-                log.warn("Cannot remove registration: User not found for userHandle {}", userHandle.getBase64Url());
-                return false;
-            }
-            UsersEntity user = userRepository.findUserByUsername(usernameOpt.get());
-            if (user == null) { // Should not happen if usernameOpt was present
-                log.warn("Cannot remove registration: User {} (from handle {}) not found in DB", usernameOpt.get(), userHandle.getBase64Url());
-                return false;
-            }
-
-            Optional<PasskeyCredentialEntity> cred = passkeyCredentialRepository.findByUserAndCredentialId(user, credentialId);
-            if (cred.isPresent()) {
-                passkeyCredentialRepository.delete(cred.get());
-                log.info("Removed passkey credential {} for user {}", credentialId.getBase64Url(), user.getUsername());
-                return true;
-            } else {
-                log.warn("Passkey credential {} not found for user {} during removal attempt.", credentialId.getBase64Url(), user.getUsername());
-                return false;
-            }
-        }
-
-        // This method is crucial and is called by the library after a successful assertion.
-        public boolean updateSignatureCount(AssertionResult assertionResult) {
-            log.info("== updateSignatureCount");
-            Optional<PasskeyCredentialEntity> credEntityOpt = passkeyCredentialRepository.findByCredentialId(assertionResult.getCredentialId());
-            if (credEntityOpt.isPresent()) {
-                PasskeyCredentialEntity credEntity = credEntityOpt.get();
-                if (credEntity.getUserHandle().equals(assertionResult.getUserHandle().getBase64Url())) { // Ensure it's the correct user's credential
-                    credEntity.setSignatureCount(assertionResult.getSignatureCount());
-                    credEntity.setLastUsedAt(new Date()); // Also update last used timestamp
-                    passkeyCredentialRepository.save(credEntity);
-                    log.debug("Updated signature count for credential {} to {}", assertionResult.getCredentialId().getBase64Url(), assertionResult.getSignatureCount());
-                    return true;
-                } else {
-                     log.warn("Attempted to update signature count for credential {} but user handle did not match. DB: {}, Assertion: {}", assertionResult.getCredentialId().getBase64Url(), credEntity.getUserHandle(), assertionResult.getUserHandle().getBase64Url());
-                     return false;
-                }
-            } else {
-                log.warn("Could not find credential {} to update signature count.", assertionResult.getCredentialId().getBase64Url());
-                return false;
-            }
-        }
-
-        private CredentialRegistration toCredentialRegistration(
-                PasskeyCredentialEntity entity
-        ) throws Base64UrlException {
-            log.info("== toCredentialRegistration PasskeyCredentialEntity");
-            // Ensure user handle used here is what the library expects (usually the one from UserIdentity)
-            UserIdentity userIdentity = UserIdentity.builder()
-                .name(entity.getUser().getEmail())
-                .displayName(entity.getUser().getFirstName() + " " + entity.getUser().getLastName())
-                .id(new ByteArray(entity.getUserHandle())) // This MUST match the userHandle stored on the entity
-                .build();
-
-            return CredentialRegistration.builder()
-                .credential(RegisteredCredential.builder()
-                    .credentialId(new ByteArray(entity.getCredentialId()))
-                    .userHandle(userIdentity.getId()) // Use the same ID as in UserIdentity
-                    .publicKeyCose(new ByteArray(entity.getPublicKeyCose()))
-                    .signatureCount(entity.getSignatureCount())
-                    .build())
-                .userIdentity(userIdentity)
-                .registrationTime(entity.getRegisteredAt() != null ? entity.getRegisteredAt().toInstant() : Instant.now())
-                // Optional: Add transports if your library version/config uses them here
-                // .transports(entity.getTransports().stream().map(AuthenticatorTransport::of).collect(Collectors.toSet()))
-                .build();
         }
 
         private CredentialRegistration toCredentialRegistration(
@@ -712,6 +616,45 @@ public class PasskeyService {
             );
             return results;
         }
+
+        public Optional<PasskeySummary> findPasskeyByCredentialId(byte[] credentialId) {
+            log.info("findPasskeyByCredentialId: {}", credentialId);
+            String sql = "SELECT id, credential_id, public_key_cose, signature_count, user_handle, last_used_at, registered_at, user_id FROM ntail.passkey_credentials WHERE credential_id = ?";
+
+            List<PasskeySummary> results = jdbcTemplate.query(sql, new Object[]{credentialId}, (rs, rowNum) ->
+                    new PasskeySummary(
+                            rs.getLong("id"),
+                            rs.getBytes("credential_id"),
+                            rs.getBytes("public_key_cose"),
+                            rs.getLong("signature_count"),
+                            rs.getBytes("user_handle"),
+                            rs.getDate("last_used_at"),
+                            rs.getDate("registered_at"),
+                            rs.getLong("user_id")
+                    )
+            );
+
+            return results.stream().findFirst();
+        }
+
+        public Optional<PasskeySummary> findPasskeyByUserHandle(byte[] userHandle) {
+            log.info("findPasskeyByUserHandle: {}", userHandle);
+            String sql = "SELECT id, credential_id, public_key_cose, signature_count, user_handle, last_used_at, registered_at, user_id FROM ntail.passkey_credentials WHERE user_handle = ?";
+
+            List<PasskeySummary> results = jdbcTemplate.query(sql, new Object[]{userHandle}, (rs, rowNum) ->
+                    new PasskeySummary(
+                            rs.getLong("id"),
+                            rs.getBytes("credential_id"),
+                            rs.getBytes("public_key_cose"),
+                            rs.getLong("signature_count"),
+                            rs.getBytes("user_handle"),
+                            rs.getDate("last_used_at"),
+                            rs.getDate("registered_at"),
+                            rs.getLong("user_id")
+                    )
+            );
+            return results.stream().findFirst();
+        }
     }
 
 
@@ -730,10 +673,6 @@ public class PasskeyService {
         private Date registeredAt;
         private Long userId;
     }
-
-    public record PasskeyUserHandle(
-            String userHandle
-    ) {}
 
     public Optional<PasskeySummary> findPasskeyByCredentialId(byte[] credentialId) {
         log.info("findPasskeyByCredentialId 2: {}", credentialId);

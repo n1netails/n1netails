@@ -347,7 +347,7 @@ public class PasskeyService {
                 }
 
                 // Update user's last login date
-                user.setLastLoginDateDisplay(user.getLastLoginDate());
+                user.setLastLoginDateDisplay(new Date());
                 user.setLastLoginDate(new Date());
                 log.info("saving user");
                 user = userRepository.save(user);

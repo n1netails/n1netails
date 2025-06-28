@@ -389,8 +389,8 @@ public class PasskeyService {
 
                 UsersEntity passkeyUser = userRepository.findUserByEmail(user.getEmail()).orElseThrow(() -> new UserNotFoundException("User not located by email for passkey"));
                 log.info("Successfully authenticated user {} with passkey credentialId: {}", user.getUsername(), assertionResult.getCredentialId().getBase64Url());
-//                return new PasskeyAuthenticationResponseDto(true, "Authentication successful", jwtToken, passkeyUser);
-                return new PasskeyAuthenticationResponseDto(true, "Authentication successful", jwtToken);
+                return new PasskeyAuthenticationResponseDto(true, "Authentication successful", jwtToken, passkeyUser);
+//                return new PasskeyAuthenticationResponseDto(true, "Authentication successful", jwtToken);
             } else {
                 log.info("finish authentication assertion result fail");
                 authenticationCache.invalidate(request.getFlowId());

@@ -71,7 +71,7 @@ export interface PasskeyAuthenticationResponseDto {
   success: boolean;
   message: string;
   jwtToken?: string;
-  // user?: User; // Replace 'any' with your User model if available client-side
+  user?: User; // Replace 'any' with your User model if available client-side
 }
 
 export interface PasskeyApiResponseDto {

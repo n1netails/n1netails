@@ -221,10 +221,10 @@ console.log('user.id: ', createOptions.user.id);
       .pipe(
         map(response => {
           if (response.success && response.jwtToken 
-            // && response.user
+            && response.user
           ) {
             this.authService.saveToken(response.jwtToken);
-            // this.authService.addUserToLocalCache(response.user);
+            this.authService.addUserToLocalCache(response.user);
           }
           return response;
         })

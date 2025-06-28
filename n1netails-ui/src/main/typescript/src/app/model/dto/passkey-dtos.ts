@@ -1,5 +1,7 @@
 // Based on backend DTOs
 
+import { User } from "../user";
+
 // --- Registration ---
 export interface PasskeyRegistrationStartRequestDto {
   email: string;
@@ -69,7 +71,7 @@ export interface PasskeyAuthenticationResponseDto {
   success: boolean;
   message: string;
   jwtToken?: string;
-  user?: any; // Replace 'any' with your User model if available client-side
+  // user?: User; // Replace 'any' with your User model if available client-side
 }
 
 export interface PasskeyApiResponseDto {

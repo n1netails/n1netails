@@ -10,6 +10,7 @@ import lombok.Setter;
 
 import java.util.Date;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -29,17 +30,20 @@ public class PasskeyCredentialEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private UsersEntity user;
 
-    @Column(nullable = false, unique = true)
-    private String credentialId; // Store as Base64URL encoded string
+    @Lob // Large object for byte array
+    @Column(nullable = false, columnDefinition = "BYTEA")
+    private byte[] credentialId;
 
     @Lob // Large object for byte array
     @Column(nullable = false, columnDefinition = "BYTEA")
-    private byte[] publicKeyCose; // Store as raw bytes
+    private byte[] publicKeyCose;
 
     @Column(nullable = false)
     private long signatureCount;
 
-    private String userHandle; // Store as Base64URL encoded string, usually user's id
+    @Lob // Large object for byte array
+    @Column(nullable = false, columnDefinition = "BYTEA")
+    private byte[] userHandle;
 
     private String attestationType;
 
@@ -48,9 +52,13 @@ public class PasskeyCredentialEntity {
     private Date lastUsedAt;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "passkey_credential_transports", schema = "ntail", joinColumns = @JoinColumn(name = "credential_id"))
+    @CollectionTable(
+            name = "passkey_credential_transports",
+            schema = "ntail",
+            joinColumns = @JoinColumn(name = "passkey_id") // e.g., "usb", "nfc", "ble", "internal"
+    )
     @Column(name = "transport")
-    private Set<String> transports; // e.g., "usb", "nfc", "ble", "internal"
+    private Set<String> transports;
 
     private Boolean uvInitialized; // User Verification Initialized
 
@@ -61,17 +69,8 @@ public class PasskeyCredentialEntity {
     // Recommended to store, from a W3C Note: https://www.w3.org/TR/webauthn-recovery/
     private String deviceName; // e.g., "Pixel 7 Pro", "YubiKey 5"
 
-    private String aaguid; // Authenticator Attestation Globally Unique Identifier
+    private UUID aaguid; // Authenticator Attestation Globally Unique Identifier
 
     @Column(length = 2048) // Optional: Store the attestation object for auditing, might be large
     private String attestationObject; // Store as Base64URL encoded string
-
-    public PasskeyCredentialEntity(UsersEntity user, String credentialId, byte[] publicKeyCose, long signatureCount, String userHandle) {
-        this.user = user;
-        this.credentialId = credentialId;
-        this.publicKeyCose = publicKeyCose;
-        this.signatureCount = signatureCount;
-        this.userHandle = userHandle;
-        this.registeredAt = new Date();
-    }
 }

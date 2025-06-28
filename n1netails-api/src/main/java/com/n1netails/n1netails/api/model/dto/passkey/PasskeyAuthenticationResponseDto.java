@@ -12,11 +12,16 @@ public class PasskeyAuthenticationResponseDto {
     private String jwtToken;
     private UsersEntity user; // Or a User DTO if you have one
 
-    public PasskeyAuthenticationResponseDto(boolean success, String message, String jwtToken, UsersEntity user) {
+    public PasskeyAuthenticationResponseDto(
+            boolean success,
+            String message,
+            String jwtToken
+//            , UsersEntity user
+    ) {
         this.success = success;
         this.message = message;
         this.jwtToken = jwtToken;
-        this.user = user;
+//        this.user = user;
     }
 
      public PasskeyAuthenticationResponseDto(boolean success, String message) {

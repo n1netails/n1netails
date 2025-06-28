@@ -44,7 +44,7 @@ public class PasskeyController {
     @Operation(summary = "Finish Passkey Registration", description = "Completes the passkey registration process.")
     @PostMapping(value = "/register/finish", consumes = APPLICATION_JSON)
     public ResponseEntity<PasskeyApiResponseDto> finishRegistration(@RequestBody PasskeyRegistrationFinishRequestDto request) {
-        log.info("FINISHING PASSKEY REGISTRATION");
+        log.info("============================ FINISHING PASSKEY REGISTRATION");
         try {
             log.info("Received request to finish passkey registration with flowId: {}", request.getFlowId());
             boolean success = passkeyService.finishRegistration(request);

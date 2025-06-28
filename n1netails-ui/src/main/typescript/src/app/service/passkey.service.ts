@@ -70,27 +70,31 @@ export class PasskeyService {
       .pipe(catchError(this.handleError));
   }
 
-  finishPasskeyRegistration(flowId: string, credential: PublicKeyCredential, friendlyName?: string): Observable<PasskeyApiResponseDto> {
+  finishPasskeyRegistration(
+    flowId: string,
+    credential: PublicKeyCredential,
+    friendlyName?: string
+  ): Observable<PasskeyApiResponseDto> {
     if (!this.checkWebAuthnSupport()) {
       return throwError(() => new Error('Passkey authentication (WebAuthn) is not supported by this browser.'));
     }
-    // Type assertion needed as PublicKeyCredential is a generic browser type
+
     const attestationResponse = credential.response as AuthenticatorAttestationResponse;
 
     const requestBody = {
       flowId: flowId,
       credential: {
-        id: credential.id,
-        rawId: arrayBufferToBase64url(credential.rawId),
+        id: credential.id, // already base64url by browser — DO NOT re-encode
+        rawId: arrayBufferToBase64url(credential.rawId), // must be encoded
         response: {
-          attestationObject: arrayBufferToBase64url(attestationResponse.attestationObject),
-          clientDataJSON: arrayBufferToBase64url(attestationResponse.clientDataJSON),
-          transports: attestationResponse.getTransports ? attestationResponse.getTransports() : [],
+          attestationObject: arrayBufferToBase64url(attestationResponse.attestationObject), // must be encoded
+          clientDataJSON: arrayBufferToBase64url(attestationResponse.clientDataJSON),       // must be encoded
+          transports: attestationResponse.getTransports?.() ?? [],
         },
         type: credential.type,
         clientExtensionResults: credential.getClientExtensionResults(),
       },
-      friendlyName: friendlyName
+      friendlyName: friendlyName,
     };
 
     return this.http.post<PasskeyApiResponseDto>(`${this.host}/register/finish`, requestBody);
@@ -118,8 +122,8 @@ export class PasskeyService {
       user: {
         ...options.user,
         id: typeof options.user.id === 'string'
-        ? new TextEncoder().encode(options.user.id).buffer
-        : options.user.id,
+          ? new TextEncoder().encode(this.base64urlDecode(options.user.id)).buffer
+          : options.user.id,
       },
       // Ensure pubKeyCredParams if any are correctly formatted (usually fine)
       // Ensure excludeCredentials IDs are ArrayBuffer
@@ -172,6 +176,7 @@ export class PasskeyService {
     console.log('challenge byteLength:', createOptions.challenge.byteLength);
     console.log('challenge instanceof ArrayBuffer:', createOptions.challenge instanceof ArrayBuffer);
 console.log('user.id instanceof Uint8Array:', createOptions.user.id instanceof Uint8Array);
+console.log('user.id: ', createOptions.user.id);
 
     console.log("NAVIGATOR CREDENTIALS CREATE");
     console.log('CREATE OPTIONS (final):', JSON.stringify(createOptions, null, 2));
@@ -200,7 +205,7 @@ console.log('user.id instanceof Uint8Array:', createOptions.user.id instanceof U
     const requestBody = {
       flowId: flowId,
       credential: {
-        id: credential.id,
+        id: arrayBufferToBase64url(credential.rawId),
         rawId: arrayBufferToBase64url(credential.rawId),
         response: {
           authenticatorData: arrayBufferToBase64url(assertionResponse.authenticatorData),
@@ -215,9 +220,11 @@ console.log('user.id instanceof Uint8Array:', createOptions.user.id instanceof U
     return this.http.post<PasskeyAuthenticationResponseDto>(`${this.host}/login/finish`, requestBody)
       .pipe(
         map(response => {
-          if (response.success && response.jwtToken && response.user) {
+          if (response.success && response.jwtToken 
+            // && response.user
+          ) {
             this.authService.saveToken(response.jwtToken);
-            this.authService.addUserToLocalCache(response.user);
+            // this.authService.addUserToLocalCache(response.user);
           }
           return response;
         })
@@ -232,13 +239,23 @@ console.log('user.id instanceof Uint8Array:', createOptions.user.id instanceof U
     if (!this.checkWebAuthnSupport()) {
       return throwError(() => new Error('Passkey authentication (WebAuthn) is not supported by this browser.'));
     }
+
     const getOptions: any = {
       // ...options,
       challenge: base64urlToArrayBuffer(options.challenge as unknown as string),
-      allowCredentials: options.allowCredentials?.map(allowCred => ({
-        ...allowCred,
-        id: base64urlToArrayBuffer(allowCred.id as unknown as string),
-      }))
+      // allowCredentials: options.allowCredentials?.map(allowCred => ({
+      //   ...allowCred,
+      //   id: base64urlToArrayBuffer(allowCred.id as unknown as string),
+      // }))
+      allowCredentials: options.allowCredentials?.map((cred: any) => {
+        return {
+          type: cred.type,
+          id: base64urlToArrayBuffer(cred.id),
+          transports: Array.isArray(cred.transports) && cred.transports.every((t: any) => typeof t === 'string')
+            ? cred.transports
+            : undefined // skip transports if invalid
+        };
+      })
     };
 
     // Sanitize appid if present
@@ -257,7 +274,10 @@ console.log('user.id instanceof Uint8Array:', createOptions.user.id instanceof U
 
     console.log("public key credential request get options: ", getOptions);
     return from(navigator.credentials.get({ publicKey: getOptions }) as Promise<PublicKeyCredential | null>)
-      .pipe(catchError(this.handleNavigatorError));
+      .pipe(
+        catchError(this.handleNavigatorError)
+      );
+
   }
 
   private handleError(error: HttpErrorResponse) {
@@ -304,5 +324,18 @@ console.log('user.id instanceof Uint8Array:', createOptions.user.id instanceof U
       message = error.message;
     }
     return throwError(() => new Error(message));
+  }
+
+  base64urlDecode(input: string): string {
+    // Replace base64url characters with base64 equivalents
+    input = input.replace(/-/g, '+').replace(/_/g, '/');
+
+    // Pad with '=' to make length a multiple of 4
+    while (input.length % 4) {
+      input += '=';
+    }
+
+    // Decode base64 to string
+    return atob(input);
   }
 }

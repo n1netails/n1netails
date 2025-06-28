@@ -15,8 +15,8 @@ public class PasskeyAuthenticationResponseDto {
     public PasskeyAuthenticationResponseDto(
             boolean success,
             String message,
-            String jwtToken
-            , UsersEntity user
+            String jwtToken,
+            UsersEntity user
     ) {
         this.success = success;
         this.message = message;

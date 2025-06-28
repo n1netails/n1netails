@@ -2,10 +2,12 @@ package com.n1netails.n1netails.api.service;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.n1netails.n1netails.api.exception.type.EmailExistException;
 import com.n1netails.n1netails.api.exception.type.UserNotFoundException; // Added this import
 import com.n1netails.n1netails.api.model.dto.passkey.*;
 import com.n1netails.n1netails.api.model.entity.PasskeyCredentialEntity;
 import com.n1netails.n1netails.api.model.entity.UsersEntity;
+import com.n1netails.n1netails.api.model.request.UserRegisterRequest;
 import com.n1netails.n1netails.api.repository.PasskeyCredentialRepository;
 import com.n1netails.n1netails.api.repository.UserRepository;
 import com.yubico.webauthn.*;
@@ -43,6 +45,7 @@ import static com.n1netails.n1netails.api.constant.ProjectSecurityConstant.EXPIR
 public class PasskeyService {
 
     private final UserRepository userRepository;
+    private final UserService userService;
     private final PasskeyCredentialRepository passkeyCredentialRepository;
     private final RelyingParty relyingParty;
     private final Cache<String, PublicKeyCredentialCreationOptions> registrationCache;
@@ -54,6 +57,7 @@ public class PasskeyService {
 
     @Autowired
     public PasskeyService(UserRepository userRepository,
+                          UserService userService,
                           PasskeyCredentialRepository passkeyCredentialRepository,
                           @Value("${n1netails.passkey.relying-party-id}") String rpId,
                           @Value("${n1netails.passkey.relying-party-name}") String rpName,
@@ -63,6 +67,7 @@ public class PasskeyService {
                           JdbcTemplate jdbcTemplate
     ) {
         this.userRepository = userRepository;
+        this.userService = userService;
         this.passkeyCredentialRepository = passkeyCredentialRepository;
         this.jwtEncoder = jwtEncoder;
 
@@ -96,11 +101,23 @@ public class PasskeyService {
 
     // === REGISTRATION ===
     public PasskeyRegistrationStartResponseDto startRegistration(PasskeyRegistrationStartRequestDto request)
-            throws UserNotFoundException, Base64UrlException {
+            throws UserNotFoundException, Base64UrlException, EmailExistException {
 
         log.info("startRegistration user entity");
-        UsersEntity user = userRepository.findUserByEmail(request.getEmail())
-                .orElseThrow(() -> new UserNotFoundException("User not found: " + request.getEmail()));
+//        UsersEntity user = userRepository.findUserByEmail(request.getEmail())
+//                .orElseThrow(() -> new UserNotFoundException("User not found: " + request.getEmail()));
+
+        UsersEntity user;
+        Optional<UsersEntity> optionalUsersEntity = userRepository.findUserByEmail(request.getEmail());
+        if (optionalUsersEntity.isPresent()) {
+            user = optionalUsersEntity.get();
+        } else {
+            log.info("creating new user");
+            UserRegisterRequest userRegisterRequest = new UserRegisterRequest();
+            userRegisterRequest.setEmail(request.getEmail());
+            userRegisterRequest.setUsername(request.getEmail().substring(0, request.getEmail().indexOf('@')));
+            user = this.userService.register(userRegisterRequest);
+        }
 
         log.info("building user identity");
         // Build UserIdentity using staged builder

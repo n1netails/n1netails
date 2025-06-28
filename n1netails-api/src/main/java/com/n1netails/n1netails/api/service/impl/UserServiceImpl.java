@@ -81,7 +81,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public UsersEntity register(UserRegisterRequest newUser) throws UserNotFoundException, EmailExistException {
 
         validateEmail("", newUser.getEmail());
-        String encodedPassword = encodePassword(newUser.getPassword());
+        String encodedPassword;
+        if (newUser.getPassword() == null || newUser.getPassword().isEmpty() || newUser.getPassword().isBlank()) encodedPassword = "";
+        else encodedPassword = encodePassword(newUser.getPassword());
 
         UsersEntity user = new UsersEntity();
         user.setUserId(generateUserId());

@@ -101,6 +101,7 @@ public class UserController {
 
         log.info("attempting user login");
         authenticate(user.getEmail(), user.getPassword());
+        log.info("finding user by email");
         UsersEntity loginUser = userService.findUserByEmail(user.getEmail());
         log.info("logged in users organizations: {}", loginUser.getOrganizations());
         UserPrincipal userPrincipal = new UserPrincipal(loginUser);
@@ -179,6 +180,7 @@ public class UserController {
     }
 
     private void authenticate(String email, String password) {
+        log.info("attempting to authenticate with password");
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
     }
 

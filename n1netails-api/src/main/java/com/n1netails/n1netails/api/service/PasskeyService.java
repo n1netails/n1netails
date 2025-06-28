@@ -8,7 +8,7 @@ import com.n1netails.n1netails.api.model.dto.passkey.*;
 import com.n1netails.n1netails.api.model.entity.PasskeyCredentialEntity;
 import com.n1netails.n1netails.api.model.entity.UsersEntity;
 import com.n1netails.n1netails.api.model.request.UserRegisterRequest;
-import com.n1netails.n1netails.api.repository.PasskeyCredentialRepository;
+//import com.n1netails.n1netails.api.repository.PasskeyCredentialRepository;
 import com.n1netails.n1netails.api.repository.UserRepository;
 import com.yubico.webauthn.*;
 import com.yubico.webauthn.data.*;
@@ -46,7 +46,6 @@ public class PasskeyService {
 
     private final UserRepository userRepository;
     private final UserService userService;
-    private final PasskeyCredentialRepository passkeyCredentialRepository;
     private final RelyingParty relyingParty;
     private final Cache<String, PublicKeyCredentialCreationOptions> registrationCache;
     private final Cache<String, AssertionRequest > authenticationCache;
@@ -58,17 +57,14 @@ public class PasskeyService {
     @Autowired
     public PasskeyService(UserRepository userRepository,
                           UserService userService,
-                          PasskeyCredentialRepository passkeyCredentialRepository,
                           @Value("${n1netails.passkey.relying-party-id}") String rpId,
                           @Value("${n1netails.passkey.relying-party-name}") String rpName,
                           @Value("${n1netails.passkey.origins}") Set<String> origins,
                           JwtEncoder jwtEncoder,
-                          AuthenticationManager authenticationManager,
                           JdbcTemplate jdbcTemplate
     ) {
         this.userRepository = userRepository;
         this.userService = userService;
-        this.passkeyCredentialRepository = passkeyCredentialRepository;
         this.jwtEncoder = jwtEncoder;
 
         RelyingPartyIdentity rpIdentity = RelyingPartyIdentity.builder()
@@ -104,9 +100,6 @@ public class PasskeyService {
             throws UserNotFoundException, Base64UrlException, EmailExistException {
 
         log.info("startRegistration user entity");
-//        UsersEntity user = userRepository.findUserByEmail(request.getEmail())
-//                .orElseThrow(() -> new UserNotFoundException("User not found: " + request.getEmail()));
-
         UsersEntity user;
         Optional<UsersEntity> optionalUsersEntity = userRepository.findUserByEmail(request.getEmail());
         if (optionalUsersEntity.isPresent()) {
@@ -126,14 +119,6 @@ public class PasskeyService {
                 .displayName(user.getFirstName() + " " + user.getLastName())
                 .id(generateUserHandle(user))
                 .build();
-
-        log.info("building exclude credentials");
-        // Build excludeCredentials using correct builder
-        List<PublicKeyCredentialDescriptor> excludeCredentials = passkeyCredentialRepository.findAllByUser(user).stream()
-                .map(cred -> PublicKeyCredentialDescriptor.builder()
-                        .id(new ByteArray(cred.getCredentialId()))
-                        .build())
-                .toList();
 
         log.info("building authenticator");
         // Build authenticator selection with builder

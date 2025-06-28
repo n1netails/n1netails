@@ -21,7 +21,6 @@ public class ProjectSecurityConstant {
             "/ninetails/auth/passkey/**",
             "/ninetails/alert",
             "/ninetails/alert/**",
-            "/ninetails/llm/**", // remove this later
             "/"
     };
 

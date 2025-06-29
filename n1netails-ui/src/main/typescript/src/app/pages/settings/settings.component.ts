@@ -72,15 +72,12 @@ export class SettingsComponent implements OnInit {
     this.loadTokens(); // Load tokens on init
     this.tailLevelService.getTailLevels().subscribe((response: TailLevelResponse[]) => {
       this.tailLevels = response;
-      console.log('tail levels:', this.tailLevels);
     });
     this.tailStatusService.getTailStatusList().subscribe((response: TailStatusResponse[]) => {
       this.tailStatuses = response;
-      console.log('tail statuses:', this.tailStatuses);
     });
     this.tailTypeService.getTailTypes().subscribe((response: TailTypeResponse[]) => {
       this.tailTypes = response;
-      console.log('tail types:', this.tailTypes);
       this.updateAlertTypeOptions(); // Call after loading tail types
     });
   }
@@ -91,7 +88,6 @@ export class SettingsComponent implements OnInit {
     this.errorMessage = '';
     this.n1neTokenService.getAllTokensByUserId(this.user.id).subscribe({
       next: (data) => {
-        console.log('TOKEN DATA:', data);
         this.tokens = data;
         this.isLoading = false;
       },
@@ -130,7 +126,6 @@ export class SettingsComponent implements OnInit {
       request.expiresAt = new Date(this.newTokenRequestForm.expiresAt).toISOString();
     }
 
-    console.log('Create token request:', request);
     this.n1neTokenService.createToken(request).subscribe({
       next: () => {
         this.newTokenRequestForm = {}; // Reset form
@@ -207,7 +202,6 @@ export class SettingsComponent implements OnInit {
     const tailLevel: TailLevel = { name: this.newTailLevel, description: '', deletable: true }
     if (this.newTailLevel && !this.tailLevels.some(level => level.name === tailLevel.name)) {
       this.tailLevelService.createTailLevel(tailLevel).subscribe(response => {
-        console.log('TailLevel created:', response);
         this.tailLevels.push(response);
         this.newTailLevel = '';
       });

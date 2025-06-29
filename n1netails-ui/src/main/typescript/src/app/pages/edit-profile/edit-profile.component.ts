@@ -89,7 +89,6 @@ export class EditProfileComponent implements OnInit, OnDestroy {
 
     // Password Reset
   onPasswordReset() {
-    console.log('REQUEST TO RESET PASSWORD');
     this.passwordResetSuccessMessage = '';
     this.passwordResetErrorMessage = '';
 
@@ -102,9 +101,6 @@ export class EditProfileComponent implements OnInit, OnDestroy {
       this.passwordResetErrorMessage = 'User email is not available.';
       return;
     }
-
-    console.log('new password:', this.newPassword);
-    console.log('user email', this.user.email);
 
     this.authenticationService.resetPassword(this.user.email, this.newPassword).subscribe({
       next: () => {
@@ -147,18 +143,12 @@ export class EditProfileComponent implements OnInit, OnDestroy {
       this.presentToast('Error', 'Please enter a email to register with a passkey.');
       return;
     }
-    console.log(`Attempting to register with passkey for email: ${email}`);
-    this.isLoading = true;
-    // TODO: Call PasskeyService to start registration flow
     this.isLoading = true;
     const domain = window.location.hostname;
 
-    console.log("email: ", email);
-    console.log("domain: ", domain);
     this.subscriptions.push(
       this.passkeyService.startPasskeyRegistration(email, domain).subscribe({
         next: (startResponse) => {
-          console.log("start passkey response: ", startResponse);
           if (startResponse && startResponse.options) {
             console.log("creating pass key");
             this.passkeyService.createPasskey(startResponse.options).subscribe({
@@ -168,7 +158,7 @@ export class EditProfileComponent implements OnInit, OnDestroy {
                   // Prompt for a friendly name for the key, or generate one
                   const friendlyName = prompt("Enter a name for this passkey (e.g., 'My Laptop Chrome')", "My Passkey");
 
-                  console.log("FINISHING PASSKEY REGISTRATION");
+                  console.log("Finishing passkey registration");
                   this.passkeyService.finishPasskeyRegistration(startResponse.flowId, credential, friendlyName || undefined).subscribe({
                     next: (finishResponse) => {
                       if (finishResponse.success) {

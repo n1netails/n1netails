@@ -75,9 +75,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     const email = (this.loginForm?.value as User)?.email; // Using email field for login
     console.log(`Attempting to login with passkey, email (if provided): ${email}`);
     this.isLoading = true;
-    // TODO: Call PasskeyService to start authentication flow
-    this.isLoading = true;
-    const domain = window.location.hostname; // Or a configured RP ID domain
+    const domain = window.location.hostname;
 
     this.subscriptions.push(
       this.passkeyService.startPasskeyAuthentication(email || undefined, domain).subscribe({

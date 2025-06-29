@@ -134,7 +134,7 @@ public class PasskeyServiceImpl implements PasskeyService {
         PublicKeyCredentialCreationOptions credentialCreationOptions = relyingParty.startRegistration(options);
         String flowId = generateFlowId();
         registrationCache.put(flowId, credentialCreationOptions);
-        log.info("registration cache flow id: {}", flowId);
+        log.info("Registration cache populated for flowId: {}", flowId);
         log.info("Started passkey registration for user: {}, flowId: {}", user.getUsername(), flowId);
         return new PasskeyRegistrationStartResponseDto(flowId, credentialCreationOptions);
     }
@@ -143,7 +143,7 @@ public class PasskeyServiceImpl implements PasskeyService {
     @Transactional
     public boolean finishRegistration(PasskeyRegistrationFinishRequestDto request) throws UserNotFoundException {
 
-        log.info("finish registration public key credentials creation options");
+        log.info("Attempting to finish passkey registration for flowId: {}", request.getFlowId());
         PublicKeyCredentialCreationOptions creationOptions = registrationCache.getIfPresent(request.getFlowId());
         if (creationOptions == null) {
             log.warn("Passkey registration flow ID {} not found or expired.", request.getFlowId());
@@ -151,7 +151,7 @@ public class PasskeyServiceImpl implements PasskeyService {
         }
         // Do NOT invalidate from cache immediately, finishRegistration might need it if it internally calls credentialRepository methods that check the cache
 
-        log.info("RETRIEVING REGISTRATION RESULT");
+        log.debug("Retrieved PublicKeyCredentialCreationOptions from cache for flowId: {}", request.getFlowId());
         try {
             RegistrationResult registrationResult = relyingParty.finishRegistration(FinishRegistrationOptions.builder()
                     .request(creationOptions)
@@ -164,11 +164,10 @@ public class PasskeyServiceImpl implements PasskeyService {
                  .orElseThrow(() -> new UserNotFoundException("User " + creationOptions.getUser().getName() + " not found during finish registration."));
 
 
-            log.info("passkey credential entity");
+            log.info("generating passkey credential entity");
             PasskeyCredentialEntity passkeyCredential = new PasskeyCredentialEntity();
             passkeyCredential.setUser(user);
             passkeyCredential.setCredentialId(registrationResult.getKeyId().getId().getBytes());
-            log.info("REGISTRATION RESULT PUBLIC KEY COSE: {}", registrationResult.getPublicKeyCose().getBytes());
             byte[] pkBytes = registrationResult.getPublicKeyCose().getBytes();
             passkeyCredential.setPublicKeyCose(pkBytes);
 
@@ -205,14 +204,16 @@ public class PasskeyServiceImpl implements PasskeyService {
 
             attData.ifPresent(ad -> passkeyCredential.setAaguid(UUID.nameUUIDFromBytes(ad.getAaguid().getBytes())));
 
-            log.info("ATTEMPTING PASSKEY CREDENTIAL REPOSITORY SAVE");
+            log.info("Attempting to save new passkey credential for user: {}", user.getUsername());
             passkeyCredentialRepository.savePasskeyCredential(passkeyCredential);
             registrationCache.invalidate(request.getFlowId()); // Invalidate after successful save
-            log.info("Successfully registered passkey for user: {}, credentialId: {}", user.getUsername(), passkeyCredential.getCredentialId());
+            log.info("Successfully registered passkey for user: {}. Credential ID (first 8 bytes): {}", user.getUsername(),
+                    Base64.getEncoder().encodeToString(Arrays.copyOf(passkeyCredential.getCredentialId(), 8)));
             return true;
         } catch (RegistrationFailedException e) {
             registrationCache.invalidate(request.getFlowId()); // Invalidate on failure too
-            log.error("Passkey registration failed for user: {}. Reason: {}", creationOptions.getUser().getName(), e.getMessage(), e);
+            log.error("Passkey registration failed for user with handle: {}. FlowId: {}. Reason: {}",
+                    creationOptions.getUser().getDisplayName(), request.getFlowId(), e.getMessage(), e);
             return false; // Or throw specific exception
         }
     }
@@ -249,24 +250,19 @@ public class PasskeyServiceImpl implements PasskeyService {
         String flowId = generateFlowId();
         AssertionRequest assertionRequest = relyingParty.startAssertion(options);
         authenticationCache.put(flowId, assertionRequest);
-        log.info("Start Assertion Request: {}", assertionRequest);
-
         PublicKeyCredentialRequestOptions credentialCreationOptions = assertionRequest.getPublicKeyCredentialRequestOptions();
 
-        log.info("Started passkey authentication, flowId: {}. For user (if provided): {}", flowId, request.getEmail());
+        String userHint = request.getEmail() != null && !request.getEmail().isBlank() ? "email hint provided" : "discoverable credential";
+        log.info("Started passkey authentication. FlowId: {}. User hint: {}", flowId, userHint);
         return new PasskeyAuthenticationStartResponseDto(flowId, credentialCreationOptions);
     }
 
     @Override
     @Transactional
     public PasskeyAuthenticationResponseDto finishAuthentication(PasskeyAuthenticationFinishRequestDto request) {
-        log.info("finish authentication");
-        log.info("flow id: {}", request.getFlowId());
-        log.info("credential: {}", request.getCredential());
+        log.info("Attempting to finish passkey authentication for flowId: {}", request.getFlowId());
 
-        request.setCredential(request.getCredential());
         AssertionRequest requestOptions = authenticationCache.getIfPresent(request.getFlowId());
-        log.info("Finish Assertion Request: {}", requestOptions);
         if (requestOptions == null) {
             log.warn("Passkey authentication flow ID {} not found or expired.", request.getFlowId());
             return new PasskeyAuthenticationResponseDto(false, "Authentication flow expired or invalid.");
@@ -274,74 +270,68 @@ public class PasskeyServiceImpl implements PasskeyService {
         // Do NOT invalidate from cache immediately for the same reasons as registration
 
         try {
-            log.info("finish authentication assertion result");
+            log.debug("Calling relyingParty.finishAssertion for flowId: {}", request.getFlowId());
             AssertionResult assertionResult = relyingParty.finishAssertion(FinishAssertionOptions.builder()
                     .request(requestOptions)
                     .response(request.getCredential())
                     .build());
 
             if (assertionResult.isSuccess()) {
-                log.info("finish authentication assertion result success");
-                // IMPORTANT: Update the signature count in the database
-                // The JpaCredentialRepository's updateSignatureCount method will be called by the library if configured correctly.
-                // If not, or for belt-and-suspenders, ensure it's done:
-                log.info("finish authentication assertion result findByCredentialId");
-                log.info("credential: {}", assertionResult.getCredentialId());
-                log.info("credential base 64: {}", assertionResult.getCredentialId().getBase64Url());
-                Optional<PasskeySummary> optionalPasskeySummary = passkeyCredentialRepository.findPasskeyByCredentialId(assertionResult.getCredentialId().getBytes());
+                log.info("Passkey assertion successful for user handle: {}, credentialId (first 8 bytes): {}",
+                        assertionResult.getUserHandle().getBase64Url(), Base64.getEncoder().encodeToString(Arrays.copyOf(assertionResult.getCredentialId().getBytes(), 8)));
 
+                Optional<PasskeySummary> optionalPasskeySummary = passkeyCredentialRepository.findPasskeyByCredentialId(assertionResult.getCredentialId().getBytes());
                 if(optionalPasskeySummary.isPresent()){
                     PasskeySummary cred = optionalPasskeySummary.get();
                     cred.setSignatureCount(assertionResult.getSignatureCount());
                     cred.setLastUsedAt(new Date());
-                    log.info("saving passkey credential");
+                    log.debug("Updating signature count and last used time for credentialId (first 8 bytes): {}", Base64.getEncoder().encodeToString(Arrays.copyOf(cred.getCredentialId(), 8)));
                     passkeyCredentialRepository.updatePasskeySummary(cred);
                 } else {
-                     log.error("Passkey credential {} not found during finishAuthentication for signature count update.", assertionResult.getCredentialId().getBase64Url());
+                    log.error("Passkey credential (first 8 bytes: {}) not found for signature count update. User handle from assertion: {}",
+                            Base64.getEncoder().encodeToString(Arrays.copyOf(assertionResult.getCredentialId().getBytes(), 8)), assertionResult.getUserHandle().getBase64Url());
                 }
 
-                log.info("finish authentication assertion result UsersEntity");
-                log.info("assertion result username: {}", assertionResult.getUsername());
+                log.debug("Attempting to find user by user handle from assertion: {}", assertionResult.getUserHandle().getBase64Url());
                 UsersEntity user = userRepository.findUserByEmail(assertionResult.getUsername()).orElseThrow(
-                        () -> new UserNotFoundException("user not found by email for passkey")
+                        () -> {
+                            log.error("User (associated with user handle {}) not found in database using email from assertion. FlowId: {}",
+                                    assertionResult.getUserHandle().getBase64Url(), request.getFlowId());
+                            return new UserNotFoundException("Authenticated user not found.");
+                        }
                 );
-                if (user == null) {
-                    // This can happen if the username from assertion doesn't match any user.
-                    // Or if the user was deleted between start and finish.
-                    log.error("User {} from passkey assertion not found in database.", assertionResult.getUsername());
-                    authenticationCache.invalidate(request.getFlowId());
-                    return new PasskeyAuthenticationResponseDto(false, "Authenticated user not found.");
-                }
+                log.info("User {} (associated with user handle {}) found. Updating last login date.", user.getUsername(), assertionResult.getUserHandle().getBase64Url());
 
                 // Update user's last login date
                 user.setLastLoginDateDisplay(new Date());
                 user.setLastLoginDate(new Date());
-                log.info("saving user");
                 user = userRepository.save(user);
+                log.debug("User {} last login date updated.", user.getUsername());
 
                 UserPrincipal userPrincipal = new UserPrincipal(user);
-
-                // Manually create an Authentication object for the SecurityContext
-                // This mimics what Spring Security would do for a password login
-                // Note: For passkeys, authorities are usually derived from the user's existing roles, not the passkey itself.
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userPrincipal, null, userPrincipal.getAuthorities());
 
                 String jwtToken = jwtTokenUtil.createToken(userPrincipal);
                 authenticationCache.invalidate(request.getFlowId());
 
-                UsersEntity passkeyUser = userRepository.findUserByEmail(user.getEmail()).orElseThrow(() -> new UserNotFoundException("User not located by email for passkey"));
-                log.info("Successfully authenticated user {} with passkey credentialId: {}", user.getUsername(), assertionResult.getCredentialId().getBase64Url());
+                UsersEntity passkeyUser = userRepository.findUserByEmail(user.getEmail()).orElseThrow(() -> new UserNotFoundException("User not located by email for passkey post-authentication"));
+                log.info("Successfully authenticated user {} with passkey. FlowId: {}", user.getUsername(), request.getFlowId());
                 return new PasskeyAuthenticationResponseDto(true, "Authentication successful", jwtToken, passkeyUser);
             } else {
-                log.info("finish authentication assertion result fail");
                 authenticationCache.invalidate(request.getFlowId());
-                log.warn("Passkey assertion failed for credentialId: {}. Username from assertion: {}", request.getCredential().getId().getBase64Url(), assertionResult.getUsername());
+                log.warn("Passkey assertion failed for flowId: {}. User handle from assertion (if available): {}",
+                        request.getFlowId(), assertionResult.getUserHandle() != null ? assertionResult.getUserHandle().getBase64Url() : "N/A");
                 return new PasskeyAuthenticationResponseDto(false, "Authentication failed.");
             }
         } catch (AssertionFailedException | UserNotFoundException e) {
             authenticationCache.invalidate(request.getFlowId());
-            log.error("Passkey assertion failed. Credential ID: {}. Message: {}", request.getCredential().getId().getBase64Url(), e.getMessage(), e);
+            String credentialIdExtract = "N/A";
+            if (request.getCredential() != null) {
+                try {
+                    credentialIdExtract = Base64.getEncoder().encodeToString(Arrays.copyOf(request.getCredential().getId().getBytes(), 8));
+                } catch (Exception ignored) {}
+            }
+            log.error("Passkey assertion failed for flowId: {}. Credential ID (first 8 bytes, if available): {}. Message: {}",
+                    request.getFlowId(), credentialIdExtract, e.getMessage(), e);
             return new PasskeyAuthenticationResponseDto(false, "Authentication failed: " + e.getMessage());
         }
     }

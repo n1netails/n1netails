@@ -106,7 +106,6 @@ export class TailsComponent implements OnInit {
 
     this.tailDataService.getTails(request).subscribe({
       next: (response: TailPageResponse<Tail>) => {
-        console.log('response content', response.content);
         response.content.forEach(tail => {
           tail.selected = false;
           this.tails.push(tail);
@@ -130,17 +129,14 @@ export class TailsComponent implements OnInit {
   loadTailInfoData(): void {
     this.tailLevelService.getTailLevels().subscribe(result => {
       result.forEach(level => this.tailLevels.push(level.name));
-      console.log('LEVELS', this.tailLevels);
     });
 
     this.tailStatusService.getTailStatusList().subscribe(result => {
       result.forEach(status => this.tailStatusList.push(status.name));
-      console.log('STATUS', this.tailStatusList);
     });
 
     this.tailTypeService.getTailTypes().subscribe(result => {
       result.forEach(type => this.tailTypes.push(type.name));
-      console.log('TYPE', this.tailTypes);
     });
   }
 

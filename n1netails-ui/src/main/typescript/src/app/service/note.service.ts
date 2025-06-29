@@ -21,12 +21,10 @@ export class NoteService {
   }
 
   getNotesByTailId(tailId: number): Observable<Note[]> {
-    console.log(`NoteService: Fetching notes for tailId ${tailId}`);
     return this.http.get<Note[]>(`${this.host}/tail/${tailId}`);
   }
 
   saveNote(note: Note): Observable<Note> {
-    console.log('NoteService: Saving note:', note);
     return this.http.post<Note>(this.host, note);
   }
 

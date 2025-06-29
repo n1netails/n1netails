@@ -119,8 +119,6 @@ export class PasskeyService {
       return throwError(() => new Error('Passkey authentication (WebAuthn) is not supported by this browser.'));
     }
 
-    console.log(" OPTIONS: ", options);
-
     // options.extensions.appidExclude
     // Need to convert challenge and user.id from base64url to ArrayBuffer
     const createOptions: any = {
@@ -167,15 +165,7 @@ export class PasskeyService {
       });
     }
 
-    console.log("CREATE OPTIONS: ", createOptions);
-
-    console.log('challenge byteLength:', createOptions.challenge.byteLength);
-    console.log('challenge instanceof ArrayBuffer:', createOptions.challenge instanceof ArrayBuffer);
-    console.log('user.id instanceof Uint8Array:', createOptions.user.id instanceof Uint8Array);
-    console.log('user.id: ', createOptions.user.id);
-
-    console.log("NAVIGATOR CREDENTIALS CREATE");
-    console.log('CREATE OPTIONS (final):', JSON.stringify(createOptions, null, 2));
+    // console.log('CREATE OPTIONS (final):', JSON.stringify(createOptions, null, 2));
     return from(navigator.credentials.create({ publicKey: createOptions }) as Promise<PublicKeyCredential | null>)
       .pipe(catchError(this.handleNavigatorError));
   }
@@ -229,8 +219,6 @@ export class PasskeyService {
   // Wrapper for navigator.credentials.get()
   getPasskey(options: PublicKeyCredentialRequestOptions): Observable<PublicKeyCredential | null> {
     console.log("get passkey");
-    console.log("public key credential request options: ", options);
-    
     if (!this.checkWebAuthnSupport()) {
       return throwError(() => new Error('Passkey authentication (WebAuthn) is not supported by this browser.'));
     }
@@ -262,7 +250,7 @@ export class PasskeyService {
       }
     }
 
-    console.log("public key credential request get options: ", getOptions);
+    // console.log("public key credential request get options: ", getOptions);
     return from(navigator.credentials.get({ publicKey: getOptions }) as Promise<PublicKeyCredential | null>)
       .pipe(
         catchError(this.handleNavigatorError)

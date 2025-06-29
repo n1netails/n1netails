@@ -30,6 +30,19 @@ function arrayBufferToBase64url(buffer: ArrayBuffer): string {
   return window.btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
 
+function base64urlDecode(input: string): string {
+  // Replace base64url characters with base64 equivalents
+  input = input.replace(/-/g, '+').replace(/_/g, '/');
+
+  // Pad with '=' to make length a multiple of 4
+  while (input.length % 4) {
+    input += '=';
+  }
+
+  // Decode base64 to string
+  return atob(input);
+}
+
 
 @Injectable({
   providedIn: 'root'
@@ -60,7 +73,6 @@ export class PasskeyService {
   }
 
   // --- REGISTRATION ---
-
   startPasskeyRegistration(email: string, domain: string): Observable<PasskeyRegistrationStartResponseDto> {
     if (!this.checkWebAuthnSupport()) {
       return throwError(() => new Error('Passkey authentication (WebAuthn) is not supported by this browser.'));
@@ -122,7 +134,7 @@ export class PasskeyService {
       user: {
         ...options.user,
         id: typeof options.user.id === 'string'
-          ? new TextEncoder().encode(this.base64urlDecode(options.user.id)).buffer
+          ? new TextEncoder().encode(base64urlDecode(options.user.id)).buffer
           : options.user.id,
       },
       // Ensure pubKeyCredParams if any are correctly formatted (usually fine)
@@ -302,18 +314,5 @@ export class PasskeyService {
       message = error.message;
     }
     return throwError(() => new Error(message));
-  }
-
-  base64urlDecode(input: string): string {
-    // Replace base64url characters with base64 equivalents
-    input = input.replace(/-/g, '+').replace(/_/g, '/');
-
-    // Pad with '=' to make length a multiple of 4
-    while (input.length % 4) {
-      input += '=';
-    }
-
-    // Decode base64 to string
-    return atob(input);
   }
 }

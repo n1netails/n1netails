@@ -13,10 +13,21 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-edit-profile',
-  imports: [NzLayoutModule,NzGridModule,NzCardModule,NzAvatarModule,HeaderComponent,SidenavComponent,NzFormModule,FormsModule],
+  imports: [
+    NzLayoutModule,
+    NzGridModule,
+    NzCardModule,
+    NzAvatarModule,
+    HeaderComponent,
+    SidenavComponent,
+    NzFormModule,
+    FormsModule,
+    CommonModule
+  ],
   templateUrl: './edit-profile.component.html',
   styleUrl: './edit-profile.component.less'
 })
@@ -26,6 +37,11 @@ export class EditProfileComponent implements OnInit, OnDestroy {
   usernameInput: string = "";
   firstNameInput: string = "";
   lastNameInput: string = "";
+
+  // Password Reset
+  newPassword: string = '';
+  passwordResetSuccessMessage: string = '';
+  passwordResetErrorMessage: string = '';
 
   subscriptions: Subscription[] = [];
 
@@ -64,6 +80,41 @@ export class EditProfileComponent implements OnInit, OnDestroy {
         }
       });
     this.subscriptions.push(sub);
+  }
+
+    // Password Reset
+  onPasswordReset() {
+    console.log('REQUEST TO RESET PASSWORD');
+    this.passwordResetSuccessMessage = '';
+    this.passwordResetErrorMessage = '';
+
+    if (!this.newPassword) {
+      this.passwordResetErrorMessage = 'New password cannot be empty.';
+      return;
+    }
+
+    if (!this.user || !this.user.email) {
+      this.passwordResetErrorMessage = 'User email is not available.';
+      return;
+    }
+
+    console.log('new password:', this.newPassword);
+    console.log('user email', this.user.email);
+
+    this.authenticationService.resetPassword(this.user.email, this.newPassword).subscribe({
+      next: () => {
+        this.passwordResetSuccessMessage = 'Password updated successfully.';
+        console.log('Password updated successfully.');
+        this.newPassword = '';
+        this.presentToast('Success', 'Password updated successfully.');
+      },
+      error: (error) => {
+        this.passwordResetErrorMessage = 'Failed to update password. The password needs to contain at least 8 characters, 1 uppercase character, and 1 special character.';
+        console.error('Failed to update password:', error);
+        this.newPassword = '';
+        this.presentToast('Error', this.passwordResetErrorMessage);
+      }
+    });
   }
 
   private async presentToast(type: string, message: string) {

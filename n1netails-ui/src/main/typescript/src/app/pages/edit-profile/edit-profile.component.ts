@@ -15,6 +15,7 @@ import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { CommonModule } from '@angular/common';
 import { PasskeyService } from '../../service/passkey.service';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 
 @Component({
   selector: 'app-edit-profile',
@@ -23,6 +24,7 @@ import { PasskeyService } from '../../service/passkey.service';
     NzGridModule,
     NzCardModule,
     NzAvatarModule,
+    NzIconModule,
     HeaderComponent,
     SidenavComponent,
     NzFormModule,

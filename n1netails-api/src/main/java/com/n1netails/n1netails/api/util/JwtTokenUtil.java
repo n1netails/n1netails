@@ -24,7 +24,7 @@ public class JwtTokenUtil {
     public String createToken(UserPrincipal userPrincipal) {
         log.info("== createToken");
         JwtClaimsSet claimsSet = JwtClaimsSet.builder()
-                .issuer("self") // TODO: Make configurable
+                .issuer("self")
                 .issuedAt(Instant.now())
                 .expiresAt(Instant.now().plusSeconds(EXPIRATION_TIME)) // EXPIRATION_TIME from constants
                 .subject(userPrincipal.getUsername()) // email

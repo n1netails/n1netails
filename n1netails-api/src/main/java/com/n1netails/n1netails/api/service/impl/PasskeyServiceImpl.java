@@ -147,7 +147,7 @@ public class PasskeyServiceImpl implements PasskeyService {
         PublicKeyCredentialCreationOptions creationOptions = registrationCache.getIfPresent(request.getFlowId());
         if (creationOptions == null) {
             log.warn("Passkey registration flow ID {} not found or expired.", request.getFlowId());
-            return false; // todo throw specific exception
+            return false;
         }
         // Do NOT invalidate from cache immediately, finishRegistration might need it if it internally calls credentialRepository methods that check the cache
 

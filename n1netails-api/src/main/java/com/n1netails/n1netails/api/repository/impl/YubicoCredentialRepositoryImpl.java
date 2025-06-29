@@ -47,7 +47,7 @@ public class YubicoCredentialRepositoryImpl implements CredentialRepository {
             try {
                 credentialRegistration = toCredentialRegistration(passkeySummary);
             } catch (Base64UrlException e) {
-                // todo add custom exception
+                log.error("Error occurred Generating Credential Registration by Username {}", e.getMessage());
                 throw new RuntimeException(e);
             }
             set.add(credentialRegistration);
@@ -87,7 +87,7 @@ public class YubicoCredentialRepositoryImpl implements CredentialRepository {
                 log.info("generate user handle");
                 return generateUserHandle(u);
             } catch (Exception e) {
-                // todo add custom exception
+                log.error("Exception occurred when attempting to generate user handle {}", e.getMessage());
                 throw new RuntimeException(e);
             }
         }); // Use the same generation logic
@@ -125,7 +125,7 @@ public class YubicoCredentialRepositoryImpl implements CredentialRepository {
                     try {
                         return getRegistrationsByUsername(email);
                     } catch (UserNotFoundException e) {
-                        // todo add custom exception
+                        log.error("User not found when attempting to get registration by user handle {}", e.getMessage());
                         throw new RuntimeException(e);
                     }
                 })

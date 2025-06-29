@@ -14,6 +14,7 @@ import com.n1netails.n1netails.api.model.response.HttpErrorResponse;
 import com.n1netails.n1netails.api.repository.UserRepository;
 import com.n1netails.n1netails.api.service.AuthorizationService;
 import com.n1netails.n1netails.api.service.UserService;
+import com.n1netails.n1netails.api.util.JwtTokenUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -27,13 +28,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.jwt.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.AccessDeniedException;
-import java.time.Instant;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -53,10 +50,9 @@ public class UserController {
 
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
-    private final JwtEncoder jwtEncoder;
-//    private final JwtDecoder jwtDecoder;
     private final AuthorizationService authorizationService;
     private final UserRepository userRepository;
+    private final JwtTokenUtil jwtTokenUtil;
 
     @Operation(
             summary = "Edit user profile",
@@ -186,26 +182,7 @@ public class UserController {
 
     private HttpHeaders setJwtHeader(UserPrincipal userPrincipal) {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Jwt-Token", createToken(userPrincipal));
+        headers.add("Jwt-Token", jwtTokenUtil.createToken(userPrincipal));
         return headers;
-    }
-
-    private String createToken(UserPrincipal userPrincipal) {
-        JwtClaimsSet claimsSet = JwtClaimsSet.builder()
-                .issuer("self")
-                .issuedAt(Instant.now())
-                .expiresAt(Instant.now().plusSeconds(EXPIRATION_TIME))
-                .subject(userPrincipal.getUsername())
-                .claim("authorities", createAuthorities(userPrincipal))  // use list format
-                .build();
-
-        JwtEncoderParameters parameters = JwtEncoderParameters.from(claimsSet);
-        return jwtEncoder.encode(parameters).getTokenValue();
-    }
-
-    private List<String> createAuthorities(UserPrincipal userPrincipal) {
-        return userPrincipal.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
     }
 }

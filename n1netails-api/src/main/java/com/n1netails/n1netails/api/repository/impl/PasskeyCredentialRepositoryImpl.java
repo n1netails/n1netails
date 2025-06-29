@@ -9,8 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -99,7 +98,6 @@ public class PasskeyCredentialRepositoryImpl implements PasskeyCredentialReposit
                 ps.getUserHandle(),
                 ps.getId()
         );
-
         log.info("PASSKEY SUMMARY SAVED");
         ps.setId(generatedId);
     }
@@ -128,7 +126,6 @@ public class PasskeyCredentialRepositoryImpl implements PasskeyCredentialReposit
                 p.getUserHandle(),
                 p.getUvInitialized()
         );
-
         p.setId(generatedId);
     }
 }

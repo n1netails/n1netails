@@ -2,7 +2,7 @@ package com.n1netails.n1netails.api.controller;
 
 import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
 import com.n1netails.n1netails.api.model.dto.passkey.*;
-import com.n1netails.n1netails.api.service.PasskeyService;
+import com.n1netails.n1netails.api.service.impl.PasskeyServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATIO
 @RequestMapping(path = {"/ninetails/auth/passkey"}, produces = APPLICATION_JSON)
 public class PasskeyController {
 
-    private final PasskeyService passkeyService;
+    private final PasskeyServiceImpl passkeyService;
 
     @Operation(summary = "Start Passkey Registration", description = "Initiates the passkey registration process for a user.")
     @PostMapping(value = "/register/start", consumes = APPLICATION_JSON)

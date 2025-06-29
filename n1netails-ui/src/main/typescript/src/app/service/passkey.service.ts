@@ -311,7 +311,9 @@ export class PasskeyService {
           message = `Error during passkey operation: ${error.message} (${error.name})`;
       }
     } else if (error instanceof Error) {
-      message = error.message;
+      console.error('Not instance of DOMException', error.message);
+      // message = error.message;
+      message = `There was an error registering the passkey one might already exist for this account on your current device.`;
     }
     return throwError(() => new Error(message));
   }

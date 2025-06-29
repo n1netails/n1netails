@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { PasskeyService } from '../../service/passkey.service'; // Import PasskeyService
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { Subscription } from 'rxjs';
 import { User } from '../../model/user';
@@ -24,7 +23,6 @@ export class RegisterComponent implements OnInit, OnDestroy {
   constructor(
     private notification: NzNotificationService,
     private authenticationService: AuthenticationService,
-    private passkeyService: PasskeyService, // Inject PasskeyService
     private router: Router,
   ) {}
 
@@ -96,76 +94,6 @@ export class RegisterComponent implements OnInit, OnDestroy {
       return false;
     }
     return true;
-  }
-
-  public onRegisterWithPasskey(): void {
-    // Get email from the form; consider making this more explicit for passkey flow
-    const email = (this.registerForm?.value as User)?.email;
-    if (!email || email.trim() === '') {
-      this.presentToast('Please enter a email to register with a passkey.');
-      return;
-    }
-    console.log(`Attempting to register with passkey for email: ${email}`);
-    this.isLoading = true;
-    // TODO: Call PasskeyService to start registration flow
-    this.isLoading = true;
-    const domain = window.location.hostname;
-
-    console.log("email: ", email);
-    console.log("domain: ", domain);
-    this.subscriptions.push(
-      this.passkeyService.startPasskeyRegistration(email, domain).subscribe({
-        next: (startResponse) => {
-          console.log("start passkey response: ", startResponse);
-          if (startResponse && startResponse.options) {
-            console.log("creating pass key");
-            this.passkeyService.createPasskey(startResponse.options).subscribe({
-              next: (credential) => {
-                if (credential) {
-
-                  // Prompt for a friendly name for the key, or generate one
-                  const friendlyName = prompt("Enter a name for this passkey (e.g., 'My Laptop Chrome')", "My Passkey");
-
-                  console.log("FINISHING PASSKEY REGISTRATION");
-                  this.passkeyService.finishPasskeyRegistration(startResponse.flowId, credential, friendlyName || undefined).subscribe({
-                    next: (finishResponse) => {
-                      if (finishResponse.success) {
-                        this.notification.success('Success', 'Passkey registration successful! Please log in.', { nzPlacement: 'topRight' });
-                        this.router.navigate(['/login']); // Navigate to login after successful passkey registration
-                      } else {
-                        this.presentToast(`Passkey registration failed: ${finishResponse.message}`);
-                      }
-                      this.isLoading = false;
-                    },
-                    error: (err) => {
-                      console.error('Error finishing passkey registration:', err);
-                      this.presentToast(err.message || 'An unknown error occurred while finishing passkey registration.');
-                      this.isLoading = false;
-                    }
-                  });
-                } else {
-                  this.presentToast('Passkey creation was cancelled or failed.');
-                  this.isLoading = false;
-                }
-              },
-              error: (err) => {
-                console.error('Error creating passkey credential:', err);
-                this.presentToast(err.message || 'Could not create passkey. User may have cancelled or an error occurred.');
-                this.isLoading = false;
-              }
-            });
-          } else {
-            this.presentToast('Failed to start passkey registration process.');
-            this.isLoading = false;
-          }
-        },
-        error: (err) => {
-          console.error('Error starting passkey registration:', err);
-          this.presentToast(err.message || 'An unknown error occurred while starting passkey registration.');
-          this.isLoading = false;
-        }
-      })
-    );
   }
 
   // Access to the form to get values if needed by onRegisterWithPasskey

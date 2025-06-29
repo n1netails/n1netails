@@ -76,13 +76,13 @@
           </nz-col>
         </nz-row> 
         <nz-row [nzGutter]="8">
-          <nz-col [nzSpan]="24">
-
+          <nz-col [nzSpan]="12">
             <nz-card nzTitle="Password Reset" class="tails-primary-color" [nzBordered]="false">
               <div *ngIf="passwordResetErrorMessage" style="color: #ff4d4f; margin-bottom: 12px; font-weight: 500;">
                 {{ passwordResetErrorMessage }}
               </div>
               <div style="width: 100%;">
+                <p>Reset your account password here.</p>
                 <form nz-form (ngSubmit)="onPasswordReset()" #passwordForm="ngForm" class="password-form">
                   <nz-form-item style="margin-bottom: 0;">
                     <nz-form-label [nzSpan]="10" nzFor="newPassword" nzRequired>New Password: </nz-form-label>
@@ -103,13 +103,22 @@
                 </form>
               </div>
             </nz-card>
-
           </nz-col>
-        </nz-row>
-        <nz-row [nzGutter]="8">
-          <nz-col [nzSpan]="24">
+          <nz-col [nzSpan]="12">
             <nz-card nzTitle="Register Passkey" class="tails-primary-color" [nzBordered]="false">
-
+              <div>
+                <p>Register a new passkey for your account. (Can be used as a backup for logging in.)</p>
+                <button
+                  nz-button
+                  nzType="default"
+                  (click)="onRegisterWithPasskey()"
+                  class="login-btn passkey-btn"
+                  type="button"
+                  style="min-width: 140px; margin-left: 126px; display: block;"
+                >
+                  Register Passkey
+                </button>
+              </div>
             </nz-card>
           </nz-col>
         </nz-row>

@@ -49,6 +49,7 @@
       nzType="default"
       (click)="onLoginWithPasskey()"
       class="login-btn passkey-btn"
+      [disabled]="loginForm.value.password"
       type="button"
     >
       Login with a Passkey

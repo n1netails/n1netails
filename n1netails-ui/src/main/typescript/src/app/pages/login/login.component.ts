@@ -50,8 +50,9 @@ export class LoginComponent implements OnInit, OnDestroy {
           form.resetForm();
         },
         error: (errorResponse: HttpErrorResponse) => {
-          this.presentToast('Error logging in please try again later. ' + errorResponse.error.message);;
-          console.error('Error: ', errorResponse);
+          const displayMessage = errorResponse.error?.message || 'An unknown error occurred.';
+          this.presentToast('Error logging in please try again later. ' + displayMessage);
+          console.error(`Login form submission error: Status ${errorResponse.status}. Message: ${displayMessage}`, errorResponse.error);
           this.isLoading = false;
         }
       })
@@ -59,7 +60,11 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   private async presentToast(message: string) {
-    this.notification.error('Error', "Error logging in please try again later.", {
+    // Ensure the message passed to presentToast is already sanitized or generic.
+    // The original 'Error logging in please try again later.' seems fine.
+    // If 'message' itself comes from an unsafe source, it needs sanitization here too.
+    // For now, assuming 'message' is a developer-crafted string or a sanitized server message.
+    this.notification.error('Error', message, { // Using the passed message directly
       nzPlacement: 'topRight',
       nzDuration: 10000
     });
@@ -72,10 +77,12 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   public onLoginWithPasskey(): void {
-    const email = (this.loginForm?.value as User)?.email; // Using email field for login
-    console.log(`Attempting to login with passkey, email (if provided): ${email}`);
-    this.isLoading = true;
-    // TODO: Call PasskeyService to start authentication flow
+    const email = (this.loginForm?.value as User)?.email;
+    if (email) {
+      console.log(`Attempting to login with passkey for user (email provided).`);
+    } else {
+      console.log(`Attempting to login with passkey (discoverable credential).`);
+    }
     this.isLoading = true;
     const domain = window.location.hostname; // Or a configured RP ID domain
 
@@ -100,29 +107,35 @@ export class LoginComponent implements OnInit, OnDestroy {
                       this.isLoading = false;
                     },
                     error: (err) => {
-                      console.error('Error finishing passkey authentication:', err);
+                      // err.message should be the sanitized message from passkey.service.ts
+                      console.error('Error finishing passkey authentication:', err.message ? err.message : err);
                       this.presentToast(err.message || 'An unknown error occurred while finishing passkey login.');
                       this.isLoading = false;
                     }
                   });
                 } else {
+                  // This case implies credential was null, user might have cancelled.
+                  console.log('Passkey assertion was cancelled by user or failed before finishing.');
                   this.presentToast('Passkey assertion was cancelled or failed.');
                   this.isLoading = false;
                 }
               },
               error: (err) => {
-                console.error('Error getting passkey credential:', err);
+                // err.message should be the sanitized message from passkey.service.ts
+                console.error('Error getting passkey credential:', err.message ? err.message : err);
                 this.presentToast(err.message || 'Could not get passkey. User may have cancelled or an error occurred.');
                 this.isLoading = false;
               }
             });
           } else {
+            console.warn('Failed to start passkey authentication process, startResponse or options missing.');
             this.presentToast('Failed to start passkey authentication process.');
             this.isLoading = false;
           }
         },
         error: (err) => {
-          console.error('Error starting passkey authentication:', err);
+          // err.message should be the sanitized message from passkey.service.ts
+          console.error('Error starting passkey authentication:', err.message ? err.message : err);
           this.presentToast(err.message || 'An unknown error occurred while starting passkey login.');
           this.isLoading = false;
         }

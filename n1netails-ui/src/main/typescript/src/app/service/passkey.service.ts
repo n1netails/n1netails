@@ -114,12 +114,12 @@ export class PasskeyService {
 
   // Wrapper for navigator.credentials.create()
   createPasskey(options: PublicKeyCredentialCreationOptions): Observable<PublicKeyCredential | null> {
-    console.log("create passkey checking for web authn support");
+    // console.log("create passkey checking for web authn support"); // Debug only
     if (!this.checkWebAuthnSupport()) {
       return throwError(() => new Error('Passkey authentication (WebAuthn) is not supported by this browser.'));
     }
 
-    console.log(" OPTIONS: ", options);
+    // console.log(" OPTIONS (raw from backend): ", options); // Debug only, potentially sensitive
 
     // options.extensions.appidExclude
     // Need to convert challenge and user.id from base64url to ArrayBuffer
@@ -167,15 +167,14 @@ export class PasskeyService {
       });
     }
 
-    console.log("CREATE OPTIONS: ", createOptions);
+    // console.log("CREATE OPTIONS (before navigator.credentials.create): ", createOptions); // Debug only, potentially sensitive
+    // console.log('challenge byteLength:', createOptions.challenge.byteLength); // Debug only
+    // console.log('challenge instanceof ArrayBuffer:', createOptions.challenge instanceof ArrayBuffer); // Debug only
+    // console.log('user.id instanceof Uint8Array:', createOptions.user.id instanceof Uint8Array); // Debug only
+    // console.log('user.id: ', createOptions.user.id); // Debug only
 
-    console.log('challenge byteLength:', createOptions.challenge.byteLength);
-    console.log('challenge instanceof ArrayBuffer:', createOptions.challenge instanceof ArrayBuffer);
-    console.log('user.id instanceof Uint8Array:', createOptions.user.id instanceof Uint8Array);
-    console.log('user.id: ', createOptions.user.id);
-
-    console.log("NAVIGATOR CREDENTIALS CREATE");
-    console.log('CREATE OPTIONS (final):', JSON.stringify(createOptions, null, 2));
+    // console.log("NAVIGATOR CREDENTIALS CREATE"); // Debug only
+    // console.log('CREATE OPTIONS (final JSON):', JSON.stringify(createOptions, null, 2)); // Debug only, highly sensitive
     return from(navigator.credentials.create({ publicKey: createOptions }) as Promise<PublicKeyCredential | null>)
       .pipe(catchError(this.handleNavigatorError));
   }
@@ -200,7 +199,7 @@ export class PasskeyService {
     const requestBody = {
       flowId: flowId,
       credential: {
-        id: arrayBufferToBase64url(credential.rawId),
+        id: arrayBufferToBase64url(credential.rawId), // This is the credential ID, often logged by servers already.
         rawId: arrayBufferToBase64url(credential.rawId),
         response: {
           authenticatorData: arrayBufferToBase64url(assertionResponse.authenticatorData),
@@ -212,6 +211,7 @@ export class PasskeyService {
         clientExtensionResults: credential.getClientExtensionResults(),
       }
     };
+    // console.log("Finish Auth Request Body:", JSON.stringify(requestBody, null, 2)); // Highly sensitive, do not log in production.
     return this.http.post<PasskeyAuthenticationResponseDto>(`${this.host}/login/finish`, requestBody)
       .pipe(
         map(response => {
@@ -228,41 +228,47 @@ export class PasskeyService {
 
   // Wrapper for navigator.credentials.get()
   getPasskey(options: PublicKeyCredentialRequestOptions): Observable<PublicKeyCredential | null> {
-    console.log("get passkey");
-    console.log("public key credential request options: ", options);
+    // console.log("getPasskey invoked"); // Debug only
+    // console.log("Raw PublicKeyCredentialRequestOptions from backend: ", options); // Debug only, potentially sensitive (challenge, allowCredentials)
     
     if (!this.checkWebAuthnSupport()) {
       return throwError(() => new Error('Passkey authentication (WebAuthn) is not supported by this browser.'));
     }
 
     const getOptions: any = {
-      // ...options,
       challenge: base64urlToArrayBuffer(options.challenge as unknown as string),
       allowCredentials: options.allowCredentials?.map((cred: any) => {
         return {
           type: cred.type,
-          id: base64urlToArrayBuffer(cred.id),
+          id: base64urlToArrayBuffer(cred.id), // Credential IDs themselves might be logged by server, but raw list here is verbose
           transports: Array.isArray(cred.transports) && cred.transports.every((t: any) => typeof t === 'string')
             ? cred.transports
-            : undefined // skip transports if invalid
+            : undefined
         };
       })
+      // rpId: options.rpId, // rpId is usually fine
+      // userVerification: options.userVerification, // usually fine
+      // timeout: options.timeout // usually fine
+      // extensions: options.extensions // extensions can sometimes have sensitive data
     };
+     if (options.rpId) getOptions.rpId = options.rpId;
+     if (options.userVerification) getOptions.userVerification = options.userVerification;
+     if (options.timeout) getOptions.timeout = options.timeout;
+     if (options.extensions) getOptions.extensions = options.extensions;
 
-    // Sanitize appid if present
+
+    // Sanitize appid if present (though less common for .get())
     if (getOptions.extensions && (getOptions.extensions as any)['appid']) {
       try {
-        // Throws if not a valid URL
         if (getOptions.extensions.appid) {
           new URL((options.extensions as any)['appid']);
         }
       } catch {
-        // If invalid, set to window.location.origin (recommended) or remove
         (getOptions.extensions as any)['appid'] = window.location.origin;
       }
     }
 
-    console.log("public key credential request get options: ", getOptions);
+    // console.log("Processed PublicKeyCredentialRequestOptions for navigator.credentials.get: ", getOptions); // Debug only, still potentially sensitive
     return from(navigator.credentials.get({ publicKey: getOptions }) as Promise<PublicKeyCredential | null>)
       .pipe(
         catchError(this.handleNavigatorError)
@@ -271,24 +277,33 @@ export class PasskeyService {
   }
 
   private handleError(error: HttpErrorResponse) {
-    console.error('Backend API Error:', error);
+    // Avoid logging the entire 'error' object as it might contain sensitive request/response data.
+    console.error(`Backend API Error: Status ${error.status}, URL: ${error.url}`);
     let errorMessage = 'An unknown error occurred with the server.';
     if (error.error instanceof ErrorEvent) {
-      // Client-side or network error
       errorMessage = `Client error: ${error.error.message}`;
+      console.error(`Client-side or network error: ${error.error.message}`);
     } else if (error.status === 0) {
       errorMessage = 'Cannot connect to the server. Please check your network connection.';
-    } else if (error.error && error.error.message) {
-      // Backend error with a message
+      console.error(errorMessage);
+    } else if (error.error && typeof error.error.message === 'string') {
       errorMessage = error.error.message;
+      console.error(`Backend error message: ${errorMessage}`);
+    } else if (typeof error.message === 'string') {
+      errorMessage = error.message;
+      console.error(`Error message: ${errorMessage}`);
     } else if (error.statusText) {
       errorMessage = `Server error: ${error.status} ${error.statusText}`;
+      console.error(errorMessage);
+    } else {
+      console.error('Full HttpErrorResponse (use for debugging only, may contain sensitive data):', error);
     }
     return throwError(() => new Error(errorMessage));
   }
 
   private handleNavigatorError(error: any) {
-    console.error('Navigator Credentials Error:', error);
+    // Log specific properties rather than the whole error object.
+    console.error(`Navigator Credentials Error: Name: ${error.name}, Message: ${error.message}`);
     let message = 'An unexpected error occurred during the passkey operation.';
     if (error instanceof DOMException) {
       switch (error.name) {

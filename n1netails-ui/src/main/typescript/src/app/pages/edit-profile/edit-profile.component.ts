@@ -80,8 +80,9 @@ export class EditProfileComponent implements OnInit, OnDestroy {
           this.presentToast('Success','Updated profile successfully');
         },
         error: (errorResponse: HttpErrorResponse) => {
-          console.error(errorResponse);
-          this.presentToast('Error','Error updating profile');
+          const displayMessage = errorResponse.error?.message || 'An unknown error occurred.';
+          console.error(`Error updating profile: Status ${errorResponse.status}. Message: ${displayMessage}`, errorResponse.error);
+          this.presentToast('Error','Error updating profile. ' + displayMessage);
         }
       });
     this.subscriptions.push(sub);
@@ -103,19 +104,21 @@ export class EditProfileComponent implements OnInit, OnDestroy {
       return;
     }
 
-    console.log('new password:', this.newPassword);
-    console.log('user email', this.user.email);
+    // console.log('new password:', this.newPassword); // Sensitive
+    // console.log('user email', this.user.email); // Sensitive
 
     this.authenticationService.resetPassword(this.user.email, this.newPassword).subscribe({
       next: () => {
         this.passwordResetSuccessMessage = 'Password updated successfully.';
-        console.log('Password updated successfully.');
+        console.log('Password updated successfully for current user.');
         this.newPassword = '';
         this.presentToast('Success', 'Password updated successfully.');
       },
       error: (error) => {
         this.passwordResetErrorMessage = 'Failed to update password. The password needs to contain at least 8 characters, 1 uppercase character, and 1 special character.';
-        console.error('Failed to update password:', error);
+        // Log specific error properties if available and safe, otherwise a generic message
+        const errMessage = error.error?.message || error.message || 'No specific error message available.';
+        console.error(`Failed to update password: ${errMessage}`, error);
         this.newPassword = '';
         this.presentToast('Error', this.passwordResetErrorMessage);
       }
@@ -140,69 +143,66 @@ export class EditProfileComponent implements OnInit, OnDestroy {
   }
 
   public onRegisterWithPasskey(): void {
-    // Get email from the form; consider making this more explicit for passkey flow
-    // const email = (this.registerForm?.value as User)?.email;
     const email = this.user.email;
     if (!email || email.trim() === '') {
-      this.presentToast('Error', 'Please enter a email to register with a passkey.');
+      this.presentToast('Error', 'User email is not available for passkey registration.'); // Changed message slightly
       return;
     }
-    console.log(`Attempting to register with passkey for email: ${email}`);
-    this.isLoading = true;
-    // TODO: Call PasskeyService to start registration flow
+    console.log(`Attempting to register with passkey for current user.`);
     this.isLoading = true;
     const domain = window.location.hostname;
 
-    console.log("email: ", email);
-    console.log("domain: ", domain);
+    // console.log("email: ", email); // Sensitive, already logged above in a safer way
+    // console.log("domain: ", domain); // Fine, but redundant if debugging startPasskeyRegistration
     this.subscriptions.push(
       this.passkeyService.startPasskeyRegistration(email, domain).subscribe({
         next: (startResponse) => {
-          console.log("start passkey response: ", startResponse);
+          // console.log("start passkey response: ", startResponse); // Highly sensitive (contains PublicKeyCredentialCreationOptions)
           if (startResponse && startResponse.options) {
-            console.log("creating pass key");
+            console.log("Starting client-side passkey creation process...");
             this.passkeyService.createPasskey(startResponse.options).subscribe({
               next: (credential) => {
                 if (credential) {
-
-                  // Prompt for a friendly name for the key, or generate one
                   const friendlyName = prompt("Enter a name for this passkey (e.g., 'My Laptop Chrome')", "My Passkey");
-
-                  console.log("FINISHING PASSKEY REGISTRATION");
+                  console.log("Finishing passkey registration with server...");
                   this.passkeyService.finishPasskeyRegistration(startResponse.flowId, credential, friendlyName || undefined).subscribe({
                     next: (finishResponse) => {
                       if (finishResponse.success) {
                         this.notification.success('Success', 'Passkey registration successful! You can now login using your passkey in the future.', { nzPlacement: 'topRight' });
-                        // this.router.navigate(['/login']); // Navigate to login after successful passkey registration
                       } else {
                         this.presentToast('Error', `Passkey registration failed: ${finishResponse.message}`);
                       }
                       this.isLoading = false;
                     },
                     error: (err) => {
-                      console.error('Error finishing passkey registration:', err);
+                      // err.message should be the sanitized message from passkey.service.ts
+                      console.error('Error finishing passkey registration:', err.message ? err.message : err);
                       this.presentToast('Error', err.message || 'An unknown error occurred while finishing passkey registration.');
                       this.isLoading = false;
                     }
                   });
                 } else {
+                  console.log('Passkey creation was cancelled by user or failed before finishing.');
                   this.presentToast('Error', 'Passkey creation was cancelled or failed.');
                   this.isLoading = false;
                 }
               },
               error: (err) => {
-                console.error('Error creating passkey credential:', err);
+                // err.message should be the sanitized message from passkey.service.ts
+                console.error('Error creating passkey credential:', err.message ? err.message : err);
                 this.presentToast('Error', err.message || 'Could not create passkey. User may have cancelled or an error occurred.');
                 this.isLoading = false;
               }
             });
           } else {
+            console.warn('Failed to start passkey registration process, startResponse or options missing.');
             this.presentToast('Error', 'Failed to start passkey registration process.');
             this.isLoading = false;
           }
         },
         error: (err) => {
-          console.error('Error starting passkey registration:', err);
+          // err.message should be the sanitized message from passkey.service.ts
+          console.error('Error starting passkey registration:', err.message ? err.message : err);
           this.presentToast('Error', err.message || 'An unknown error occurred while starting passkey registration.');
           this.isLoading = false;
         }

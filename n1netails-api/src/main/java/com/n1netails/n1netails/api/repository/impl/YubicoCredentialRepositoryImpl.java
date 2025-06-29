@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.Optional;
@@ -34,57 +35,63 @@ public class YubicoCredentialRepositoryImpl implements CredentialRepository {
     private final PasskeyCredentialRepository passkeyCredentialRepository;
     private final UserRepository userRepository;
 
-    public Set<CredentialRegistration> getRegistrationsByUsername(String email) throws UserNotFoundException {
-        log.info("== getRegistrationsByUsername: {}", email);
-        UsersEntity user = userRepository.findUserByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("user not found for passkey getRegistrationsByUsername"));
-        if (user == null) return Set.of();
+    public Set<CredentialRegistration> getRegistrationsByUsername(String emailAsUsername) throws UserNotFoundException {
+        log.info("== getRegistrationsByUsername for a provided username hint (which is an email).");
+        UsersEntity user = userRepository.findUserByEmail(emailAsUsername)
+                .orElseThrow(() -> {
+                    log.warn("User not found using the provided email hint during getRegistrationsByUsername.");
+                    return new UserNotFoundException("User not found for passkey getRegistrationsByUsername using provided email hint.");
+                });
 
         Set<CredentialRegistration> set = new HashSet<>();
-        log.info("== attempting to run for loop in findPasskeyByUserIdForUserRegistration(user.getId())");
+        log.debug("Attempting to find passkeys by userId: {} (username: {})", user.getId(), user.getUsername());
         for (PasskeySummary passkeySummary : passkeyCredentialRepository.findPasskeyByUserIdForUserRegistration(user.getId())) {
             CredentialRegistration credentialRegistration = null;
             try {
                 credentialRegistration = toCredentialRegistration(passkeySummary);
             } catch (Base64UrlException e) {
-                log.error("Error occurred Generating Credential Registration by Username {}", e.getMessage());
+                log.error("Error occurred Generating Credential Registration for user {}: {}", user.getUsername(), e.getMessage(), e);
                 throw new RuntimeException(e);
             }
             set.add(credentialRegistration);
         }
+        log.info("Found {} registrations for user: {}", set.size(), user.getUsername());
         return set;
     }
 
     @Override
-    public Set<PublicKeyCredentialDescriptor> getCredentialIdsForUsername(String username) {
-        log.info("== getCredentialIdsForUsername: {}", username);
-        // Fetch all registrations for the username
-        Set<CredentialRegistration> registrations = null;
+    public Set<PublicKeyCredentialDescriptor> getCredentialIdsForUsername(String usernameAsEmail) {
+        log.info("== getCredentialIdsForUsername using a provided username hint (which is an email).");
+        Set<CredentialRegistration> registrations;
         try {
-            registrations = getRegistrationsByUsername(username);
+            registrations = getRegistrationsByUsername(usernameAsEmail);
         } catch (UserNotFoundException e) {
+            log.error("UserNotFoundException while getting registrations using username hint (email). Details: {}", e.getMessage());
             throw new RuntimeException(e);
         }
 
-        // Map each registration's credential to a PublicKeyCredentialDescriptor
         return registrations.stream()
-                .map(reg -> PublicKeyCredentialDescriptor.builder()
-                        .id(reg.getCredential().getCredentialId())
-                        .type(PublicKeyCredentialType.PUBLIC_KEY)
-                        // TODO LOOK INTO UNDERSTANDING AND IMPLEMENTING TRANSPORTS
-                        // Optionally include transports if you have them, e.g.:
-                        // .transports(reg.getTransports())
-                        .build())
+                .map(reg -> {
+                    log.debug("Mapping credentialId (first 8 bytes): {} for user associated with the provided email hint.",
+                            Base64.getEncoder().encodeToString(Arrays.copyOf(reg.getCredential().getCredentialId().getBytes(), 8)));
+                    return PublicKeyCredentialDescriptor.builder()
+                            .id(reg.getCredential().getCredentialId())
+                            .type(PublicKeyCredentialType.PUBLIC_KEY)
+                            .build();
+                })
                 .collect(Collectors.toSet());
     }
 
     @Override
-    public Optional<ByteArray> getUserHandleForUsername(String email) {
-        log.info("== getUserHandleForUsername {}", email);
-        UsersEntity user = userRepository.findUserByEmail(email).orElseThrow(() -> new IllegalArgumentException("user does not exist"));
+    public Optional<ByteArray> getUserHandleForUsername(String emailAsUsername) {
+        log.info("== getUserHandleForUsername using a provided username hint (which is an email).");
+        UsersEntity user = userRepository.findUserByEmail(emailAsUsername).orElseThrow(() -> {
+            log.warn("User not found using the provided email hint during getUserHandleForUsername.");
+            return new IllegalArgumentException("User does not exist for the provided email hint.");
+        });
         return Optional.ofNullable(user).map(u -> {
             try {
-                log.info("generate user handle");
+                log.debug("Generating user handle for user: {}", u.getUsername());
                 return generateUserHandle(u);
             } catch (Exception e) {
                 log.error("Exception occurred when attempting to generate user handle {}", e.getMessage());
@@ -95,62 +102,68 @@ public class YubicoCredentialRepositoryImpl implements CredentialRepository {
 
     @Override
     public Optional<String> getUsernameForUserHandle(ByteArray userHandle) {
-        log.info("== getUsernameForUserHandle");
-        log.info("userHandle: {}", userHandle);
-        log.info("userHandle bytes: {}", userHandle.getBytes());
+        log.info("== getUsernameForUserHandle for userHandle (first 8 bytes): {}",
+                userHandle != null ? Base64.getEncoder().encodeToString(Arrays.copyOf(userHandle.getBytes(), 8)) : "N/A");
+        // log.info("userHandle: {}", userHandle); // Sensitive
+        // log.info("userHandle bytes: {}", userHandle.getBytes()); // Sensitive
 
-        log.info("GET USER EMAIL FOR USERHANDLE");
+        log.debug("Attempting to find passkey by userHandle (first 8 bytes): {}",
+                userHandle != null ? Base64.getEncoder().encodeToString(Arrays.copyOf(userHandle.getBytes(), 8)) : "N/A");
         try {
             Optional<PasskeySummary> optionalPasskeySummary = passkeyCredentialRepository.findPasskeyByUserHandle(userHandle.getBytes());
             if (optionalPasskeySummary.isPresent()) {
-                log.info("passkey summary is present");
                 PasskeySummary passkeySummary = optionalPasskeySummary.get();
                 UsersEntity user = userRepository.findUserById(passkeySummary.getUserId());
-                return Optional.of(user.getEmail());
+                // Log the application's username, not the email (which Yubico uses as 'name')
+                log.info("Found application username {} for userHandle (first 8 bytes): {}", user.getUsername(),
+                        userHandle != null ? Base64.getEncoder().encodeToString(Arrays.copyOf(userHandle.getBytes(), 8)) : "N/A");
+                return Optional.of(user.getEmail()); // Still return email as per Yubico's contract, just don't log it directly as "username"
             } else {
-                log.info("passkey summary is not present");
+                log.info("No passkey summary found for userHandle (first 8 bytes): {}",
+                        userHandle != null ? Base64.getEncoder().encodeToString(Arrays.copyOf(userHandle.getBytes(), 8)) : "N/A");
                 return Optional.empty();
             }
-        } catch (NumberFormatException e) {
-            log.error("Could not parse user ID from userHandle: {}", userHandle.getBase64Url(), e);
+        } catch (Exception e) { // Catch broader exceptions if userHandle is malformed or causes issues
+            log.error("Error retrieving username for userHandle (first 8 bytes): {}. Error: {}",
+                    userHandle != null ? Base64.getEncoder().encodeToString(Arrays.copyOf(userHandle.getBytes(), 8)) : "N/A", e.getMessage(), e);
             return Optional.empty();
         }
     }
 
     public Set<CredentialRegistration> getRegistrationsByUserHandle(ByteArray userHandle) {
-        log.info("== getRegistrationsByUserHandle");
-        // Find username from userHandle, then call getRegistrationsByUsername
+        log.info("== getRegistrationsByUserHandle for userHandle (first 8 bytes): {}",
+                userHandle != null ? Base64.getEncoder().encodeToString(Arrays.copyOf(userHandle.getBytes(), 8)) : "N/A");
         Set<CredentialRegistration> credentialRegistrations = getUsernameForUserHandle(userHandle)
                 .map(email -> {
                     try {
                         return getRegistrationsByUsername(email);
                     } catch (UserNotFoundException e) {
-                        log.error("User not found when attempting to get registration by user handle {}", e.getMessage());
-                        throw new RuntimeException(e);
+                        log.error("User not found for email derived from userHandle (first 8 bytes: {}). Error: {}",
+                                userHandle != null ? Base64.getEncoder().encodeToString(Arrays.copyOf(userHandle.getBytes(), 8)) : "N/A", e.getMessage(), e);
+                        throw new RuntimeException(e); // Or handle more gracefully
                     }
                 })
                 .orElse(Set.of());
+        log.info("Found {} registrations for userHandle (first 8 bytes): {}", credentialRegistrations.size(),
+                userHandle != null ? Base64.getEncoder().encodeToString(Arrays.copyOf(userHandle.getBytes(), 8)) : "N/A");
         return credentialRegistrations;
     }
 
-    // This method is used by Yubico library to look up a specific credential.
-    // It's crucial for authentication.
     @Override
     public Optional<RegisteredCredential> lookup(ByteArray credentialId, ByteArray userHandle) {
-        log.info("== lookup");
-        // The userHandle parameter here is the one provided by the authenticator during assertion.
-        // It should match the userHandle stored with the credential.
-        log.info("finding by credential id: {}", credentialId);
-        log.info("finding by credential id base 64 url: {}", credentialId.getBase64Url());
-        log.info("userHandle: {}", userHandle);
+        log.info("== lookup for credentialId (first 8 bytes): {} and userHandle (first 8 bytes): {}",
+                credentialId != null ? Base64.getEncoder().encodeToString(Arrays.copyOf(credentialId.getBytes(), 8)) : "N/A",
+                userHandle != null ? Base64.getEncoder().encodeToString(Arrays.copyOf(userHandle.getBytes(), 8)) : "N/A");
+        // log.info("finding by credential id: {}", credentialId); // Sensitive
+        // log.info("finding by credential id base 64 url: {}", credentialId.getBase64Url()); // Sensitive
+        // log.info("userHandle: {}", userHandle); // Sensitive
 
-        log.info("=================================");
-        log.info("PASSKEY SUMMARY");
         Optional<PasskeySummary> optionalPasskeySummary = passkeyCredentialRepository.findPasskeyByCredentialId(credentialId.getBytes());
         if (optionalPasskeySummary.isPresent()) {
-            log.info("passkey summary: {}", optionalPasskeySummary.get());
             PasskeySummary passkeySummary = optionalPasskeySummary.get();
-            log.info("Credential ID: {}", Base64.getUrlEncoder().encodeToString(passkeySummary.getCredentialId()));
+            // log.info("passkey summary: {}", optionalPasskeySummary.get()); // Sensitive: contains full credentialId, userHandle, publicKeyCose
+            log.debug("Found passkey summary for credentialId (first 8 bytes): {}", Base64.getEncoder().encodeToString(Arrays.copyOf(passkeySummary.getCredentialId(), 8)));
+            // log.info("Credential ID: {}", Base64.getUrlEncoder().encodeToString(passkeySummary.getCredentialId())); // Sensitive
 
             RegisteredCredential registeredCredential = RegisteredCredential.builder()
                     .credentialId(new ByteArray(passkeySummary.getCredentialId()))
@@ -158,29 +171,38 @@ public class YubicoCredentialRepositoryImpl implements CredentialRepository {
                     .publicKeyCose(new ByteArray(passkeySummary.getPublicKeyCose()))
                     .signatureCount(passkeySummary.getSignatureCount())
                     .build();
-            log.info("REGISTERED CREDENTIAL: {}", registeredCredential);
+            // log.info("REGISTERED CREDENTIAL: {}", registeredCredential); // Sensitive: contains credentialId, userHandle, publicKeyCose
+            log.info("Successfully looked up RegisteredCredential for credentialId (first 8 bytes): {}", Base64.getEncoder().encodeToString(Arrays.copyOf(credentialId.getBytes(), 8)));
             return Optional.of(registeredCredential);
         } else {
-            throw new RuntimeException("optional passkey is not present");
+            log.warn("No passkey summary found for credentialId (first 8 bytes): {}",
+                    credentialId != null ? Base64.getEncoder().encodeToString(Arrays.copyOf(credentialId.getBytes(), 8)) : "N/A");
+            // Consider if throwing an exception is appropriate or if an empty Optional is the contract.
+            // For Yubico's library, an empty Optional is usually expected if not found.
+            return Optional.empty();
         }
     }
 
     @Override
     public Set<RegisteredCredential> lookupAll(ByteArray userHandle) {
-        log.info("== lookupAll");
-        log.info("userHandle: {}", userHandle);
+        log.info("== lookupAll for userHandle (first 8 bytes): {}",
+                userHandle != null ? Base64.getEncoder().encodeToString(Arrays.copyOf(userHandle.getBytes(), 8)) : "N/A");
+        // log.info("userHandle: {}", userHandle); // Sensitive
         return getRegistrationsByUserHandle(userHandle).stream()
-                .map(reg -> reg.getCredential()) // CredentialRegistration contains RegisteredCredential
+                .map(CredentialRegistration::getCredential)
                 .collect(Collectors.toSet());
     }
 
     private CredentialRegistration toCredentialRegistration(
             PasskeySummary passkeySummary
     ) throws Base64UrlException {
-        log.info("== toCredentialRegistration PasskeySummary");
-        log.info("passkey summary: {}", passkeySummary);
+        log.debug("== toCredentialRegistration for PasskeySummary with credentialId (first 8 bytes): {}",
+                passkeySummary != null && passkeySummary.getCredentialId() != null ?
+                        Base64.getEncoder().encodeToString(Arrays.copyOf(passkeySummary.getCredentialId(), 8)) : "N/A");
+        // log.info("passkey summary: {}", passkeySummary); // Sensitive
 
         UsersEntity user = userRepository.findUserById(passkeySummary.getUserId());
+        log.debug("User {} found for passkey summary.", user.getUsername());
 
         // Ensure user handle used here is what the library expects (usually the one from UserIdentity)
         UserIdentity userIdentity = UserIdentity.builder()

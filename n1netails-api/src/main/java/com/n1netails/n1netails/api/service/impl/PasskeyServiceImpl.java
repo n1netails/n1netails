@@ -98,11 +98,13 @@ public class PasskeyServiceImpl implements PasskeyService {
         if (optionalUsersEntity.isPresent()) {
             user = optionalUsersEntity.get();
         } else {
-            log.info("creating new user");
-            UserRegisterRequest userRegisterRequest = new UserRegisterRequest();
-            userRegisterRequest.setEmail(request.getEmail());
-            userRegisterRequest.setUsername(request.getEmail().substring(0, request.getEmail().indexOf('@')));
-            user = this.userService.register(userRegisterRequest);
+            // consider adding this part after user email is validated and user ownership of email is confirmed.
+//            log.info("creating new user");
+//            UserRegisterRequest userRegisterRequest = new UserRegisterRequest();
+//            userRegisterRequest.setEmail(request.getEmail());
+//            userRegisterRequest.setUsername(request.getEmail().substring(0, request.getEmail().indexOf('@')));
+//            user = this.userService.register(userRegisterRequest);
+            throw new UserNotFoundException("The requested user does not exist.");
         }
 
         log.info("building user identity");

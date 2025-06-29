@@ -1,7 +1,9 @@
 package com.n1netails.n1netails.api.controller;
 
 import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
+import com.n1netails.n1netails.api.model.UserPrincipal;
 import com.n1netails.n1netails.api.model.dto.passkey.*;
+import com.n1netails.n1netails.api.service.AuthorizationService;
 import com.n1netails.n1netails.api.service.impl.PasskeyServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -13,7 +15,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 
+import java.nio.file.AccessDeniedException;
+
 import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATION_JSON;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -23,20 +28,32 @@ import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATIO
 public class PasskeyController {
 
     private final PasskeyServiceImpl passkeyService;
+    private final AuthorizationService authorizationService;
 
     @Operation(summary = "Start Passkey Registration", description = "Initiates the passkey registration process for a user.")
     @PostMapping(value = "/register/start", consumes = APPLICATION_JSON)
-    public ResponseEntity<PasskeyRegistrationStartResponseDto> startRegistration(@RequestBody PasskeyRegistrationStartRequestDto request) {
-        try {
-            log.info("Received request to start passkey registration for email: {}", request.getEmail());
-            PasskeyRegistrationStartResponseDto response = passkeyService.startRegistration(request);
-            return ResponseEntity.ok(response);
-        } catch (UserNotFoundException e) {
-            log.warn("User not found during start passkey registration: {}", request.getEmail(), e);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
-        } catch (Exception e) {
-            log.error("Error starting passkey registration for email: {}", request.getEmail(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error starting passkey registration", e);
+    public ResponseEntity<PasskeyRegistrationStartResponseDto> startRegistration(
+            @RequestHeader(AUTHORIZATION) String authorizationHeader,
+            @RequestBody PasskeyRegistrationStartRequestDto request
+    ) throws UserNotFoundException, AccessDeniedException {
+
+        UserPrincipal userPrincipal = authorizationService.getCurrentUserPrincipal(authorizationHeader);
+
+        if (userPrincipal.getUser().getEmail().equals(request.getEmail())) {
+            try {
+                log.info("Received request to start passkey registration for email: {}", request.getEmail());
+                PasskeyRegistrationStartResponseDto response = passkeyService.startRegistration(request);
+                return ResponseEntity.ok(response);
+            } catch (UserNotFoundException e) {
+                log.warn("User not found during start passkey registration: {}", request.getEmail(), e);
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+            } catch (Exception e) {
+                log.error("Error starting passkey registration for email: {}", request.getEmail(), e);
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error starting passkey registration", e);
+            }
+        } else {
+            log.warn("User {} attempted to register a passkey of user {} via /register/start endpoint.", userPrincipal.getUsername(), request.getEmail());
+            throw new AccessDeniedException("You can only register passkeys for your own account using this endpoint.");
         }
     }
 

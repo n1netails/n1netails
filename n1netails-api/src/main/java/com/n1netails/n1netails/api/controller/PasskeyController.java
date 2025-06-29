@@ -52,7 +52,7 @@ public class PasskeyController {
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error starting passkey registration", e);
             }
         } else {
-            log.warn("User {} (ID: {}) attempted to register a passkey for a different target user account via /register/start endpoint. Denied.", userPrincipal.getUsername(), userPrincipal.getUserId());
+            log.warn("User {} attempted to register a passkey for a different target user account via /register/start endpoint. Denied.", userPrincipal.getUsername());
             throw new AccessDeniedException("You can only register passkeys for your own account using this endpoint.");
         }
     }
@@ -61,7 +61,7 @@ public class PasskeyController {
     @PostMapping(value = "/register/finish", consumes = APPLICATION_JSON)
     public ResponseEntity<PasskeyApiResponseDto> finishRegistration(@RequestBody PasskeyRegistrationFinishRequestDto request) {
         try {
-            log.info("Received request to finish passkey registration with flowId: {}", request.getFlowId()); // flowId is likely okay to log as it's temporary
+            log.info("Received request to finish passkey registration with flowId: {}", request.getFlowId());
             boolean success = passkeyService.finishRegistration(request);
             if (success) {
                 return ResponseEntity.ok(new PasskeyApiResponseDto(true, "Passkey registration successful."));
@@ -105,7 +105,7 @@ public class PasskeyController {
     @Operation(summary = "Finish Passkey Authentication", description = "Completes the passkey authentication process and returns a JWT if successful.")
     @PostMapping(value = "/login/finish", consumes = APPLICATION_JSON)
     public ResponseEntity<PasskeyAuthenticationResponseDto> finishAuthentication(@RequestBody PasskeyAuthenticationFinishRequestDto request) {
-        log.info("Received request to finish passkey authentication with flowId: {}", request.getFlowId()); // flowId is likely okay to log
+        log.info("Received request to finish passkey authentication with flowId: {}", request.getFlowId());
         try {
             PasskeyAuthenticationResponseDto response = passkeyService.finishAuthentication(request);
             if (response.isSuccess()) {

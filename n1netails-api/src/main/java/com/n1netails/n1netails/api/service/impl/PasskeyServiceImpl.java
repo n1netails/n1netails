@@ -98,7 +98,7 @@ public class PasskeyServiceImpl implements PasskeyService {
         if (optionalUsersEntity.isPresent()) {
             user = optionalUsersEntity.get();
         } else {
-            // consider adding this part after user email is validated and user ownership of email is confirmed.
+// consider adding this part after user email is validated and user ownership of email is confirmed.
 //            log.info("creating new user");
 //            UserRegisterRequest userRegisterRequest = new UserRegisterRequest();
 //            userRegisterRequest.setEmail(request.getEmail());
@@ -135,7 +135,7 @@ public class PasskeyServiceImpl implements PasskeyService {
         String flowId = generateFlowId();
         registrationCache.put(flowId, credentialCreationOptions);
         log.info("Registration cache populated for flowId: {}", flowId);
-        log.info("Started passkey registration process for user with handle: {}, flowId: {}", user.getUserHandle(), flowId);
+        log.info("Started passkey registration process for user with flowId: {}", flowId);
         return new PasskeyRegistrationStartResponseDto(flowId, credentialCreationOptions);
     }
 
@@ -172,7 +172,6 @@ public class PasskeyServiceImpl implements PasskeyService {
             PasskeyCredentialEntity passkeyCredential = new PasskeyCredentialEntity();
             passkeyCredential.setUser(user);
             passkeyCredential.setCredentialId(registrationResult.getKeyId().getId().getBytes());
-            // log.info("REGISTRATION RESULT PUBLIC KEY COSE: {}", registrationResult.getPublicKeyCose().getBytes()); // Sensitive
             byte[] pkBytes = registrationResult.getPublicKeyCose().getBytes();
             passkeyCredential.setPublicKeyCose(pkBytes);
 
@@ -250,7 +249,6 @@ public class PasskeyServiceImpl implements PasskeyService {
         String flowId = generateFlowId();
         AssertionRequest assertionRequest = relyingParty.startAssertion(options);
         authenticationCache.put(flowId, assertionRequest);
-        // log.info("Start Assertion Request: {}", assertionRequest); // assertionRequest contains sensitive info
 
         PublicKeyCredentialRequestOptions requestOptions = assertionRequest.getPublicKeyCredentialRequestOptions();
         String userHint = request.getEmail() != null && !request.getEmail().isBlank() ? "email hint provided" : "discoverable credential";

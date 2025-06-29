@@ -77,6 +77,9 @@ public class YubicoCredentialRepositoryImpl implements CredentialRepository {
                     return PublicKeyCredentialDescriptor.builder()
                             .id(reg.getCredential().getCredentialId())
                             .type(PublicKeyCredentialType.PUBLIC_KEY)
+                            // TODO LOOK INTO UNDERSTANDING AND IMPLEMENTING TRANSPORTS
+                            // Optionally include transports if you have them, e.g.:
+                            // .transports(reg.getTransports())
                             .build();
                 })
                 .collect(Collectors.toSet());
@@ -104,8 +107,6 @@ public class YubicoCredentialRepositoryImpl implements CredentialRepository {
     public Optional<String> getUsernameForUserHandle(ByteArray userHandle) {
         log.info("== getUsernameForUserHandle for userHandle (first 8 bytes): {}",
                 userHandle != null ? Base64.getEncoder().encodeToString(Arrays.copyOf(userHandle.getBytes(), 8)) : "N/A");
-        // log.info("userHandle: {}", userHandle); // Sensitive
-        // log.info("userHandle bytes: {}", userHandle.getBytes()); // Sensitive
 
         log.debug("Attempting to find passkey by userHandle (first 8 bytes): {}",
                 userHandle != null ? Base64.getEncoder().encodeToString(Arrays.copyOf(userHandle.getBytes(), 8)) : "N/A");
@@ -154,16 +155,11 @@ public class YubicoCredentialRepositoryImpl implements CredentialRepository {
         log.info("== lookup for credentialId (first 8 bytes): {} and userHandle (first 8 bytes): {}",
                 credentialId != null ? Base64.getEncoder().encodeToString(Arrays.copyOf(credentialId.getBytes(), 8)) : "N/A",
                 userHandle != null ? Base64.getEncoder().encodeToString(Arrays.copyOf(userHandle.getBytes(), 8)) : "N/A");
-        // log.info("finding by credential id: {}", credentialId); // Sensitive
-        // log.info("finding by credential id base 64 url: {}", credentialId.getBase64Url()); // Sensitive
-        // log.info("userHandle: {}", userHandle); // Sensitive
 
         Optional<PasskeySummary> optionalPasskeySummary = passkeyCredentialRepository.findPasskeyByCredentialId(credentialId.getBytes());
         if (optionalPasskeySummary.isPresent()) {
             PasskeySummary passkeySummary = optionalPasskeySummary.get();
-            // log.info("passkey summary: {}", optionalPasskeySummary.get()); // Sensitive: contains full credentialId, userHandle, publicKeyCose
             log.debug("Found passkey summary for credentialId (first 8 bytes): {}", Base64.getEncoder().encodeToString(Arrays.copyOf(passkeySummary.getCredentialId(), 8)));
-            // log.info("Credential ID: {}", Base64.getUrlEncoder().encodeToString(passkeySummary.getCredentialId())); // Sensitive
 
             RegisteredCredential registeredCredential = RegisteredCredential.builder()
                     .credentialId(new ByteArray(passkeySummary.getCredentialId()))
@@ -171,7 +167,6 @@ public class YubicoCredentialRepositoryImpl implements CredentialRepository {
                     .publicKeyCose(new ByteArray(passkeySummary.getPublicKeyCose()))
                     .signatureCount(passkeySummary.getSignatureCount())
                     .build();
-            // log.info("REGISTERED CREDENTIAL: {}", registeredCredential); // Sensitive: contains credentialId, userHandle, publicKeyCose
             log.info("Successfully looked up RegisteredCredential for credentialId (first 8 bytes): {}", Base64.getEncoder().encodeToString(Arrays.copyOf(credentialId.getBytes(), 8)));
             return Optional.of(registeredCredential);
         } else {
@@ -187,7 +182,6 @@ public class YubicoCredentialRepositoryImpl implements CredentialRepository {
     public Set<RegisteredCredential> lookupAll(ByteArray userHandle) {
         log.info("== lookupAll for userHandle (first 8 bytes): {}",
                 userHandle != null ? Base64.getEncoder().encodeToString(Arrays.copyOf(userHandle.getBytes(), 8)) : "N/A");
-        // log.info("userHandle: {}", userHandle); // Sensitive
         return getRegistrationsByUserHandle(userHandle).stream()
                 .map(CredentialRegistration::getCredential)
                 .collect(Collectors.toSet());
@@ -199,7 +193,6 @@ public class YubicoCredentialRepositoryImpl implements CredentialRepository {
         log.debug("== toCredentialRegistration for PasskeySummary with credentialId (first 8 bytes): {}",
                 passkeySummary != null && passkeySummary.getCredentialId() != null ?
                         Base64.getEncoder().encodeToString(Arrays.copyOf(passkeySummary.getCredentialId(), 8)) : "N/A");
-        // log.info("passkey summary: {}", passkeySummary); // Sensitive
 
         UsersEntity user = userRepository.findUserById(passkeySummary.getUserId());
         log.debug("User {} found for passkey summary.", user.getUsername());

@@ -8,12 +8,10 @@ import com.n1netails.n1netails.api.model.dto.PasskeySummary;
 import com.n1netails.n1netails.api.model.dto.passkey.*;
 import com.n1netails.n1netails.api.model.entity.PasskeyCredentialEntity;
 import com.n1netails.n1netails.api.model.entity.UsersEntity;
-import com.n1netails.n1netails.api.model.request.UserRegisterRequest;
 import com.n1netails.n1netails.api.repository.PasskeyCredentialRepository;
 import com.n1netails.n1netails.api.repository.UserRepository;
 import com.n1netails.n1netails.api.repository.impl.YubicoCredentialRepositoryImpl;
 import com.n1netails.n1netails.api.service.PasskeyService;
-import com.n1netails.n1netails.api.service.UserService;
 import com.n1netails.n1netails.api.util.JwtTokenUtil;
 import com.yubico.webauthn.*;
 import com.yubico.webauthn.data.*;
@@ -24,7 +22,6 @@ import com.yubico.webauthn.exception.RegistrationFailedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,7 +37,6 @@ import static com.n1netails.n1netails.api.util.PasskeyUtil.generateUserHandle;
 public class PasskeyServiceImpl implements PasskeyService {
 
     private final UserRepository userRepository;
-    private final UserService userService;
     private final RelyingParty relyingParty;
     private final Cache<String, PublicKeyCredentialCreationOptions> registrationCache;
     private final Cache<String, AssertionRequest > authenticationCache;
@@ -49,7 +45,6 @@ public class PasskeyServiceImpl implements PasskeyService {
 
     @Autowired
     public PasskeyServiceImpl(UserRepository userRepository,
-                              UserService userService,
                               @Value("${n1netails.passkey.relying-party-id}") String rpId,
                               @Value("${n1netails.passkey.relying-party-name}") String rpName,
                               @Value("${n1netails.passkey.origins}") Set<String> origins,
@@ -57,7 +52,6 @@ public class PasskeyServiceImpl implements PasskeyService {
                               JwtTokenUtil jwtTokenUtil
     ) {
         this.userRepository = userRepository;
-        this.userService = userService;
 
         RelyingPartyIdentity rpIdentity = RelyingPartyIdentity.builder()
                 .id(rpId)
@@ -98,7 +92,7 @@ public class PasskeyServiceImpl implements PasskeyService {
         if (optionalUsersEntity.isPresent()) {
             user = optionalUsersEntity.get();
         } else {
-            // consider adding this part after user email is validated and user ownership of email is confirmed.
+// consider adding this part after user email is validated and user ownership of email is confirmed.
 //            log.info("creating new user");
 //            UserRegisterRequest userRegisterRequest = new UserRegisterRequest();
 //            userRegisterRequest.setEmail(request.getEmail());
@@ -278,9 +272,9 @@ public class PasskeyServiceImpl implements PasskeyService {
 
             if (assertionResult.isSuccess()) {
                 log.info("Passkey assertion successful for user handle: {}, credentialId (first 8 bytes): {}",
-                        assertionResult.getUserHandle().getBase64Url(), Base64.getEncoder().encodeToString(Arrays.copyOf(assertionResult.getCredentialId().getBytes(), 8)));
+                        assertionResult.getCredential().getUserHandle().getBase64Url(), Base64.getEncoder().encodeToString(Arrays.copyOf(assertionResult.getCredential().getCredentialId().getBytes(), 8)));
 
-                Optional<PasskeySummary> optionalPasskeySummary = passkeyCredentialRepository.findPasskeyByCredentialId(assertionResult.getCredentialId().getBytes());
+                Optional<PasskeySummary> optionalPasskeySummary = passkeyCredentialRepository.findPasskeyByCredentialId(assertionResult.getCredential().getCredentialId().getBytes());
                 if(optionalPasskeySummary.isPresent()){
                     PasskeySummary cred = optionalPasskeySummary.get();
                     cred.setSignatureCount(assertionResult.getSignatureCount());
@@ -289,18 +283,18 @@ public class PasskeyServiceImpl implements PasskeyService {
                     passkeyCredentialRepository.updatePasskeySummary(cred);
                 } else {
                     log.error("Passkey credential (first 8 bytes: {}) not found for signature count update. User handle from assertion: {}",
-                            Base64.getEncoder().encodeToString(Arrays.copyOf(assertionResult.getCredentialId().getBytes(), 8)), assertionResult.getUserHandle().getBase64Url());
+                            Base64.getEncoder().encodeToString(Arrays.copyOf(assertionResult.getCredential().getCredentialId().getBytes(), 8)), assertionResult.getCredential().getUserHandle().getBase64Url());
                 }
 
-                log.debug("Attempting to find user by user handle from assertion: {}", assertionResult.getUserHandle().getBase64Url());
+                log.debug("Attempting to find user by user handle from assertion: {}", assertionResult.getCredential().getUserHandle().getBase64Url());
                 UsersEntity user = userRepository.findUserByEmail(assertionResult.getUsername()).orElseThrow(
                         () -> {
                             log.error("User (associated with user handle {}) not found in database using email from assertion. FlowId: {}",
-                                    assertionResult.getUserHandle().getBase64Url(), request.getFlowId());
+                                    assertionResult.getCredential().getUserHandle().getBase64Url(), request.getFlowId());
                             return new UserNotFoundException("Authenticated user not found.");
                         }
                 );
-                log.info("User {} (associated with user handle {}) found. Updating last login date.", user.getUsername(), assertionResult.getUserHandle().getBase64Url());
+                log.info("User {} (associated with user handle {}) found. Updating last login date.", user.getUsername(), assertionResult.getCredential().getUserHandle().getBase64Url());
 
                 // Update user's last login date
                 user.setLastLoginDateDisplay(new Date());
@@ -319,7 +313,7 @@ public class PasskeyServiceImpl implements PasskeyService {
             } else {
                 authenticationCache.invalidate(request.getFlowId());
                 log.warn("Passkey assertion failed for flowId: {}. User handle from assertion (if available): {}",
-                        request.getFlowId(), assertionResult.getUserHandle() != null ? assertionResult.getUserHandle().getBase64Url() : "N/A");
+                        request.getFlowId(), assertionResult.getCredential().getUserHandle().getBase64Url());
                 return new PasskeyAuthenticationResponseDto(false, "Authentication failed.");
             }
         } catch (AssertionFailedException | UserNotFoundException e) {

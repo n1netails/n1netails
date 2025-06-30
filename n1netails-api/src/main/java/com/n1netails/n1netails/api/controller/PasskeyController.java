@@ -99,7 +99,7 @@ public class PasskeyController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("Error starting passkey authentication for {}. Error: {}", logIdentifier, e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error starting passkey authentication", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error starting passkey authentication. Passkey might not exist for provided user email. You have to register an account and create a passkey through the edit profile page.", e);
         }
     }
 

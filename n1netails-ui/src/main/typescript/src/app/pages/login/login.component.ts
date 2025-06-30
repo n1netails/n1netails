@@ -59,7 +59,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   private async presentToast(message: string) {
-    this.notification.error('Error', "Error logging in please try again later.", {
+    this.notification.error('Error', "Error logging in please try again later. " + message, {
       nzPlacement: 'topRight',
       nzDuration: 10000
     });

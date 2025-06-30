@@ -102,6 +102,7 @@ public class YubicoCredentialRepositoryImpl implements CredentialRepository {
         log.debug("Attempting to find passkey by userHandle (first 8 bytes): {}",
                 userHandle != null ? Base64.getEncoder().encodeToString(Arrays.copyOf(userHandle.getBytes(), 8)) : "N/A");
         try {
+            assert userHandle != null;
             Optional<PasskeySummary> optionalPasskeySummary = passkeyCredentialRepository.findPasskeyByUserHandle(userHandle.getBytes());
             if (optionalPasskeySummary.isPresent()) {
                 PasskeySummary passkeySummary = optionalPasskeySummary.get();
@@ -125,6 +126,7 @@ public class YubicoCredentialRepositoryImpl implements CredentialRepository {
         log.info("== getRegistrationsByUserHandle for userHandle (first 8 bytes): {}",
                 userHandle != null ? Base64.getEncoder().encodeToString(Arrays.copyOf(userHandle.getBytes(), 8)) : "N/A");
         // Find username from userHandle, then call getRegistrationsByUsername
+        assert userHandle != null;
         Set<CredentialRegistration> credentialRegistrations = getUsernameForUserHandle(userHandle)
                 .map(email -> {
                     try {
@@ -152,6 +154,7 @@ public class YubicoCredentialRepositoryImpl implements CredentialRepository {
 
         log.info("=================================");
         log.info("PASSKEY SUMMARY");
+        assert credentialId != null;
         Optional<PasskeySummary> optionalPasskeySummary = passkeyCredentialRepository.findPasskeyByCredentialId(credentialId.getBytes());
         if (optionalPasskeySummary.isPresent()) {
             PasskeySummary passkeySummary = optionalPasskeySummary.get();
@@ -179,7 +182,7 @@ public class YubicoCredentialRepositoryImpl implements CredentialRepository {
         log.info("== lookupAll for userHandle (first 8 bytes): {}",
                 userHandle != null ? Base64.getEncoder().encodeToString(Arrays.copyOf(userHandle.getBytes(), 8)) : "N/A");
         return getRegistrationsByUserHandle(userHandle).stream()
-                .map(reg -> reg.getCredential()) // CredentialRegistration contains RegisteredCredential
+                .map(CredentialRegistration::getCredential) // CredentialRegistration contains RegisteredCredential
                 .collect(Collectors.toSet());
     }
 

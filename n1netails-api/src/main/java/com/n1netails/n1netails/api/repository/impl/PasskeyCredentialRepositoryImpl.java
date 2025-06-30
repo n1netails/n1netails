@@ -20,10 +20,13 @@ public class PasskeyCredentialRepositoryImpl implements PasskeyCredentialReposit
 
     @Override
     public Optional<PasskeySummary> findPasskeyByCredentialId(byte[] credentialId) {
-        log.info("findPasskeyByCredentialId: {}", credentialId);
+        log.info("findPasskeyByCredentialId");
         String sql = "SELECT id, credential_id, public_key_cose, signature_count, user_handle, last_used_at, registered_at, user_id FROM ntail.passkey_credentials WHERE credential_id = ?";
 
-        List<PasskeySummary> results = jdbcTemplate.query(sql, new Object[]{credentialId}, (rs, rowNum) ->
+        List<PasskeySummary> results = jdbcTemplate.query(
+                sql,
+                ps -> ps.setBytes(1, credentialId),
+                (rs, rowNum) ->
                         new PasskeySummary(
                                 rs.getLong("id"),
                                 rs.getBytes("credential_id"),
@@ -35,15 +38,19 @@ public class PasskeyCredentialRepositoryImpl implements PasskeyCredentialReposit
                                 rs.getLong("user_id")
                         )
         );
+
         return results.stream().findFirst();
     }
 
     @Override
     public List<PasskeySummary> findPasskeyByUserIdForUserRegistration(Long userId) {
-        log.info("findPasskeyByUserIdForUserRegistration: {}", userId);
+        log.info("findPasskeyByUserIdForUserRegistration");
         String sql = "SELECT id, credential_id, public_key_cose, signature_count, user_handle, last_used_at, registered_at, user_id FROM ntail.passkey_credentials WHERE user_id = ?";
 
-        List<PasskeySummary> results = jdbcTemplate.query(sql, new Object[]{userId}, (rs, rowNum) ->
+        return jdbcTemplate.query(
+                sql,
+                ps -> ps.setLong(1, userId),
+                (rs, rowNum) ->
                 new PasskeySummary(
                         rs.getLong("id"),
                         rs.getBytes("credential_id"),
@@ -55,15 +62,17 @@ public class PasskeyCredentialRepositoryImpl implements PasskeyCredentialReposit
                         rs.getLong("user_id")
                 )
         );
-        return results;
     }
 
     @Override
     public Optional<PasskeySummary> findPasskeyByUserHandle(byte[] userHandle) {
-        log.info("findPasskeyByUserHandle: {}", userHandle);
+        log.info("findPasskeyByUserHandle");
         String sql = "SELECT id, credential_id, public_key_cose, signature_count, user_handle, last_used_at, registered_at, user_id FROM ntail.passkey_credentials WHERE user_handle = ?";
 
-        List<PasskeySummary> results = jdbcTemplate.query(sql, new Object[]{userHandle}, (rs, rowNum) ->
+        List<PasskeySummary> results = jdbcTemplate.query(
+                sql,
+                ps -> ps.setBytes(1, userHandle),
+                (rs, rowNum) ->
                 new PasskeySummary(
                         rs.getLong("id"),
                         rs.getBytes("credential_id"),

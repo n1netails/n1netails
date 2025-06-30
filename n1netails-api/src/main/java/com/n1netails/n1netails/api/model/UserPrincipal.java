@@ -58,4 +58,6 @@ public class UserPrincipal implements UserDetails {
     public Long getId() { return this.user.getId(); }
 
     public Set<OrganizationEntity> getOrganizations() { return this.user.getOrganizations(); }
+
+    public UsersEntity getUser() { return this.user; }
 }

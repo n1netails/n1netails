@@ -36,7 +36,6 @@ export class HeaderComponent {
 
   logOut() {
     this.authenticationService.logOut();
-    console.log('User logged out');
     this.router.navigate(['/login']);
   }
 }

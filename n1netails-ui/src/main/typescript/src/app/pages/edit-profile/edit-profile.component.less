@@ -66,29 +66,84 @@ nz-header {
       background: #181a1b !important;
     }
   }
+}
 
-  button[nz-button] {
-    margin-top: 12px;
-    width: 100%;
-    padding: 14px 0 !important;
-    font-size: 16px;
-    font-weight: 600;
-    background: @primary-color !important;
-    border: none !important;
+button[nz-button] {
+  width: 30%;
+  padding: 7px 0 !important;
+  font-size: 16px;
+  font-weight: 600;
+  background: @primary-color !important;
+  border: none !important;
+  color: #fff !important;
+  border-radius: 6px;
+  transition: background 0.2s;
+  align-self: center;
+
+  &:hover,
+  &:focus {
+    background: @secondary-color !important;
     color: #fff !important;
-    border-radius: 6px;
-    transition: background 0.2s;
-
-    &:hover,
-    &:focus {
-      background: @secondary-color !important;
-      color: #fff !important;
-    }
-
-    &:disabled {
-      background: #444 !important;
-      color: #bbb !important;
-      cursor: not-allowed;
-    }
   }
+
+  &:disabled {
+    background: #444 !important;
+    color: #bbb !important;
+    cursor: not-allowed;
+  }
+}
+
+input[nz-input], .ant-input, .ant-input-affix-wrapper {
+  width: 100%;
+  min-width: 180px;
+  background: #23272b !important;
+  color: #fff !important;
+  border: 1px solid #444 !important;
+  border-radius: 6px !important;
+  font-size: 14px;
+  padding: 8px 12px !important;
+  box-shadow: none !important;
+  outline: none !important;
+  transition: border 0.2s, background 0.2s;
+
+  &::placeholder {
+    color: #b3b3b3 !important;
+    opacity: 1;
+  }
+
+  &:focus {
+    border: 1.5px solid @primary-color !important;
+    background: #181a1b !important;
+  }
+}
+
+.profile-actions-row {
+  display: flex;
+  align-items: stretch;
+  // margin-top: 24px;
+}
+
+.profile-side-card {
+  min-height: 220px; // slightly taller for better spacing
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 100%;
+  position: relative;
+  padding-bottom: 0; // remove if you had extra padding
+}
+
+.card-actions {
+  margin-top: auto; // pushes actions to the bottom
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  width: 100%;
 }

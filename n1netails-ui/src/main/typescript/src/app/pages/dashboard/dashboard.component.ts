@@ -174,7 +174,6 @@ export class DashboardComponent implements OnInit {
       this.mttr = result;
     });
     this.tailMetricsService.mttrLast7Days().subscribe(result => {
-      console.log('MTTR weekly', result);
       this.mttrLineData = {
         labels: result.labels,
         datasets: [{ label: 'MTTR (hours)', data: result.data, borderColor: '#F06D0F', tension: 0.4 }]
@@ -187,7 +186,6 @@ export class DashboardComponent implements OnInit {
       };
     });
     this.tailMetricsService.getTailMonthlySummary(userTimezone).subscribe(result => {
-      console.log("MONTHLY ALERTS DATA", result);
       this.monthlyAlertsData = {
         labels: result.labels,
         datasets: [

@@ -13,10 +13,24 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
+import { CommonModule } from '@angular/common';
+import { PasskeyService } from '../../service/passkey.service';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 
 @Component({
   selector: 'app-edit-profile',
-  imports: [NzLayoutModule,NzGridModule,NzCardModule,NzAvatarModule,HeaderComponent,SidenavComponent,NzFormModule,FormsModule],
+  imports: [
+    NzLayoutModule,
+    NzGridModule,
+    NzCardModule,
+    NzAvatarModule,
+    NzIconModule,
+    HeaderComponent,
+    SidenavComponent,
+    NzFormModule,
+    FormsModule,
+    CommonModule
+  ],
   templateUrl: './edit-profile.component.html',
   styleUrl: './edit-profile.component.less'
 })
@@ -26,12 +40,19 @@ export class EditProfileComponent implements OnInit, OnDestroy {
   usernameInput: string = "";
   firstNameInput: string = "";
   lastNameInput: string = "";
+  isLoading = false;
+
+  // Password Reset
+  newPassword: string = '';
+  passwordResetSuccessMessage: string = '';
+  passwordResetErrorMessage: string = '';
 
   subscriptions: Subscription[] = [];
 
   constructor(
     private notification: NzNotificationService,
     private authenticationService: AuthenticationService,
+    private passkeyService: PasskeyService,
     private userService: UserService,
   ) {}
 
@@ -66,6 +87,37 @@ export class EditProfileComponent implements OnInit, OnDestroy {
     this.subscriptions.push(sub);
   }
 
+    // Password Reset
+  onPasswordReset() {
+    this.passwordResetSuccessMessage = '';
+    this.passwordResetErrorMessage = '';
+
+    if (!this.newPassword) {
+      this.passwordResetErrorMessage = 'New password cannot be empty.';
+      return;
+    }
+
+    if (!this.user || !this.user.email) {
+      this.passwordResetErrorMessage = 'User email is not available.';
+      return;
+    }
+
+    this.authenticationService.resetPassword(this.user.email, this.newPassword).subscribe({
+      next: () => {
+        this.passwordResetSuccessMessage = 'Password updated successfully.';
+        console.log('Password updated successfully.');
+        this.newPassword = '';
+        this.presentToast('Success', 'Password updated successfully.');
+      },
+      error: (error) => {
+        this.passwordResetErrorMessage = 'Failed to update password. The password needs to contain at least 8 characters, 1 uppercase character, and 1 special character.';
+        console.error('Failed to update password:', error);
+        this.newPassword = '';
+        this.presentToast('Error', this.passwordResetErrorMessage);
+      }
+    });
+  }
+
   private async presentToast(type: string, message: string) {
     switch (type) {
       case 'Error':
@@ -81,5 +133,70 @@ export class EditProfileComponent implements OnInit, OnDestroy {
         });
         break;
     }
+  }
+
+  public onRegisterWithPasskey(): void {
+    // Get email from the form; consider making this more explicit for passkey flow
+    // const email = (this.registerForm?.value as User)?.email;
+    const email = this.user.email;
+    if (!email || email.trim() === '') {
+      this.presentToast('Error', 'Please enter a email to register with a passkey.');
+      return;
+    }
+    this.isLoading = true;
+    const domain = window.location.hostname;
+
+    this.subscriptions.push(
+      this.passkeyService.startPasskeyRegistration(email, domain).subscribe({
+        next: (startResponse) => {
+          if (startResponse && startResponse.options) {
+            console.log("creating pass key");
+            this.passkeyService.createPasskey(startResponse.options).subscribe({
+              next: (credential) => {
+                if (credential) {
+
+                  // Prompt for a friendly name for the key, or generate one
+                  const friendlyName = prompt("Enter a name for this passkey (e.g., 'My Laptop Chrome')", "My Passkey");
+
+                  console.log("Finishing passkey registration");
+                  this.passkeyService.finishPasskeyRegistration(startResponse.flowId, credential, friendlyName || undefined).subscribe({
+                    next: (finishResponse) => {
+                      if (finishResponse.success) {
+                        this.notification.success('Success', 'Passkey registration successful! You can now login using your passkey in the future.', { nzPlacement: 'topRight' });
+                        // this.router.navigate(['/login']); // Navigate to login after successful passkey registration
+                      } else {
+                        this.presentToast('Error', `Passkey registration failed: ${finishResponse.message}`);
+                      }
+                      this.isLoading = false;
+                    },
+                    error: (err) => {
+                      console.error('Error finishing passkey registration:', err);
+                      this.presentToast('Error', err.message || 'An unknown error occurred while finishing passkey registration.');
+                      this.isLoading = false;
+                    }
+                  });
+                } else {
+                  this.presentToast('Error', 'Passkey creation was cancelled or failed.');
+                  this.isLoading = false;
+                }
+              },
+              error: (err) => {
+                console.error('Error creating passkey credential:', err);
+                this.presentToast('Error', err.message || 'Could not create passkey. User may have cancelled or an error occurred.');
+                this.isLoading = false;
+              }
+            });
+          } else {
+            this.presentToast('Error', 'Failed to start passkey registration process.');
+            this.isLoading = false;
+          }
+        },
+        error: (err) => {
+          console.error('Error starting passkey registration:', err);
+          this.presentToast('Error', err.message || 'An unknown error occurred while starting passkey registration.');
+          this.isLoading = false;
+        }
+      })
+    );
   }
 }

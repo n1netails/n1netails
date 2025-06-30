@@ -35,3 +35,7 @@ INSERT INTO tail_type (id, name, description) VALUES
 (18, 'PASSWORD_RESET_SUCCESS', 'Password was reset successfully.'),
 (19, 'SYSTEM_RECOVERY', 'System recovered from previous failure.'),
 (20, 'SLA_MET', 'Service level agreement goals were met.');
+
+-- Create n1netails default organization
+INSERT INTO ntail.organization (id, name, description, address, created_at, updated_at)
+VALUES 1, 'n1netails', 'Default n1netails organization', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);

@@ -102,7 +102,6 @@ export class AiChatCardComponent implements OnInit {
           this.notes.push(note as ChatMessage);
         });
         this.isLoadingNotes = false;
-        console.log('NOTES SIZE: ', this.notes.length);
       },
       error: (err) => {
         this.messageService.error('Failed to load notes.');

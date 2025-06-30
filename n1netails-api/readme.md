@@ -59,10 +59,19 @@ Run the project with environment variables.
 - OPENAI_ENABLED (defaults to false)
 - OPENAI_API_KEY (create your own openai api key)
 - OPENAI_API_URL (defaults to https://api.openai.com)
+- N1NETAILS_PASSKEY_RELYING_PARTY_ID (defaults to localhost)
+- N1NETAILS_PASSKEY_ORIGINS (defaults to http://localhost:8080,http://localhost:9900,http://localhost:9901,http://localhost:4200)
 
 Example:
 ```bash
-mvn spring-boot:run -DSPRING_PROFILE_ACTIVE=local -DPORT=9901 -DPOSTGRES_URL=jdbc:postgresql://localhost/n1netails -DPOSTGRES_USERNAME=n1netails -DPOSTGRES_PASSWORD=n1netails
+mvn spring-boot:run 
+-DSPRING_PROFILE_ACTIVE=local 
+-DPORT=9901 
+-DPOSTGRES_URL=jdbc:postgresql://localhost/n1netails 
+-DPOSTGRES_USERNAME=n1netails 
+-DPOSTGRES_PASSWORD=n1netails 
+-DN1NETAILS_PASSKEY_RELYING_PARTY_ID=localhost 
+-DN1NETAILS_PASSKEY_ORIGINS=http://localhost:8080,http://localhost:9900,http://localhost:9901,http://localhost:4200
 ```
 
 ## Deploy Docker Image to Dockerhub

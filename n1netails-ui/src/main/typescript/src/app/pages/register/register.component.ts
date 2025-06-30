@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { NzFormModule } from 'ng-zorro-antd/form';
@@ -95,4 +95,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
     }
     return true;
   }
+
+  // Access to the form to get values if needed by onRegisterWithPasskey
+  @ViewChild('registerForm') registerForm?: NgForm;
 }

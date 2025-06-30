@@ -18,10 +18,9 @@ public class ProjectSecurityConstant {
             "/v3/api-docs/**",
             "/ninetails/user/login",
             "/ninetails/user/register",
+            "/ninetails/auth/passkey/**",
             "/ninetails/alert",
             "/ninetails/alert/**",
-//            "/ninetails/tail/**",
-            "/ninetails/llm/**",
             "/"
     };
 

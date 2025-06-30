@@ -15,7 +15,6 @@ import { User } from '../../model/user';
 import { AuthenticationService } from '../../service/authentication.service';
 import { N1neTokenService, N1neTokenResponse, CreateTokenRequest } from '../../service/n1ne-token.service';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
-import { NzMessageService } from 'ng-zorro-antd/message';
 import { Organization } from '../../model/organization';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 
@@ -48,11 +47,6 @@ export class SettingsComponent implements OnInit {
   isLoading: boolean = false;
   errorMessage: string = '';
 
-  // Password Reset
-  newPassword: string = '';
-  passwordResetSuccessMessage: string = '';
-  passwordResetErrorMessage: string = '';
-
   // Alert Levels, Statuses, Types
   tailLevels: TailLevelResponse[] = [];
   tailStatuses: TailStatusResponse[] = [];
@@ -63,7 +57,6 @@ export class SettingsComponent implements OnInit {
   newTailType: string = '';
 
   constructor(
-    private msg: NzMessageService,
     private authenticationService: AuthenticationService,
     private tailLevelService: TailLevelService,
     private tailStatusService: TailStatusService,
@@ -79,15 +72,12 @@ export class SettingsComponent implements OnInit {
     this.loadTokens(); // Load tokens on init
     this.tailLevelService.getTailLevels().subscribe((response: TailLevelResponse[]) => {
       this.tailLevels = response;
-      console.log('tail levels:', this.tailLevels);
     });
     this.tailStatusService.getTailStatusList().subscribe((response: TailStatusResponse[]) => {
       this.tailStatuses = response;
-      console.log('tail statuses:', this.tailStatuses);
     });
     this.tailTypeService.getTailTypes().subscribe((response: TailTypeResponse[]) => {
       this.tailTypes = response;
-      console.log('tail types:', this.tailTypes);
       this.updateAlertTypeOptions(); // Call after loading tail types
     });
   }
@@ -98,7 +88,6 @@ export class SettingsComponent implements OnInit {
     this.errorMessage = '';
     this.n1neTokenService.getAllTokensByUserId(this.user.id).subscribe({
       next: (data) => {
-        console.log('TOKEN DATA:', data);
         this.tokens = data;
         this.isLoading = false;
       },
@@ -137,7 +126,6 @@ export class SettingsComponent implements OnInit {
       request.expiresAt = new Date(this.newTokenRequestForm.expiresAt).toISOString();
     }
 
-    console.log('Create token request:', request);
     this.n1neTokenService.createToken(request).subscribe({
       next: () => {
         this.newTokenRequestForm = {}; // Reset form
@@ -209,47 +197,11 @@ export class SettingsComponent implements OnInit {
     });
   }
 
-  // Password Reset
-  onPasswordReset() {
-    console.log('REQUEST TO RESET PASSWORD');
-    this.passwordResetSuccessMessage = '';
-    this.passwordResetErrorMessage = '';
-
-    if (!this.newPassword) {
-      this.passwordResetErrorMessage = 'New password cannot be empty.';
-      return;
-    }
-
-    if (!this.user || !this.user.email) {
-      this.passwordResetErrorMessage = 'User email is not available.';
-      return;
-    }
-
-    console.log('new password:', this.newPassword);
-    console.log('user email', this.user.email);
-
-    this.authenticationService.resetPassword(this.user.email, this.newPassword).subscribe({
-      next: () => {
-        this.passwordResetSuccessMessage = 'Password updated successfully.';
-        console.log('Password updated successfully.');
-        this.newPassword = '';
-        this.msg.success('Password updated successfully.');
-      },
-      error: (error) => {
-        this.passwordResetErrorMessage = 'Failed to update password. The password needs to contain at least 8 characters, 1 uppercase character, and 1 special character.';
-        console.error('Failed to update password:', error);
-        this.newPassword = '';
-        this.msg.error(this.passwordResetErrorMessage);
-      }
-    });
-  }
-
   addAlertLevel() {
     console.log('adding level', this.newTailLevel);
     const tailLevel: TailLevel = { name: this.newTailLevel, description: '', deletable: true }
     if (this.newTailLevel && !this.tailLevels.some(level => level.name === tailLevel.name)) {
       this.tailLevelService.createTailLevel(tailLevel).subscribe(response => {
-        console.log('TailLevel created:', response);
         this.tailLevels.push(response);
         this.newTailLevel = '';
       });

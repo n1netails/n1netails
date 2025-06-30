@@ -2,6 +2,7 @@ services:
   #  N1neTails API
   api:
     image: shahidfo/n1netails-api:latest
+# use for local build
 #    build:
 #      context: ./n1netails-api
     container_name: n1netails-api
@@ -22,6 +23,7 @@ services:
   # N1neTails UI
   ui:
     image: shahidfo/n1netails-ui:latest
+# use for local build
 #    build:
 #      context: ./n1netails-ui
     container_name: n1netails-ui
@@ -36,6 +38,7 @@ services:
   # N1neTails Liquibase
   liquibase:
     image: shahidfo/n1netails-liquibase:latest
+# use for local build
 #    build:
 #      context: ./n1netails-liquibase
     container_name: n1netails-liquibase

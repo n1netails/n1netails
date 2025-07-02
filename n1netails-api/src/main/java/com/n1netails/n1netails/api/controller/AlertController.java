@@ -26,7 +26,7 @@ public class AlertController {
     private final N1neTokenService n1neTokenService;
 
     @Operation(summary = "Create a new alert", responses = {
-            @ApiResponse(responseCode = "200", description = "Alert created"),
+            @ApiResponse(responseCode = "204", description = "Alert created"),
             @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
     @PostMapping(consumes = APPLICATION_JSON)

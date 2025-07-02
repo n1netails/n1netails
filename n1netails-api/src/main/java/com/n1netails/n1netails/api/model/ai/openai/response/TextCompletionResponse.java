@@ -1,5 +1,6 @@
 package com.n1netails.n1netails.api.model.ai.openai.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,6 +12,7 @@ import java.util.Map;
 @Getter
 @Setter
 @ToString
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TextCompletionResponse {
 
     private String id;
@@ -42,6 +44,8 @@ public class TextCompletionResponse {
     @JsonProperty("tool_choice")
     private String toolChoice;
     private List<Object> tools;
+    @JsonProperty("top_logprobs")
+    private Integer top_logprobs;
     @JsonProperty("top_p")
     private double topP;
     private String truncation;

@@ -1,13 +1,35 @@
-# N1neTails Deployment Guide
+# 🌐 N1neTails DigitalOcean Deployment Guide
 
 This document walks through setting up the **N1neTails** application with Docker Compose and configuring Nginx as a reverse proxy on a Digitalocean Ubuntu server.
 
 - Requirements
   - Digitalocean Postgres Database
+  - Domain or subdomain
+  - Docker & Nginx installed on your server
 
 ---
 
-## 1. Docker Compose Setup
+## 1. Create a Subdomain (e.g., `app.n1netails.com`)
+You can set up n1netails using your own domain or subdomain.
+You can configure DNS settings where you registered your domain (e.g., Squarespace, GoDaddy, Namecheap).
+
+**Add an A Record**:
+
+* **Host**: `app`
+* **Type**: `A`
+* **Value**: Your server’s public IP address
+* **TTL**: Default (3600)
+
+Save the DNS settings.
+
+📌 *It may take a few minutes (or up to 24 hours) for DNS to propagate.*
+
+## 2. Docker Compose Setup
+
+Set up docker compose on ubuntu by following these docs:
+- [Docker Engine](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository)
+- [Docker Compose](https://docs.docker.com/compose/install/linux/)
+
 
 Add the following directories within the digital ocean server `projects/n1netails`
 
@@ -28,8 +50,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://<digital-ocean-postgres-db-url>:<digital-ocean-postgres-db-port>/n1netails
       SPRING_DATASOURCE_USERNAME: n1netails
       SPRING_DATASOURCE_PASSWORD: <n1netails_password>
-      N1NETAILS_PASSKEY_RELYING_PARTY_ID: <digital-ocean-ip-address>
-      N1NETAILS_PASSKEY_ORIGINS: http://<digital-ocean-ip-address>:9900,http://<digital-ocean-ip-address>:9901
+      N1NETAILS_PASSKEY_RELYING_PARTY_ID: <domain-url> # e.g. app.n1netails.com
+      N1NETAILS_PASSKEY_ORIGINS: https://<domain-url> # e.g. https://app.n1netails.com
       OPENAI_ENABLED: true
       OPENAI_API_KEY: <your_openai_api_key>
       OPENAI_API_URL: https://api.openai.com
@@ -43,7 +65,7 @@ services:
       - api
     environment:
       SPRING_PROFILE_ACTIVE: docker
-      API_BASE_URL: http://<digital-ocean-ip-address>:9901
+      API_BASE_URL: https://<domain-url>
       OPENAI_ENABLED: true
 
   liquibase:
@@ -71,7 +93,7 @@ docker compose logs -f
 
 ---
 
-## 2. Nginx Setup
+## 3. Nginx Setup
 
 ### Step 1: **Install Nginx** on your server if not installed:
 
@@ -90,7 +112,11 @@ Create the file `/etc/nginx/sites-available/n1netails.conf` with the following c
 ```nginx
 server {
     listen 80;
-    server_name <digital-ocean-ip-address>;
+    server_name <domain-url>;
+    
+    add_header X-Frame-Options "SAMEORIGIN";
+    add_header X-Content-Type-Options "nosniff";
+    add_header X-XSS-Protection "1; mode=block";
 
     # Route API calls to backend
     location /ninetails/ {
@@ -145,16 +171,66 @@ sudo nginx -t
 
 # Reload Nginx to apply the new configuration without downtime
 sudo systemctl reload nginx
+
+# Check nginx logs
+sudo tail -f /var/log/nginx/error.log
 ```
 
 ---
 
-## Summary
+## 4. Install Certbot & Enable HTTPS
 
-* Backend API exposed on port `9901`
-* Frontend UI exposed on port `9900`
-* Nginx reverse proxy routes:
-    * `/ninetails/`, `/v3/` and `/swagger-ui/` → API backend (`localhost:9901`)
-    * All other paths → frontend UI (`localhost:9900`)
-* Nginx config is at `/etc/nginx/sites-available/n1netails.conf` and symlinked into `sites-enabled`
-* Docker Compose manages containers for API, UI, and Liquibase
+```bash
+# Update packages
+sudo apt update
+
+# Install Certbot and Nginx plugin
+sudo apt install certbot python3-certbot-nginx
+```
+
+Then run:
+
+```bash
+# Automatically obtain and configure SSL
+sudo certbot --nginx
+```
+
+Follow the prompts:
+
+* Choose your subdomain (e.g., `app.n1netails.com`)
+* Redirect HTTP to HTTPS when prompted ✅
+
+✅ You now have HTTPS enabled.
+
+---
+
+### Step 1: Verify HTTPS
+
+Visit: 
+
+Visit your domain to varify https
+
+Example
+```
+https://app.n1netails.com
+```
+
+Check for the padlock icon in the address bar.
+
+---
+
+### Step 2: Enable SSL Certificate Auto-Renewal
+
+Let’s Encrypt certificates expire every 90 days. Certbot sets up a systemd timer automatically.
+
+Verify with:
+
+```bash
+systemctl list-timers | grep certbot
+```
+
+Test the renewal process:
+
+```bash
+sudo certbot renew --dry-run
+```

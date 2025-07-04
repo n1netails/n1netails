@@ -34,10 +34,7 @@ export class TailMetricsService {
   constructor(
     private http: HttpClient, 
     private uiConfigService: UiConfigService
-  ) {
-    // this.host = this.uiConfigService.getApiUrl();
-    // this.host = this.host + this.apiUrl;
-  }
+  ) {}
 
   countTailAlertsToday(timezone: string): Observable<number> { // Added timezone parameter
     this.host = this.uiConfigService.getApiUrl() + this.apiUrl;

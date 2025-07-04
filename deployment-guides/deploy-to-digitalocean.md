@@ -9,7 +9,9 @@ This document walks through setting up the **N1neTails** application with Docker
 
 ## 1. Docker Compose Setup
 
-Create a `docker-compose.yml` file with the following content:
+Add the following directories within the digital ocean server `projects/n1netails`
+
+Create a `docker-compose.yml` file inside of `projects/n1netails` with the following content:
 
 ```yaml
 services:

@@ -33,10 +33,7 @@ export class N1neTokenService {
   constructor(
     private http: HttpClient,
     private uiConfigService: UiConfigService
-  ) { 
-    // this.host = this.uiConfigService.getApiUrl();
-    // this.host = this.host + this.apiUrl;
-  }
+  ) {}
 
   createToken(tokenRequest: CreateTokenRequest): Observable<N1neTokenResponse> {
     this.host = this.uiConfigService.getApiUrl() + this.apiUrl;

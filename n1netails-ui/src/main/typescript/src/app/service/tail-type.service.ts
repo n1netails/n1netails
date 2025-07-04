@@ -27,10 +27,7 @@ export class TailTypeService {
   constructor(
     private http: HttpClient,
     private uiConfigService: UiConfigService
-  ) { 
-    // this.host = this.uiConfigService.getApiUrl();
-    // this.host = this.host + this.apiUrl;
-  }
+  ) {}
 
   createTailType(request: TailType): Observable<TailTypeResponse> {
     this.host = this.uiConfigService.getApiUrl() + this.apiUrl;

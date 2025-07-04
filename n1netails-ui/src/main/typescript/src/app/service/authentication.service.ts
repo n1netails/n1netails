@@ -18,9 +18,7 @@ export class AuthenticationService {
   constructor(
     private http: HttpClient,
     private uiConfigService: UiConfigService
-  ) { 
-    // this.host = this.uiConfigService.getApiUrl();
-  }
+  ) {}
 
   public login(user: User): Observable<HttpResponse<User>> {
     this.host = this.uiConfigService.getApiUrl();

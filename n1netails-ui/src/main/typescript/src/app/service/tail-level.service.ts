@@ -27,10 +27,7 @@ export class TailLevelService {
   constructor(
     private http: HttpClient, 
     private uiConfigService: UiConfigService
-  ) {
-    // this.host = this.uiConfigService.getApiUrl();
-    // this.host = this.host + this.apiUrl;
-  }
+  ) {}
 
   createTailLevel(request: TailLevel): Observable<TailLevelResponse> {
     this.host = this.uiConfigService.getApiUrl() + this.apiUrl;

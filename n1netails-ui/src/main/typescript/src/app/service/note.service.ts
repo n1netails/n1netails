@@ -15,10 +15,7 @@ export class NoteService {
   constructor(
     private http: HttpClient,
     private uiConfigService: UiConfigService
-  ) { 
-    // this.host = this.uiConfigService.getApiUrl();
-    // this.host = this.host + this.apiUrl;
-  }
+  ) {}
 
   getNotesByTailId(tailId: number): Observable<Note[]> {
     this.host = this.uiConfigService.getApiUrl() + this.apiUrl;

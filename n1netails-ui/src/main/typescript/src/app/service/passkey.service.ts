@@ -57,8 +57,6 @@ export class PasskeyService {
     private uiConfigService: UiConfigService,
     private authService: AuthenticationService // For saving token/user on successful login
   ) {
-    // this.host = this.uiConfigService.getApiUrl();
-    // this.host = this.host + this.apiUrl;
     // Check if the functions exist, which implies WebAuthn support
     this.isWebAuthnSupported = typeof navigator.credentials !== 'undefined' &&
                                typeof navigator.credentials.create === 'function' &&

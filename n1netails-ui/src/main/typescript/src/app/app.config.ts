@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideZoneChangeDetection, importProvidersFrom } from '@angular/core';
+import { ApplicationConfig, provideZoneChangeDetection, importProvidersFrom, provideAppInitializer, inject } from '@angular/core';
 import { provideRouter, withHashLocation } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -13,6 +13,7 @@ import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@a
 
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { AuthInterceptor } from './interceptor/auth.interceptor';
+import { UiConfigService } from './shared/ui-config.service';
 
 registerLocaleData(en);
 
@@ -28,6 +29,11 @@ export const appConfig: ApplicationConfig = {
       withInterceptorsFromDi()
     ),
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    UiConfigService,
+    provideAppInitializer(() => {
+      const configService = inject(UiConfigService);
+      return configService.loadConfig();
+    }),
     provideCharts(withDefaultRegisterables())
   ]
 };

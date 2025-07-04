@@ -21,16 +21,15 @@ export class LlmService {
   constructor(
     private http: HttpClient,
     private uiConfigService: UiConfigService
-  ) {
-    this.host = this.uiConfigService.getApiUrl();
-    this.host = this.host + this.apiUrl;
-  }
+  ) {}
 
   investigateTail(request: LlmPromptRequest): Observable<LlmPromptResponse> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.post<LlmPromptResponse>(`${this.host}/investigate`, request);
   }
 
   sendPrompt(request: LlmPromptRequest): Observable<LlmPromptResponse> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.post<LlmPromptResponse>(`${this.host}/prompt`, request);
   }
 

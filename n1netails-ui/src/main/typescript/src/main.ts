@@ -7,7 +7,7 @@ bootstrapApplication(AppComponent, {
   ...appConfig,
   providers: [
     ...(appConfig.providers || []),
-    provideMarkdown()
+    provideMarkdown(),
   ]
 })
   .catch((err) => console.error(err));

@@ -15,20 +15,20 @@ export class NoteService {
   constructor(
     private http: HttpClient,
     private uiConfigService: UiConfigService
-  ) { 
-    this.host = this.uiConfigService.getApiUrl();
-    this.host = this.host + this.apiUrl;
-  }
+  ) {}
 
   getNotesByTailId(tailId: number): Observable<Note[]> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.get<Note[]>(`${this.host}/tail/${tailId}`);
   }
 
   saveNote(note: Note): Observable<Note> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.post<Note>(this.host, note);
   }
 
   getN1Note(tailId: number): Observable<Note> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.get<Note>(`${this.host}/tail/${tailId}/isN1`);
   }
 }

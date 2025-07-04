@@ -34,38 +34,42 @@ export class TailMetricsService {
   constructor(
     private http: HttpClient, 
     private uiConfigService: UiConfigService
-  ) {
-    this.host = this.uiConfigService.getApiUrl();
-    this.host = this.host + this.apiUrl;
-  }
+  ) {}
 
   countTailAlertsToday(timezone: string): Observable<number> { // Added timezone parameter
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     const payload = { timezone: timezone };
     return this.http.post<number>(`${this.host}/today/count`, payload); // Changed to post, added payload
   }
 
   countTailAlertsResolved(): Observable<number> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.get<number>(`${this.host}/resolved/count`);
   }
 
   countTailAlertsNotResolved(): Observable<number> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.get<number>(`${this.host}/not-resolved/count`);
   }
 
   mttr(): Observable<number> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.get<number>(`${this.host}/mttr`);
   }
 
   mttrLast7Days(): Observable<TailDatasetMttrResponse> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.get<TailDatasetMttrResponse>(`${this.host}/mttr/last-7-days`);
   }
 
   getTailAlertsHourly(timezone: string): Observable<TailAlertsPerHourResponse> { // Added timezone parameter
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     const payload = { timezone: timezone };
     return this.http.post<TailAlertsPerHourResponse>(`${this.host}/hourly`, payload); // Changed to post, added payload
   }
 
   getTailMonthlySummary(timezone: string): Observable<TailMonthlySummaryResponse> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     const payload = { timezone: timezone }
     return this.http.post<TailMonthlySummaryResponse>(`${this.host}/monthly-summary`, payload);
   }

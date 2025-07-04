@@ -48,7 +48,7 @@ function base64urlDecode(input: string): string {
   providedIn: 'root'
 })
 export class PasskeyService {
-  private host: string;
+  private host: string = '';
   private apiUrl = '/ninetails/auth/passkey';
   private isWebAuthnSupported: boolean;
 
@@ -57,8 +57,6 @@ export class PasskeyService {
     private uiConfigService: UiConfigService,
     private authService: AuthenticationService // For saving token/user on successful login
   ) {
-    this.host = this.uiConfigService.getApiUrl();
-    this.host = this.host + this.apiUrl;
     // Check if the functions exist, which implies WebAuthn support
     this.isWebAuthnSupported = typeof navigator.credentials !== 'undefined' &&
                                typeof navigator.credentials.create === 'function' &&
@@ -74,6 +72,7 @@ export class PasskeyService {
 
   // --- REGISTRATION ---
   startPasskeyRegistration(email: string, domain: string): Observable<PasskeyRegistrationStartResponseDto> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     if (!this.checkWebAuthnSupport()) {
       return throwError(() => new Error('Passkey authentication (WebAuthn) is not supported by this browser.'));
     }
@@ -87,6 +86,7 @@ export class PasskeyService {
     credential: PublicKeyCredential,
     friendlyName?: string
   ): Observable<PasskeyApiResponseDto> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     if (!this.checkWebAuthnSupport()) {
       return throwError(() => new Error('Passkey authentication (WebAuthn) is not supported by this browser.'));
     }
@@ -173,6 +173,7 @@ export class PasskeyService {
 
   // --- AUTHENTICATION ---
   startPasskeyAuthentication(email?: string, domain?: string): Observable<PasskeyAuthenticationStartResponseDto> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     if (!this.checkWebAuthnSupport()) {
       return throwError(() => new Error('Passkey authentication (WebAuthn) is not supported by this browser.'));
     }
@@ -182,6 +183,7 @@ export class PasskeyService {
   }
 
   finishPasskeyAuthentication(flowId: string, credential: PublicKeyCredential): Observable<PasskeyAuthenticationResponseDto> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     if (!this.checkWebAuthnSupport()) {
       return throwError(() => new Error('Passkey authentication (WebAuthn) is not supported by this browser.'));
     }

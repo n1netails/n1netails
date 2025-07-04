@@ -14,11 +14,10 @@ export class UserService {
   constructor(
     private http: HttpClient,
     private uiConfigService: UiConfigService
-  ) { 
-    this.host = this.uiConfigService.getApiUrl();
-  }
+  ) {}
 
   editUser(user: User): Observable<User> {
+    this.host = this.uiConfigService.getApiUrl();
     return this.http.post<User>(`${this.host}/ninetails/user/edit`, user);
   }
 }

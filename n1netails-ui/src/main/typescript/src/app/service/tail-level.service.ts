@@ -27,28 +27,30 @@ export class TailLevelService {
   constructor(
     private http: HttpClient, 
     private uiConfigService: UiConfigService
-  ) {
-    this.host = this.uiConfigService.getApiUrl();
-    this.host = this.host + this.apiUrl;
-  }
+  ) {}
 
   createTailLevel(request: TailLevel): Observable<TailLevelResponse> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.post<TailLevelResponse>(this.host, request);
   }
 
   getTailLevels(): Observable<TailLevelResponse[]> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.get<TailLevelResponse[]>(this.host);
   }
 
   getTailLevelById(id: number): Observable<TailLevelResponse> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.get<TailLevelResponse>(`${this.host}/${id}`);
   }
 
   updateTailLevel(id: number, request: TailLevel): Observable<TailLevelResponse> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.put<TailLevelResponse>(`${this.host}/${id}`, request);
   }
 
   deleteTailLevel(id: number): Observable<void> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.delete<void>(`${this.host}/${id}`);
   }
 }

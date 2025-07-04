@@ -33,36 +33,40 @@ export class N1neTokenService {
   constructor(
     private http: HttpClient,
     private uiConfigService: UiConfigService
-  ) { 
-    this.host = this.uiConfigService.getApiUrl();
-    this.host = this.host + this.apiUrl;
-  }
+  ) {}
 
   createToken(tokenRequest: CreateTokenRequest): Observable<N1neTokenResponse> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.post<N1neTokenResponse>(this.host, tokenRequest);
   }
 
   getAllTokens(): Observable<N1neTokenResponse[]> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.get<N1neTokenResponse[]>(this.host);
   }
 
   getAllTokensByUserId(userId: number): Observable<N1neTokenResponse[]> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.get<N1neTokenResponse[]>(`${this.host}/user-tokens/${userId}`);
   }
 
   getTokenById(id: number): Observable<N1neTokenResponse> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.get<N1neTokenResponse>(`${this.host}/${id}`);
   }
 
   revokeToken(id: number): Observable<void> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.put<void>(`${this.host}/revoke/${id}`, {});
   }
 
   enableToken(id: number): Observable<void> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.put<void>(`${this.host}/enable/${id}`, {});
   }
 
   deleteToken(id: number): Observable<void> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.delete<void>(`${this.host}/${id}`);
   }
 }

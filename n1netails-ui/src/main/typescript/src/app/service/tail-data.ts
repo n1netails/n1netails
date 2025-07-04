@@ -44,12 +44,10 @@ export class TailDataService {
   constructor(
     private http: HttpClient,
     private uiConfigService: UiConfigService
-  ) { 
-    this.host = this.uiConfigService.getApiUrl();
-    this.host = this.host + this.apiUrl;
-  }
+  ) {}
 
   getTails(request: TailPageRequest): Observable<TailPageResponse<Tail>> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.post<TailPageResponse<Tail>>(`${this.host}/page`, request);
   }
 }

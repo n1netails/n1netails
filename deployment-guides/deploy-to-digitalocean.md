@@ -64,6 +64,9 @@ docker compose down -v
 
 # Start containers in detached mode
 docker compose up -d
+
+# tail docker logs (optional)
+docker compose logs -f
 ```
 
 ---

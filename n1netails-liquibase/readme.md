@@ -36,6 +36,12 @@ CREATE SCHEMA IF NOT EXISTS ntail
     AUTHORIZATION n1netails;
 ```
 
+### Set UTC time
+Set the n1netails database to timezone UTC
+```sql
+ALTER DATABASE n1netails SET timezone TO 'Etc/UTC';
+```
+
 ## Build
 Build the project using the following command
 ```bash

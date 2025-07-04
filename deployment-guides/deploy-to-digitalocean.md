@@ -2,17 +2,55 @@
 
 This document walks through setting up the **N1neTails** application with Docker Compose and configuring Nginx as a reverse proxy on a Digitalocean Ubuntu server.
 
-- Requirements
+- Table of Contents
   - Postgres Database
-    - Create n1netails user (`CREATE USER n1netails WITH PASSWORD 'your_password';`)
-    - Grant n1netails users access to n1netails database (`GRANT CREATE ON DATABASE n1netails TO n1netails;`)
-    - Set timezone to UTC (`ALTER DATABASE n1netails SET timezone TO 'Etc/UTC';`)
   - Domain or subdomain
-  - Docker & Nginx installed on your server
+  - Docker setup
+  - Nginx setup
+  - Setup HTTPS with certbot
 
 ---
 
-## 1. Create a Subdomain (e.g., `app.n1netails.com`)
+## 1. Create Postgres Database
+For this implementation I decided to use DigitalOcean to host my Database Cluster. 
+You can read more about setting up Database Clusters on DigitalOcean here: 
+https://docs.digitalocean.com/products/databases/postgresql/how-to/create/
+
+You can use DigitalOcean to help you with creating new users and databases within your cluster.
+Steps 1 & 2 can be done on DigitalOcean.
+
+### Step 1: Create `n1netails` user (can do done on DigitalOcean):
+```sql
+CREATE USER n1netails WITH PASSWORD 'your_password';
+```
+
+### Step 2: Create `n1netails` database (can do done on DigitalOcean):
+```sql
+CREATE DATABASE "n1netails"
+  WITH
+  OWNER = n1netails
+  ENCODING = 'UTF8'
+  LOCALE_PROVIDER = 'libc'
+  CONNECTION LIMIT = -1
+  IS_TEMPLATE = False;
+```
+
+### Step 3: Grant n1netails user access to n1netails database:
+```sql
+GRANT CREATE ON DATABASE n1netails TO n1netails;
+```
+
+### Step 4: Generate `ntail` schema:
+```sql
+CREATE SCHEMA IF NOT EXISTS ntail AUTHORIZATION n1netails;
+```
+
+### Step 5: Set timezone to UTC:
+```sql
+ALTER DATABASE n1netails SET timezone TO 'Etc/UTC';
+```
+
+## 2. Create a Subdomain (e.g., `app.n1netails.com`)
 You can set up n1netails using your own domain or subdomain.
 You can configure DNS settings where you registered your domain (e.g., Squarespace, GoDaddy, Namecheap).
 
@@ -27,7 +65,7 @@ Save the DNS settings.
 
 📌 *It may take a few minutes (or up to 24 hours) for DNS to propagate.*
 
-## 2. Docker Compose Setup
+## 3. Docker Compose Setup
 
 Set up docker compose on ubuntu by following these docs:
 - [Docker Engine](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository)
@@ -96,7 +134,7 @@ docker compose logs -f
 
 ---
 
-## 3. Nginx Setup
+## 4. Nginx Setup
 
 ### Step 1: **Install Nginx** on your server if not installed:
 
@@ -181,7 +219,7 @@ sudo tail -f /var/log/nginx/error.log
 
 ---
 
-## 4. Install Certbot & Enable HTTPS
+## 5. Install Certbot & Enable HTTPS
 
 ```bash
 # Update packages

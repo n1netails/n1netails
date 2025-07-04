@@ -3,7 +3,10 @@
 This document walks through setting up the **N1neTails** application with Docker Compose and configuring Nginx as a reverse proxy on a Digitalocean Ubuntu server.
 
 - Requirements
-  - Digitalocean Postgres Database
+  - Postgres Database
+    - Create n1netails user (`CREATE USER n1netails WITH PASSWORD 'your_password';`)
+    - Grant n1netails users access to n1netails database (`GRANT CREATE ON DATABASE n1netails TO n1netails;`)
+    - Set timezone to UTC (`ALTER DATABASE n1netails SET timezone TO 'Etc/UTC';`)
   - Domain or subdomain
   - Docker & Nginx installed on your server
 

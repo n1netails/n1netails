@@ -1,6 +1,9 @@
 # N1neTails Deployment Guide
 
-This document walks through setting up the **N1neTails** application with Docker Compose and configuring Nginx as a reverse proxy on a server.
+This document walks through setting up the **N1neTails** application with Docker Compose and configuring Nginx as a reverse proxy on a Digitalocean Ubuntu server.
+
+- Requirements
+  - Digitalocean Postgres Database
 
 ---
 
@@ -20,11 +23,11 @@ services:
         condition: service_completed_successfully
     environment:
       SPRING_PROFILE_ACTIVE: docker
-      SPRING_DATASOURCE_URL: jdbc:postgresql://<digital-ocean-postgres-db-url>:<digital-ocean-pstgres-db-port>/n1netails
+      SPRING_DATASOURCE_URL: jdbc:postgresql://<digital-ocean-postgres-db-url>:<digital-ocean-postgres-db-port>/n1netails
       SPRING_DATASOURCE_USERNAME: n1netails
       SPRING_DATASOURCE_PASSWORD: <n1netails_password>
       N1NETAILS_PASSKEY_RELYING_PARTY_ID: <digital-ocean-ip-address>
-      N1NETAILS_PASSKEY_ORIGINS: http://<digital-ocean-ip-address>:9900,http://<digital-ocean-ip-address>9901
+      N1NETAILS_PASSKEY_ORIGINS: http://<digital-ocean-ip-address>:9900,http://<digital-ocean-ip-address>:9901
       OPENAI_ENABLED: true
       OPENAI_API_KEY: <your_openai_api_key>
       OPENAI_API_URL: https://api.openai.com
@@ -46,7 +49,7 @@ services:
     container_name: n1netails-liquibase
     environment:
       SPRING_PROFILE_ACTIVE: docker
-      SPRING_DATASOURCE_URL: jdbc:postgresql://<digital-ocean-postgres-db-url>:<digital-ocean-pstgres-db-port>/n1netails
+      SPRING_DATASOURCE_URL: jdbc:postgresql://<digital-ocean-postgres-db-url>:<digital-ocean-postgres-db-port>/n1netails
       SPRING_DATASOURCE_USERNAME: n1netails
       SPRING_DATASOURCE_PASSWORD: <n1netails_password>
 ```
@@ -85,8 +88,8 @@ server {
     server_name <digital-ocean-ip-address>;
 
     # Route API calls to backend
-    location /api/ {
-        proxy_pass http://localhost:9901/api/;
+    location /ninetails/ {
+        proxy_pass http://localhost:9901/ninetails/;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -122,14 +125,20 @@ server {
 ### Step 3: Enable the site and disable default
 
 ```bash
+# Enable the new site
 sudo ln -s /etc/nginx/sites-available/n1netails.conf /etc/nginx/sites-enabled/n1netails.conf
+
+# Disable the default site
 sudo rm /etc/nginx/sites-enabled/default
 ```
 
 ### Step 4: Test and reload Nginx
 
 ```bash
+# Test the Nginx configuration for syntax errors
 sudo nginx -t
+
+# Reload Nginx to apply the new configuration without downtime
 sudo systemctl reload nginx
 ```
 
@@ -140,7 +149,7 @@ sudo systemctl reload nginx
 * Backend API exposed on port `9901`
 * Frontend UI exposed on port `9900`
 * Nginx reverse proxy routes:
-    * `/api/` and `/swagger-ui/` → API backend (`localhost:9901`)
+    * `/ninetails/`, `/v3/` and `/swagger-ui/` → API backend (`localhost:9901`)
     * All other paths → frontend UI (`localhost:9900`)
 * Nginx config is at `/etc/nginx/sites-available/n1netails.conf` and symlinked into `sites-enabled`
 * Docker Compose manages containers for API, UI, and Liquibase

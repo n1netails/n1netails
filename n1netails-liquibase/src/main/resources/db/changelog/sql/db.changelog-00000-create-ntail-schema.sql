@@ -19,4 +19,4 @@ CREATE SCHEMA IF NOT EXISTS ntail
     AUTHORIZATION n1netails;
 
 -- Set UTC time
-ALTER DATABASE n1netails SET timezone TO 'Etc/UTC';
+--ALTER DATABASE n1netails SET timezone TO 'Etc/UTC';

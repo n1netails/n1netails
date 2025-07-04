@@ -29,35 +29,42 @@ export class TailService {
     private http: HttpClient,
     private uiConfigService: UiConfigService
   ) { 
-    this.host = this.uiConfigService.getApiUrl();
-    this.host = this.host + this.apiUrl;
+    // this.host = this.uiConfigService.getApiUrl();
+    // this.host = this.host + this.apiUrl;
   }
 
   createTail(request: TailRequest): Observable<TailResponse> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.post<TailResponse>(this.host, request);
   }
 
   getTails(): Observable<TailResponse[]> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.get<TailResponse[]>(this.host);
   }
 
   getTailById(id: number): Observable<TailResponse> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.get<TailResponse>(`${this.host}/${id}`);
   }
 
   updateTail(id: number, request: TailRequest): Observable<TailResponse> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.put<TailResponse>(`${this.host}/${id}`, request);
   }
 
   deleteTail(id: number): Observable<void> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.delete<void>(`${this.host}/${id}`);
   }
 
   getTop9NewestTails(): Observable<TailResponse[]> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.get<TailResponse[]>(`${this.host}/top9`);
   }
 
   markTailResolved(resolvedTailRequest: ResolveTailRequest): Observable<void> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.post<void>(`${this.host}/mark/resolved`, resolvedTailRequest);
   }
 }

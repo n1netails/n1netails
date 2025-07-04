@@ -19,15 +19,17 @@ export class AuthenticationService {
     private http: HttpClient,
     private uiConfigService: UiConfigService
   ) { 
-    this.host = this.uiConfigService.getApiUrl();
+    // this.host = this.uiConfigService.getApiUrl();
   }
 
   public login(user: User): Observable<HttpResponse<User>> {
+    this.host = this.uiConfigService.getApiUrl();
     console.log('login API URL:', this.host); 
     return this.http.post<User>(`${this.host}/ninetails/user/login`, user, { observe: 'response' });
   }
 
   public register(user: User): Observable<HttpResponse<User>> {
+    this.host = this.uiConfigService.getApiUrl();
     console.log('register API URL:', this.host); 
     return this.http.post<User>(`${this.host}/ninetails/user/register`, user, { observe: 'response' });
   }

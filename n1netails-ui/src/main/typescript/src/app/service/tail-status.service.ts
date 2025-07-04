@@ -26,27 +26,32 @@ export class TailStatusService {
     private http: HttpClient,
     private uiConfigService: UiConfigService
   ) {
-    this.host = this.uiConfigService.getApiUrl();
-    this.host = this.host + this.apiUrl;
+    // this.host = this.uiConfigService.getApiUrl();
+    // this.host = this.host + this.apiUrl;
   }
 
   createTailStatus(request: TailStatus): Observable<TailStatusResponse> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.post<TailStatusResponse>(this.host, request);
   }
 
   getTailStatusList(): Observable<TailStatusResponse[]> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.get<TailStatusResponse[]>(this.host);
   }
 
   getTailStatusById(id: number): Observable<TailStatusResponse> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.get<TailStatusResponse>(`${this.host}/${id}`);
   }
 
   updateTailStatus(id: number, request: TailStatus): Observable<TailStatusResponse> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.put<TailStatusResponse>(`${this.host}/${id}`, request);
   }
 
   deleteTailStatus(id: number): Observable<void> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
     return this.http.delete<void>(`${this.host}/${id}`);
   }
 }

@@ -1,6 +1,6 @@
 # 🌐 N1neTails DigitalOcean Deployment Guide
 
-This document walks through setting up the **N1neTails** application with Docker Compose and configuring Nginx as a reverse proxy on a Digitalocean Ubuntu server.
+This guide walks you through setting up the **N1neTails** application with Docker Compose and configuring Nginx as a reverse proxy on a Digitalocean Ubuntu server.
 
 - Table of Contents
   - Postgres Database
@@ -16,15 +16,15 @@ For this implementation I decided to use DigitalOcean to host my Database Cluste
 You can read more about setting up Database Clusters on DigitalOcean here: 
 https://docs.digitalocean.com/products/databases/postgresql/how-to/create/
 
-You can use DigitalOcean to help you with creating new users and databases within your cluster.
-Steps 1 & 2 can be done on DigitalOcean.
+DigitalOcean makes it easy to create new users and databases within your cluster.
+Steps 1 & 2 can be done on DigitalOcean but are provided in case your database is hosted elsewhere.
 
-### Step 1: Create `n1netails` user (can do done on DigitalOcean):
+### Step 1: Create `n1netails` user (can be done on DigitalOcean):
 ```sql
 CREATE USER n1netails WITH PASSWORD 'your_password';
 ```
 
-### Step 2: Create `n1netails` database (can do done on DigitalOcean):
+### Step 2: Create `n1netails` database (can be done on DigitalOcean):
 ```sql
 CREATE DATABASE "n1netails"
   WITH

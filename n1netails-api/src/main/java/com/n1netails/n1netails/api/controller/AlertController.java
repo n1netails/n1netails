@@ -37,6 +37,11 @@ public class AlertController {
         log.info("=====================");
         log.info("RECEIVED KUDA REQUEST");
 
+        // substring title and description to meet db requirements
+        // todo look into possibly increasing the title and description length
+        if (request.getTitle().length() >= 252) request.setTitle(request.getTitle().substring(0, 252) + "...");
+        if (request.getDescription().length() >= 252) request.setDescription(request.getDescription().substring(0, 252) + "...");
+
         boolean tokenValid = this.n1neTokenService.validateToken(n1neToken);
         if (tokenValid) {
             this.n1neTokenService.setLastUsedAt(n1neToken);

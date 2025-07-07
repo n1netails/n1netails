@@ -1,9 +1,6 @@
 <div class="app-header">
-  <a routerLink="/dashboard" class="mobile-dashboard-link" *ngIf="isMobile()">
-    <img src="n1netails_icon_transparent.png" alt="logo" style="height: 30px; margin-right: 8px;">
-    <h1>N1netails</h1>
-  </a>
-  <span class="header-title" *ngIf="!isMobile()">
+  <span (click)="dashboard()" class="header-title">
+    <img src="n1netails_icon_transparent.png" alt="logo" style="height: 30px; margin-right: 8px;" *ngIf="isMobile()">
     <b>N1netails</b>
   </span>
 

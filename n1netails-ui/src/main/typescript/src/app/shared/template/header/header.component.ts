@@ -40,6 +40,10 @@ export class HeaderComponent {
     return this.isMobileView;
   }
 
+  dashboard() {
+    this.router.navigate(['/dashboard'])
+  }
+
   accountSettings() {
     this.router.navigate(['/settings'])
   }

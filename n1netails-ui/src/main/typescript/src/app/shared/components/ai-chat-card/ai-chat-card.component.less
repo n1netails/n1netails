@@ -27,39 +27,37 @@
 .chat-container {
   display: flex;
   flex-direction: column;
-  height: 100%; // Assumes parent (nz-card .ant-card-body) has a defined height or can provide one
-  min-height: 450px; // Minimum height for the chat card content
+  height: 100%;
+  min-height: 450px;
   background-color: @chat-bg;
 }
 
 // Message List Area: Flexible and scrollable
 .message-list-area {
-  flex: 1 1 auto; // Grow and shrink to take available vertical space
-  min-height: 0;  // Essential for flex children that need to shrink
-  overflow-y: auto; // Allow vertical scrolling for the message list area itself
-                    // CDK virtual scroll will also manage scrolling within its viewport
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
 
   .chat-virtual-scroll-viewport {
-    height: 100%; // CDK viewport should fill the message-list-area
+    height: 100%;
     width: 100%;
   }
 
   .message-nz-list {
-    padding: 16px; // Padding around the messages
-    // Individual message item styling will be added later (bubbles, etc.)
+    padding: 16px;
   }
 }
 
 // Input Area: Fixed height at the bottom
 .input-area {
-  flex: 0 0 auto; // Does not grow or shrink vertically; height is based on content
+  flex: 0 0 auto;
   padding: 12px 16px;
-  border-top: 1px solid @input-border-color; // Separation line
+  border-top: 1px solid @input-border-color;
   background-color: @input-area-bg;
 
   // Internal layout: flex row for desktop
   display: flex;
-  align-items: flex-end; // Align items to the bottom (useful if textarea rows > 1)
+  align-items: flex-end;
   gap: 12px;
 }
 

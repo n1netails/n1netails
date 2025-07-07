@@ -33,18 +33,23 @@
   align-items: flex-end;
   gap: 0;
   margin-top: 12px;
-  width: 100%; // .chat-input-area should span full width of its parent
+  width: 100%;
   background: transparent;
 
-  // Target the textarea's nz-form-item (direct child, not .action-buttons)
+  // Target the textarea's nz-form-item (the one that's a direct child and not .action-buttons)
   > nz-form-item:not(.action-buttons) {
     flex: 1 1 auto; // Allow it to grow and shrink. Crucial for desktop.
     min-width: 0;   // Allow it to shrink below its intrinsic content size. Also crucial.
 
+    // On mobile, it needs to be full width
     @media (max-width: @screen-sm-max) {
-      width: 100%; // On mobile, it takes full width when stacked
-      flex-basis: auto; // Reset flex-basis for stacked layout if needed
-      padding-bottom: 20px; // Space for character count
+      width: 100%;
+      flex-basis: auto; // Reset flex-basis for stacked layout
+      // Add padding to the bottom of the textarea's form item on mobile
+      // to make space for the character count before the buttons appear below.
+      // The nz-textarea-count is usually absolutely positioned at the bottom right.
+      // This padding should lift the perceived bottom of the container for the count.
+      padding-bottom: 20px; // Adjust this value as needed
     }
   }
 

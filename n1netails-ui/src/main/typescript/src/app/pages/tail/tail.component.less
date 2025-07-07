@@ -168,26 +168,52 @@ nz-header {
 // Styles for the Inari Investigation Analysis card
 .inari-analysis-card {
   .ant-card-body { // Target the content area of the nz-card
-    overflow-wrap: break-word; // For general text wrapping
-    word-wrap: break-word;
+    // Ensure the card body itself allows content to be constrained and wrapped.
+    // display: block; // or display: flow-root; if needed, but usually default is fine.
+    // width: 100%; // Usually implied.
 
-    // Handle preformatted text and code blocks often found in markdown
+    // General text wrapping for content directly within card-body or in p tags etc.
+    overflow-wrap: break-word;
+    word-wrap: break-word;     // Older browsers
+    word-break: break-word;    // Less aggressive than break-all, tries to keep words intact.
+
+    // Handle preformatted text and code blocks
     pre {
-      white-space: pre-wrap;    // Allow wrapping of long lines within the pre block
-      overflow-x: auto;       // Add horizontal scroll if content is still too wide (e.g., wide tables in markdown)
-      word-break: break-all;  // Break long words/strings within pre, if pre-wrap isn't enough (e.g. no spaces)
+      max-width: 100%;          // Crucial: force pre to not exceed container width
+      overflow-x: auto;         // Add horizontal scroll if content is still too wide
+      white-space: pre-wrap;      // Allow wrapping of long lines within the pre block
+      word-break: break-all;    // More aggressive breaking for very long non-space sequences inside pre
+                                // This helps if a single "word" is wider than the container.
 
       code {
-        white-space: inherit; // Inherit pre-wrap from parent pre
-        word-break: inherit;  // Inherit break-all from parent pre
-        // No specific overflow-x needed here as parent pre handles scrolling
+        // Code inside pre usually doesn't need special word-break if pre handles it.
+        // Let it inherit white-space from pre.
+        white-space: inherit;
+        display: block; // Or inline, depending on how markdown component renders it.
+                        // If it's block, it might need its own width/max-width considerations.
+                        // For now, assume `pre` is the main controller for code block formatting.
       }
     }
 
     // For inline code snippets (not in a pre block)
     code:not(pre > code) {
-      word-break: break-all; // Break long inline code snippets
+      word-break: break-all;
       overflow-wrap: break-word;
+      background-color: rgba(0,0,0,0.05); // Optional: slight background for inline code
+      padding: 0.1em 0.3em;              // Optional: slight padding
+      border-radius: 3px;                // Optional: rounded corners
+    }
+
+    // Explicitly for paragraphs if `overflow-wrap` on card-body isn't enough
+    p {
+      overflow-wrap: break-word;
+      word-wrap: break-word;
+    }
+
+    // Handle other block elements like lists, blockquotes if they also cause overflow
+    ul, ol, blockquote {
+      overflow-wrap: break-word;
+      word-wrap: break-word;
     }
   }
 }

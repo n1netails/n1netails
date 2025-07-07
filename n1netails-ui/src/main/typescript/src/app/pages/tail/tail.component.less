@@ -16,6 +16,21 @@ nz-header {
     color: #fff;
   }
 
+  .tail-actions {
+    // Default styles for larger screens are in the HTML (text-align: right)
+    @media (max-width: @screen-sm-max) {
+      display: flex;
+      flex-direction: column;
+      gap: 10px; // Adds space between buttons when stacked
+      margin-bottom: 20px; // Ensure space below actions
+
+      button[nz-button] {
+        width: 100%;
+        margin-left: 0 !important; // Override inline style
+      }
+    }
+  }
+
   .tail-content {
 
     h3 {
@@ -31,6 +46,15 @@ nz-header {
       align-items: center;
       gap: 20px;
       margin-bottom: 12px;
+
+      @media (max-width: @screen-sm-max) {
+        flex-direction: column;
+        text-align: center;
+
+        .tail-avatar {
+          margin-bottom: 16px;
+        }
+      }
     }
 
     .meta-info {
@@ -106,7 +130,7 @@ nz-header {
   margin-top: 8px;
   background: #181a1b;
   border-radius: 6px;
-  overflow: hidden;
+  overflow-x: auto; // Allow horizontal scrolling if content is too wide
   font-size: 15px;
   color: #f1f1f1;
 

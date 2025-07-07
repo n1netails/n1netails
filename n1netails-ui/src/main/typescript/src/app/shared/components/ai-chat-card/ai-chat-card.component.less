@@ -35,17 +35,40 @@
   margin-top: 12px;
   width: 100%;
   background: transparent;
+
+  // Target the textarea within the form item
+  nz-form-item {
+    textarea {
+      width: 100%; // Ensure textarea takes full width of its container
+    }
+  }
+
+  @media (max-width: @screen-sm-max) {
+    flex-direction: column;
+    gap: 12px; // Add gap between textarea and button container when stacked
+
+    nz-form-item.action-buttons {
+      margin-left: 0; // Remove left margin on small screens
+      width: 100%; // Make button container full width
+
+      button[nz-button] {
+        flex: 1; // Make buttons share space equally
+      }
+    }
+  }
 }
 
-.chat-textarea {
+.chat-textarea { // This class seems to be unused in the HTML, targeting nz-form-item instead.
   flex: 1 1 0;
   min-width: 0;
   margin-bottom: 0;
 }
 
 .action-buttons {
-  margin-bottom: 0;
-  margin-left: 12px;
-  display: flex;
-  gap: 8px;
+  // Default styles for larger screens are in the HTML (display: flex; gap: 8px; margin-left: 12px)
+  // Media query above handles small screen adjustments.
+  // To ensure buttons always have some minimum width and don't get too squished on medium screens before wrapping:
+  button[nz-button] {
+    min-width: 100px; // Example: Adjust as needed
+  }
 }

@@ -11,24 +11,24 @@
     <nz-content>
       <div class="inner-content">
         <!-- KPI Cards -->
-        <nz-row class="kpi-cards" [nzGutter]="8">
-          <nz-col [nzSpan]="6">
+        <nz-row class="kpi-cards" [nzGutter]="[16, 16]">
+          <nz-col [nzXs]="24" [nzSm]="12" [nzMd]="6">
             <nz-card class="tails-primary-color" nzTitle="Alerts Today" [nzBordered]="false"><b>{{ totalTailAlertsToday }}</b></nz-card>
           </nz-col>
-          <nz-col [nzSpan]="6">
+          <nz-col [nzXs]="24" [nzSm]="12" [nzMd]="6">
             <nz-card class="tails-primary-color" nzTitle="Resolved" [nzBordered]="false"><b>{{ totalTailsResolved }}</b></nz-card>
           </nz-col>
-          <nz-col [nzSpan]="6">
+          <nz-col [nzXs]="24" [nzSm]="12" [nzMd]="6">
             <nz-card class="tails-primary-color" nzTitle="Not Resolved" [nzBordered]="false"><b>{{ totalTailsNotResolved }}</b></nz-card>
           </nz-col>
-          <nz-col [nzSpan]="6">
+          <nz-col [nzXs]="24" [nzSm]="12" [nzMd]="6">
             <nz-card class="tails-primary-color" nzTitle="Avg. MTTR" [nzBordered]="false"><b>{{ mttr | duration }}</b></nz-card>
           </nz-col>
         </nz-row>
 
         <!-- Charts Row 1 -->
-        <nz-row [nzGutter]="8" class="mb-6">
-          <nz-col [nzSpan]="16">
+        <nz-row [nzGutter]="[16, 16]" class="mb-6">
+          <nz-col [nzXs]="24" [nzLg]="16">
             <nz-card nzTitle="Tail Alerts (Hourly)" [nzBordered]="false">
               <div style="height: 200px">
                 <canvas baseChart [data]="alertsTodayData" [options]="barChartOptions" [type]="'bar'">
@@ -36,7 +36,7 @@
               </div>
             </nz-card>
           </nz-col>
-          <nz-col [nzSpan]="8">
+          <nz-col [nzXs]="24" [nzLg]="8">
             <nz-card nzTitle="Tail Resolution Status" [nzBordered]="false">
               <div style="height: 200px">
                 <canvas baseChart [data]="alertStatusData" [options]="doughnutOptions" [type]="'doughnut'">
@@ -47,8 +47,8 @@
         </nz-row>
 
         <!-- Charts Row 2 -->
-        <nz-row [nzGutter]="8">
-          <nz-col [nzSpan]="16">
+        <nz-row [nzGutter]="[16, 16]">
+          <nz-col [nzXs]="24" [nzLg]="16">
             <nz-card nzTitle="Monthly Alerts (Stacked)" [nzBordered]="false">
               <div style="height: 200px">
                 <canvas baseChart [data]="monthlyAlertsData" [options]="stackedBarOptions" [type]="'bar'">
@@ -57,7 +57,7 @@
 
             </nz-card>
           </nz-col>
-          <nz-col [nzSpan]="8">
+          <nz-col [nzXs]="24" [nzLg]="8">
             <nz-card nzTitle="Mean Time To Resolution (Hours)" [nzBordered]="false">
               <div style="height: 200px">
                 <canvas baseChart [data]="mttrLineData" [options]="lineChartOptions" [type]="'line'">
@@ -67,7 +67,7 @@
           </nz-col>
         </nz-row>
 
-        <nz-row [nzGutter]="8">
+        <nz-row [nzGutter]="[16, 16]">
           <nz-col [nzSpan]="24">
             <nz-card nzTitle="Active Tails" [nzBordered]="false">
               <nz-list [nzLoading]="initLoading">

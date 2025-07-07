@@ -134,3 +134,45 @@ button[nz-button].cancel-btn {
     color: #fff !important;
   }
 }
+
+.truncate-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.title {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  display: block;
+  width: auto;
+  max-width: 100%;
+
+  /* ✅ Let it expand naturally if space is available */
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.tags-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+
+  /* Align under avatar for desktop */
+  padding-left: 48px;
+
+  @media (max-width: 768px) {
+    /* On mobile, remove left padding and allow full width */
+    padding-left: 0;
+    margin-top: 8px;
+  }
+}
+
+.tag {
+  margin-right: 0;
+}

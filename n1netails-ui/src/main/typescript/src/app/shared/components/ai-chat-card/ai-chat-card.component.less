@@ -1,5 +1,3 @@
-@import '../../../../variables.less';
-
 .ai-chat-card {
     margin-top: 8px;
 }
@@ -35,58 +33,61 @@
   align-items: flex-end;
   gap: 0;
   margin-top: 12px;
-  width: 100%;
+  width: 100%; // .chat-input-area should span full width of its parent
   background: transparent;
 
-  // Target the textarea's nz-form-item (the one that's a direct child and not .action-buttons)
-  // The inline style "flex: 1;" on this item handles its growing behavior on desktop.
+  // Target the textarea's nz-form-item (direct child, not .action-buttons)
   > nz-form-item:not(.action-buttons) {
-    // Ensure it has flex-grow on desktop (already handled by inline style, but good for clarity if we remove inline styles later)
-    // flex-grow: 1; // This is effectively what `flex:1` inline style does
-    // On mobile, it needs to be full width
+    flex: 1 1 auto; // Allow it to grow and shrink. Crucial for desktop.
+    min-width: 0;   // Allow it to shrink below its intrinsic content size. Also crucial.
+
     @media (max-width: @screen-sm-max) {
-      width: 100%;
-      // Add padding to the bottom of the textarea's form item on mobile
-      // to make space for the character count before the buttons appear below.
-      // The nz-textarea-count is usually absolutely positioned at the bottom right.
-      // This padding should lift the perceived bottom of the container for the count.
-      padding-bottom: 20px; // Adjust this value as needed
+      width: 100%; // On mobile, it takes full width when stacked
+      flex-basis: auto; // Reset flex-basis for stacked layout if needed
+      padding-bottom: 20px; // Space for character count
     }
+  }
+
+  // Target the action buttons' nz-form-item
+  > nz-form-item.action-buttons {
+    flex-shrink: 0; // Prevent button group from shrinking on desktop
+    // Other styles for mobile are below in the media query
   }
 
   // Ensure textarea itself is always 100% of its parent form item
   textarea {
-    width: 100% !important; // Use !important to override any conflicting ng-zorro styles if necessary
+    width: 100% !important;
+    resize: vertical; // Allow vertical resize, disable horizontal
   }
 
   @media (max-width: @screen-sm-max) {
     flex-direction: column;
-    gap: 12px; // Add gap between textarea and button container when stacked
+    gap: 12px;
 
-    // Styling for the form item containing the action buttons
+    // Styling for the form item containing the action buttons on mobile
     nz-form-item.action-buttons {
-      margin-left: 0; // Remove left margin on small screens
-      width: 100%; // Make button container full width
+      margin-left: 0;
+      width: 100%;
 
       button[nz-button] {
-        flex: 1; // Make buttons share space equally
-        // min-width: 0; // Reset min-width if it causes issues with flex:1
+        flex: 1;
       }
     }
   }
 }
 
 .chat-textarea { // This class is indeed unused.
-  flex: 1 1 0;
-  min-width: 0;
-  margin-bottom: 0;
+  // ... (can be removed if not planned for use)
 }
 
+// General styles for .action-buttons (which is a class on nz-form-item)
 .action-buttons {
-  // Default styles for larger screens are in the HTML (display: flex; gap: 8px; margin-left: 12px)
-  // Media query above handles small screen adjustments.
-  // To ensure buttons always have some minimum width and don't get too squished on medium screens before wrapping:
+  // Desktop styles are mostly inline + the flex-shrink above.
+  // Mobile styles are in the media query.
   button[nz-button] {
-    min-width: 100px; // Example: Adjust as needed
+     // min-width: 100px; // Keeping this from previous, could be useful
+     // Ensure buttons don't get overly squished if there are many.
+     // For two buttons with flex:1 on mobile, this might not be strictly needed
+     // but doesn't hurt unless it breaks the flex:1 behavior.
   }
 }

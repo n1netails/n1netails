@@ -58,7 +58,20 @@ nz-header {
     }
 
     .meta-info {
-      margin-bottom: 20px;
+      // margin-bottom: 20px; // Consider if this margin is needed in addition to .tail-header's margin
+      min-width: 0; // Allows the meta-info container to shrink if content is too wide
+
+      h3 { // Targeting the title
+        overflow-wrap: break-word; // Allows long words to break and wrap
+        word-wrap: break-word; // Older browsers
+        word-break: break-all; // More aggressive breaking if needed, use with caution
+        // Hyphens might be useful too:
+        // -webkit-hyphens: auto;
+        // -ms-hyphens: auto;
+        // hyphens: auto;
+        // Note: Hyphenation requires lang attribute on <html> and appropriate dictionaries.
+      }
+
       p {
         margin-bottom: 5px;
         color: #b3b3b3;

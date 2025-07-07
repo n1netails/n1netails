@@ -6,7 +6,7 @@
       <div class="chat-virtual-scroll-container">
         <cdk-virtual-scroll-viewport #viewport itemSize="72" class="chat-virtual-scroll-viewport">
           <nz-list>
-            <nz-list-item *cdkVirtualFor="let item of notes">
+            <nz-list-item *cdkVirtualFor="let item of notes" [ngClass]="{'user-message': item.human, 'ai-message': !item.human && item }">
               @if (item) {
                 <nz-list-item-meta>
                   <nz-list-item-meta-title>

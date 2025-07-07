@@ -87,6 +87,39 @@ button[nz-button].resolve-btn {
   }
 }
 
+// Responsive adjustments for dashboard cards
+.inner-content {
+  nz-card {
+    ::ng-deep .ant-card-head-title {
+      font-size: 1em; // Default size
+      white-space: normal; // Allow title to wrap
+    }
+
+    // On smaller screens, reduce title font size slightly if needed
+    @media (max-width: @screen-sm-max) {
+      ::ng-deep .ant-card-head-title {
+        font-size: 0.9em;
+      }
+    }
+
+    @media (max-width: @screen-xs-max) {
+      ::ng-deep .ant-card-head-title {
+        font-size: 0.85em;
+      }
+      // Ensure card body has some padding if content is too close to edge
+      ::ng-deep .ant-card-body {
+        padding: 18px;
+      }
+    }
+  }
+
+  // Ensure charts are responsive within their containers
+  canvas[baseChart] {
+    max-width: 100%;
+    height: auto !important; // Override fixed height for responsiveness
+  }
+}
+
 button[nz-button].cancel-btn {
   background: #23272b !important;
   color: #fff !important;
@@ -100,4 +133,46 @@ button[nz-button].cancel-btn {
     background: #181a1b !important;
     color: #fff !important;
   }
+}
+
+.truncate-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.title {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  display: block;
+  width: auto;
+  max-width: 100%;
+
+  /* ✅ Let it expand naturally if space is available */
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.tags-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+
+  /* Align under avatar for desktop */
+  padding-left: 48px;
+
+  @media (max-width: 768px) {
+    /* On mobile, remove left padding and allow full width */
+    padding-left: 0;
+    margin-top: 8px;
+  }
+}
+
+.tag {
+  margin-right: 0;
 }

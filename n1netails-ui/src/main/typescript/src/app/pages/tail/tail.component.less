@@ -164,3 +164,30 @@ nz-header {
     word-break: break-all;
   }
 }
+
+// Styles for the Inari Investigation Analysis card
+.inari-analysis-card {
+  .ant-card-body { // Target the content area of the nz-card
+    overflow-wrap: break-word; // For general text wrapping
+    word-wrap: break-word;
+
+    // Handle preformatted text and code blocks often found in markdown
+    pre {
+      white-space: pre-wrap;    // Allow wrapping of long lines within the pre block
+      overflow-x: auto;       // Add horizontal scroll if content is still too wide (e.g., wide tables in markdown)
+      word-break: break-all;  // Break long words/strings within pre, if pre-wrap isn't enough (e.g. no spaces)
+
+      code {
+        white-space: inherit; // Inherit pre-wrap from parent pre
+        word-break: inherit;  // Inherit break-all from parent pre
+        // No specific overflow-x needed here as parent pre handles scrolling
+      }
+    }
+
+    // For inline code snippets (not in a pre block)
+    code:not(pre > code) {
+      word-break: break-all; // Break long inline code snippets
+      overflow-wrap: break-word;
+    }
+  }
+}

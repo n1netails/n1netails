@@ -104,7 +104,7 @@
                 <nz-spin nzSimple [nzSize]="'large'" nzTip="Investigating..."></nz-spin>
             </div>
 
-            <nz-card *ngIf="n1Note.content !== '' && !isInvestigating" nzTitle="Inari Investigation Analysis" [nzBordered]="false" style="margin-top: 8px;">
+            <nz-card *ngIf="n1Note.content !== '' && !isInvestigating" class="inari-analysis-card" nzTitle="Inari Investigation Analysis" [nzBordered]="false" style="margin-top: 8px;">
               <markdown [data]="n1Note.content"></markdown>
             </nz-card>
             <!-- End of LLM Investigation Display Area -->

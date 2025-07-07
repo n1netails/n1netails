@@ -168,35 +168,50 @@ nz-header {
 // Styles for the Inari Investigation Analysis card
 .inari-analysis-card {
   .ant-card-body {
+    // General text wrapping
     overflow-wrap: break-word;
-    word-wrap: break-word;
-    word-break: break-word; // General safety for non-code text
+    word-wrap: break-word;     // Older browsers
+    word-break: break-word;    // Less aggressive than break-all, tries to keep words intact for readability.
 
-    // Consistent markdown content styling, similar to chat messages
+    // Handle preformatted text and code blocks
     pre {
-      max-width: 100%;
-      overflow-x: auto;
-      white-space: pre-wrap;
-      word-break: break-all;
-      background-color: #2A2E32; // Consistent dark background for code blocks
-      color: #ECECEC; // Ensure text in code blocks is light
-      padding: 12px; // More padding for standalone card
+      max-width: 100%;        // Force pre to not exceed container width
+      overflow-x: auto;       // Add horizontal scroll if content is still too wide
+      white-space: pre-wrap;    // Allow wrapping of long lines within the pre block
+      word-break: break-all;  // More aggressive breaking for very long non-space sequences inside pre
+      background-color: #2A2E32; // Dark background for code blocks
+      color: #ECECEC;            // Light text for code blocks
+      padding: 12px;
       border-radius: 6px;
-      margin: 10px 0; // Consistent margin
+      margin: 10px 0;
     }
-    code:not(pre > code) { // Inline code
+
+    // For inline code snippets (not in a pre block)
+    code:not(pre > code) {
       word-break: break-all;
       overflow-wrap: break-word;
-      background-color: #2A2E32; // Consistent dark background
+      background-color: #2A2E32; // Consistent dark background for inline code
       color: #ECECEC;
-      padding: 0.2em 0.4em; // Slightly more padding for inline
+      padding: 0.2em 0.4em;
       border-radius: 4px;
     }
 
-    // Ensure common markdown generated elements also wrap
-    p, li, th, td, blockquote {
+    // Ensure common markdown generated block elements also wrap
+    // These might be redundant if the general .ant-card-body rule is effective, but good for safety.
+    p, li, th, td, blockquote, h1, h2, h3, h4, h5, h6 {
         overflow-wrap: break-word;
         word-wrap: break-word;
+        // min-width: 0; // Could be useful if these elements are flex items in some markdown output
     }
+
+    // If the markdown renderer wraps content in a specific div, target that too.
+    // For example, if markdown component outputs <div class="markdown-rendered-content">...</div>
+    // .markdown-rendered-content {
+    //   * { // Apply broadly within the rendered content
+    //     min-width: 0;
+    //     overflow-wrap: break-word;
+    //     word-break: break-word; // Use break-word for general text, break-all for code/pre
+    //   }
+    // }
   }
 }

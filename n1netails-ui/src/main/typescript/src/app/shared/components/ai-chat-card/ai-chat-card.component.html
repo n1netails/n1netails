@@ -1,52 +1,57 @@
 <nz-card [nzTitle]="notesTitle" class="ai-chat-card dark-theme-chat" [nzBordered]="false">
-  <div class="chat-card-content">
+  <div class="chat-container"> <!-- Main flex column -->
 
-    <nz-spin [nzSpinning]="isLoadingNotes">
-
-      <div class="chat-virtual-scroll-container">
+    <!-- Message List Area -->
+    <div class="message-list-area">
+      <nz-spin [nzSpinning]="isLoadingNotes" style="height: 100%;">
         <cdk-virtual-scroll-viewport #viewport itemSize="72" class="chat-virtual-scroll-viewport">
-          <nz-list>
-            <nz-list-item *cdkVirtualFor="let item of notes" [ngClass]="{'user-message': item.human, 'ai-message': !item.human && item }">
-              @if (item) {
-                <nz-list-item-meta>
-                  <nz-list-item-meta-title>
-                    <p>
-                      {{ item.human ? item.username : item.llmProvider }}
-                    </p>
-                  </nz-list-item-meta-title>
-                  <nz-list-item-meta-description>
-                    <markdown [data]="item.content"></markdown>
-                  </nz-list-item-meta-description>
-                </nz-list-item-meta>
-              } @else {
-                <nz-skeleton [nzParagraph]="{ rows: 1 }"></nz-skeleton>
-              }
-            </nz-list-item>
+          <nz-list [nzDataSource]="notes" nzRenderItem="messageItem" class="message-nz-list">
+            <ng-template #messageItem let-item>
+              <nz-list-item [ngClass]="{'user-message': item.human, 'ai-message': !item.human && item }">
+                @if (item) {
+                  <nz-list-item-meta>
+                    <nz-list-item-meta-title>
+                      <p class="sender-name">
+                        {{ item.human ? item.username : item.llmProvider }}
+                      </p>
+                    </nz-list-item-meta-title>
+                    <nz-list-item-meta-description class="message-content">
+                      <markdown [data]="item.content"></markdown>
+                    </nz-list-item-meta-description>
+                  </nz-list-item-meta>
+                } @else {
+                  <nz-skeleton [nzParagraph]="{ rows: 1 }"></nz-skeleton>
+                }
+              </nz-list-item>
+            </ng-template>
           </nz-list>
         </cdk-virtual-scroll-viewport>
-      </div>
-    </nz-spin>
+      </nz-spin>
+    </div>
 
-    <div class="chat-input-area" style="display: flex; align-items: flex-end; gap: 0; margin-top: 12px;">
-      <nz-form-item style="margin-bottom: 0;">  <!-- Textarea's form item - REMOVED flex:1 -->
+    <!-- Input Area -->
+    <div class="input-area">
+      <div class="textarea-wrapper">
         <nz-textarea-count [nzMaxCharacterCount]="2000">
           <textarea
             nz-input
-            rows="1"
+            rows="1"   البشر
             [(ngModel)]="newNoteText"
             [placeholder]="noteInputPlaceholder"
             (keydown.enter)="sendToLlm()"
             [disabled]="isSendingMessage"
+            class="chat-textarea-input"
           ></textarea>
         </nz-textarea-count>
-      </nz-form-item>
-      <nz-form-item class="action-buttons" style="margin-bottom: 0; margin-left: 12px; display: flex; gap: 8px;">
+      </div>
+      <div class="buttons-wrapper">
         <button
           nz-button
           nzType="default"
           (click)="addNote()"
           [nzLoading]="isSendingMessage"
           [disabled]="!newNoteText.trim() || isSendingMessage"
+          class="add-note-button"
         >
           Add Note
         </button>
@@ -57,13 +62,12 @@
           (click)="sendToLlm()"
           [nzLoading]="isSendingMessage"
           [disabled]="!newNoteText.trim() || isSendingMessage"
+          class="send-inari-button"
         >
           Send to Inari
         </button>
-      </nz-form-item>
+      </div>
     </div>
 
   </div>
-  
-  
 </nz-card>

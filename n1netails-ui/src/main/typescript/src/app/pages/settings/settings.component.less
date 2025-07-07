@@ -15,17 +15,17 @@ nz-header {
 }
 
 // General button styling (if not already global or overridden by Ant components)
-// button[nz-button] {
-//   // background: @primary-color; // Base styles from variables.less or Ant default
-//   // color: #fff;
-//   // border: none;
-//   // border-radius: 4px;
-//   // font-weight: 600;
-//   // &:hover, &:focus {
-//   //   background: @secondary-color;
-//   //   color: #fff;
-//   // }
-// }
+button[nz-button] {
+  background: @primary-color; // Base styles from variables.less or Ant default
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  &:hover, &:focus {
+    background: @secondary-color;
+    color: #fff;
+  }
+}
 
 // Create Token Button specific styling
 .create-token-btn {
@@ -49,12 +49,7 @@ nz-header {
 }
 
 
-.token-form, // Assuming this class is still used on the form element
-.password-form { // If there's a password form elsewhere or planned
-  // display: flex; // Default Ant form items handle this well with nz-row/nz-col
-  // flex-direction: row;
-  // align-items: flex-end;
-  // gap: 16px;
+.token-form {
   margin-bottom: 24px;
 }
 
@@ -103,7 +98,8 @@ nz-header {
       }
 
       .alert-add-btn { // Class added in HTML
-        // Potentially adjust padding or min-width if needed
+        padding-left: 13px;
+        padding-right: 13px;
       }
 
       @media (max-width: @screen-xs-max) { // Very small screens
@@ -117,29 +113,29 @@ nz-header {
 }
 
 // General input styling (ensure it doesn't conflict with Ant's defaults too much)
-// input[nz-input], .ant-input, .ant-input-affix-wrapper {
-//   width: 100%; // Default to full width, can be constrained by parent
-//   min-width: 180px; // A sensible minimum
-//   // background: #23272b !important; // Prefer not to use !important unless necessary
-//   // color: #fff !important;
-//   // border: 1px solid #444 !important;
-//   // border-radius: 6px !important;
-//   // font-size: 14px;
-//   // padding: 8px 12px !important;
-//   // box-shadow: none !important;
-//   // outline: none !important;
-//   // transition: border 0.2s, background 0.2s;
+input[nz-input], .ant-input, .ant-input-affix-wrapper {
+  width: 100%; // Default to full width, can be constrained by parent
+  min-width: 180px; // A sensible minimum
+  background: #23272b !important; // Prefer not to use !important unless necessary
+  color: #fff !important;
+  border: 1px solid #444 !important;
+  border-radius: 6px !important;
+  font-size: 14px;
+  padding: 8px 12px !important;
+  box-shadow: none !important;
+  outline: none !important;
+  transition: border 0.2s, background 0.2s;
 
-//   // &::placeholder {
-//   //   color: #b3b3b3 !important;
-//   //   opacity: 1;
-//   // }
+  &::placeholder {
+    color: #b3b3b3 !important;
+    opacity: 1;
+  }
 
-//   // &:focus {
-//   //   border: 1.5px solid @primary-color !important;
-//   //   background: #181a1b !important;
-//   // }
-// }
+  &:focus {
+    border: 1.5px solid @primary-color !important;
+    background: #181a1b !important;
+  }
+}
 
 .token-value-cell {
   display: flex;

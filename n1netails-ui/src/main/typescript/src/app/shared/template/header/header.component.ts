@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -17,6 +17,8 @@ import { CommonModule } from '@angular/common';
 export class HeaderComponent {
 
   loggedInUser: User;
+  public screenWidth: any;
+  public isMobileView: boolean;
 
   constructor(    
     private authenticationService: AuthenticationService,
@@ -24,6 +26,22 @@ export class HeaderComponent {
   ) {
       this.loggedInUser = this.authenticationService.getUserFromLocalCache();
       console.log('Logged in user:', this.loggedInUser);
+      this.screenWidth = window.innerWidth;
+      this.isMobileView = this.screenWidth < 768;
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.screenWidth = window.innerWidth;
+    this.isMobileView = this.screenWidth < 768;
+  }
+
+  isMobile(): boolean {
+    return this.isMobileView;
+  }
+
+  dashboard() {
+    this.router.navigate(['/dashboard'])
   }
 
   accountSettings() {

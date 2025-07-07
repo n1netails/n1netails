@@ -7,24 +7,50 @@ nz-header {
 }
 
 .settings-container {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  // display: flex; // Handled by nz-row
+  // flex-direction: column; // Handled by nz-row/nz-col
+  // gap: 8px; // Handled by nzGutter
   padding: 8px 0;
   min-height: 100vh;
 }
 
-.token-form,
-.password-form {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-end;
-  gap: 16px;
-  margin-bottom: 24px;
+// General button styling (if not already global or overridden by Ant components)
+button[nz-button] {
+  background: @primary-color; // Base styles from variables.less or Ant default
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  &:hover, &:focus {
+    background: @secondary-color;
+    color: #fff;
+  }
 }
 
-.token-table {
-  margin-top: 16px;
+// Create Token Button specific styling
+.create-token-btn {
+  @media (max-width: @screen-sm-max) {
+    width: 100%;
+  }
+}
+
+// Token Table Responsive Wrapper
+.table-responsive-wrapper {
+  @media (max-width: @screen-md-max) { // Or @screen-sm-max depending on when it breaks
+    overflow-x: auto;
+    display: block; // Important for overflow to work on table
+    width: 100%;
+  }
+
+  nz-table {
+    // Ensure table itself doesn't try to shrink unnaturally
+    min-width: 800px; // Adjust based on your table's actual minimum comfortable width
+  }
+}
+
+
+.token-form {
+  margin-bottom: 24px;
 }
 
 .alert-management {
@@ -34,8 +60,9 @@ nz-header {
   margin-top: 16px;
 
   .alert-list {
-    min-width: 200px;
-    flex: 1;
+    min-width: 200px; // Keeps a minimum width before wrapping
+    flex: 1; // Allows lists to grow and fill space
+
     h4 {
       color: @primary-color;
       margin-bottom: 8px;
@@ -53,42 +80,43 @@ nz-header {
         border-radius: 4px;
         margin-bottom: 4px;
         color: #fff;
+
+        button[nz-button][nzType="link"] { // More specific selector for remove buttons
+          padding: 0 4px; // Adjust padding for link buttons if needed
+          min-width: auto; // Override default min-width for small link buttons
+        }
       }
     }
-    input[nz-input] {
-      width: 70%;
-      margin-right: 8px;
-      background: #181a1b;
-      color: #fff;
-      border: 1px solid #444;
-    }
-    button[nz-button] {
-      background: @primary-color;
-      color: #fff;
-      border: none;
-      &:hover {
-        background: @secondary-color;
+
+    .alert-add-form {
+      display: flex;
+      gap: 8px; // Space between input and button
+
+      .alert-input { // Class added in HTML
+        flex-grow: 1; // Input takes available space
+        // width: auto; // Override fixed width if previously set
+      }
+
+      .alert-add-btn { // Class added in HTML
+        padding-left: 13px;
+        padding-right: 13px;
+      }
+
+      @media (max-width: @screen-xs-max) { // Very small screens
+        flex-direction: column; // Stack input and button
+        .alert-input, .alert-add-btn {
+          width: 100%; // Both take full width when stacked
+        }
       }
     }
   }
 }
 
-button[nz-button] {
-  background: @primary-color;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  font-weight: 600;
-  &:hover, &:focus {
-    background: @secondary-color;
-    color: #fff;
-  }
-}
-
+// General input styling (ensure it doesn't conflict with Ant's defaults too much)
 input[nz-input], .ant-input, .ant-input-affix-wrapper {
-  width: 100%;
-  min-width: 180px;
-  background: #23272b !important;
+  width: 100%; // Default to full width, can be constrained by parent
+  min-width: 180px; // A sensible minimum
+  background: #23272b !important; // Prefer not to use !important unless necessary
   color: #fff !important;
   border: 1px solid #444 !important;
   border-radius: 6px !important;
@@ -112,5 +140,18 @@ input[nz-input], .ant-input, .ant-input-affix-wrapper {
 .token-value-cell {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 2px; // Small gap between input and buttons in token cell
+  // Ensure child elements don't cause overflow if possible
+  input[nz-input] {
+    flex-shrink: 1; // Allow input to shrink if space is tight
+    min-width: 100px; // Or a value that makes sense for this specific input
+  }
+}
+
+// Ensure form labels are responsive if not already handled by nz-form-label attributes
+.ant-form-item-label {
+  @media (max-width: @screen-sm-max) {
+    text-align: left !important; // Align labels to the left on small screens
+    padding-bottom: 4px; // Add some space below the label
+  }
 }

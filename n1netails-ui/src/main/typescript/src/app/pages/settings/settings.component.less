@@ -6,88 +6,48 @@ nz-header {
   z-index: 2;
 }
 
-.settings-container {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 8px 0;
-  min-height: 100vh;
+.inner-content {
+  padding: 16px; // Add some padding to the overall content area
 }
 
-.token-form,
-.password-form {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-end;
-  gap: 16px;
-  margin-bottom: 24px;
+.main-card {
+  margin-bottom: 16px; // Space between cards
 }
 
-.token-table {
-  margin-top: 16px;
-}
+// General form styling adjustments
+form[nz-form] {
+  .ant-form-item-label > label {
+    color: #fff !important;
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+    padding-bottom: 4px; // Add some space below the label on all screens
+    text-align: left; // Default left align
+  }
 
-.alert-management {
-  display: flex;
-  gap: 32px;
-  flex-wrap: wrap;
-  margin-top: 16px;
+  .form-button {
+    width: auto; // Default width
+    min-width: 150px; // Ensure a minimum width for better appearance
+    padding: 7px 15px !important;
+    font-size: 16px;
+    font-weight: 600;
+    // background: @primary-color !important; // Covered by general button styles
+    // border: none !important; // Covered by general button styles
+    // color: #fff !important; // Covered by general button styles
+    // border-radius: 6px; // Covered by general button styles
+    // transition: background 0.2s; // Covered by general button styles
 
-  .alert-list {
-    min-width: 200px;
-    flex: 1;
-    h4 {
-      color: @primary-color;
-      margin-bottom: 8px;
-    }
-    ul {
-      list-style: none;
-      padding: 0;
-      margin-bottom: 8px;
-      li {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background: #181a1b;
-        padding: 6px 12px;
-        border-radius: 4px;
-        margin-bottom: 4px;
-        color: #fff;
-      }
-    }
-    input[nz-input] {
-      width: 70%;
-      margin-right: 8px;
-      background: #181a1b;
-      color: #fff;
-      border: 1px solid #444;
-    }
-    button[nz-button] {
-      background: @primary-color;
-      color: #fff;
-      border: none;
-      &:hover {
-        background: @secondary-color;
-      }
+    @media (max-width: @screen-sm-max) {
+      width: 100%; // Full width buttons on small screens
     }
   }
 }
 
-button[nz-button] {
-  background: @primary-color;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  font-weight: 600;
-  &:hover, &:focus {
-    background: @secondary-color;
-    color: #fff;
-  }
-}
 
-input[nz-input], .ant-input, .ant-input-affix-wrapper {
+// Input styling (already mostly good, ensure consistency)
+input[nz-input], .ant-input, .ant-input-affix-wrapper, nz-select {
   width: 100%;
-  min-width: 180px;
+  // min-width: 180px; // Let the grid handle this
   background: #23272b !important;
   color: #fff !important;
   border: 1px solid #444 !important;
@@ -103,14 +63,237 @@ input[nz-input], .ant-input, .ant-input-affix-wrapper {
     opacity: 1;
   }
 
-  &:focus {
+  &:focus, &.ant-select-focused .ant-select-selector {
     border: 1.5px solid @primary-color !important;
     background: #181a1b !important;
+  }
+}
+
+nz-select .ant-select-selector {
+  background: #23272b !important;
+  color: #fff !important;
+  border: 1px solid #444 !important;
+  border-radius: 6px !important;
+  font-size: 14px;
+  padding: 4px 10px !important; // Adjusted padding for select
+  box-shadow: none !important;
+  outline: none !important;
+}
+nz-select .ant-select-arrow {
+  color: #b3b3b3 !important;
+}
+
+
+// Table specific styles
+.table-responsive {
+  width: 100%;
+  overflow-x: auto; // Ensures table is scrollable if content overflows
+}
+
+nz-table {
+  th {
+    white-space: nowrap; // Prevent header text from wrapping
+  }
+  td {
+    white-space: nowrap; // Prevent cell text from wrapping, relies on horizontal scroll
   }
 }
 
 .token-value-cell {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 4px; // Increased gap slightly
+
+  .token-input {
+    width: 140px; // Keep a fixed width for the token input itself
+    margin-right: 0; // Remove margin as gap handles it
+  }
+
+  .action-icon {
+    padding: 0 4px;
+    color: @primary-color;
+    &:hover {
+      color: @secondary-color;
+    }
+  }
+}
+
+.status-revoked {
+  color: @error-color; // Use theme error color
+  font-weight: bold;
+}
+
+.status-active {
+  color: @success-color; // Use theme success color
+  font-weight: bold;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px; // Space between buttons
+
+  .action-button {
+    // General button styles will apply, specific overrides if needed
+    margin-right: 0px !important; // Override default margin from nz-button if any
+  }
+
+  @media (max-width: @screen-sm-max) {
+    flex-direction: column; // Stack buttons on small screens
+    .action-button {
+      width: 100%;
+      margin-bottom: 4px; // Add a small margin when stacked
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+
+// Alert Management Section
+.alert-management-row {
+  // nz-row with gutter handles spacing between columns
+}
+
+.alert-list {
+  h4 {
+    color: @primary-color;
+    margin-bottom: 12px; // Increased margin
+    font-size: 16px;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 12px; // Increased margin
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #181a1b;
+      padding: 8px 12px; // Increased padding
+      border-radius: 4px;
+      margin-bottom: 6px; // Increased margin
+      color: #fff;
+
+      .remove-button {
+        padding: 0; // For link buttons
+        color: @error-color;
+        &:hover {
+          color: darken(@error-color, 10%);
+        }
+      }
+    }
+  }
+
+  .add-item-form {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+
+    input[nz-input] {
+      flex-grow: 1; // Allow input to take available space
+      // width: 70%; // Replaced by flex-grow
+      margin-right: 0; // Gap handles spacing
+      // background: #181a1b; // Covered by general input styles
+      // color: #fff; // Covered by general input styles
+      // border: 1px solid #444; // Covered by general input styles
+    }
+
+    .add-button {
+      min-width: 40px; // Ensure button is not too small
+      // background: @primary-color; // Covered by general button styles
+      // color: #fff; // Covered by general button styles
+      // border: none; // Covered by general button styles
+      // &:hover {
+      //   background: @secondary-color; // Covered by general button styles
+      // }
+    }
+  }
+}
+
+// General button styling (ensure it's broad enough or override as needed)
+button[nz-button], .ant-btn {
+  // background: @primary-color; // This might be too general, let nzType handle primary color
+  // color: #fff;
+  // border: none;
+  border-radius: 6px !important; // Standardize border radius
+  font-weight: 600;
+  padding: 7px 15px !important;
+  font-size: 14px;
+  // transition: background 0.2s, color 0.2s, border-color 0.2s;
+
+  // Default button type styling
+  &.ant-btn-default {
+    background-color: #3a3f44 !important; // Darker default for better contrast
+    border-color: #555 !important;
+    color: #fff !important;
+    &:hover, &:focus {
+      background-color: lighten(#3a3f44, 5%) !important;
+      border-color: lighten(#555, 5%) !important;
+      color: #fff !important;
+    }
+  }
+
+  &.ant-btn-primary {
+    background: @primary-color !important;
+    border-color: @primary-color !important;
+    color: #fff !important;
+    &:hover, &:focus {
+      background: @secondary-color !important;
+      border-color: @secondary-color !important;
+      color: #fff !important;
+    }
+    &:disabled {
+      background: #444 !important;
+      color: #bbb !important;
+      border-color: #444 !important;
+      cursor: not-allowed;
+    }
+  }
+
+  &.ant-btn-link {
+    // Link buttons might not need background/border
+    &.ant-btn-danger {
+       color: @error-color !important;
+       &:hover, &:focus {
+        color: darken(@error-color, 10%) !important;
+       }
+    }
+  }
+}
+
+// Error text styling
+.error-text {
+  color: @error-color;
+  font-size: 0.85em;
+  margin-top: 4px;
+}
+
+// Loading indicator
+.loading-indicator {
+  text-align: center;
+  padding: 20px;
+  font-size: 16px;
+  color: #fff;
+}
+
+// Error message
+.error-message {
+  color: @error-color !important; // Ensure high specificity
+  margin-bottom: 15px !important;
+  padding: 10px;
+  background-color: fade(@error-color, 15%);
+  border: 1px solid fade(@error-color, 30%);
+  border-radius: 4px;
+}
+
+// Responsive adjustments for form labels
+@media (max-width: @screen-md-max) {
+  form[nz-form] {
+    .ant-form-item-label {
+      text-align: left !important; // Align labels to the left on medium screens and below
+      padding-bottom: 4px; // Add some space below the label
+    }
+  }
 }

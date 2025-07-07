@@ -5,7 +5,7 @@
     <div class="message-list-area">
       <nz-spin [nzSpinning]="isLoadingNotes" style="height: 100%;">
         <cdk-virtual-scroll-viewport #viewport itemSize="72" class="chat-virtual-scroll-viewport">
-          <nz-list [nzDataSource]="notes" nzRenderItem="messageItem" class="message-nz-list">
+          <nz-list [nzDataSource]="notes" [nzRenderItem]="messageItem" class="message-nz-list">
             <ng-template #messageItem let-item>
               <nz-list-item [ngClass]="{'user-message': item.human, 'ai-message': !item.human && item }">
                 @if (item) {

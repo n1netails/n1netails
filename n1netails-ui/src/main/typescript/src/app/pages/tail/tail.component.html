@@ -11,8 +11,8 @@
     <nz-content>
 
       <div class="inner-content">
-        <nz-row class="edit-profile" [nzGutter]="8">
-          <nz-col [nzSpan]="24">
+        <nz-row [nzGutter]="[16, 16]">
+          <nz-col [nzXs]="24" [nzSm]="24" [nzMd]="24" [nzLg]="24" [nzXl]="24">
             <nz-card class="tails-primary-color" nzTitle="Tail Information" [nzBordered]="false">
 
               <div class="tail-details-container">
@@ -28,30 +28,34 @@
                 <div *ngIf="!isLoading && tail" class="tail-content">
 
                   <!-- Modified section for action buttons -->
-                  <div class="tail-actions" style="margin-bottom: 16px; text-align: right;">
-                    <button nz-button nzType="primary" (click)="openResolveModal()" *ngIf="tail && tail.status !== 'RESOLVED' && tail.assignedUserId == currentUser.id.toString()" style="margin-left: 8px;">
+                  <div class="tail-actions">
+                    <button nz-button nzType="primary" (click)="openResolveModal()" *ngIf="tail && tail.status !== 'RESOLVED' && tail.assignedUserId == currentUser.id.toString()">
                       Resolve Tail
                     </button>
-                    <button nz-button nzType="default" (click)="investigateTail()" *ngIf="llmEnabled && tail && tail.status !== 'RESOLVED' && n1Note.content === ''" [nzLoading]="isInvestigating" [disabled]="!tail || isInvestigating" style="margin-left: 8px;">
+                    <button nz-button nzType="default" (click)="investigateTail()" *ngIf="llmEnabled && tail && tail.status !== 'RESOLVED' && n1Note.content === ''" [nzLoading]="isInvestigating" [disabled]="!tail || isInvestigating">
                       Investigate with Inari
                     </button>
                   </div>
 
-                  <div class="tail-header">
-                    <nz-avatar
-                      [nzSrc]="tailUtilService.getKudaAvatar(tail.level)"
-                      [nzSize]="224"
-                      class="tail-avatar"
-                    ></nz-avatar>
-                    
-                    <div class="meta-info">
-                      <h3>{{ tail.title }}</h3>
-                      <p><strong>ID:</strong> {{ tail.id }}</p>
-                      <p><strong>Timestamp:</strong> {{ tail.timestamp | date:'medium' }}</p>
-                      <p *ngIf="tail.resolvedTimestamp"><strong>Resolved At:</strong> {{ tail.resolvedTimestamp | date:'medium' }}</p>
-                      <p *ngIf="tail.assignedUsername"><strong>Assigned To:</strong> {{ tail.assignedUsername }}</p>
-                    </div>
-                  </div>
+                  <nz-row [nzGutter]="[16,16]">
+                    <nz-col [nzXs]="24" [nzSm]="24" [nzMd]="8" [nzLg]="6" [nzXl]="6" class="avatar-column">
+                      <nz-avatar
+                        [nzSrc]="tailUtilService.getKudaAvatar(tail.level)"
+                        [nzSize]="224"
+                        class="tail-avatar"
+                      ></nz-avatar>
+                    </nz-col>
+                    <nz-col [nzXs]="24" [nzSm]="24" [nzMd]="16" [nzLg]="18" [nzXl]="18" class="meta-info-column">
+                      <div class="meta-info">
+                        <h3>{{ tail.title }}</h3>
+                        <p><strong>ID:</strong> {{ tail.id }}</p>
+                        <p><strong>Timestamp:</strong> {{ tail.timestamp | date:'medium' }}</p>
+                        <p *ngIf="tail.resolvedTimestamp"><strong>Resolved At:</strong> {{ tail.resolvedTimestamp | date:'medium' }}</p>
+                        <p *ngIf="tail.assignedUsername"><strong>Assigned To:</strong> {{ tail.assignedUsername }}</p>
+                      </div>
+                    </nz-col>
+                  </nz-row>
+
 
                   <div class="tags">
                     <nz-tag [nzColor]="tailUtilService.getLevelColor(tail.level)">{{ tail.level }}</nz-tag>
@@ -98,31 +102,37 @@
               </div>
 
             </nz-card>
-
-            <!-- LLM Investigation Display Area -->
-            <div *ngIf="isInvestigating && !llmResponse" style="text-align: center; margin-top: 8px !important;">
-                <nz-spin nzSimple [nzSize]="'large'" nzTip="Investigating..."></nz-spin>
-            </div>
-
-            <nz-card *ngIf="n1Note.content !== '' && !isInvestigating" nzTitle="Inari Investigation Analysis" [nzBordered]="false" style="margin-top: 8px;">
-              <markdown [data]="n1Note.content"></markdown>
-            </nz-card>
-            <!-- End of LLM Investigation Display Area -->
-
-            <!-- AI Chat Card -->
-            <app-ai-chat-card
-              *ngIf="tail && currentUser"
-              [tail]="tail"
-              [currentUser]="currentUser"
-              [initialLlmResponse]="llmResponse?.completion"
-              style="margin-top: 16px;">
-            </app-ai-chat-card>
-            <!-- End of AI Chat Card -->
-
           </nz-col>
         </nz-row>
-      </div>
 
+        <!-- LLM Investigation Display Area -->
+        <nz-row [nzGutter]="[16,16]" *ngIf="isInvestigating && !llmResponse">
+          <nz-col [nzXs]="24" [nzSm]="24" [nzMd]="24" [nzLg]="24" [nzXl]="24">
+            <div style="text-align: center; margin-top: 8px !important;">
+                <nz-spin nzSimple [nzSize]="'large'" nzTip="Investigating..."></nz-spin>
+            </div>
+          </nz-col>
+        </nz-row>
+
+        <nz-row [nzGutter]="[16,16]" *ngIf="n1Note.content !== '' && !isInvestigating">
+          <nz-col [nzXs]="24" [nzSm]="24" [nzMd]="24" [nzLg]="24" [nzXl]="24">
+            <nz-card nzTitle="Inari Investigation Analysis" [nzBordered]="false" class="inari-card">
+              <markdown [data]="n1Note.content"></markdown>
+            </nz-card>
+          </nz-col>
+        </nz-row>
+        <!-- End of LLM Investigation Display Area -->
+
+        <!-- AI Chat Card -->
+        <app-ai-chat-card
+          *ngIf="tail && currentUser"
+          [tail]="tail"
+          [currentUser]="currentUser"
+          [initialLlmResponse]="llmResponse?.completion"
+          style="margin-top: 16px;">
+        </app-ai-chat-card>
+        <!-- End of AI Chat Card -->
+      </div>
     </nz-content>
   </nz-layout>
 </nz-layout>

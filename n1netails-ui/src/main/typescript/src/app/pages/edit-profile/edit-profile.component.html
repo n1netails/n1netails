@@ -10,16 +10,16 @@
 
     <nz-content>
       <div class="inner-content">
-        <nz-row class="edit-profile" [nzGutter]="8">
-          <nz-col [nzSpan]="24">
+        <nz-row class="edit-profile" [nzGutter]="[16, 16]">
+          <nz-col [nzXs]="24" [nzSm]="24" [nzMd]="24" [nzLg]="24" [nzXl]="24">
             <nz-card class="tails-primary-color" nzTitle="Edit Profile" [nzBordered]="false">
               <div class="profile-flex">
                 <div class="profile-details">
 
                   <form nz-form #profileForm="ngForm" (ngSubmit)="onSaveProfile(profileForm)">
                     <nz-form-item>
-                      <nz-form-label [nzSpan]="4" nzFor="username" nzRequired>Username</nz-form-label>
-                      <nz-form-control [nzSpan]="16">
+                      <nz-form-label [nzXs]="24" [nzSm]="6" [nzMd]="4" nzFor="username" nzRequired>Username</nz-form-label>
+                      <nz-form-control [nzXs]="24" [nzSm]="18" [nzMd]="16">
                         <input
                           nz-input
                           type="text"
@@ -32,8 +32,8 @@
                       </nz-form-control>
                     </nz-form-item>
                     <nz-form-item>
-                      <nz-form-label [nzSpan]="4" nzFor="firstName" nzRequired>First Name</nz-form-label>
-                      <nz-form-control [nzSpan]="16">
+                      <nz-form-label [nzXs]="24" [nzSm]="6" [nzMd]="4" nzFor="firstName" nzRequired>First Name</nz-form-label>
+                      <nz-form-control [nzXs]="24" [nzSm]="18" [nzMd]="16">
                         <input
                           nz-input
                           type="text"
@@ -46,8 +46,8 @@
                       </nz-form-control>
                     </nz-form-item>
                      <nz-form-item>
-                      <nz-form-label [nzSpan]="4" nzFor="lastName" nzRequired>Last Name</nz-form-label>
-                      <nz-form-control [nzSpan]="16">
+                      <nz-form-label [nzXs]="24" [nzSm]="6" [nzMd]="4" nzFor="lastName" nzRequired>Last Name</nz-form-label>
+                      <nz-form-control [nzXs]="24" [nzSm]="18" [nzMd]="16">
                         <input
                           nz-input
                           type="text"
@@ -75,8 +75,8 @@
             </nz-card>
           </nz-col>
         </nz-row> 
-        <nz-row [nzGutter]="8" class="profile-actions-row">
-          <nz-col [nzSpan]="12">
+        <nz-row [nzGutter]="[16, 16]" class="profile-actions-row">
+          <nz-col [nzXs]="24" [nzSm]="24" [nzMd]="12">
             <nz-card nzTitle="Password Reset" class="tails-primary-color profile-side-card" [nzBordered]="false">
               <div *ngIf="passwordResetErrorMessage" class="error-message">
                 {{ passwordResetErrorMessage }}
@@ -85,8 +85,8 @@
                 <p>Reset your account password here.</p>
                 <form nz-form (ngSubmit)="onPasswordReset()" #passwordForm="ngForm" class="password-form">
                   <nz-form-item>
-                    <nz-form-label [nzSpan]="4" nzFor="newPassword" nzRequired>New Password: </nz-form-label>
-                    <nz-form-control [nzSpan]="20">
+                    <nz-form-label [nzXs]="24" [nzSm]="8" [nzMd]="6" nzFor="newPassword" nzRequired>New Password: </nz-form-label>
+                    <nz-form-control [nzXs]="24" [nzSm]="16" [nzMd]="18">
                       <input
                         nz-input
                         type="password"
@@ -112,7 +112,7 @@
               </div>
             </nz-card>
           </nz-col>
-          <nz-col [nzSpan]="12">
+          <nz-col [nzXs]="24" [nzSm]="24" [nzMd]="12">
             <nz-card nzTitle="Register Passkey" class="tails-primary-color profile-side-card" [nzBordered]="false">
               <div class="card-content">
                 <p>Register a new passkey for your account. (Can be used as a backup for logging in.)</p>

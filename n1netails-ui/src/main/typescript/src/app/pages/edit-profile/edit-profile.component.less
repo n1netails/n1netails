@@ -80,6 +80,10 @@ button[nz-button] {
   transition: background 0.2s;
   align-self: center;
 
+  @media (max-width: @screen-sm-max) {
+    width: 100%; // Full width buttons on small screens
+  }
+
   &:hover,
   &:focus {
     background: @secondary-color !important;
@@ -146,4 +150,28 @@ input[nz-input], .ant-input, .ant-input-affix-wrapper {
   justify-content: flex-end;
   align-items: flex-end;
   width: 100%;
+
+  @media (max-width: @screen-sm-max) {
+    justify-content: center; // Center buttons on small screens
+    button {
+      width: 100%; // Make buttons full width
+      margin-top: 8px; // Add some space above the button
+    }
+  }
+}
+
+.profile-flex {
+  @media (max-width: @screen-md-max) {
+    flex-direction: column; // Stack profile image and details on medium screens and below
+    .profile-img {
+      margin-bottom: 16px; // Add space below image when stacked
+    }
+  }
+}
+
+.ant-form-item-label {
+  @media (max-width: @screen-sm-max) {
+    text-align: left !important; // Align labels to the left on small screens
+    padding-bottom: 4px; // Add some space below the label
+  }
 }

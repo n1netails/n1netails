@@ -45,3 +45,24 @@ nz-content {
 nz-row {
   margin: 8px;
 }
+
+// Mobile Responsiveness
+@media (max-width: 767px) {
+  .mobile-dashboard-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+
+    h1 {
+      font-size: 1.25rem;
+      margin: 0;
+    }
+  }
+
+  .app-layout > nz-sider {
+    // This will hide the sider itself on mobile.
+    // The *ngIf on app-sidenav hides its content, but the sider container might remain.
+    display: none;
+  }
+}

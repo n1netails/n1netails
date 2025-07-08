@@ -27,8 +27,8 @@
       </div>
     </nz-spin>
 
-    <div class="chat-input-area" style="display: flex; align-items: flex-end; gap: 0; margin-top: 12px;">
-      <nz-form-item style="flex: 1; margin-bottom: 0;">
+    <div class="chat-input-area">
+      <nz-form-item class="textarea-form-item">
         <nz-textarea-count [nzMaxCharacterCount]="2000">
           <textarea
             nz-input
@@ -40,7 +40,7 @@
           ></textarea>
         </nz-textarea-count>
       </nz-form-item>
-      <nz-form-item class="action-buttons" style="margin-bottom: 0; margin-left: 12px; display: flex; gap: 8px;">
+      <nz-form-item class="action-buttons">
         <button
           nz-button
           nzType="default"

@@ -52,21 +52,37 @@
   background: transparent;
 
   // nz-form-item containing the textarea
-  nz-form-item {
-    flex: 1 1 auto; // Allow textarea form item to grow
+  .textarea-form-item {
+    flex: 1 1 auto; // Allow textarea form item to grow and shrink
+    min-width: 0; // Prevent overflow in flex context
     margin-bottom: 0 !important; // Remove default antd margin
-    width: 100%; // Ensure it tries to take full width before flex distribution
+    display: flex; // Use flex to make nz-textarea-count expand
 
-    textarea {
-      width: 100% !important; // Ensure textarea takes full width of its parent
-      min-height: 38px; // Match button height for single line
+    nz-textarea-count {
+      width: 100%; // Ensure nz-textarea-count takes full width of its parent form-item
+
+      textarea {
+        width: 100% !important; // Ensure textarea takes full width of its parent
+        min-height: 38px; // Match button height for single line
+        resize: vertical; // Allow vertical resize, disable horizontal
+      }
+
+      // Adjust the character count position
+      // This targets the default class antd uses for the counter
+      ::ng-deep .ant-input-textarea-show-count {
+        // Position it slightly higher so it doesn't interfere with elements below
+        // especially when buttons are stacked under on mobile.
+        bottom: -20px; // Adjust as needed, ensures it's below the textarea but not too far
+        right: 0px;   // Keep it to the right
+        // Ensure it doesn't get cut off if card padding is small
+        z-index: 1;
+      }
     }
   }
 
   // Container for action buttons
   .action-buttons {
-    margin-bottom: 0;
-    margin-left: 0; // Reset margin-left for flex layout
+    margin-bottom: 0 !important; // Remove default antd margin
     display: flex;
     gap: 8px;
     align-items: flex-end; // Align buttons to the bottom with the textarea
@@ -82,14 +98,18 @@
     align-items: stretch; // Stretch items to fill width
     gap: 12px; // Adjust gap for vertical layout
 
-    nz-form-item {
+    .textarea-form-item {
       width: 100%; // Ensure form item takes full width
+      // Add padding at the bottom of the textarea form item on mobile
+      // to make space for the absolutely positioned character counter,
+      // so it doesn't overlap with the buttons stacked below.
+      padding-bottom: 20px; // This should be roughly the height of the counter + some buffer
     }
 
     .action-buttons {
       width: 100%; // Make button container take full width
-      flex-direction: column; // Stack buttons vertically if multiple, or ensure full width for single line of buttons
-      gap: 8px; // Gap between buttons if they stack or if there are multiple rows of buttons
+      flex-direction: column; // Stack buttons vertically
+      gap: 8px; // Gap between buttons
 
       button {
         width: 100%; // Make buttons take full width

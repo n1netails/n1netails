@@ -184,19 +184,20 @@ button[nz-button].cancel-btn {
 
 .list-item-details-actions-wrapper {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end; // Push content (tags and actions) to the right
   align-items: center;
   width: 100%; // Ensure this wrapper also takes full width
+  gap: 16px; // Add space between tags and actions
 
   .tags-wrapper {
     padding-left: 0; // Reset padding from previous global .tags-wrapper style
     margin-top: 0; // Reset margin from previous global .tags-wrapper style
-    flex-grow: 1; // Allow tags to take available space
+    // flex-grow: 1; // No longer needed, let it size naturally
   }
 
   .list-item-actions {
-    margin-left: auto; // Push actions to the right
-    padding-left: 16px; // Add some space between tags and actions
+    // margin-left: auto; // No longer needed due to justify-content: flex-end
+    padding-left: 0; // Reset padding, gap will handle spacing
     flex-shrink: 0; // Prevent actions from shrinking
   }
 }

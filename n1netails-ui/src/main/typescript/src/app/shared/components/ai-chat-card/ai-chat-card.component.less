@@ -1,51 +1,127 @@
+@import '../../../../variables.less';
+
 .ai-chat-card {
     margin-top: 8px;
 }
 
 .ai-chat-card .chat-card-content {
-
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: 400px;
+  min-height: 400px; // Ensure there's a minimum height for the card content
 }
 
 .chat-virtual-scroll-container {
-  flex: 1 1 auto;
-  min-height: 0;
-  height: 100%;      // Add this line
-  overflow: hidden;
-  display: flex;     // Ensure flex context for children
+  flex: 1 1 auto; // Allow this container to grow and shrink
+  min-height: 0; // Prevent flex item from overflowing its container
+  overflow: hidden; // Hide overflow from children if they are too large
+  display: flex;
   flex-direction: column;
 }
 
 .chat-virtual-scroll-viewport {
   width: 100% !important;
-  height: 100% !important;   // Ensure it fills the container
-  min-height: 500px;         // Or your preferred min height
+  height: 100% !important;
+  min-height: 300px; // Adjusted min-height for chat view
   flex: 1 1 auto;
   border-radius: 8px;
   background: transparent;
+
+  // Styling for the content within the list items
+  ::ng-deep nz-list-item-meta-description {
+    markdown {
+      display: block; // Ensure markdown content is block for overflow properties to work
+      overflow-x: auto; // Allow horizontal scrolling for overflow
+      white-space: pre-wrap; // Preserve whitespace and wrap lines
+      word-break: break-all; // Break long words to prevent overflow
+      padding-bottom: 5px; // Add some padding at the bottom for scrollbar visibility
+    }
+    // Ensure the description itself can be styled if markdown is not direct child or for other content
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
 }
 
 .chat-input-area {
   display: flex;
-  align-items: flex-end;
-  gap: 0;
+  align-items: flex-end; // Align items to the bottom (useful for multi-line textareas)
+  gap: 8px; // Consistent gap for desktop
   margin-top: 12px;
   width: 100%;
   background: transparent;
+
+  // nz-form-item containing the textarea
+  .textarea-form-item {
+    flex: 1 1 auto; // Allow textarea form item to grow and shrink
+    min-width: 0; // Prevent overflow in flex context
+    margin-bottom: 0 !important; // Remove default antd margin
+    display: flex; // Use flex to make nz-textarea-count expand
+
+    nz-textarea-count {
+      width: 100%; // Ensure nz-textarea-count takes full width of its parent form-item
+
+      textarea {
+        width: 100% !important; // Ensure textarea takes full width of its parent
+        min-height: 38px; // Match button height for single line
+        resize: vertical; // Allow vertical resize, disable horizontal
+      }
+
+      // Adjust the character count position
+      // This targets the default class antd uses for the counter
+      ::ng-deep .ant-input-textarea-show-count {
+        // Position it slightly higher so it doesn't interfere with elements below
+        // especially when buttons are stacked under on mobile.
+        bottom: -20px; // Adjust as needed, ensures it's below the textarea but not too far
+        right: 0px;   // Keep it to the right
+        // Ensure it doesn't get cut off if card padding is small
+        z-index: 1;
+      }
+    }
+  }
+
+  // Container for action buttons
+  .action-buttons {
+    margin-bottom: 0 !important; // Remove default antd margin
+    display: flex;
+    gap: 8px;
+    align-items: flex-end; // Align buttons to the bottom with the textarea
+
+    button {
+      margin: 0; // Reset any default margins on buttons
+    }
+  }
+
+  // Responsive adjustments for smaller screens
+  @media (max-width: @screen-sm-max) {
+    flex-direction: column; // Stack items vertically
+    align-items: stretch; // Stretch items to fill width
+    gap: 12px; // Adjust gap for vertical layout
+
+    .textarea-form-item {
+      width: 100%; // Ensure form item takes full width
+      // Add padding at the bottom of the textarea form item on mobile
+      // to make space for the absolutely positioned character counter,
+      // so it doesn't overlap with the buttons stacked below.
+      padding-bottom: 20px; // This should be roughly the height of the counter + some buffer
+    }
+
+    .action-buttons {
+      width: 100%; // Make button container take full width
+      flex-direction: column; // Stack buttons vertically
+      gap: 8px; // Gap between buttons
+
+      button {
+        width: 100%; // Make buttons take full width
+      }
+    }
+  }
 }
 
-.chat-textarea {
-  flex: 1 1 0;
-  min-width: 0;
-  margin-bottom: 0;
-}
-
-.action-buttons {
-  margin-bottom: 0;
-  margin-left: 12px;
-  display: flex;
-  gap: 8px;
-}
+// Ensure this class is not overriding the textarea width if it exists elsewhere.
+// If .chat-textarea was meant for the textarea itself, it's now handled by the direct textarea styling.
+// .chat-textarea {
+//   flex: 1 1 0;
+//   min-width: 0;
+//   margin-bottom: 0;
+// }

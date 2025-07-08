@@ -26,12 +26,57 @@ nz-header {
       letter-spacing: 0.5px;
     }
 
-    .tail-header {
+    .tail-actions {
       display: flex;
-      align-items: center;
-      gap: 20px;
-      margin-bottom: 12px;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-bottom: 16px;
+
+      @media (max-width: @screen-sm-max) {
+        flex-direction: column;
+        button {
+          width: 100%;
+        }
+      }
     }
+
+    // .tail-header {
+    //   display: flex;
+    //   align-items: center;
+    //   gap: 20px;
+    //   margin-bottom: 12px;
+
+    //   @media (max-width: @screen-md-max) {
+    //     flex-direction: column;
+    //     .tail-avatar {
+    //       margin-bottom: 16px;
+    //     }
+    //   }
+    // }
+
+    .avatar-column {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      .tail-avatar {
+         // Make avatar responsive if needed, e.g.
+        @media (max-width: @screen-sm-max) {
+          width: 180px !important; // Smaller avatar on small screens
+          height: 180px !important;
+        }
+      }
+    }
+
+    .meta-info-column {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+       @media (max-width: @screen-md-max) {
+        align-items: center; // Center text on medium screens and below
+        text-align: center;
+      }
+    }
+
 
     .meta-info {
       margin-bottom: 20px;
@@ -46,8 +91,12 @@ nz-header {
 
     .tags {
       margin-bottom: 20px;
+      text-align: center; // Center tags by default
+      @media (min-width: @screen-md-min) {
+        text-align: left; // Align left on medium screens and up
+      }
       nz-tag {
-        margin-right: 8px;
+        margin: 4px; // Add some margin for wrapping
         font-size: 15px;
         border-radius: 4px;
         padding: 2px 14px;
@@ -58,7 +107,7 @@ nz-header {
     .description,
     .details-section {
       margin-bottom: 20px;
-      h3 {
+      h3, h4 {
         margin-bottom: 8px;
         color: @primary-color;
         border-bottom: 1px solid #333;
@@ -95,7 +144,7 @@ nz-header {
   border: 1px solid #292929;
   overflow-x: auto;
   white-space: pre-wrap; // allows wrapping for long lines
-  word-break: break-all;
+  word-break: break-all; // break words if they are too long
   display: block;
   margin: 0;
 }
@@ -106,24 +155,50 @@ nz-header {
   margin-top: 8px;
   background: #181a1b;
   border-radius: 6px;
-  overflow: hidden;
+  overflow: hidden; // For border-radius to apply to table
   font-size: 15px;
   color: #f1f1f1;
+  table-layout: fixed; // Helps with responsive table cells
 
   tr {
     border-bottom: 1px solid #292929;
+    &:last-child {
+      border-bottom: none; // Remove border from last row
+    }
   }
   td {
     padding: 8px 12px;
+    word-break: break-word; // Allow long words to break and wrap
   }
   .meta-key {
     color: @primary-color;
     font-weight: 600;
-    width: 120px;
-    white-space: nowrap;
+    width: 120px; // Fixed width for key column
+    white-space: nowrap; // Prevent key from wrapping
+    @media (max-width: @screen-sm-max) {
+      width: 100px; // Slightly smaller key column on small screens
+      font-size: 14px;
+    }
   }
   .meta-value {
     color: #fff;
-    word-break: break-all;
+    // word-break: break-all; // Already handled by td
+    @media (max-width: @screen-sm-max) {
+      font-size: 14px;
+    }
+  }
+}
+
+.inari-card {
+  margin-top: 8px;
+  ::ng-deep {
+    .ant-card-body {
+      overflow-x: auto; // Add horizontal scroll for markdown content if it overflows
+      markdown {
+        display: block; // Ensure markdown takes block display to respect overflow
+        white-space: pre-wrap; // Preserve whitespace and wrap lines
+        word-break: break-all; // Break long words to prevent overflow issues
+      }
+    }
   }
 }

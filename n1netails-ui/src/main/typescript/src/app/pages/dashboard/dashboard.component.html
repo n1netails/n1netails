@@ -80,37 +80,39 @@
                     <nz-skeleton [nzAvatar]="true" [nzActive]="true" [nzTitle]="false" [nzLoading]="true" />
                     } @else {
                     <ng-container>
-                      <ng-template #customAvatarTpl>
-                        <nz-avatar
-                          [nzSrc]="tailUtilService.getKudaAvatar(item.level)"
-                          [nzSize]="32">
-                        </nz-avatar>
-                      </ng-template>
+                      <div class="list-item-title-wrapper">
+                        <ng-template #customAvatarTpl>
+                          <nz-avatar
+                            [nzSrc]="tailUtilService.getKudaAvatar(item.level)"
+                            [nzSize]="32">
+                          </nz-avatar>
+                        </ng-template>
+                        <nz-list-item-meta [nzAvatar]="customAvatarTpl">
+                          <nz-list-item-meta-title>
+                            <a
+                              (click)="goToTail(item.id)"
+                              class="truncate-text title"
+                              [title]="item.title">
+                              {{ item.title }}
+                            </a>
+                          </nz-list-item-meta-title>
+                        </nz-list-item-meta>
+                      </div>
 
-                      <nz-list-item-meta [nzAvatar]="customAvatarTpl">
-                        <nz-list-item-meta-title>
-                          <a
-                            (click)="goToTail(item.id)"
-                            class="truncate-text title"
-                            [title]="item.title">
-                            {{ item.title }}
-                          </a>
-                        </nz-list-item-meta-title>
-                      </nz-list-item-meta>
+                      <div class="list-item-details-actions-wrapper">
+                        <div class="tags-wrapper">
+                          <nz-tag [nzColor]="tailUtilService.getLevelColor(item.level)" class="tag">
+                            {{ item.level }}
+                          </nz-tag>
+                          <nz-tag [nzColor]="tailUtilService.getTypeColor(item.type)" class="tag">
+                            {{ item.type }}
+                          </nz-tag>
+                          <nz-tag [nzColor]="tailUtilService.getStatusColor(item.status)" class="tag">
+                            {{ item.status }}
+                          </nz-tag>
+                        </div>
 
-                      <div class="tags-wrapper">
-                        <nz-tag [nzColor]="tailUtilService.getLevelColor(item.level)" class="tag">
-                          {{ item.level }}
-                        </nz-tag>
-                        <nz-tag [nzColor]="tailUtilService.getTypeColor(item.type)" class="tag">
-                          {{ item.type }}
-                        </nz-tag>
-                        <nz-tag [nzColor]="tailUtilService.getStatusColor(item.status)" class="tag">
-                          {{ item.status }}
-                        </nz-tag>
-                      
-
-                        <ul nz-list-item-actions>
+                        <ul nz-list-item-actions class="list-item-actions">
                           <nz-list-item-action>
                             <a *ngIf="item.assignedUserId == user.id" (click)="resolve(item)">
                               resolve
@@ -118,7 +120,6 @@
                           </nz-list-item-action>
                         </ul>
                       </div>
-
                     </ng-container>
                     }
                   </nz-list-item>

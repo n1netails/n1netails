@@ -176,3 +176,34 @@ button[nz-button].cancel-btn {
 .tag {
   margin-right: 0;
 }
+
+.list-item-title-wrapper {
+  width: 100%; // Ensure it takes full width
+  margin-bottom: 8px; // Add some space below the title
+}
+
+.list-item-details-actions-wrapper {
+  display: flex;
+  justify-content: flex-end; // Push content (tags and actions) to the right
+  align-items: center;
+  width: 100%; // Ensure this wrapper also takes full width
+  gap: 16px; // Add space between tags and actions
+
+  .tags-wrapper {
+    padding-left: 0; // Reset padding from previous global .tags-wrapper style
+    margin-top: 0; // Reset margin from previous global .tags-wrapper style
+    // flex-grow: 1; // No longer needed, let it size naturally
+  }
+
+  .list-item-actions {
+    // margin-left: auto; // No longer needed due to justify-content: flex-end
+    padding-left: 0; // Reset padding, gap will handle spacing
+    flex-shrink: 0; // Prevent actions from shrinking
+  }
+}
+
+// Adjustments for nz-list-item to ensure inner content flows correctly
+::ng-deep .ant-list-item-content {
+  display: flex;
+  flex-direction: column; // Stack title and details/actions vertically
+}

@@ -88,36 +88,38 @@
                       </nz-avatar>
                     </ng-template>
 
+                    <a
+                      (click)="goToTail(item.id)"
+                      class="truncate-text title"
+                      [title]="item.title">
+                      {{ item.title }}
+                    </a>
+
                     <nz-list-item-meta [nzAvatar]="customAvatarTpl">
-                      <nz-list-item-meta-title>
-                        <a
-                          (click)="goToTail(item.id)"
-                          class="truncate-text title"
-                          [title]="item.title">
-                          {{ item.title }}
-                        </a>
-                      </nz-list-item-meta-title>
+                      <!-- Title is now above -->
                     </nz-list-item-meta>
 
-                    <div class="tags-wrapper">
-                      <nz-tag [nzColor]="tailUtilService.getLevelColor(item.level)" class="tag">
-                        {{ item.level }}
-                      </nz-tag>
-                      <nz-tag [nzColor]="tailUtilService.getTypeColor(item.type)" class="tag">
-                        {{ item.type }}
-                      </nz-tag>
-                      <nz-tag [nzColor]="tailUtilService.getStatusColor(item.status)" class="tag">
-                        {{ item.status }}
-                      </nz-tag>
-                    </div>
+                    <div style="float: right;">
+                      <div class="tags-wrapper">
+                        <nz-tag [nzColor]="tailUtilService.getLevelColor(item.level)" class="tag">
+                          {{ item.level }}
+                        </nz-tag>
+                        <nz-tag [nzColor]="tailUtilService.getTypeColor(item.type)" class="tag">
+                          {{ item.type }}
+                        </nz-tag>
+                        <nz-tag [nzColor]="tailUtilService.getStatusColor(item.status)" class="tag">
+                          {{ item.status }}
+                        </nz-tag>
+                      </div>
 
-                    <ul nz-list-item-actions>
-                      <nz-list-item-action>
-                        <a *ngIf="item.assignedUserId == user.id" (click)="resolve(item)">
-                          resolve
-                        </a>
-                      </nz-list-item-action>
-                    </ul>
+                      <ul nz-list-item-actions>
+                        <nz-list-item-action>
+                          <a *ngIf="item.assignedUserId == user.id" (click)="resolve(item)">
+                            resolve
+                          </a>
+                        </nz-list-item-action>
+                      </ul>
+                    </div>
 
                   </ng-container>
                     }

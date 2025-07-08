@@ -7,16 +7,13 @@ nz-header {
 }
 
 .settings-container {
-  // display: flex; // Handled by nz-row
-  // flex-direction: column; // Handled by nz-row/nz-col
-  // gap: 8px; // Handled by nzGutter
   padding: 8px 0;
   min-height: 100vh;
 }
 
 // General button styling (if not already global or overridden by Ant components)
 button[nz-button] {
-  background: @primary-color; // Base styles from variables.less or Ant default
+  background: @primary-color;
   color: #fff;
   border: none;
   border-radius: 4px;
@@ -36,7 +33,7 @@ button[nz-button] {
 
 // Token Table Responsive Wrapper
 .table-responsive-wrapper {
-  @media (max-width: @screen-md-max) { // Or @screen-sm-max depending on when it breaks
+  @media (max-width: @screen-md-max) {
     overflow-x: auto;
     display: block; // Important for overflow to work on table
     width: 100%;
@@ -44,7 +41,7 @@ button[nz-button] {
 
   nz-table {
     // Ensure table itself doesn't try to shrink unnaturally
-    min-width: 800px; // Adjust based on your table's actual minimum comfortable width
+    min-width: 800px;
   }
 }
 
@@ -94,7 +91,6 @@ button[nz-button] {
 
       .alert-input { // Class added in HTML
         flex-grow: 1; // Input takes available space
-        // width: auto; // Override fixed width if previously set
       }
 
       .alert-add-btn { // Class added in HTML
@@ -114,9 +110,9 @@ button[nz-button] {
 
 // General input styling (ensure it doesn't conflict with Ant's defaults too much)
 input[nz-input], .ant-input, .ant-input-affix-wrapper {
-  width: 100%; // Default to full width, can be constrained by parent
-  min-width: 180px; // A sensible minimum
-  background: #23272b !important; // Prefer not to use !important unless necessary
+  width: 100%;
+  min-width: 180px;
+  background: #23272b !important;
   color: #fff !important;
   border: 1px solid #444 !important;
   border-radius: 6px !important;

@@ -52,45 +52,17 @@ nz-row {
     display: flex;
     align-items: center;
     text-decoration: none;
-    color: inherit; // Or your desired color
-
-    img {
-      // height: 30px; // Already set inline, but good to have in stylesheet
-      // margin-right: 8px; // Already set inline
-    }
+    color: inherit;
 
     h1 {
-      font-size: 1.25rem; // Adjust as needed
+      font-size: 1.25rem;
       margin: 0;
     }
   }
-
-  // Adjust layout when sidenav is hidden
-  // This assumes your main content layout might need adjustment.
-  // For example, if nz-content has a margin-left for the sidenav, it should be removed.
-  // The app.component.html uses an nz-layout with an nz-sider and nz-content.
-  // When the app-sidenav (inside nz-sider) is hidden, nz-sider might still occupy space.
-  // We might need to hide nz-sider itself or adjust its width.
 
   .app-layout > nz-sider {
     // This will hide the sider itself on mobile.
     // The *ngIf on app-sidenav hides its content, but the sider container might remain.
     display: none;
-  }
-
-  .app-layout > nz-content {
-    // If nz-content has a margin that accounts for the sider, remove it.
-    // Inspecting app.component.html would confirm if this is needed.
-    // Assuming the default behavior of nz-layout, when nz-sider is display:none,
-    // nz-content should automatically take up the full width.
-    // If not, uncomment and adjust:
-    // margin-left: 0 !important;
-  }
-
-  // Specific adjustment for .inner-content if it's affected by sider
-  .inner-content {
-    // If .inner-content has padding/margin adjustments due to the sider, reset them here.
-    // For example:
-    // padding-left: 8px; // If it was larger to account for sider
   }
 }

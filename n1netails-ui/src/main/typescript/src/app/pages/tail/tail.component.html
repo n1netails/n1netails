@@ -124,17 +124,13 @@
         <!-- End of LLM Investigation Display Area -->
 
         <!-- AI Chat Card -->
-        <!-- nz-row [nzGutter]="[16,16]">
-          <nz-col [nzXs]="24" [nzSm]="24" [nzMd]="24" [nzLg]="24" [nzXl]="24">
-            <app-ai-chat-card
-              *ngIf="tail && currentUser"
-              [tail]="tail"
-              [currentUser]="currentUser"
-              [initialLlmResponse]="llmResponse?.completion"
-              style="margin-top: 16px;">
-            </app-ai-chat-card>
-          </nz-col>
-        </nz-row -->
+        <app-ai-chat-card
+          *ngIf="tail && currentUser"
+          [tail]="tail"
+          [currentUser]="currentUser"
+          [initialLlmResponse]="llmResponse?.completion"
+          style="margin-top: 16px;">
+        </app-ai-chat-card>
         <!-- End of AI Chat Card -->
       </div>
     </nz-content>

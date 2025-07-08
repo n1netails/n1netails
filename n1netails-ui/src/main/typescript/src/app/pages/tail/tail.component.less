@@ -80,6 +80,11 @@ nz-header {
 
     .meta-info {
       margin-bottom: 20px;
+      h3 {
+        // Ensure long titles wrap and don't overflow on mobile
+        word-break: break-all; // More aggressive word breaking
+        overflow-wrap: break-word; // Standard property for word wrapping
+      }
       p {
         margin-bottom: 5px;
         color: #b3b3b3;

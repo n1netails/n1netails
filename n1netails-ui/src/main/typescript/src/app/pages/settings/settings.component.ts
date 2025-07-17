@@ -90,9 +90,7 @@ export class SettingsComponent implements OnInit {
       sortBy: "id"
     };
     this.tailLevelService.getTailLevels(pageRequest).subscribe((response: PageResponse<TailLevelResponse>) => {
-      console.log('tail levels', response);
       this.tailLevels = response.content;
-      console.log('LEVELS', this.tailLevels);
     });
   }
 
@@ -116,7 +114,6 @@ export class SettingsComponent implements OnInit {
       sortBy: "id"
     };
     this.tailTypeService.getTailTypes(pageRequest).subscribe((response: PageResponse<TailTypeResponse>) => {
-      console.log('tail type list', response);
       this.tailTypes = response.content;
       this.updateAlertTypeOptions();
     });
@@ -352,9 +349,7 @@ export class SettingsComponent implements OnInit {
       searchTerm: this.searchTailLevel
     };
     this.tailLevelService.getTailLevels(pageRequest).subscribe((response: PageResponse<TailLevelResponse>) => {
-      console.log('tail levels', response);
       this.tailLevels = response.content;
-      console.log('LEVELS', this.tailLevels);
     });
   }
 
@@ -380,7 +375,6 @@ export class SettingsComponent implements OnInit {
       searchTerm: this.searchTailType
     };
     this.tailTypeService.getTailTypes(pageRequest).subscribe((response: PageResponse<TailTypeResponse>) => {
-      console.log('tail type list', response);
       this.tailTypes = response.content;
     });
   }

@@ -149,7 +149,6 @@ export class TailsComponent implements OnInit {
   }
 
   onStatusSearch(term: string): void {
-    console.log('on status search');
     const pageRequest: PageRequest = {
       pageNumber: 0,
       pageSize: 50,
@@ -165,7 +164,6 @@ export class TailsComponent implements OnInit {
   } 
 
   onTypeSearch(term: string): void {
-    console.log('on type search');
     const pageRequest: PageRequest = {
       pageNumber: 0,
       pageSize: 50,
@@ -181,7 +179,6 @@ export class TailsComponent implements OnInit {
   } 
 
     onLevelSearch(term: string): void {
-    console.log('on level search');
     const pageRequest: PageRequest = {
       pageNumber: 0,
       pageSize: 50,

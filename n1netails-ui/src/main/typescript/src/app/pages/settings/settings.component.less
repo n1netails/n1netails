@@ -85,7 +85,7 @@ button[nz-button] {
       }
     }
 
-    .alert-add-form {
+    .alert-form {
       display: flex;
       gap: 8px; // Space between input and button
 
@@ -93,14 +93,14 @@ button[nz-button] {
         flex-grow: 1; // Input takes available space
       }
 
-      .alert-add-btn { // Class added in HTML
+      .alert-btn { // Class added in HTML
         padding-left: 13px;
         padding-right: 13px;
       }
 
       @media (max-width: @screen-xs-max) { // Very small screens
         flex-direction: column; // Stack input and button
-        .alert-input, .alert-add-btn {
+        .alert-input, .alert-btn {
           width: 100%; // Both take full width when stacked
         }
       }

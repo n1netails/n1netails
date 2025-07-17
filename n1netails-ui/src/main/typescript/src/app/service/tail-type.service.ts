@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { UiConfigService } from '../shared/ui-config.service';
+import { PageRequest, PageResponse } from '../model/interface/page.interface';
+import { PageUtilService } from '../shared/page-util.service';
 
 export interface TailType {
   name: string;
@@ -26,7 +28,8 @@ export class TailTypeService {
 
   constructor(
     private http: HttpClient,
-    private uiConfigService: UiConfigService
+    private uiConfigService: UiConfigService,
+    private pageUtilService: PageUtilService
   ) {}
 
   createTailType(request: TailType): Observable<TailTypeResponse> {
@@ -34,9 +37,10 @@ export class TailTypeService {
     return this.http.post<TailTypeResponse>(this.host, request);
   }
 
-  getTailTypes(): Observable<TailTypeResponse[]> {
+  getTailTypes(pageRequest: PageRequest): Observable<PageResponse<TailTypeResponse>> {
+    let params = this.pageUtilService.getPageRequestParams(pageRequest);
     this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
-    return this.http.get<TailTypeResponse[]>(this.host);
+    return this.http.get<PageResponse<TailTypeResponse>>(this.host, { params });
   }
 
   getTailTypeById(id: number): Observable<TailTypeResponse> {

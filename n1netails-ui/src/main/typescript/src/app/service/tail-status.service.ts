@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { UiConfigService } from '../shared/ui-config.service';
+import { PageRequest, PageResponse } from '../model/interface/page.interface';
+import { PageUtilService } from '../shared/page-util.service';
 
 export interface TailStatus {
   name: string;
@@ -24,7 +26,8 @@ export class TailStatusService {
 
   constructor(
     private http: HttpClient,
-    private uiConfigService: UiConfigService
+    private uiConfigService: UiConfigService,
+    private pageUtilService: PageUtilService
   ) {}
 
   createTailStatus(request: TailStatus): Observable<TailStatusResponse> {
@@ -32,9 +35,10 @@ export class TailStatusService {
     return this.http.post<TailStatusResponse>(this.host, request);
   }
 
-  getTailStatusList(): Observable<TailStatusResponse[]> {
+  getTailStatusList(pageRequest: PageRequest): Observable<PageResponse<TailStatusResponse>> {
+    let params = this.pageUtilService.getPageRequestParams(pageRequest);
     this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
-    return this.http.get<TailStatusResponse[]>(this.host);
+    return this.http.get<PageResponse<TailStatusResponse>>(this.host, { params });
   }
 
   getTailStatusById(id: number): Observable<TailStatusResponse> {

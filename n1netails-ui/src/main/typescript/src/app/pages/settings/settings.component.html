@@ -159,41 +159,53 @@
               <div class="alert-management">
                 <div class="alert-list">
                   <h4>Tail Levels</h4>
+                  <div class="alert-form">
+                    <input nz-input [(ngModel)]="searchTailLevel" (ngModelChange)="searchLevels()" name="searchTailLevel" placeholder="Search level" class="alert-input"/>
+                    <button nz-button nzType="default" (click)="searchLevels()" class="alert-btn"><nz-icon nzType="search" nzTheme="outline" /></button>
+                  </div>
                   <ul>
                     <li *ngFor="let level of tailLevels">
                       {{ level.name }}
                       <button *ngIf="level.deletable" nz-button nzType="link" nzDanger (click)="removeAlertLevel(level.name)">Remove</button>
                     </li>
                   </ul>
-                  <div class="alert-add-form">
+                  <div class="alert-form">
                     <input nz-input [(ngModel)]="newTailLevel" name="newTailLevel" placeholder="Add new level" class="alert-input"/>
-                    <button nz-button nzType="default" (click)="addAlertLevel()" class="alert-add-btn">+</button>
+                    <button nz-button nzType="default" (click)="addAlertLevel()" class="alert-btn">+</button>
                   </div>
                 </div>
                 <div class="alert-list">
                   <h4>Tail Statuses</h4>
+                  <div class="alert-form">
+                    <input nz-input [(ngModel)]="searchTailStatus" (ngModelChange)="searchStatuses()" name="searchTailStatus" placeholder="Search status" class="alert-input"/>
+                    <button nz-button nzType="default" (click)="searchStatuses()" class="alert-btn"><nz-icon nzType="search" nzTheme="outline" /></button>
+                  </div>
                   <ul>
                     <li *ngFor="let status of tailStatuses">
                       {{ status.name }}
                       <button *ngIf="status.deletable" nz-button nzType="link" nzDanger (click)="removeAlertStatus(status.name)">Remove</button>
                     </li>
                   </ul>
-                  <div class="alert-add-form">
+                  <div class="alert-form">
                     <input nz-input [(ngModel)]="newTailStatus" name="newTailStatus" placeholder="Add new status" class="alert-input"/>
-                    <button nz-button nzType="default" (click)="addAlertStatus()" class="alert-add-btn">+</button>
+                    <button nz-button nzType="default" (click)="addAlertStatus()" class="alert-btn">+</button>
                   </div>
                 </div>
                 <div class="alert-list">
                   <h4>Tail Types</h4>
+                  <div class="alert-form">
+                    <input nz-input [(ngModel)]="searchTailType" (ngModelChange)="searchType()" name="searchTailType" placeholder="Search type" class="alert-input"/>
+                    <button nz-button nzType="default" (click)="searchType()" class="alert-btn"><nz-icon nzType="search" nzTheme="outline" /></button>
+                  </div>
                   <ul>
                     <li *ngFor="let type of tailTypes">
                       {{ type.name }}
                       <button *ngIf="type.deletable" nz-button nzType="link" nzDanger (click)="removeAlertType(type.name)">Remove</button>
                     </li>
                   </ul>
-                  <div class="alert-add-form">
+                  <div class="alert-form">
                     <input nz-input [(ngModel)]="newTailType" name="newTailType" placeholder="Add new type" class="alert-input"/>
-                    <button nz-button nzType="default" (click)="addAlertType()" class="alert-add-btn">+</button>
+                    <button nz-button nzType="default" (click)="addAlertType()" class="alert-btn">+</button>
                   </div>
                 </div>
               </div>

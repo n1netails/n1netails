@@ -24,6 +24,8 @@ import { AuthenticationService } from '../../service/authentication.service';
 import { TailService } from '../../service/tail.service';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { ResolveTailRequest, TailSummary } from '../../model/tail.model';
+import { PageRequest } from '../../model/interface/page.interface';
+import { PageUtilService } from '../../shared/page-util.service';
 
 @Component({
   selector: 'app-tails',
@@ -80,7 +82,8 @@ export class TailsComponent implements OnInit {
     private tailService: TailService,
     private authenticationService: AuthenticationService,
     private messageService: NzMessageService,
-    private router: Router
+    private router: Router,
+    private pageUtilService: PageUtilService
   ) {
     this.currentUser = this.authenticationService.getUserFromLocalCache();
   }
@@ -127,18 +130,44 @@ export class TailsComponent implements OnInit {
   }
 
   loadTailInfoData(): void {
-    this.tailLevelService.getTailLevels().subscribe(result => {
-      result.forEach(level => this.tailLevels.push(level.name));
+    const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequest();
+
+    this.tailLevelService.getTailLevels(pageRequest).subscribe(result => {
+      result.content.forEach(level => this.tailLevels.push(level.name));
     });
 
-    this.tailStatusService.getTailStatusList().subscribe(result => {
-      result.forEach(status => this.tailStatusList.push(status.name));
+    this.tailStatusService.getTailStatusList(pageRequest).subscribe(result => {
+      result.content.forEach(status => this.tailStatusList.push(status.name));
     });
 
-    this.tailTypeService.getTailTypes().subscribe(result => {
-      result.forEach(type => this.tailTypes.push(type.name));
+    this.tailTypeService.getTailTypes(pageRequest).subscribe(result => {
+      result.content.forEach(type => this.tailTypes.push(type.name));
     });
   }
+
+  onStatusSearch(term: string): void {
+    const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequestWithSearch(term);
+    this.tailStatusService.getTailStatusList(pageRequest).subscribe(result => {
+      this.tailStatusList = [];
+      result.content.forEach(status => this.tailStatusList.push(status.name));
+    });
+  } 
+
+  onTypeSearch(term: string): void {
+    const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequestWithSearch(term);
+    this.tailTypeService.getTailTypes(pageRequest).subscribe(result => {
+      this.tailTypes = [];
+      result.content.forEach(type => this.tailTypes.push(type.name));
+    });
+  } 
+
+  onLevelSearch(term: string): void {
+    const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequestWithSearch(term);
+    this.tailLevelService.getTailLevels(pageRequest).subscribe(result => {
+      this.tailLevels = [];
+      result.content.forEach(level => this.tailLevels.push(level.name));
+    });
+  } 
 
   onSearchTermChange(): void {
     this.currentPage = 0; // Reset to first page on new search

@@ -3,6 +3,7 @@ package com.n1netails.n1netails.api.controller;
 import com.n1netails.n1netails.api.exception.type.TailTypeNotFoundException;
 import com.n1netails.n1netails.api.model.core.TailType;
 import com.n1netails.n1netails.api.model.response.HttpErrorResponse;
+import com.n1netails.n1netails.api.model.request.PageRequest;
 import com.n1netails.n1netails.api.model.response.TailTypeResponse;
 import com.n1netails.n1netails.api.service.TailTypeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,6 +15,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,8 +39,8 @@ public class TailTypeController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = TailTypeResponse.class))))
     })
     @GetMapping
-    public ResponseEntity<List<TailTypeResponse>> getTailTypes() {
-        return ResponseEntity.ok(tailTypeService.getTailTypes());
+    public ResponseEntity<Page<TailTypeResponse>> getTailTypes(@ParameterObject PageRequest request) {
+        return ResponseEntity.ok(tailTypeService.getTailTypes(request));
     }
 
     @Operation(summary = "Get tail type by ID", responses = {

@@ -18,6 +18,7 @@ import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { Organization } from '../../model/organization';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { PageRequest, PageResponse } from '../../model/interface/page.interface';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 
 @Component({
   selector: 'app-settings',
@@ -33,6 +34,7 @@ import { PageRequest, PageResponse } from '../../model/interface/page.interface'
     CommonModule,
     NzDividerModule,
     NzSelectModule,
+    NzIconModule
   ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.less'
@@ -56,6 +58,10 @@ export class SettingsComponent implements OnInit {
   newTailLevel: string = '';
   newTailStatus: string = '';
   newTailType: string = '';
+
+  searchTailLevel: string = '';
+  searchTailStatus: string = '';
+  searchTailType: string = '';
 
   constructor(
     private authenticationService: AuthenticationService,
@@ -335,5 +341,47 @@ export class SettingsComponent implements OnInit {
     // - Modify /n1netails-liquibase and /n1netails-api services in the root directory to include and save the user's preferred tail types.
     // - If tail types do not exist in the tail types list, they should be removed from the user's preferred tail types as well.
     //   This does not need to be corrected until the user checks to confirm and view their preferred tail type list.
+  }
+
+  searchLevels() {
+    const pageRequest: PageRequest = {
+      pageNumber: 0,
+      pageSize: 50,
+      sortDirection: "ASC",
+      sortBy: "id",
+      searchTerm: this.searchTailLevel
+    };
+    this.tailLevelService.getTailLevels(pageRequest).subscribe((response: PageResponse<TailLevelResponse>) => {
+      console.log('tail levels', response);
+      this.tailLevels = response.content;
+      console.log('LEVELS', this.tailLevels);
+    });
+  }
+
+  searchStatuses() {
+    const pageRequest: PageRequest = {
+      pageNumber: 0,
+      pageSize: 50,
+      sortDirection: "ASC",
+      sortBy: "id",
+      searchTerm: this.searchTailStatus
+    };
+    this.tailStatusService.getTailStatusList(pageRequest).subscribe((response: PageResponse<TailStatusResponse>) => {
+      this.tailStatuses = response.content;
+    });
+  }
+
+  searchType() {
+    const pageRequest: PageRequest = {
+      pageNumber: 0,
+      pageSize: 50,
+      sortDirection: "ASC",
+      sortBy: "id",
+      searchTerm: this.searchTailType
+    };
+    this.tailTypeService.getTailTypes(pageRequest).subscribe((response: PageResponse<TailTypeResponse>) => {
+      console.log('tail type list', response);
+      this.tailTypes = response.content;
+    });
   }
 }

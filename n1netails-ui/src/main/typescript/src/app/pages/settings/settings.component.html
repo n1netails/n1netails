@@ -159,6 +159,10 @@
               <div class="alert-management">
                 <div class="alert-list">
                   <h4>Tail Levels</h4>
+                  <div class="alert-add-form">
+                    <input nz-input [(ngModel)]="searchTailLevel" (ngModelChange)="searchLevels()" name="searchTailLevel" placeholder="Search level" class="alert-input"/>
+                    <button nz-button nzType="default" (click)="searchLevels()" class="alert-add-btn"><nz-icon nzType="search" nzTheme="outline" /></button>
+                  </div>
                   <ul>
                     <li *ngFor="let level of tailLevels">
                       {{ level.name }}
@@ -172,6 +176,10 @@
                 </div>
                 <div class="alert-list">
                   <h4>Tail Statuses</h4>
+                  <div class="alert-add-form">
+                    <input nz-input [(ngModel)]="searchTailStatus" (ngModelChange)="searchStatuses()" name="searchTailStatus" placeholder="Search status" class="alert-input"/>
+                    <button nz-button nzType="default" (click)="searchStatuses()" class="alert-add-btn"><nz-icon nzType="search" nzTheme="outline" /></button>
+                  </div>
                   <ul>
                     <li *ngFor="let status of tailStatuses">
                       {{ status.name }}
@@ -185,6 +193,10 @@
                 </div>
                 <div class="alert-list">
                   <h4>Tail Types</h4>
+                  <div class="alert-add-form">
+                    <input nz-input [(ngModel)]="searchTailType" (ngModelChange)="searchType()" name="searchTailType" placeholder="Search type" class="alert-input"/>
+                    <button nz-button nzType="default" (click)="searchType()" class="alert-add-btn"><nz-icon nzType="search" nzTheme="outline" /></button>
+                  </div>
                   <ul>
                     <li *ngFor="let type of tailTypes">
                       {{ type.name }}

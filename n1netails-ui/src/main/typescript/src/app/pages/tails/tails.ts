@@ -148,6 +148,54 @@ export class TailsComponent implements OnInit {
     });
   }
 
+  onStatusSearch(term: string): void {
+    console.log('on status search');
+    const pageRequest: PageRequest = {
+      pageNumber: 0,
+      pageSize: 50,
+      sortDirection: "ASC",
+      sortBy: "id",
+      searchTerm: term
+    };
+
+    this.tailStatusService.getTailStatusList(pageRequest).subscribe(result => {
+      this.tailStatusList = [];
+      result.content.forEach(status => this.tailStatusList.push(status.name));
+    });
+  } 
+
+  onTypeSearch(term: string): void {
+    console.log('on type search');
+    const pageRequest: PageRequest = {
+      pageNumber: 0,
+      pageSize: 50,
+      sortDirection: "ASC",
+      sortBy: "id",
+      searchTerm: term
+    };
+
+    this.tailTypeService.getTailTypes(pageRequest).subscribe(result => {
+      this.tailTypes = [];
+      result.content.forEach(type => this.tailTypes.push(type.name));
+    });
+  } 
+
+    onLevelSearch(term: string): void {
+    console.log('on level search');
+    const pageRequest: PageRequest = {
+      pageNumber: 0,
+      pageSize: 50,
+      sortDirection: "ASC",
+      sortBy: "id",
+      searchTerm: term
+    };
+
+    this.tailLevelService.getTailLevels(pageRequest).subscribe(result => {
+      this.tailLevels = [];
+      result.content.forEach(level => this.tailLevels.push(level.name));
+    });
+  } 
+
   onSearchTermChange(): void {
     this.currentPage = 0; // Reset to first page on new search
     this.loadTails();

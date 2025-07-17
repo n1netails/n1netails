@@ -22,6 +22,9 @@ import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATIO
 @RequestMapping(path = {"/ninetails/alert"}, produces = APPLICATION_JSON)
 public class AlertController {
 
+    private static final int TITLE_MAX_LENGTH = 255;
+    private static final int DESCRIPTION_MAX_LENGTH = 255;
+
     private final AlertService alertService;
     private final N1neTokenService n1neTokenService;
 
@@ -38,9 +41,8 @@ public class AlertController {
         log.info("RECEIVED KUDA REQUEST");
 
         // substring title and description to meet db requirements
-        // todo look into possibly increasing the title and description length
-        if (request.getTitle().length() >= 252) request.setTitle(request.getTitle().substring(0, 252) + "...");
-        if (request.getDescription().length() >= 252) request.setDescription(request.getDescription().substring(0, 252) + "...");
+        request.setTitle(truncate(request.getTitle(), TITLE_MAX_LENGTH));
+        request.setDescription(truncate(request.getDescription(), DESCRIPTION_MAX_LENGTH));
 
         boolean tokenValid = this.n1neTokenService.validateToken(n1neToken);
         if (tokenValid) {
@@ -53,5 +55,12 @@ public class AlertController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         return ResponseEntity.noContent().build();
+    }
+
+    private String truncate(String value, int maxLength) {
+        if (value == null || value.isBlank() || value.length() <= maxLength) {
+            return value;
+        }
+        return value.substring(0, maxLength - 3) + "...";
     }
 }

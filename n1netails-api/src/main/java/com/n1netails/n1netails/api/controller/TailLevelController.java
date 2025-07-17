@@ -3,6 +3,7 @@ package com.n1netails.n1netails.api.controller;
 import com.n1netails.n1netails.api.exception.type.TailLevelNotFoundException;
 import com.n1netails.n1netails.api.model.core.TailLevel;
 import com.n1netails.n1netails.api.model.response.HttpErrorResponse;
+import com.n1netails.n1netails.api.model.request.PageRequest;
 import com.n1netails.n1netails.api.model.response.TailLevelResponse;
 import com.n1netails.n1netails.api.service.TailLevelService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,8 +38,8 @@ public class TailLevelController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = TailLevelResponse.class))))
     })
     @GetMapping
-    public ResponseEntity<List<TailLevelResponse>> getTailLevels() {
-        return ResponseEntity.ok(tailLevelService.getTailLevels());
+    public ResponseEntity<Page<TailLevelResponse>> getTailLevels(PageRequest request) {
+        return ResponseEntity.ok(tailLevelService.getTailLevels(request));
     }
 
     @Operation(summary = "Get tail level by ID", responses = {

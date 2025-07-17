@@ -3,12 +3,17 @@ package com.n1netails.n1netails.api.service.impl;
 import com.n1netails.n1netails.api.exception.type.TailStatusNotFoundException;
 import com.n1netails.n1netails.api.model.core.TailStatus;
 import com.n1netails.n1netails.api.model.entity.TailStatusEntity;
+import com.n1netails.n1netails.api.model.request.PageRequest;
 import com.n1netails.n1netails.api.model.response.TailStatusResponse;
 import com.n1netails.n1netails.api.repository.TailStatusRepository;
 import com.n1netails.n1netails.api.service.TailStatusService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,14 +30,21 @@ public class TailStatusServiceImpl implements TailStatusService {
     private final TailStatusRepository tailStatusRepository;
 
     @Override
-    public List<TailStatusResponse> getTailStatusList() {
-        List<TailStatusEntity> tailStatusEntities = this.tailStatusRepository.findAll();
+    public Page<TailStatusResponse> getTailStatusList(PageRequest request) {
+        Sort sort = Sort.by(request.getSortDirection(), request.getSortBy());
+        Pageable pageable = org.springframework.data.domain.PageRequest.of(request.getPageNumber(), request.getPageSize(), sort);
+        Page<TailStatusEntity> tailStatusEntities;
+        if (request.getSearchTerm() != null && !request.getSearchTerm().isEmpty()) {
+            tailStatusEntities = tailStatusRepository.findByNameContainingIgnoreCase(request.getSearchTerm(), pageable);
+        } else {
+            tailStatusEntities = tailStatusRepository.findAll(pageable);
+        }
         List<TailStatusResponse> tailStatusResponseList = new ArrayList<>();
         tailStatusEntities.forEach(entity -> {
             TailStatusResponse tailStatusResponse = generateTailStatusResponse(entity);
             tailStatusResponseList.add(tailStatusResponse);
         });
-        return tailStatusResponseList;
+        return new PageImpl<>(tailStatusResponseList, pageable, tailStatusEntities.getTotalElements());
     }
 
     @Override

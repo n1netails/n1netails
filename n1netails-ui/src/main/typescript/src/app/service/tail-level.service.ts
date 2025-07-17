@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { UiConfigService } from '../shared/ui-config.service';
+import { PageResponse, PageRequest } from '../model/interface/page.interface';
 
 export interface TailLevel {
   name: string;
@@ -34,9 +35,20 @@ export class TailLevelService {
     return this.http.post<TailLevelResponse>(this.host, request);
   }
 
-  getTailLevels(): Observable<TailLevelResponse[]> {
+  getTailLevels(pageRequest: PageRequest): Observable<PageResponse<TailLevelResponse>> {
+
+    let params = new HttpParams()
+      .set('pageNumber', pageRequest.pageNumber)
+      .set('pageSize', pageRequest.pageSize)
+      .set('sortDirection', pageRequest.sortDirection)
+      .set('sortBy', pageRequest.sortBy);
+
+    if (pageRequest.searchTerm) {
+      params = params.set('searchTerm', pageRequest.searchTerm);
+    }
+
     this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
-    return this.http.get<TailLevelResponse[]>(this.host);
+    return this.http.get<PageResponse<TailLevelResponse>>(this.host, { params });
   }
 
   getTailLevelById(id: number): Observable<TailLevelResponse> {

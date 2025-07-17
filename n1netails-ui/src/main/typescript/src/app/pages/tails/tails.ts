@@ -127,17 +127,20 @@ export class TailsComponent implements OnInit {
   }
 
   loadTailInfoData(): void {
-    this.tailLevelService.getTailLevels().subscribe(result => {
-      result.forEach(level => this.tailLevels.push(level.name));
-    });
+    // TODO FIX FOR PAGINATION
+    // this.tailLevelService.getTailLevels().subscribe(result => {
+    //   result.forEach(level => this.tailLevels.push(level.name));
+    // });
 
-    this.tailStatusService.getTailStatusList().subscribe(result => {
-      result.forEach(status => this.tailStatusList.push(status.name));
-    });
+    // TODO FIX FOR PAGINATION
+    // this.tailStatusService.getTailStatusList().subscribe(result => {
+    //   result.forEach(status => this.tailStatusList.push(status.name));
+    // });
 
-    this.tailTypeService.getTailTypes().subscribe(result => {
-      result.forEach(type => this.tailTypes.push(type.name));
-    });
+    // TODO FIX FOR PAGINATION
+    // this.tailTypeService.getTailTypes().subscribe(result => {
+    //   result.forEach(type => this.tailTypes.push(type.name));
+    // });
   }
 
   onSearchTermChange(): void {

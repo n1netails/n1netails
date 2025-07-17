@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +40,7 @@ public class TailStatusController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = TailStatusResponse.class))))
     })
     @GetMapping
-    public ResponseEntity<Page<TailStatusResponse>> getTailStatusList(PageRequest request) {
+    public ResponseEntity<Page<TailStatusResponse>> getTailStatusList(@ParameterObject PageRequest request) {
         return ResponseEntity.ok(tailStatusService.getTailStatusList(request));
     }
 

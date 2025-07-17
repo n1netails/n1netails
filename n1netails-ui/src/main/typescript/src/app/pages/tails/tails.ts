@@ -24,6 +24,7 @@ import { AuthenticationService } from '../../service/authentication.service';
 import { TailService } from '../../service/tail.service';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { ResolveTailRequest, TailSummary } from '../../model/tail.model';
+import { PageRequest } from '../../model/interface/page.interface';
 
 @Component({
   selector: 'app-tails',
@@ -127,20 +128,24 @@ export class TailsComponent implements OnInit {
   }
 
   loadTailInfoData(): void {
-    // TODO FIX FOR PAGINATION
-    // this.tailLevelService.getTailLevels().subscribe(result => {
-    //   result.forEach(level => this.tailLevels.push(level.name));
-    // });
+    const pageRequest: PageRequest = {
+      pageNumber: 0,
+      pageSize: 50,
+      sortDirection: "ASC",
+      sortBy: "id"
+    };
 
-    // TODO FIX FOR PAGINATION
-    // this.tailStatusService.getTailStatusList().subscribe(result => {
-    //   result.forEach(status => this.tailStatusList.push(status.name));
-    // });
+    this.tailLevelService.getTailLevels(pageRequest).subscribe(result => {
+      result.content.forEach(level => this.tailLevels.push(level.name));
+    });
 
-    // TODO FIX FOR PAGINATION
-    // this.tailTypeService.getTailTypes().subscribe(result => {
-    //   result.forEach(type => this.tailTypes.push(type.name));
-    // });
+    this.tailStatusService.getTailStatusList(pageRequest).subscribe(result => {
+      result.content.forEach(status => this.tailStatusList.push(status.name));
+    });
+
+    this.tailTypeService.getTailTypes(pageRequest).subscribe(result => {
+      result.content.forEach(type => this.tailTypes.push(type.name));
+    });
   }
 
   onSearchTermChange(): void {

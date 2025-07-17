@@ -19,6 +19,7 @@ import { Organization } from '../../model/organization';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { PageRequest, PageResponse } from '../../model/interface/page.interface';
 import { NzIconModule } from 'ng-zorro-antd/icon';
+import { PageUtilService } from '../../shared/page-util.service';
 
 @Component({
   selector: 'app-settings',
@@ -69,6 +70,7 @@ export class SettingsComponent implements OnInit {
     private tailStatusService: TailStatusService,
     private tailTypeService: TailTypeService,
     private n1neTokenService: N1neTokenService,
+    private pageUtilService: PageUtilService
   ) {
     this.updateAlertTypeOptions();
     this.user = this.authenticationService.getUserFromLocalCache();
@@ -83,36 +85,21 @@ export class SettingsComponent implements OnInit {
   }
 
   private listTailLevels() {
-    const pageRequest: PageRequest = {
-      pageNumber: 0,
-      pageSize: 50,
-      sortDirection: "ASC",
-      sortBy: "id"
-    };
+    const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequest();
     this.tailLevelService.getTailLevels(pageRequest).subscribe((response: PageResponse<TailLevelResponse>) => {
       this.tailLevels = response.content;
     });
   }
 
     private listTailStatus() {
-    const pageRequest: PageRequest = {
-      pageNumber: 0,
-      pageSize: 50,
-      sortDirection: "ASC",
-      sortBy: "id"
-    };
+    const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequest();
     this.tailStatusService.getTailStatusList(pageRequest).subscribe((response: PageResponse<TailStatusResponse>) => {
       this.tailStatuses = response.content;
     });
   }
 
   private listTailTypes() {
-    const pageRequest: PageRequest = {
-      pageNumber: 0,
-      pageSize: 50,
-      sortDirection: "ASC",
-      sortBy: "id"
-    };
+    const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequest();
     this.tailTypeService.getTailTypes(pageRequest).subscribe((response: PageResponse<TailTypeResponse>) => {
       this.tailTypes = response.content;
       this.updateAlertTypeOptions();
@@ -341,39 +328,21 @@ export class SettingsComponent implements OnInit {
   }
 
   searchLevels() {
-    const pageRequest: PageRequest = {
-      pageNumber: 0,
-      pageSize: 50,
-      sortDirection: "ASC",
-      sortBy: "id",
-      searchTerm: this.searchTailLevel
-    };
+    const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequestWithSearch(this.searchTailLevel);
     this.tailLevelService.getTailLevels(pageRequest).subscribe((response: PageResponse<TailLevelResponse>) => {
       this.tailLevels = response.content;
     });
   }
 
   searchStatuses() {
-    const pageRequest: PageRequest = {
-      pageNumber: 0,
-      pageSize: 50,
-      sortDirection: "ASC",
-      sortBy: "id",
-      searchTerm: this.searchTailStatus
-    };
+    const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequestWithSearch(this.searchTailStatus);
     this.tailStatusService.getTailStatusList(pageRequest).subscribe((response: PageResponse<TailStatusResponse>) => {
       this.tailStatuses = response.content;
     });
   }
 
   searchType() {
-    const pageRequest: PageRequest = {
-      pageNumber: 0,
-      pageSize: 50,
-      sortDirection: "ASC",
-      sortBy: "id",
-      searchTerm: this.searchTailType
-    };
+    const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequestWithSearch(this.searchTailType);
     this.tailTypeService.getTailTypes(pageRequest).subscribe((response: PageResponse<TailTypeResponse>) => {
       this.tailTypes = response.content;
     });

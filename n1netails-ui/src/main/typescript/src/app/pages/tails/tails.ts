@@ -25,6 +25,7 @@ import { TailService } from '../../service/tail.service';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { ResolveTailRequest, TailSummary } from '../../model/tail.model';
 import { PageRequest } from '../../model/interface/page.interface';
+import { PageUtilService } from '../../shared/page-util.service';
 
 @Component({
   selector: 'app-tails',
@@ -81,7 +82,8 @@ export class TailsComponent implements OnInit {
     private tailService: TailService,
     private authenticationService: AuthenticationService,
     private messageService: NzMessageService,
-    private router: Router
+    private router: Router,
+    private pageUtilService: PageUtilService
   ) {
     this.currentUser = this.authenticationService.getUserFromLocalCache();
   }
@@ -128,12 +130,7 @@ export class TailsComponent implements OnInit {
   }
 
   loadTailInfoData(): void {
-    const pageRequest: PageRequest = {
-      pageNumber: 0,
-      pageSize: 50,
-      sortDirection: "ASC",
-      sortBy: "id"
-    };
+    const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequest();
 
     this.tailLevelService.getTailLevels(pageRequest).subscribe(result => {
       result.content.forEach(level => this.tailLevels.push(level.name));
@@ -149,14 +146,7 @@ export class TailsComponent implements OnInit {
   }
 
   onStatusSearch(term: string): void {
-    const pageRequest: PageRequest = {
-      pageNumber: 0,
-      pageSize: 50,
-      sortDirection: "ASC",
-      sortBy: "id",
-      searchTerm: term
-    };
-
+    const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequestWithSearch(term);
     this.tailStatusService.getTailStatusList(pageRequest).subscribe(result => {
       this.tailStatusList = [];
       result.content.forEach(status => this.tailStatusList.push(status.name));
@@ -164,29 +154,15 @@ export class TailsComponent implements OnInit {
   } 
 
   onTypeSearch(term: string): void {
-    const pageRequest: PageRequest = {
-      pageNumber: 0,
-      pageSize: 50,
-      sortDirection: "ASC",
-      sortBy: "id",
-      searchTerm: term
-    };
-
+    const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequestWithSearch(term);
     this.tailTypeService.getTailTypes(pageRequest).subscribe(result => {
       this.tailTypes = [];
       result.content.forEach(type => this.tailTypes.push(type.name));
     });
   } 
 
-    onLevelSearch(term: string): void {
-    const pageRequest: PageRequest = {
-      pageNumber: 0,
-      pageSize: 50,
-      sortDirection: "ASC",
-      sortBy: "id",
-      searchTerm: term
-    };
-
+  onLevelSearch(term: string): void {
+    const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequestWithSearch(term);
     this.tailLevelService.getTailLevels(pageRequest).subscribe(result => {
       this.tailLevels = [];
       result.content.forEach(level => this.tailLevels.push(level.name));

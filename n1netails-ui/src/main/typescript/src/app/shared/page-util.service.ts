@@ -21,4 +21,25 @@ export class PageUtilService {
     }
     return params;
   }
+
+  setDefaultPageRequest(): PageRequest {
+    const pageRequest: PageRequest = {
+      pageNumber: 0,
+      pageSize: 50,
+      sortDirection: "ASC",
+      sortBy: "id"
+    };
+    return pageRequest;
+  }
+
+  setDefaultPageRequestWithSearch(term: string): PageRequest {
+    const pageRequest: PageRequest = {
+      pageNumber: 0,
+      pageSize: 50,
+      sortDirection: "ASC",
+      sortBy: "id",
+      searchTerm: term
+    };
+    return pageRequest;
+  }
 }

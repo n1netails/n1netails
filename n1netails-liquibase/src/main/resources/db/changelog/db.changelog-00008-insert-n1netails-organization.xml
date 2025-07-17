@@ -9,6 +9,18 @@
         <rollback>
             DELETE FROM ntail.n1ne_token WHERE organization_id IN (SELECT id FROM ntail.organization WHERE name = 'n1netails');
             DELETE FROM ntail.user_organizations WHERE organization_id IN (SELECT id FROM ntail.organization WHERE name = 'n1netails');
+
+            DELETE FROM ntail.tail_variable
+            WHERE tail_id IN (
+                SELECT id FROM ntail.tail WHERE organization_id IN (
+                    SELECT id FROM ntail.organization WHERE name = 'n1netails'
+                )
+            );
+            DELETE FROM ntail.note
+            WHERE tail_id IN (
+                SELECT id FROM ntail.tail
+                WHERE organization_id IN (SELECT id FROM ntail.organization WHERE name = 'n1netails')
+            );
             DELETE FROM ntail.tail WHERE organization_id IN (SELECT id FROM ntail.organization WHERE name = 'n1netails');
 
             ALTER TABLE ntail.tail

@@ -119,7 +119,7 @@ export class SettingsComponent implements OnInit {
     const pageRequest: PageRequest = {
       pageNumber: this.currentPage,
       pageSize: this.pageSize,
-      sortDirection: "ASC",
+      sortDirection: "DESC",
       sortBy: "id"
     };
 

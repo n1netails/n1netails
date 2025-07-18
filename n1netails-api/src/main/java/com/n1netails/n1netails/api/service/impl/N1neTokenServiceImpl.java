@@ -13,10 +13,13 @@ import com.n1netails.n1netails.api.service.N1neTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -67,13 +70,14 @@ public class N1neTokenServiceImpl implements N1neTokenService {
     }
 
     @Override
-    public List<N1neTokenResponse> getAllByUserId(Long userId) {
-        List<N1neTokenEntity> n1neTokenEntities = this.n1neTokenRepository.findByUserId(userId);
-        List<N1neTokenResponse> n1neTokenResponseList = new ArrayList<>();
-        n1neTokenEntities.forEach(entity -> {
-            n1neTokenResponseList.add(generateN1neTokenResponse(entity));
-        });
-        return n1neTokenResponseList;
+    public Page<N1neTokenResponse> getAllByUserId(Long userId, com.n1netails.n1netails.api.model.request.PageRequest pageRequest) {
+        Sort sort = Sort.by(pageRequest.getSortDirection(), pageRequest.getSortBy());
+        PageRequest springPageRequest = PageRequest.of(pageRequest.getPageNumber(), pageRequest.getPageSize(), sort);
+        Page<N1neTokenEntity> n1neTokenEntitiesPage = this.n1neTokenRepository.findByUserId(userId, springPageRequest);
+        List<N1neTokenResponse> n1neTokenResponseList = n1neTokenEntitiesPage.getContent().stream()
+                .map(N1neTokenServiceImpl::generateN1neTokenResponse)
+                .toList();
+        return new PageImpl<>(n1neTokenResponseList, springPageRequest, n1neTokenEntitiesPage.getTotalElements());
     }
 
     @Override

@@ -35,7 +35,7 @@ public class TailTypeController {
     private final TailTypeService tailTypeService;
 
     @Operation(summary = "Get all tail types", responses = {
-            @ApiResponse(responseCode = "200", description = "List of tail types",
+            @ApiResponse(responseCode = "200", description = "Paginated result containing tail types (Spring Data Page format). List of tail types",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = TailTypeResponse.class))))
     })
     @GetMapping

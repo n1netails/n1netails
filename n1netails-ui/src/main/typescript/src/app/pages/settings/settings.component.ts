@@ -51,6 +51,11 @@ export class SettingsComponent implements OnInit {
   isLoading: boolean = false;
   errorMessage: string = '';
 
+  currentPage: number = 0;
+  pageSize: number = 10;
+  totalElements: number = 0;
+  totalPages: number = 0;
+
   // Alert Levels, Statuses, Types
   tailLevels: TailLevelResponse[] = [];
   tailStatuses: TailStatusResponse[] = [];
@@ -110,10 +115,20 @@ export class SettingsComponent implements OnInit {
   loadTokens(): void {
     this.isLoading = true;
     this.errorMessage = '';
-    this.n1neTokenService.getAllTokensByUserId(this.user.id).subscribe({
-      next: (data) => {
-        this.tokens = data;
+
+    const pageRequest: PageRequest = {
+      pageNumber: this.currentPage,
+      pageSize: this.pageSize,
+      sortDirection: "DESC",
+      sortBy: "id"
+    };
+
+    this.n1neTokenService.getAllTokensByUserId(this.user.id, pageRequest).subscribe({
+      next: (data: PageResponse<N1neTokenResponse>) => {
+        this.tokens = data.content;
         this.isLoading = false;
+        this.totalElements = data.totalElements;
+        this.totalPages = data.totalPages;
       },
       error: (err) => {
         this.errorMessage = 'Failed to load tokens.';
@@ -121,6 +136,24 @@ export class SettingsComponent implements OnInit {
         console.error('Failed to load tokens', err);
       }
     });
+  }
+
+  // Helper to get current page display number (1-based)
+  get displayedCurrentPage(): number {
+    return this.currentPage + 1;
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages - 1) {
+      this.currentPage++;
+      this.loadTokens();
+    }
+  }
+  previousPage() {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.loadTokens();
+    }
   }
 
   createToken(): void {

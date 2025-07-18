@@ -36,7 +36,7 @@ public class TailStatusController {
     private final TailStatusService tailStatusService;
 
     @Operation(summary = "Get tail status list", responses = {
-            @ApiResponse(responseCode = "200", description = "List of tail status",
+            @ApiResponse(responseCode = "200", description = "Paginated result containing tail status (Spring Data Page format). List of tail status",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = TailStatusResponse.class))))
     })
     @GetMapping

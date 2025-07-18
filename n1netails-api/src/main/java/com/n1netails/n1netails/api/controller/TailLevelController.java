@@ -35,7 +35,7 @@ public class TailLevelController {
     private final TailLevelService tailLevelService;
 
     @Operation(summary = "Get all tail levels", responses = {
-            @ApiResponse(responseCode = "200", description = "List of tail levels",
+            @ApiResponse(responseCode = "200", description = "Paginated result containing tail level (Spring Data Page format). List of tail levels",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = TailLevelResponse.class))))
     })
     @GetMapping

@@ -43,11 +43,6 @@ export class N1neTokenService {
     return this.http.post<N1neTokenResponse>(this.host, tokenRequest);
   }
 
-  // getAllTokens(): Observable<N1neTokenResponse[]> {
-  //   this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
-  //   return this.http.get<N1neTokenResponse[]>(this.host);
-  // }
-
   getAllTokensByUserId(userId: number, pageRequest: PageRequest): Observable<PageResponse<N1neTokenResponse>> {
     let params = this.pageUtilService.getPageRequestParams(pageRequest);
     this.host = this.uiConfigService.getApiUrl() + this.apiUrl;

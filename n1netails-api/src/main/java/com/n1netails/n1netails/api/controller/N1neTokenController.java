@@ -59,7 +59,7 @@ public class N1neTokenController {
     }
 
     @Operation(summary = "Get all tokens by user id", responses = {
-            @ApiResponse(responseCode = "200", description = "List of tokens by user id",
+            @ApiResponse(responseCode = "200", description = "Paginated result containing tokens (Spring Data Page format). List of tokens by user id",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = N1neTokenResponse.class))))
     })
     @GetMapping("/user-tokens/{userId}")

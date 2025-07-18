@@ -65,7 +65,14 @@
               <!-- Display Tokens Table -->
               <h3>Active Tokens</h3>
               <div class="table-responsive-wrapper">
-                <nz-table #activeTokensTable [nzData]="tokens" [nzLoading]="isLoading" nzSize="small">
+                <nz-table 
+                  #activeTokensTable 
+                  [nzData]="tokens" 
+                  [nzLoading]="isLoading" 
+                  nzSize="small"
+                  [nzFrontPagination]="false"
+                  [nzShowPagination]="false"
+                >
                   <thead>
                     <tr>
                       <th>Name</th>
@@ -78,6 +85,7 @@
                       <th>User</th>
                       <th>Org</th>
                       <th>Actions</th>
+                      <th>Delete</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -130,7 +138,9 @@
                       <td>
                         <button nz-button nzType="default" (click)="revokeToken(token)" *ngIf="!token.revoked" [disabled]="isLoading" nzSize="small" style="margin-right: 5px;">Revoke</button>
                         <button nz-button nzType="default" (click)="enableToken(token)" *ngIf="token.revoked" [disabled]="isLoading" nzSize="small" style="margin-right: 5px;">Enable</button>
-                        <button nz-button nzType="primary" nzDanger (click)="deleteToken(token.id)" [disabled]="isLoading" nzSize="small">Delete</button>
+                      </td>
+                      <td>
+                        <button nz-button style="background-color: red;" nzDanger (click)="deleteToken(token.id)" [disabled]="isLoading" nzSize="small">Delete</button>
                       </td>
                     </tr>
                     <tr *ngIf="!isLoading && tokens.length === 0">
@@ -138,6 +148,13 @@
                     </tr>
                   </tbody>
                 </nz-table>
+
+                <div *ngIf="totalPages > 0" class="table-pagination">
+                  <button nz-button nzType="default" (click)="previousPage()" [disabled]="currentPage === 0"><nz-icon nzType="left" nzTheme="outline" /></button>
+                  <span style="margin: 0 12px; color: #f1f1f1;">Page {{ displayedCurrentPage }} of {{ totalPages }}</span>
+                  <button nz-button nzType="default" (click)="nextPage()" [disabled]="currentPage >= totalPages - 1"><nz-icon nzType="right" nzTheme="outline" /></button>
+                  <span style="margin-left: 16px;">Total tokens: {{ totalElements }}</span>
+                </div>
               </div>
             </nz-card>
           </nz-col>

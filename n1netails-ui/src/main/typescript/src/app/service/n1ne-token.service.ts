@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { UiConfigService } from '../shared/ui-config.service';
+import { PageUtilService } from '../shared/page-util.service';
+import { PageRequest, PageResponse } from '../model/interface/page.interface';
 
 export interface CreateTokenRequest {
   userId: number;
@@ -32,7 +34,8 @@ export class N1neTokenService {
 
   constructor(
     private http: HttpClient,
-    private uiConfigService: UiConfigService
+    private uiConfigService: UiConfigService,
+    private pageUtilService: PageUtilService
   ) {}
 
   createToken(tokenRequest: CreateTokenRequest): Observable<N1neTokenResponse> {
@@ -40,14 +43,15 @@ export class N1neTokenService {
     return this.http.post<N1neTokenResponse>(this.host, tokenRequest);
   }
 
-  getAllTokens(): Observable<N1neTokenResponse[]> {
-    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
-    return this.http.get<N1neTokenResponse[]>(this.host);
-  }
+  // getAllTokens(): Observable<N1neTokenResponse[]> {
+  //   this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
+  //   return this.http.get<N1neTokenResponse[]>(this.host);
+  // }
 
-  getAllTokensByUserId(userId: number): Observable<N1neTokenResponse[]> {
+  getAllTokensByUserId(userId: number, pageRequest: PageRequest): Observable<PageResponse<N1neTokenResponse>> {
+    let params = this.pageUtilService.getPageRequestParams(pageRequest);
     this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
-    return this.http.get<N1neTokenResponse[]>(`${this.host}/user-tokens/${userId}`);
+    return this.http.get<PageResponse<N1neTokenResponse>>(`${this.host}/user-tokens/${userId}`, { params });
   }
 
   getTokenById(id: number): Observable<N1neTokenResponse> {

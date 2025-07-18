@@ -52,7 +52,7 @@ export class SettingsComponent implements OnInit {
   errorMessage: string = '';
 
   currentPage: number = 0;
-  pageSize: number = 5;
+  pageSize: number = 10;
   totalElements: number = 0;
   totalPages: number = 0;
 

@@ -3,6 +3,7 @@ package com.n1netails.n1netails.api.controller;
 import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
 import com.n1netails.n1netails.api.model.UserPrincipal;
 import com.n1netails.n1netails.api.model.request.CreateTokenRequest;
+import com.n1netails.n1netails.api.model.request.PageRequest;
 import com.n1netails.n1netails.api.model.response.N1neTokenResponse;
 import com.n1netails.n1netails.api.service.AuthorizationService;
 import com.n1netails.n1netails.api.service.N1neTokenService;
@@ -15,6 +16,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -60,15 +63,16 @@ public class N1neTokenController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = N1neTokenResponse.class))))
     })
     @GetMapping("/user-tokens/{userId}")
-    public ResponseEntity<List<N1neTokenResponse>> getAllByUserId(
+    public ResponseEntity<Page<N1neTokenResponse>> getAllByUserId(
             @RequestHeader(AUTHORIZATION) String authorizationHeader,
-            @PathVariable Long userId
+            @PathVariable Long userId,
+            @ParameterObject PageRequest pageRequest
     ) throws UserNotFoundException, AccessDeniedException {
         UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
         if (authorizationService.isSelf(currentUser, userId)) {
             log.info("Get all tokens by user id");
-            List<N1neTokenResponse> n1neTokenResponseList = n1neTokenService.getAllByUserId(userId);
-            return ResponseEntity.ok(n1neTokenResponseList);
+            Page<N1neTokenResponse> n1neTokenResponsePage = n1neTokenService.getAllByUserId(userId, pageRequest);
+            return ResponseEntity.ok(n1neTokenResponsePage);
         } else {
             throw new AccessDeniedException("Get User Tokens request access denied.");
         }

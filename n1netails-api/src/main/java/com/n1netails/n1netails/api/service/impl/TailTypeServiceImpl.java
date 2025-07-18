@@ -3,12 +3,17 @@ package com.n1netails.n1netails.api.service.impl;
 import com.n1netails.n1netails.api.exception.type.TailTypeNotFoundException;
 import com.n1netails.n1netails.api.model.core.TailType;
 import com.n1netails.n1netails.api.model.entity.TailTypeEntity;
+import com.n1netails.n1netails.api.model.request.PageRequest;
 import com.n1netails.n1netails.api.model.response.TailTypeResponse;
 import com.n1netails.n1netails.api.repository.TailTypeRepository;
 import com.n1netails.n1netails.api.service.TailTypeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,14 +30,21 @@ public class TailTypeServiceImpl implements TailTypeService {
     private final TailTypeRepository tailTypeRepository;
 
     @Override
-    public List<TailTypeResponse> getTailTypes() {
-        List<TailTypeEntity> tailTypeEntities = this.tailTypeRepository.findAll();
+    public Page<TailTypeResponse> getTailTypes(PageRequest request) {
+        Sort sort = Sort.by(request.getSortDirection(), request.getSortBy());
+        Pageable pageable = org.springframework.data.domain.PageRequest.of(request.getPageNumber(), request.getPageSize(), sort);
+        Page<TailTypeEntity> tailTypeEntities;
+        if (request.getSearchTerm() != null && !request.getSearchTerm().isEmpty()) {
+            tailTypeEntities = tailTypeRepository.findByNameContainingIgnoreCase(request.getSearchTerm(), pageable);
+        } else {
+            tailTypeEntities = tailTypeRepository.findAll(pageable);
+        }
         List<TailTypeResponse> tailTypeResponseList = new ArrayList<>();
         tailTypeEntities.forEach(entity -> {
             TailTypeResponse tailTypeResponse = generateTailTypeResponse(entity);
             tailTypeResponseList.add(tailTypeResponse);
         });
-        return tailTypeResponseList;
+        return new PageImpl<>(tailTypeResponseList, pageable, tailTypeEntities.getTotalElements());
     }
 
     @Override

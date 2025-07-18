@@ -23,6 +23,9 @@ spring:
         format-sql: true
     repositories:
       bootstrap-mode: default
+  web:
+    resources:
+      add-mappings: false
 
 springdoc:
   swagger-ui:

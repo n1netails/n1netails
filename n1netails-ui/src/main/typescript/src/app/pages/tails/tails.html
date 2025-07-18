@@ -28,6 +28,8 @@
                   (ngModelChange)="onFilterChange()"
                   nzAllowClear
                   nzPlaceHolder="Status"
+                  nzShowSearch
+                  (nzOnSearch)="onStatusSearch($event)"
                   style="width: 140px; margin-right: 12px;"
                 >
                   <nz-option nzValue="" nzLabel="All"></nz-option>
@@ -42,6 +44,8 @@
                   (ngModelChange)="onFilterChange()"
                   nzAllowClear
                   nzPlaceHolder="Type"
+                  nzShowSearch
+                  (nzOnSearch)="onTypeSearch($event)"
                   style="width: 160px; margin-right: 12px;"
                 >
                   <nz-option nzValue="" nzLabel="All"></nz-option>
@@ -56,6 +60,8 @@
                   (ngModelChange)="onFilterChange()"
                   nzAllowClear
                   nzPlaceHolder="Level"
+                  nzShowSearch
+                  (nzOnSearch)="onLevelSearch($event)"
                   style="width: 120px;"
                 >
                   <nz-option nzValue="" nzLabel="All"></nz-option>

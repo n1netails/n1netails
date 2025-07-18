@@ -117,7 +117,6 @@ export class TailComponent implements OnInit {
     this.isLoading = true;
     this.tailService.getTailById(id).subscribe({
       next: (data) => {
-        console.log('TAIL DATA', data);
         this.tail = data;
         if (this.tail && this.tail.metadata) {
           this.metadataKeys = Object.keys(this.tail.metadata);
@@ -138,7 +137,6 @@ export class TailComponent implements OnInit {
     if (id !== undefined) {
       this.noteService.getN1Note(id).subscribe({
         next: (data) => {
-          console.log('N1 Note: ', data);
           this.n1Note = data;
         }
       });

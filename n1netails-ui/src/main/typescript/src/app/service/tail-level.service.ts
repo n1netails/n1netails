@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { UiConfigService } from '../shared/ui-config.service';
+import { PageResponse, PageRequest } from '../model/interface/page.interface';
+import { PageUtilService } from '../shared/page-util.service';
 
 export interface TailLevel {
   name: string;
@@ -26,7 +28,8 @@ export class TailLevelService {
 
   constructor(
     private http: HttpClient, 
-    private uiConfigService: UiConfigService
+    private uiConfigService: UiConfigService,
+    private pageUtilService: PageUtilService
   ) {}
 
   createTailLevel(request: TailLevel): Observable<TailLevelResponse> {
@@ -34,9 +37,10 @@ export class TailLevelService {
     return this.http.post<TailLevelResponse>(this.host, request);
   }
 
-  getTailLevels(): Observable<TailLevelResponse[]> {
+  getTailLevels(pageRequest: PageRequest): Observable<PageResponse<TailLevelResponse>> {
+    let params = this.pageUtilService.getPageRequestParams(pageRequest);
     this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
-    return this.http.get<TailLevelResponse[]>(this.host);
+    return this.http.get<PageResponse<TailLevelResponse>>(this.host, { params });
   }
 
   getTailLevelById(id: number): Observable<TailLevelResponse> {

@@ -17,6 +17,9 @@ import { N1neTokenService, N1neTokenResponse, CreateTokenRequest } from '../../s
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { Organization } from '../../model/organization';
 import { NzSelectModule } from 'ng-zorro-antd/select';
+import { PageRequest, PageResponse } from '../../model/interface/page.interface';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { PageUtilService } from '../../shared/page-util.service';
 
 @Component({
   selector: 'app-settings',
@@ -32,6 +35,7 @@ import { NzSelectModule } from 'ng-zorro-antd/select';
     CommonModule,
     NzDividerModule,
     NzSelectModule,
+    NzIconModule
   ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.less'
@@ -56,12 +60,17 @@ export class SettingsComponent implements OnInit {
   newTailStatus: string = '';
   newTailType: string = '';
 
+  searchTailLevel: string = '';
+  searchTailStatus: string = '';
+  searchTailType: string = '';
+
   constructor(
     private authenticationService: AuthenticationService,
     private tailLevelService: TailLevelService,
     private tailStatusService: TailStatusService,
     private tailTypeService: TailTypeService,
     private n1neTokenService: N1neTokenService,
+    private pageUtilService: PageUtilService
   ) {
     this.updateAlertTypeOptions();
     this.user = this.authenticationService.getUserFromLocalCache();
@@ -70,15 +79,30 @@ export class SettingsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadTokens(); // Load tokens on init
-    this.tailLevelService.getTailLevels().subscribe((response: TailLevelResponse[]) => {
-      this.tailLevels = response;
+    this.listTailLevels();
+    this.listTailStatus();
+    this.listTailTypes();
+  }
+
+  private listTailLevels() {
+    const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequest();
+    this.tailLevelService.getTailLevels(pageRequest).subscribe((response: PageResponse<TailLevelResponse>) => {
+      this.tailLevels = response.content;
     });
-    this.tailStatusService.getTailStatusList().subscribe((response: TailStatusResponse[]) => {
-      this.tailStatuses = response;
+  }
+
+    private listTailStatus() {
+    const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequest();
+    this.tailStatusService.getTailStatusList(pageRequest).subscribe((response: PageResponse<TailStatusResponse>) => {
+      this.tailStatuses = response.content;
     });
-    this.tailTypeService.getTailTypes().subscribe((response: TailTypeResponse[]) => {
-      this.tailTypes = response;
-      this.updateAlertTypeOptions(); // Call after loading tail types
+  }
+
+  private listTailTypes() {
+    const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequest();
+    this.tailTypeService.getTailTypes(pageRequest).subscribe((response: PageResponse<TailTypeResponse>) => {
+      this.tailTypes = response.content;
+      this.updateAlertTypeOptions();
     });
   }
 
@@ -277,16 +301,17 @@ export class SettingsComponent implements OnInit {
   preferredAlertTypes: string[] = [];
 
   updateAlertTypeOptions() {
-    this.tailTypeService.getTailTypes().subscribe((response: TailTypeResponse[]) => {
-      this.alertTypeOptions = response.map(type => ({
-        label: type.name,
-        value: type.name,
-        // `checked` property can be managed based on `preferredAlertTypes`
-        // For now, we just populate the options.
-        // checked: this.preferredAlertTypes.includes(type.name)
-      }));
-      console.log('Updated alertTypeOptions:', this.alertTypeOptions);
-    });
+    // TODO CONSIDER REMOVING THIS
+    // this.tailTypeService.getTailTypes().subscribe((response: TailTypeResponse[]) => {
+    //   this.alertTypeOptions = response.map(type => ({
+    //     label: type.name,
+    //     value: type.name,
+    //     // `checked` property can be managed based on `preferredAlertTypes`
+    //     // For now, we just populate the options.
+    //     // checked: this.preferredAlertTypes.includes(type.name)
+    //   }));
+    //   console.log('Updated alertTypeOptions:', this.alertTypeOptions);
+    // });
   }
 
   onSavePreferredTypes() {
@@ -300,5 +325,26 @@ export class SettingsComponent implements OnInit {
     // - Modify /n1netails-liquibase and /n1netails-api services in the root directory to include and save the user's preferred tail types.
     // - If tail types do not exist in the tail types list, they should be removed from the user's preferred tail types as well.
     //   This does not need to be corrected until the user checks to confirm and view their preferred tail type list.
+  }
+
+  searchLevels() {
+    const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequestWithSearch(this.searchTailLevel);
+    this.tailLevelService.getTailLevels(pageRequest).subscribe((response: PageResponse<TailLevelResponse>) => {
+      this.tailLevels = response.content;
+    });
+  }
+
+  searchStatuses() {
+    const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequestWithSearch(this.searchTailStatus);
+    this.tailStatusService.getTailStatusList(pageRequest).subscribe((response: PageResponse<TailStatusResponse>) => {
+      this.tailStatuses = response.content;
+    });
+  }
+
+  searchType() {
+    const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequestWithSearch(this.searchTailType);
+    this.tailTypeService.getTailTypes(pageRequest).subscribe((response: PageResponse<TailTypeResponse>) => {
+      this.tailTypes = response.content;
+    });
   }
 }

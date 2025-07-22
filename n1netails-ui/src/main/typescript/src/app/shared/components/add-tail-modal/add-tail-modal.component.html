@@ -1,0 +1,32 @@
+<nz-modal
+  [(nzVisible)]="isVisible"
+  nzTitle="Add New Tail"
+  (nzOnCancel)="handleCancel()"
+  (nzOnOk)="handleOk()"
+  [nzFooter]="modalFooter"
+>
+  <ng-template #modalContent>
+    <div class="add-modal-content">
+      <div class="add-modal-body">
+        <label for="title"><b>Title:</b></label>
+        <input id="title" nz-input [(ngModel)]="tailData.title" placeholder="Enter title">
+
+        <label for="description"><b>Description:</b></label>
+        <textarea id="description" nz-input [(ngModel)]="tailData.description" rows="3" placeholder="Enter description"></textarea>
+
+        <label for="level"><b>Level:</b></label>
+        <input id="level" nz-input [(ngModel)]="tailData.level" placeholder="Enter level">
+
+        <label for="type"><b>Type:</b></label>
+        <input id="type" nz-input [(ngModel)]="tailData.type" placeholder="Enter type">
+
+        <label for="status"><b>Status:</b></label>
+        <input id="status" nz-input [(ngModel)]="tailData.status" placeholder="Enter status">
+      </div>
+    </div>
+  </ng-template>
+  <ng-template #modalFooter>
+    <button nz-button class="cancel-btn" nzType="default" (click)="handleCancel()">Cancel</button>
+    <button nz-button class="add-btn" nzType="primary" (click)="handleOk()">Add</button>
+  </ng-template>
+</nz-modal>

@@ -9,6 +9,11 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { TailUtilService } from '../../../service/tail-util.service';
 import { AlertService } from '../../../service/alert.service';
 import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzSelectModule } from 'ng-zorro-antd/select';
+import { TailLevelService } from '../../../service/tail-level.service';
+import { TailTypeService } from '../../../service/tail-type.service';
+import { PageRequest } from '../../../model/interface/page.interface';
+import { PageUtilService } from '../../page-util.service';
 
 @Component({
   selector: 'app-add-tail-modal',
@@ -22,12 +27,19 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
     NzInputModule,
     NzButtonModule,
     NzIconModule,
+    NzSelectModule,
   ],
   templateUrl: './add-tail-modal.component.html',
   styleUrls: ['./add-tail-modal.component.less']
 })
 export class AddTailModalComponent {
   @Input() isVisible: boolean = true;
+
+  selectedLevel: string = '';
+  selectedType: string = '';
+
+  tailLevels: string[] = [];
+  tailTypes: string[] = [];
 
   // TODO set type for tail data
   tailData: any = {};
@@ -40,10 +52,14 @@ export class AddTailModalComponent {
 
   constructor(
     private modal: NzModalRef<AddTailModalComponent>,
-    private alertService: AlertService
+    private alertService: AlertService,
+    private tailLevelService: TailLevelService,
+    private tailTypeService: TailTypeService,
+    private pageUtilService: PageUtilService
   ) { }
 
   handleOk(): void {
+    // TODO PERFORM TAIL DATA VALIDATION BEFORE SENDING REQUEST
     for (let i = 0; i < this.metadataKeys.length; i ++) {
       this.metadata[this.metadataKeys[i].key] = this.metadataValues[i].value;
     }
@@ -79,4 +95,22 @@ export class AddTailModalComponent {
       this.metadataValues.splice(index, 1);
     }
   }
+
+  // TODO MOVE TO COMMON UTIL
+  onTypeSearch(term: string): void {
+    const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequestWithSearch(term);
+    this.tailTypeService.getTailTypes(pageRequest).subscribe(result => {
+      this.tailTypes = [];
+      result.content.forEach(type => this.tailTypes.push(type.name));
+    });
+  } 
+
+  // TODO MOVE TO COMMON UTIL
+  onLevelSearch(term: string): void {
+    const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequestWithSearch(term);
+    this.tailLevelService.getTailLevels(pageRequest).subscribe(result => {
+      this.tailLevels = [];
+      result.content.forEach(level => this.tailLevels.push(level.name));
+    });
+  } 
 }

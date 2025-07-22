@@ -18,16 +18,37 @@
         <label for="details"><b>Details:</b></label>
         <textarea id="details" nz-input [(ngModel)]="tailData.details" rows="4" placeholder="Enter details or stacktrace data"></textarea>
 
-        <!-- TODO PROVIDE DROPDOWN OF AVAILABLE LEVELS -->
         <label for="level"><b>Level:</b></label>
-        <input id="level" nz-input [(ngModel)]="tailData.level" placeholder="Enter level">
+        <nz-select
+          [(ngModel)]="tailData.level"
+          nzAllowClear
+          nzPlaceHolder="Enter level"
+          nzShowSearch
+          (nzOnSearch)="onLevelSearch($event)"
+        >
+          <nz-option
+            *ngFor="let level of tailLevels"
+            [nzValue]="level"
+            [nzLabel]="level"
+          ></nz-option>
+        </nz-select>
 
-        <!-- TODO PROVIDE DROPDOWN OF AVAILABLE TYPES -->
         <label for="type"><b>Type:</b></label>
-        <input id="type" nz-input [(ngModel)]="tailData.type" placeholder="Enter type">
+        <nz-select
+          [(ngModel)]="tailData.type"
+          nzAllowClear
+          nzPlaceHolder="Enter type"
+          nzShowSearch
+          (nzOnSearch)="onTypeSearch($event)"
+        >
+          <nz-option
+            *ngFor="let type of tailTypes"
+            [nzValue]="type"
+            [nzLabel]="type"
+          ></nz-option>
+        </nz-select>
 
         <label for="metdata"><b>Metadata:</b></label>
-
         @for (key of metadataKeys; track key; let i = $index) {
           <div style="display: flex;">
             <input id="metadata-key" nz-input [(ngModel)]="metadataKeys[i].key" placeholder="Enter key">
@@ -41,7 +62,6 @@
           Add metadata
         </button>
         
-
       </div>
     </div>
   </ng-template>

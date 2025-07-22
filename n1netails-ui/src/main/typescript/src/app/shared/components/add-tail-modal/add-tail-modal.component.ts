@@ -33,7 +33,7 @@ export class AddTailModalComponent {
   public tailUtilService = inject(TailUtilService);
 
   constructor(
-    private modal: NzModalRef,
+    private modal: NzModalRef<AddTailModalComponent>,
     private alertService: AlertService
   ) { }
 

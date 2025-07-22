@@ -2,12 +2,12 @@ import { Component, HostListener } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { CommonModule } from '@angular/common';
-import { NzModalService } from 'ng-zorro-antd/modal';
+import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
 import { AddTailModalComponent } from '../../components/add-tail-modal/add-tail-modal.component';
 
 @Component({
   selector: 'app-sidenav',
-  imports: [NzMenuModule,RouterModule, CommonModule],
+  imports: [NzMenuModule,RouterModule,CommonModule,NzModalModule,],
   templateUrl: './sidenav.component.html',
   styleUrl: './sidenav.component.less'
 })

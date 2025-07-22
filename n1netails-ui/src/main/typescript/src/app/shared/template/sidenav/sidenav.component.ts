@@ -4,11 +4,10 @@ import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { CommonModule } from '@angular/common';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { AddTailModalComponent } from '../../components/add-tail-modal/add-tail-modal.component';
-import { NzButtonModule } from 'ng-zorro-antd/button';
 
 @Component({
   selector: 'app-sidenav',
-  imports: [NzMenuModule,RouterModule, CommonModule, NzButtonModule],
+  imports: [NzMenuModule,RouterModule, CommonModule],
   templateUrl: './sidenav.component.html',
   styleUrl: './sidenav.component.less'
 })

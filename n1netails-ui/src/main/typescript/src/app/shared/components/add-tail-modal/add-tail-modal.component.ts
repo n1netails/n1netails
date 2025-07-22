@@ -25,8 +25,9 @@ import { AlertService } from '../../../service/alert.service';
   styleUrls: ['./add-tail-modal.component.less']
 })
 export class AddTailModalComponent {
-  @Input() isVisible: boolean = false;
+  @Input() isVisible: boolean = true;
 
+  // TODO set type for tail data
   tailData: any = {};
 
   public tailUtilService = inject(TailUtilService);
@@ -38,9 +39,11 @@ export class AddTailModalComponent {
 
   handleOk(): void {
     // Hardcoded for now, will be replaced with a proper token management system
-    const token = 'mock-token';
+    // TODO get list of n1ne tokens that user owns
+    const token = 'c8f36742-a0fe-4915-8087-d0d7a5aa8424';
     this.alertService.createTail(token, this.tailData).subscribe(() => {
       this.modal.close(this.tailData);
+      window.location.reload();
     });
   }
 

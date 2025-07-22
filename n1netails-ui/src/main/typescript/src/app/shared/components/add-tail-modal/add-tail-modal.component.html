@@ -1,6 +1,7 @@
 <nz-modal
   [(nzVisible)]="isVisible"
   nzTitle="Add New Tail"
+  [nzContent]="modalContent"
   (nzOnCancel)="handleCancel()"
   (nzOnOk)="handleOk()"
   [nzFooter]="modalFooter"
@@ -12,16 +13,18 @@
         <input id="title" nz-input [(ngModel)]="tailData.title" placeholder="Enter title">
 
         <label for="description"><b>Description:</b></label>
-        <textarea id="description" nz-input [(ngModel)]="tailData.description" rows="3" placeholder="Enter description"></textarea>
+        <textarea id="description" nz-input [(ngModel)]="tailData.description" rows="2" placeholder="Enter description"></textarea>
 
+        <label for="details"><b>Details:</b></label>
+        <textarea id="details" nz-input [(ngModel)]="tailData.details" rows="3" placeholder="Enter details or stacktrace data"></textarea>
+
+        <!-- TODO PROVIDE DROPDOWN OF AVAILABLE LEVELS -->
         <label for="level"><b>Level:</b></label>
         <input id="level" nz-input [(ngModel)]="tailData.level" placeholder="Enter level">
 
+        <!-- TODO PROVIDE DROPDOWN OF AVAILABLE TYPES -->
         <label for="type"><b>Type:</b></label>
         <input id="type" nz-input [(ngModel)]="tailData.type" placeholder="Enter type">
-
-        <label for="status"><b>Status:</b></label>
-        <input id="status" nz-input [(ngModel)]="tailData.status" placeholder="Enter status">
       </div>
     </div>
   </ng-template>

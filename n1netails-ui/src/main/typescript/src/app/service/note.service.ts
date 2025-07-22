@@ -10,7 +10,7 @@ import { UiConfigService } from '../shared/ui-config.service';
 export class NoteService {
 
   host: string = '';
-  private apiUrl = '/ninetails/note';
+  private apiPath = '/ninetails/note';
 
   constructor(
     private http: HttpClient,
@@ -18,17 +18,17 @@ export class NoteService {
   ) {}
 
   getNotesByTailId(tailId: number): Observable<Note[]> {
-    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
+    this.host = this.uiConfigService.getApiUrl() + this.apiPath;
     return this.http.get<Note[]>(`${this.host}/tail/${tailId}`);
   }
 
   saveNote(note: Note): Observable<Note> {
-    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
+    this.host = this.uiConfigService.getApiUrl() + this.apiPath;
     return this.http.post<Note>(this.host, note);
   }
 
   getN1Note(tailId: number): Observable<Note> {
-    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
+    this.host = this.uiConfigService.getApiUrl() + this.apiPath;
     return this.http.get<Note>(`${this.host}/tail/${tailId}/isN1`);
   }
 }

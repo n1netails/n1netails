@@ -8,7 +8,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 
 @Component({
   selector: 'app-sidenav',
-  imports: [NzMenuModule,RouterModule, CommonModule, AddTailModalComponent, NzButtonModule],
+  imports: [NzMenuModule,RouterModule, CommonModule, NzButtonModule],
   templateUrl: './sidenav.component.html',
   styleUrl: './sidenav.component.less'
 })

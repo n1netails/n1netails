@@ -16,7 +16,7 @@ export class LlmService {
   public geminiAiModels = [];
 
   host: string = '';
-  private apiUrl = '/ninetails/llm';
+  private apiPath = '/ninetails/llm';
 
   constructor(
     private http: HttpClient,
@@ -24,12 +24,12 @@ export class LlmService {
   ) {}
 
   investigateTail(request: LlmPromptRequest): Observable<LlmPromptResponse> {
-    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
+    this.host = this.uiConfigService.getApiUrl() + this.apiPath;
     return this.http.post<LlmPromptResponse>(`${this.host}/investigate`, request);
   }
 
   sendPrompt(request: LlmPromptRequest): Observable<LlmPromptResponse> {
-    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
+    this.host = this.uiConfigService.getApiUrl() + this.apiPath;
     return this.http.post<LlmPromptResponse>(`${this.host}/prompt`, request);
   }
 

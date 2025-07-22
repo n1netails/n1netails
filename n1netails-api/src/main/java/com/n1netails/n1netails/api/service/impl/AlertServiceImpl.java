@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -43,6 +44,7 @@ public class AlertServiceImpl implements AlertService {
         tailEntity.setAssignedUserId(usersEntity.getId());
         tailEntity.setTitle(request.getTitle());
         tailEntity.setDescription(request.getDescription());
+        if (request.getTimestamp() == null) request.setTimestamp(Instant.now());
         tailEntity.setTimestamp(request.getTimestamp());
         tailEntity.setDetails(request.getDetails());
         tailEntity.setOrganization(n1neTokenEntity.getOrganization());
@@ -108,19 +110,21 @@ public class AlertServiceImpl implements AlertService {
         log.info("save tail");
         tailEntity = this.tailRepository.save(tailEntity);
 
-        log.info("mapping tail variables");
-        log.info(request.getMetadata().toString());
-        List<TailVariableEntity> tailVariableEntities = new ArrayList<>();
-        TailEntity finalTailEntity = tailEntity;
-        request.getMetadata().forEach((k, v) -> {
-            TailVariableEntity tailVariable = new TailVariableEntity();
-            tailVariable.setKey(k);
-            tailVariable.setValue(v);
-            tailVariable.setTail(finalTailEntity);
-            tailVariableEntities.add(tailVariable);
-        });
+        if (request.getMetadata() != null) {
+            log.info("mapping tail variables");
+            log.info(request.getMetadata().toString());
+            List<TailVariableEntity> tailVariableEntities = new ArrayList<>();
+            TailEntity finalTailEntity = tailEntity;
+            request.getMetadata().forEach((k, v) -> {
+                TailVariableEntity tailVariable = new TailVariableEntity();
+                tailVariable.setKey(k);
+                tailVariable.setValue(v);
+                tailVariable.setTail(finalTailEntity);
+                tailVariableEntities.add(tailVariable);
+            });
 
-        finalTailEntity.setCustomVariables(tailVariableEntities);
-        this.tailRepository.save(finalTailEntity);
+            finalTailEntity.setCustomVariables(tailVariableEntities);
+            this.tailRepository.save(finalTailEntity);
+        }
     }
 }

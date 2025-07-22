@@ -39,7 +39,7 @@ export interface Tail {
 export class TailDataService {
 
   host: string = '';
-  private apiUrl = '/ninetails/tail'; // Backend API endpoint
+  private apiPath = '/ninetails/tail'; // Backend API endpoint
 
   constructor(
     private http: HttpClient,
@@ -47,7 +47,7 @@ export class TailDataService {
   ) {}
 
   getTails(request: TailPageRequest): Observable<TailPageResponse<Tail>> {
-    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
+    this.host = this.uiConfigService.getApiUrl() + this.apiPath;
     return this.http.post<TailPageResponse<Tail>>(`${this.host}/page`, request);
   }
 }

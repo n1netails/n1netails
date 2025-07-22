@@ -35,9 +35,7 @@ export class SidenavComponent {
 
   addTailAlert(): void {
     this.modalService.create({
-      nzTitle: 'Add New Tail',
-      nzContent: AddTailModalComponent,
-      nzFooter: null,
+      nzContent: AddTailModalComponent
     });
   }
 }

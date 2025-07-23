@@ -6,14 +6,14 @@ import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { TailUtilService } from '../../../service/tail-util.service';
+import { TailUtilService } from '../../util/tail-util.service';
 import { AlertService } from '../../../service/alert.service';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { TailLevelService } from '../../../service/tail-level.service';
 import { TailTypeService } from '../../../service/tail-type.service';
 import { PageRequest } from '../../../model/interface/page.interface';
-import { PageUtilService } from '../../page-util.service';
+import { PageUtilService } from '../../util/page-util.service';
 import { User } from '../../../model/user';
 import { Organization } from '../../../model/organization';
 import { AuthenticationService } from '../../../service/authentication.service';
@@ -106,7 +106,6 @@ export class AddTailModalComponent {
     }
   }
 
-  // TODO MOVE TO COMMON UTIL
   onTypeSearch(term: string): void {
     const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequestWithSearch(term);
     this.tailTypeService.getTailTypes(pageRequest).subscribe(result => {
@@ -115,7 +114,6 @@ export class AddTailModalComponent {
     });
   } 
 
-  // TODO MOVE TO COMMON UTIL
   onLevelSearch(term: string): void {
     const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequestWithSearch(term);
     this.tailLevelService.getTailLevels(pageRequest).subscribe(result => {

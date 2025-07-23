@@ -6,7 +6,7 @@ import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { TailUtilService } from '../../../service/tail-util.service';
+import { TailUtilService } from '../../util/tail-util.service';
 
 @Component({
   selector: 'app-resolve-tail-modal',

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { UiConfigService } from '../shared/ui-config.service';
+import { UiConfigService } from '../shared/util/ui-config.service';
 
 export interface TailPageRequest {
   page: number;

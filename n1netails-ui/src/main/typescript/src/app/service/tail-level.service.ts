@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { UiConfigService } from '../shared/ui-config.service';
+import { UiConfigService } from '../shared/util/ui-config.service';
 import { PageResponse, PageRequest } from '../model/interface/page.interface';
-import { PageUtilService } from '../shared/page-util.service';
+import { PageUtilService } from '../shared/util/page-util.service';
 
 export interface TailLevel {
   name: string;

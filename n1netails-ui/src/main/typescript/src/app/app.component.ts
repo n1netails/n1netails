@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { UiConfigService } from './shared/ui-config.service';
+import { UiConfigService } from './shared/util/ui-config.service';
 
 @Component({
   selector: 'app-root',

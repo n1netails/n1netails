@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { UiConfigService } from '../shared/ui-config.service';
-import { PageUtilService } from '../shared/page-util.service';
+import { UiConfigService } from '../shared/util/ui-config.service';
+import { PageUtilService } from '../shared/util/page-util.service';
 import { PageRequest, PageResponse } from '../model/interface/page.interface';
 
 export interface CreateTokenRequest {

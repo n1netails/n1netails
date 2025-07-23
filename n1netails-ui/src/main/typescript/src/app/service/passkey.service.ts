@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, from, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import { UiConfigService } from '../shared/ui-config.service';
+import { UiConfigService } from '../shared/util/ui-config.service';
 import { PasskeyRegistrationStartRequestDto, PasskeyRegistrationStartResponseDto, PasskeyApiResponseDto, PasskeyAuthenticationStartRequestDto, PasskeyAuthenticationStartResponseDto, PasskeyAuthenticationResponseDto } from '../model/dto/passkey-dtos'; // Assuming a combined DTO file or individual imports
 import { AuthenticationService } from './authentication.service'; // To handle JWT and user caching
 

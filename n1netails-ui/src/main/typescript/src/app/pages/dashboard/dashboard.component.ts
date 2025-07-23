@@ -11,7 +11,7 @@ import { NzTagModule } from 'ng-zorro-antd/tag';
 import { BaseChartDirective } from 'ng2-charts';
 import { HeaderComponent } from "../../shared/template/header/header.component";
 import { SidenavComponent } from "../../shared/template/sidenav/sidenav.component";
-import { UiConfigService } from "../../shared/ui-config.service";
+import { UiConfigService } from "../../shared/util/ui-config.service";
 import { AuthenticationService } from '../../service/authentication.service';
 import { Router } from '@angular/router';
 import { TailMetricsService } from '../../service/tail-metrics.service';
@@ -22,7 +22,7 @@ import { FormsModule } from '@angular/forms';
 import { User } from '../../model/user';
 import { DurationPipe } from '../../pipe/duration.pipe';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
-import { TailUtilService } from '../../service/tail-util.service';
+import { TailUtilService } from '../../shared/util/tail-util.service';
 import { ResolveTailModalComponent } from '../../shared/components/resolve-tail-modal/resolve-tail-modal.component';
 import { ResolveTailRequest, TailSummary } from '../../model/tail.model';
 

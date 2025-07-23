@@ -9,6 +9,21 @@
   <ng-template #modalContent>
     <div class="add-modal-content">
       <div class="add-modal-body">
+        <label for="organization"><b>Organization:</b></label>
+        <nz-select
+          id="organization"
+          name="organization"
+          [(ngModel)]="organizationId"
+          nzPlaceHolder="Select organization"
+          required
+        >
+          <nz-option
+            *ngFor="let org of organizations"
+            [nzValue]="org.id"
+            [nzLabel]="org.name"
+          ></nz-option>
+        </nz-select>
+
         <label for="title"><b>Title:</b></label>
         <input id="title" nz-input [(ngModel)]="tailData.title" placeholder="Enter title">
 
@@ -20,6 +35,7 @@
 
         <label for="level"><b>Level:</b></label>
         <nz-select
+          id="level"
           [(ngModel)]="tailData.level"
           nzAllowClear
           nzPlaceHolder="Enter level"
@@ -35,6 +51,7 @@
 
         <label for="type"><b>Type:</b></label>
         <nz-select
+          id="type"
           [(ngModel)]="tailData.type"
           nzAllowClear
           nzPlaceHolder="Enter type"

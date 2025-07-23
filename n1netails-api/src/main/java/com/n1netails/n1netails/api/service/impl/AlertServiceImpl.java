@@ -1,5 +1,6 @@
 package com.n1netails.n1netails.api.service.impl;
 
+import com.n1netails.n1netails.api.exception.type.OrganizationNotFoundException;
 import com.n1netails.n1netails.api.model.entity.*;
 import com.n1netails.n1netails.api.model.request.KudaTailRequest;
 import com.n1netails.n1netails.api.repository.*;
@@ -30,6 +31,7 @@ public class AlertServiceImpl implements AlertService {
     private final TailTypeRepository typeRepository;
     private final TailStatusRepository statusRepository;
     private final N1neTokenRepository n1neTokenRepository;
+    private final OrganizationRepository organizationRepository;
 
     @Override
     public void createTail(String token, KudaTailRequest request) {
@@ -39,7 +41,17 @@ public class AlertServiceImpl implements AlertService {
         N1neTokenEntity n1neTokenEntity = new N1neTokenEntity();
         if (optionalN1neTokenEntity.isPresent()) n1neTokenEntity = optionalN1neTokenEntity.get();
         UsersEntity usersEntity = n1neTokenEntity.getUser();
+        saveTailAlert(n1neTokenEntity.getOrganization(), usersEntity, request);
+    }
 
+    @Override
+    public void createManualTail(Long organizationId, UsersEntity usersEntity, KudaTailRequest request) throws OrganizationNotFoundException {
+        OrganizationEntity organizationEntity = this.organizationRepository.findById(organizationId)
+                .orElseThrow(() -> new OrganizationNotFoundException("Requested organization for creating manual tail not found."));
+        saveTailAlert(organizationEntity, usersEntity, request);
+    }
+
+    private void saveTailAlert(OrganizationEntity organizationEntity, UsersEntity usersEntity, KudaTailRequest request) {
         TailEntity tailEntity = new TailEntity();
         tailEntity.setAssignedUserId(usersEntity.getId());
         tailEntity.setTitle(request.getTitle());
@@ -47,7 +59,7 @@ public class AlertServiceImpl implements AlertService {
         if (request.getTimestamp() == null) request.setTimestamp(Instant.now());
         tailEntity.setTimestamp(request.getTimestamp());
         tailEntity.setDetails(request.getDetails());
-        tailEntity.setOrganization(n1neTokenEntity.getOrganization());
+        tailEntity.setOrganization(organizationEntity);
 
         log.info("finding extra tail info");
         // tail level

@@ -14,6 +14,10 @@ import { TailLevelService } from '../../../service/tail-level.service';
 import { TailTypeService } from '../../../service/tail-type.service';
 import { PageRequest } from '../../../model/interface/page.interface';
 import { PageUtilService } from '../../page-util.service';
+import { User } from '../../../model/user';
+import { Organization } from '../../../model/organization';
+import { AuthenticationService } from '../../../service/authentication.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-add-tail-modal',
@@ -35,6 +39,10 @@ import { PageUtilService } from '../../page-util.service';
 export class AddTailModalComponent {
   @Input() isVisible: boolean = true;
 
+  user: User;
+  organizations: Organization[];
+  organizationId: number = 0;
+
   selectedLevel: string = '';
   selectedType: string = '';
 
@@ -51,12 +59,17 @@ export class AddTailModalComponent {
   public tailUtilService = inject(TailUtilService);
 
   constructor(
+    private authenticationService: AuthenticationService,
     private modal: NzModalRef<AddTailModalComponent>,
     private alertService: AlertService,
     private tailLevelService: TailLevelService,
     private tailTypeService: TailTypeService,
-    private pageUtilService: PageUtilService
-  ) { }
+    private pageUtilService: PageUtilService,
+    private router: Router,
+  ) { 
+    this.user = this.authenticationService.getUserFromLocalCache();
+    this.organizations = this.user.organizations;
+  }
 
   handleOk(): void {
     // TODO PERFORM TAIL DATA VALIDATION BEFORE SENDING REQUEST
@@ -65,12 +78,10 @@ export class AddTailModalComponent {
     }
     this.tailData.metadata = this.metadata;
 
-    // Hardcoded for now, will be replaced with a proper token management system
-    // TODO get list of n1ne tokens that user owns
-    const token = 'c8f36742-a0fe-4915-8087-d0d7a5aa8424';
-    this.alertService.createTail(token, this.tailData).subscribe(() => {
+    this.alertService.createManualTail(this.organizationId, this.user.id, this.tailData).subscribe(() => {
       this.modal.close(this.tailData);
-      window.location.reload();
+      if (this.router.url === '/dashboard') window.location.reload();
+      else this.router.navigate(['/dashboard']);
     });
   }
 

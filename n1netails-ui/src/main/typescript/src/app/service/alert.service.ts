@@ -18,8 +18,12 @@ export class AlertService {
 
   createTail(token: string, tailData: any): Observable<any> {
     const headers = new HttpHeaders().set('N1ne-Token', token);
-
     this.host = this.uiConfigService.getApiUrl() + this.apiPath;
     return this.http.post(this.host, tailData, { headers });
+  }
+
+  createManualTail(organizationId: number, userId: number, tailData: any): Observable<any> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiPath;
+    return this.http.post(`${this.host}/manual/${userId}/organization/${organizationId}`, tailData);
   }
 }

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, from, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import { UiConfigService } from '../shared/ui-config.service';
+import { UiConfigService } from '../shared/util/ui-config.service';
 import { PasskeyRegistrationStartRequestDto, PasskeyRegistrationStartResponseDto, PasskeyApiResponseDto, PasskeyAuthenticationStartRequestDto, PasskeyAuthenticationStartResponseDto, PasskeyAuthenticationResponseDto } from '../model/dto/passkey-dtos'; // Assuming a combined DTO file or individual imports
 import { AuthenticationService } from './authentication.service'; // To handle JWT and user caching
 
@@ -49,7 +49,7 @@ function base64urlDecode(input: string): string {
 })
 export class PasskeyService {
   private host: string = '';
-  private apiUrl = '/ninetails/auth/passkey';
+  private apiPath = '/ninetails/auth/passkey';
   private isWebAuthnSupported: boolean;
 
   constructor(
@@ -72,7 +72,7 @@ export class PasskeyService {
 
   // --- REGISTRATION ---
   startPasskeyRegistration(email: string, domain: string): Observable<PasskeyRegistrationStartResponseDto> {
-    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
+    this.host = this.uiConfigService.getApiUrl() + this.apiPath;
     if (!this.checkWebAuthnSupport()) {
       return throwError(() => new Error('Passkey authentication (WebAuthn) is not supported by this browser.'));
     }
@@ -86,7 +86,7 @@ export class PasskeyService {
     credential: PublicKeyCredential,
     friendlyName?: string
   ): Observable<PasskeyApiResponseDto> {
-    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
+    this.host = this.uiConfigService.getApiUrl() + this.apiPath;
     if (!this.checkWebAuthnSupport()) {
       return throwError(() => new Error('Passkey authentication (WebAuthn) is not supported by this browser.'));
     }
@@ -173,7 +173,7 @@ export class PasskeyService {
 
   // --- AUTHENTICATION ---
   startPasskeyAuthentication(email?: string, domain?: string): Observable<PasskeyAuthenticationStartResponseDto> {
-    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
+    this.host = this.uiConfigService.getApiUrl() + this.apiPath;
     if (!this.checkWebAuthnSupport()) {
       return throwError(() => new Error('Passkey authentication (WebAuthn) is not supported by this browser.'));
     }
@@ -183,7 +183,7 @@ export class PasskeyService {
   }
 
   finishPasskeyAuthentication(flowId: string, credential: PublicKeyCredential): Observable<PasskeyAuthenticationResponseDto> {
-    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
+    this.host = this.uiConfigService.getApiUrl() + this.apiPath;
     if (!this.checkWebAuthnSupport()) {
       return throwError(() => new Error('Passkey authentication (WebAuthn) is not supported by this browser.'));
     }

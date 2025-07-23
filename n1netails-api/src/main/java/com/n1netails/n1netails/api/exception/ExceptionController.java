@@ -56,6 +56,7 @@ public class ExceptionController implements ErrorController {
             TailNotFoundException.class,
             UserNotFoundException.class,
             NoteNotFoundException.class,
+            OrganizationNotFoundException.class,
             IllegalArgumentException.class
     })
     public ResponseEntity<HttpErrorResponse> notFoundException(Exception exception) {

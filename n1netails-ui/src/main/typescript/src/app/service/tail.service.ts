@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { UiConfigService } from '../shared/ui-config.service';
+import { UiConfigService } from '../shared/util/ui-config.service';
 import { TailResponse, TailSummary, ResolveTailRequest } from '../model/tail.model';
 
 export interface TailRequest {
@@ -23,7 +23,7 @@ export interface TailRequest {
 export class TailService {
 
   host: string = '';
-  private apiUrl = '/ninetails/tail'; // Base URL for tail operations
+  private apiPath = '/ninetails/tail'; // Base URL for tail operations
 
   constructor(
     private http: HttpClient,
@@ -31,37 +31,37 @@ export class TailService {
   ) {}
 
   createTail(request: TailRequest): Observable<TailResponse> {
-    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
+    this.host = this.uiConfigService.getApiUrl() + this.apiPath;
     return this.http.post<TailResponse>(this.host, request);
   }
 
   getTails(): Observable<TailResponse[]> {
-    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
+    this.host = this.uiConfigService.getApiUrl() + this.apiPath;
     return this.http.get<TailResponse[]>(this.host);
   }
 
   getTailById(id: number): Observable<TailResponse> {
-    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
+    this.host = this.uiConfigService.getApiUrl() + this.apiPath;
     return this.http.get<TailResponse>(`${this.host}/${id}`);
   }
 
   updateTail(id: number, request: TailRequest): Observable<TailResponse> {
-    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
+    this.host = this.uiConfigService.getApiUrl() + this.apiPath;
     return this.http.put<TailResponse>(`${this.host}/${id}`, request);
   }
 
   deleteTail(id: number): Observable<void> {
-    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
+    this.host = this.uiConfigService.getApiUrl() + this.apiPath;
     return this.http.delete<void>(`${this.host}/${id}`);
   }
 
   getTop9NewestTails(): Observable<TailResponse[]> {
-    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
+    this.host = this.uiConfigService.getApiUrl() + this.apiPath;
     return this.http.get<TailResponse[]>(`${this.host}/top9`);
   }
 
   markTailResolved(resolvedTailRequest: ResolveTailRequest): Observable<void> {
-    this.host = this.uiConfigService.getApiUrl() + this.apiUrl;
+    this.host = this.uiConfigService.getApiUrl() + this.apiPath;
     return this.http.post<void>(`${this.host}/mark/resolved`, resolvedTailRequest);
   }
 }

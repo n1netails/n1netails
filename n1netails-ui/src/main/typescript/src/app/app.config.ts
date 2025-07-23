@@ -13,7 +13,7 @@ import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@a
 
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { AuthInterceptor } from './interceptor/auth.interceptor';
-import { UiConfigService } from './shared/ui-config.service';
+import { UiConfigService } from './shared/util/ui-config.service';
 
 registerLocaleData(en);
 

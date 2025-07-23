@@ -1,0 +1,89 @@
+<nz-modal
+  [(nzVisible)]="isVisible"
+  nzTitle="Add New Tail"
+  [nzContent]="modalContent"
+  (nzOnCancel)="handleCancel()"
+  (nzOnOk)="handleOk()"
+  [nzFooter]="modalFooter"
+>
+  <ng-template #modalContent>
+    <div class="add-modal-content">
+      <div class="add-modal-body">
+        <label for="organization"><b>Organization:</b></label>
+        <nz-select
+          id="organization"
+          name="organization"
+          [(ngModel)]="organizationId"
+          nzPlaceHolder="Select organization"
+          required
+        >
+          <nz-option
+            *ngFor="let org of organizations"
+            [nzValue]="org.id"
+            [nzLabel]="org.name"
+          ></nz-option>
+        </nz-select>
+
+        <label for="title"><b>Title:</b></label>
+        <input id="title" nz-input [(ngModel)]="tailAlert.title" placeholder="Enter title">
+
+        <label for="description"><b>Description:</b></label>
+        <textarea id="description" nz-input [(ngModel)]="tailAlert.description" rows="2" placeholder="Enter description"></textarea>
+
+        <label for="details"><b>Details:</b></label>
+        <textarea id="details" nz-input [(ngModel)]="tailAlert.details" rows="4" placeholder="Enter details or stacktrace data"></textarea>
+
+        <label for="level"><b>Level:</b></label>
+        <nz-select
+          id="level"
+          [(ngModel)]="tailAlert.level"
+          nzAllowClear
+          nzPlaceHolder="Enter level"
+          nzShowSearch
+          (nzOnSearch)="onLevelSearch($event)"
+        >
+          <nz-option
+            *ngFor="let level of tailLevels"
+            [nzValue]="level"
+            [nzLabel]="level"
+          ></nz-option>
+        </nz-select>
+
+        <label for="type"><b>Type:</b></label>
+        <nz-select
+          id="type"
+          [(ngModel)]="tailAlert.type"
+          nzAllowClear
+          nzPlaceHolder="Enter type"
+          nzShowSearch
+          (nzOnSearch)="onTypeSearch($event)"
+        >
+          <nz-option
+            *ngFor="let type of tailTypes"
+            [nzValue]="type"
+            [nzLabel]="type"
+          ></nz-option>
+        </nz-select>
+
+        <label for="metdata"><b>Metadata:</b></label>
+        @for (key of metadataKeys; track key; let i = $index) {
+          <div style="display: flex;">
+            <input id="metadata-key" nz-input [(ngModel)]="metadataKeys[i].key" placeholder="Enter key">
+            <input id="metadata-value" nz-input [(ngModel)]="metadataValues[i].value" placeholder="Enter value">
+            <nz-icon nzType="minus-circle-o" class="dynamic-delete-button" (click)="removeField(key, $event)" />
+          </div>
+        }
+
+        <button nz-button nzType="dashed" class="add-button" (click)="addField($event)">
+          <nz-icon nzType="plus" />
+          Add metadata
+        </button>
+        
+      </div>
+    </div>
+  </ng-template>
+  <ng-template #modalFooter>
+    <button nz-button class="cancel-btn" nzType="default" (click)="handleCancel()">Cancel</button>
+    <button nz-button class="add-btn" nzType="primary" (click)="handleOk()">Add</button>
+  </ng-template>
+</nz-modal>

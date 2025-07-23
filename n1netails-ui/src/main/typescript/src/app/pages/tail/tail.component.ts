@@ -12,7 +12,7 @@ import { HeaderComponent } from '../../shared/template/header/header.component';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
-import { TailUtilService } from '../../service/tail-util.service';
+import { TailUtilService } from '../../shared/util/tail-util.service';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { AuthenticationService } from '../../service/authentication.service';

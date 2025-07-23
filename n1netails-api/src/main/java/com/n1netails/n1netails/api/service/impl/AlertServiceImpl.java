@@ -1,5 +1,6 @@
 package com.n1netails.n1netails.api.service.impl;
 
+import com.n1netails.n1netails.api.exception.type.OrganizationNotFoundException;
 import com.n1netails.n1netails.api.model.entity.*;
 import com.n1netails.n1netails.api.model.request.KudaTailRequest;
 import com.n1netails.n1netails.api.repository.*;
@@ -9,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +31,7 @@ public class AlertServiceImpl implements AlertService {
     private final TailTypeRepository typeRepository;
     private final TailStatusRepository statusRepository;
     private final N1neTokenRepository n1neTokenRepository;
+    private final OrganizationRepository organizationRepository;
 
     @Override
     public void createTail(String token, KudaTailRequest request) {
@@ -38,14 +41,25 @@ public class AlertServiceImpl implements AlertService {
         N1neTokenEntity n1neTokenEntity = new N1neTokenEntity();
         if (optionalN1neTokenEntity.isPresent()) n1neTokenEntity = optionalN1neTokenEntity.get();
         UsersEntity usersEntity = n1neTokenEntity.getUser();
+        saveTailAlert(n1neTokenEntity.getOrganization(), usersEntity, request);
+    }
 
+    @Override
+    public void createManualTail(Long organizationId, UsersEntity usersEntity, KudaTailRequest request) throws OrganizationNotFoundException {
+        OrganizationEntity organizationEntity = this.organizationRepository.findById(organizationId)
+                .orElseThrow(() -> new OrganizationNotFoundException("Requested organization for creating manual tail not found."));
+        saveTailAlert(organizationEntity, usersEntity, request);
+    }
+
+    private void saveTailAlert(OrganizationEntity organizationEntity, UsersEntity usersEntity, KudaTailRequest request) {
         TailEntity tailEntity = new TailEntity();
         tailEntity.setAssignedUserId(usersEntity.getId());
         tailEntity.setTitle(request.getTitle());
         tailEntity.setDescription(request.getDescription());
+        if (request.getTimestamp() == null) request.setTimestamp(Instant.now());
         tailEntity.setTimestamp(request.getTimestamp());
         tailEntity.setDetails(request.getDetails());
-        tailEntity.setOrganization(n1neTokenEntity.getOrganization());
+        tailEntity.setOrganization(organizationEntity);
 
         log.info("finding extra tail info");
         // tail level
@@ -108,19 +122,21 @@ public class AlertServiceImpl implements AlertService {
         log.info("save tail");
         tailEntity = this.tailRepository.save(tailEntity);
 
-        log.info("mapping tail variables");
-        log.info(request.getMetadata().toString());
-        List<TailVariableEntity> tailVariableEntities = new ArrayList<>();
-        TailEntity finalTailEntity = tailEntity;
-        request.getMetadata().forEach((k, v) -> {
-            TailVariableEntity tailVariable = new TailVariableEntity();
-            tailVariable.setKey(k);
-            tailVariable.setValue(v);
-            tailVariable.setTail(finalTailEntity);
-            tailVariableEntities.add(tailVariable);
-        });
+        if (request.getMetadata() != null) {
+            log.info("mapping tail variables");
+            log.info(request.getMetadata().toString());
+            List<TailVariableEntity> tailVariableEntities = new ArrayList<>();
+            TailEntity finalTailEntity = tailEntity;
+            request.getMetadata().forEach((k, v) -> {
+                TailVariableEntity tailVariable = new TailVariableEntity();
+                tailVariable.setKey(k);
+                tailVariable.setValue(v);
+                tailVariable.setTail(finalTailEntity);
+                tailVariableEntities.add(tailVariable);
+            });
 
-        finalTailEntity.setCustomVariables(tailVariableEntities);
-        this.tailRepository.save(finalTailEntity);
+            finalTailEntity.setCustomVariables(tailVariableEntities);
+            this.tailRepository.save(finalTailEntity);
+        }
     }
 }

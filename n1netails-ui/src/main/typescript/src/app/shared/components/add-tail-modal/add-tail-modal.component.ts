@@ -18,6 +18,7 @@ import { User } from '../../../model/user';
 import { Organization } from '../../../model/organization';
 import { AuthenticationService } from '../../../service/authentication.service';
 import { Router } from '@angular/router';
+import { TailAlert } from '../../../model/interface/tail-alert.interface';
 
 @Component({
   selector: 'app-add-tail-modal',
@@ -49,8 +50,7 @@ export class AddTailModalComponent {
   tailLevels: string[] = [];
   tailTypes: string[] = [];
 
-  // TODO set type for tail data
-  tailData: any = {};
+  tailAlert: TailAlert = {};
 
   metadata: { [key: string]: string } = {};
   metadataKeys: Array<{ id: number; key: string }> = [];
@@ -75,10 +75,10 @@ export class AddTailModalComponent {
     for (let i = 0; i < this.metadataKeys.length; i ++) {
       this.metadata[this.metadataKeys[i].key] = this.metadataValues[i].value;
     }
-    this.tailData.metadata = this.metadata;
+    this.tailAlert.metadata = this.metadata;
 
-    this.alertService.createManualTail(this.organizationId, this.user.id, this.tailData).subscribe(() => {
-      this.modal.close(this.tailData);
+    this.alertService.createManualTail(this.organizationId, this.user.id, this.tailAlert).subscribe(() => {
+      this.modal.close(this.tailAlert);
       if (this.router.url === '/dashboard') window.location.reload();
       else this.router.navigate(['/dashboard']);
     });

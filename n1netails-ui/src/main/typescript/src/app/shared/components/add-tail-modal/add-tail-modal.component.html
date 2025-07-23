@@ -25,18 +25,18 @@
         </nz-select>
 
         <label for="title"><b>Title:</b></label>
-        <input id="title" nz-input [(ngModel)]="tailData.title" placeholder="Enter title">
+        <input id="title" nz-input [(ngModel)]="tailAlert.title" placeholder="Enter title">
 
         <label for="description"><b>Description:</b></label>
-        <textarea id="description" nz-input [(ngModel)]="tailData.description" rows="2" placeholder="Enter description"></textarea>
+        <textarea id="description" nz-input [(ngModel)]="tailAlert.description" rows="2" placeholder="Enter description"></textarea>
 
         <label for="details"><b>Details:</b></label>
-        <textarea id="details" nz-input [(ngModel)]="tailData.details" rows="4" placeholder="Enter details or stacktrace data"></textarea>
+        <textarea id="details" nz-input [(ngModel)]="tailAlert.details" rows="4" placeholder="Enter details or stacktrace data"></textarea>
 
         <label for="level"><b>Level:</b></label>
         <nz-select
           id="level"
-          [(ngModel)]="tailData.level"
+          [(ngModel)]="tailAlert.level"
           nzAllowClear
           nzPlaceHolder="Enter level"
           nzShowSearch
@@ -52,7 +52,7 @@
         <label for="type"><b>Type:</b></label>
         <nz-select
           id="type"
-          [(ngModel)]="tailData.type"
+          [(ngModel)]="tailAlert.type"
           nzAllowClear
           nzPlaceHolder="Enter type"
           nzShowSearch

@@ -50,8 +50,8 @@ export class AddTailModalComponent {
   tailLevels: string[] = [];
   tailTypes: string[] = [];
 
+  // tail alert data
   tailAlert: TailAlert = {};
-
   metadata: { [key: string]: string } = {};
   metadataKeys: Array<{ id: number; key: string }> = [];
   metadataValues: Array<{ id: number; value: string }> = [];

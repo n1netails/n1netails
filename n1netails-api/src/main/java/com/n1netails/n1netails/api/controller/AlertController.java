@@ -19,6 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.AccessDeniedException;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATION_JSON;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -32,6 +34,8 @@ public class AlertController {
 
     private static final int TITLE_MAX_LENGTH = 255;
     private static final int DESCRIPTION_MAX_LENGTH = 255;
+    private static final int METADATA_KEY_LENGTH = 255;
+    private static final int METADATA_VALUE_LENGTH = 255;
 
     private final AlertService alertService;
     private final N1neTokenService n1neTokenService;
@@ -48,11 +52,7 @@ public class AlertController {
     ) throws N1neTokenNotFoundException {
         log.info("=====================");
         log.info("RECEIVED KUDA REQUEST");
-
-        // substring title and description to meet db requirements
-        request.setTitle(truncate(request.getTitle(), TITLE_MAX_LENGTH));
-        request.setDescription(truncate(request.getDescription(), DESCRIPTION_MAX_LENGTH));
-
+        sanitizeRequestData(request);
         boolean tokenValid = this.n1neTokenService.validateToken(n1neToken);
         if (tokenValid) {
             this.n1neTokenService.setLastUsedAt(n1neToken);
@@ -86,9 +86,7 @@ public class AlertController {
             && authorizationService.belongsToOrganization(currentUser, organizationId)
         ) {
             log.info("Manually adding tail alert");
-            // substring title and description to meet db requirements
-            request.setTitle(truncate(request.getTitle(), TITLE_MAX_LENGTH));
-            request.setDescription(truncate(request.getDescription(), DESCRIPTION_MAX_LENGTH));
+            sanitizeRequestData(request);
             alertService.createManualTail(organizationId, currentUser.getUser(), request);
         } else {
             throw new AccessDeniedException("Create manual tail alert request access denied.");
@@ -101,5 +99,20 @@ public class AlertController {
             return value;
         }
         return value.substring(0, maxLength - 3) + "...";
+    }
+
+    private void sanitizeRequestData(KudaTailRequest request) {
+        // substring title and description to meet db requirements
+        request.setTitle(truncate(request.getTitle(), TITLE_MAX_LENGTH));
+        request.setDescription(truncate(request.getDescription(), DESCRIPTION_MAX_LENGTH));
+
+        // substring metadata to meet db requirements
+        Map<String, String> metadata = new HashMap<>();
+        request.getMetadata().forEach((k, v) -> {
+            k = truncate(k, METADATA_KEY_LENGTH);
+            v = truncate(v, METADATA_VALUE_LENGTH);
+            metadata.put(k, v);
+        });
+        request.setMetadata(metadata);
     }
 }

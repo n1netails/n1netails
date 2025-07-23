@@ -72,7 +72,6 @@ export class AddTailModalComponent {
   }
 
   handleOk(): void {
-    // TODO PERFORM TAIL DATA VALIDATION BEFORE SENDING REQUEST
     for (let i = 0; i < this.metadataKeys.length; i ++) {
       this.metadata[this.metadataKeys[i].key] = this.metadataValues[i].value;
     }

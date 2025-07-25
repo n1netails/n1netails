@@ -65,7 +65,7 @@ public class AlertServiceImpl implements AlertService {
 
         this.attachTailLevel(tailEntity, kudaTailRequest);
         this.attachTailType(tailEntity, kudaTailRequest);
-        this.attachTailStatus(tailEntity, kudaTailRequest);
+        this.attachTailStatus(tailEntity);
         this.attachTailMetadata(tailEntity, kudaTailRequest);
         return tailEntity;
     }
@@ -114,7 +114,7 @@ public class AlertServiceImpl implements AlertService {
         tailEntity.setType(tailTypeEntity);
     }
 
-    private void attachTailStatus(TailEntity tailEntity, KudaTailRequest kudaTailRequest) {
+    private void attachTailStatus(TailEntity tailEntity) {
         TailStatusEntity tailStatusEntity;
         Optional<TailStatusEntity> optionalNewTailStatus = this.statusRepository.findTailStatusByName(NEW);
         if (optionalNewTailStatus.isPresent()) {

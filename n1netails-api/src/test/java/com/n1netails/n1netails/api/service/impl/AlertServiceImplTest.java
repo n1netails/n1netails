@@ -79,7 +79,6 @@ public class AlertServiceImplTest {
 
     @BeforeAll
     public static void setUp() {
-        System.out.println("Setup");
         n1neDefaultOrganization = new OrganizationEntity(
                 1L, "N1ne", "Default n1netails organization", "",
                 new Date(), new Date(), new HashSet<>());

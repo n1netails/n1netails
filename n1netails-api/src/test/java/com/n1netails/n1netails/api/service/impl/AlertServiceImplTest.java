@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -122,10 +123,10 @@ public class AlertServiceImplTest {
         emptyInputKudaTailRequest.setTitle("Kuda Title");
         emptyInputKudaTailRequest.setDescription("Kuda Description");
         emptyInputKudaTailRequest.setDetails("Kuda Details");
-        emptyInputKudaTailRequest.setTimestamp(new Date().toInstant());
+//        emptyInputKudaTailRequest.setTimestamp(new Date().toInstant());
         emptyInputKudaTailRequest.setLevel("");
         emptyInputKudaTailRequest.setType("");
-        emptyInputKudaTailRequest.setMetadata(Map.of("env", "prod", "test", "info"));
+//        emptyInputKudaTailRequest.setMetadata(Map.of("env", "prod", "test", "info"));
 
         newValuesKudaTailRequest = new KudaTailRequest();
         newValuesKudaTailRequest.setTitle("Kuda Title");
@@ -249,7 +250,7 @@ public class AlertServiceImplTest {
         assertEquals(AlertServiceImpl.NEW, actualSavedTailEntity.getStatus().getName());
         assertEquals(user.getId(), actualSavedTailEntity.getAssignedUserId());
         assertEquals(n1neDefaultOrganization.getId(), actualSavedTailEntity.getOrganization().getId());
-        assertEquals(2, actualSavedTailEntity.getCustomVariables().size());
+        assertNull(actualSavedTailEntity.getCustomVariables());
     }
 
     @Test

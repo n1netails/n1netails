@@ -99,12 +99,12 @@ public class AlertServiceImpl implements AlertService {
             tailLevelEntity = optionalTailLevel.get();
         } else if (kudaTailRequest.getLevel() == null || kudaTailRequest.getLevel().isBlank()) {
             tailLevelEntity = this.levelRepository.findTailLevelByName(INFO)
-                    .orElseGet(() -> {
-                        TailLevelEntity newLevel = new TailLevelEntity();
-                        newLevel.setName(INFO);
-                        newLevel.setDeletable(false);
-                        return this.levelRepository.save(newLevel);
-                    });
+                .orElseGet(() -> {
+                    TailLevelEntity newLevel = new TailLevelEntity();
+                    newLevel.setName(INFO);
+                    newLevel.setDeletable(false);
+                    return this.levelRepository.save(newLevel);
+                });
         } else {
             tailLevelEntity = new TailLevelEntity();
             tailLevelEntity.setName(kudaTailRequest.getLevel());
@@ -121,12 +121,12 @@ public class AlertServiceImpl implements AlertService {
             tailTypeEntity = optionalTailType.get();
         } else if (kudaTailRequest.getType() == null || kudaTailRequest.getType().isBlank()) {
             tailTypeEntity = this.typeRepository.findTailTypeByName(SYSTEM_ALERT)
-                    .orElseGet(() -> {
-                        TailTypeEntity newType = new TailTypeEntity();
-                        newType.setName(SYSTEM_ALERT);
-                        newType.setDeletable(false);
-                        return this.typeRepository.save(newType);
-                    });
+                .orElseGet(() -> {
+                    TailTypeEntity newType = new TailTypeEntity();
+                    newType.setName(SYSTEM_ALERT);
+                    newType.setDeletable(false);
+                    return this.typeRepository.save(newType);
+                });
         } else {
             tailTypeEntity = new TailTypeEntity();
             tailTypeEntity.setName(kudaTailRequest.getType());
@@ -155,17 +155,14 @@ public class AlertServiceImpl implements AlertService {
             log.info("mapping tail variables");
             log.info(kudaTailRequest.getMetadata().toString());
             List<TailVariableEntity> tailVariableEntities = new ArrayList<>();
-            TailEntity finalTailEntity = tailEntity;
             kudaTailRequest.getMetadata().forEach((k, v) -> {
                 TailVariableEntity tailVariable = new TailVariableEntity();
                 tailVariable.setKey(k);
                 tailVariable.setValue(v);
-                tailVariable.setTail(finalTailEntity);
+                tailVariable.setTail(tailEntity);
                 tailVariableEntities.add(tailVariable);
             });
-
-            finalTailEntity.setCustomVariables(tailVariableEntities);
-            this.tailRepository.save(finalTailEntity);
+            tailEntity.setCustomVariables(tailVariableEntities);
         }
     }
 }

@@ -1,6 +1,8 @@
 package com.n1netails.n1netails.api.service.impl;
 
+import com.n1netails.n1netails.api.exception.type.OrganizationNotFoundException;
 import com.n1netails.n1netails.api.model.entity.N1neTokenEntity;
+import com.n1netails.n1netails.api.model.entity.OrganizationEntity;
 import com.n1netails.n1netails.api.model.entity.TailEntity;
 import com.n1netails.n1netails.api.model.entity.TailLevelEntity;
 import com.n1netails.n1netails.api.model.entity.TailStatusEntity;
@@ -9,6 +11,7 @@ import com.n1netails.n1netails.api.model.entity.TailVariableEntity;
 import com.n1netails.n1netails.api.model.entity.UsersEntity;
 import com.n1netails.n1netails.api.model.request.KudaTailRequest;
 import com.n1netails.n1netails.api.repository.N1neTokenRepository;
+import com.n1netails.n1netails.api.repository.OrganizationRepository;
 import com.n1netails.n1netails.api.repository.TailLevelRepository;
 import com.n1netails.n1netails.api.repository.TailRepository;
 import com.n1netails.n1netails.api.repository.TailStatusRepository;
@@ -19,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -39,6 +43,7 @@ public class AlertServiceImpl implements AlertService {
     private final TailTypeRepository typeRepository;
     private final TailStatusRepository statusRepository;
     private final N1neTokenRepository n1neTokenRepository;
+    private final OrganizationRepository organizationRepository;
 
     @Override
     public void createTail(String token, KudaTailRequest request) {
@@ -48,20 +53,37 @@ public class AlertServiceImpl implements AlertService {
         N1neTokenEntity n1neTokenEntity = new N1neTokenEntity();
         if (optionalN1neTokenEntity.isPresent()) n1neTokenEntity = optionalN1neTokenEntity.get();
         UsersEntity usersEntity = n1neTokenEntity.getUser();
+        saveTailAlert(n1neTokenEntity.getOrganization(), usersEntity, request);
+    }
 
-        TailEntity tailEntity = buildTailEntity(n1neTokenEntity, usersEntity, request);
+    @Override
+    public void createManualTail(Long organizationId, UsersEntity usersEntity, KudaTailRequest request) throws OrganizationNotFoundException {
+        OrganizationEntity organizationEntity = this.organizationRepository.findById(organizationId)
+                .orElseThrow(() -> new OrganizationNotFoundException("Requested organization for creating manual tail not found."));
+        saveTailAlert(organizationEntity, usersEntity, request);
+    }
+    
+    private void saveTailAlert(OrganizationEntity organizationEntity,
+                               UsersEntity usersEntity, KudaTailRequest request) {
+        TailEntity tailEntity = buildTailEntity(organizationEntity, usersEntity, request);
         tailRepository.save(tailEntity);
     }
 
-    private TailEntity buildTailEntity(N1neTokenEntity n1neTokenEntity, UsersEntity usersEntity,
-                                       KudaTailRequest kudaTailRequest) {
+    private TailEntity buildTailEntity(OrganizationEntity organizationEntity,
+                                       UsersEntity usersEntity, KudaTailRequest kudaTailRequest) {
         TailEntity tailEntity = new TailEntity();
         tailEntity.setAssignedUserId(usersEntity.getId());
         tailEntity.setTitle(kudaTailRequest.getTitle());
         tailEntity.setDescription(kudaTailRequest.getDescription());
+        if (kudaTailRequest.getTimestamp() == null) kudaTailRequest.setTimestamp(Instant.now());
         tailEntity.setTimestamp(kudaTailRequest.getTimestamp());
         tailEntity.setDetails(kudaTailRequest.getDetails());
-        tailEntity.setOrganization(n1neTokenEntity.getOrganization());
+        tailEntity.setOrganization(organizationEntity);
+        tailEntity.setTitle(kudaTailRequest.getTitle());
+        tailEntity.setDescription(kudaTailRequest.getDescription());
+        tailEntity.setTimestamp(kudaTailRequest.getTimestamp());
+        tailEntity.setDetails(kudaTailRequest.getDetails());
+        tailEntity.setOrganization(organizationEntity);
 
         this.attachTailLevel(tailEntity, kudaTailRequest);
         this.attachTailType(tailEntity, kudaTailRequest);
@@ -129,14 +151,21 @@ public class AlertServiceImpl implements AlertService {
     }
 
     private void attachTailMetadata(TailEntity tailEntity, KudaTailRequest kudaTailRequest) {
-        List<TailVariableEntity> tailVariableEntities = new ArrayList<>();
-        kudaTailRequest.getMetadata().forEach((k, v) -> {
-            TailVariableEntity tailVariable = new TailVariableEntity();
-            tailVariable.setKey(k);
-            tailVariable.setValue(v);
-            tailVariable.setTail(tailEntity);
-            tailVariableEntities.add(tailVariable);
-        });
-        tailEntity.setCustomVariables(tailVariableEntities);
+        if (kudaTailRequest.getMetadata() != null) {
+            log.info("mapping tail variables");
+            log.info(kudaTailRequest.getMetadata().toString());
+            List<TailVariableEntity> tailVariableEntities = new ArrayList<>();
+            TailEntity finalTailEntity = tailEntity;
+            kudaTailRequest.getMetadata().forEach((k, v) -> {
+                TailVariableEntity tailVariable = new TailVariableEntity();
+                tailVariable.setKey(k);
+                tailVariable.setValue(v);
+                tailVariable.setTail(finalTailEntity);
+                tailVariableEntities.add(tailVariable);
+            });
+
+            finalTailEntity.setCustomVariables(tailVariableEntities);
+            this.tailRepository.save(finalTailEntity);
+        }
     }
 }

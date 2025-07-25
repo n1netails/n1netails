@@ -19,7 +19,7 @@ import { Organization } from '../../model/organization';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { PageRequest, PageResponse } from '../../model/interface/page.interface';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-import { PageUtilService } from '../../shared/page-util.service';
+import { PageUtilService } from '../../shared/util/page-util.service';
 
 @Component({
   selector: 'app-settings',

@@ -17,7 +17,7 @@ import { TailStatusService } from '../../service/tail-status.service';
 import { TailTypeService } from '../../service/tail-type.service';
 import { Router } from '@angular/router';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-import { TailUtilService } from '../../service/tail-util.service';
+import { TailUtilService } from '../../shared/util/tail-util.service';
 import { ResolveTailModalComponent } from '../../shared/components/resolve-tail-modal/resolve-tail-modal.component';
 import { User } from '../../model/user';
 import { AuthenticationService } from '../../service/authentication.service';
@@ -25,7 +25,7 @@ import { TailService } from '../../service/tail.service';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { ResolveTailRequest, TailSummary } from '../../model/tail.model';
 import { PageRequest } from '../../model/interface/page.interface';
-import { PageUtilService } from '../../shared/page-util.service';
+import { PageUtilService } from '../../shared/util/page-util.service';
 
 @Component({
   selector: 'app-tails',

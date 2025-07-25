@@ -1,6 +1,6 @@
 import { HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { PageRequest } from '../model/interface/page.interface';
+import { PageRequest } from '../../model/interface/page.interface';
 
 @Injectable({
   providedIn: 'root'

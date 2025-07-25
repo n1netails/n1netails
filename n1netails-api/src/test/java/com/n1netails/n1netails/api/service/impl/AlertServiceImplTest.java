@@ -135,14 +135,14 @@ public class AlertServiceImplTest {
         newValuesKudaTailRequest.setTimestamp(new Date().toInstant());
         // Level and type not in db, will store these new values
         newValuesKudaTailRequest.setLevel(NEW_TAIL_LEVEL_TRACE);
-        newValuesKudaTailRequest.setType(NEW_TAIL_LEVEL_TRACE);
+        newValuesKudaTailRequest.setType(NEW_TAIL_TYPE_MONITOR_ALERT);
         newValuesKudaTailRequest.setMetadata(Map.of("env", "prod", "test", "info"));
 
         newTailLevelTrace = new TailLevelEntity();
         newTailLevelTrace.setName(NEW_TAIL_LEVEL_TRACE);
 
         newTailTypeMonitorAlert = new TailTypeEntity();
-        newTailTypeMonitorAlert.setName(NEW_TAIL_LEVEL_TRACE);
+        newTailTypeMonitorAlert.setName(NEW_TAIL_TYPE_MONITOR_ALERT);
     }
 
     @Test

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NzModalModule, NzModalRef } from 'ng-zorro-antd/modal';
@@ -19,6 +19,7 @@ import { Organization } from '../../../model/organization';
 import { AuthenticationService } from '../../../service/authentication.service';
 import { Router } from '@angular/router';
 import { TailAlert } from '../../../model/interface/tail-alert.interface';
+import { NzMessageService } from 'ng-zorro-antd/message';
 
 @Component({
   selector: 'app-add-tail-modal',
@@ -65,6 +66,7 @@ export class AddTailModalComponent {
     private tailLevelService: TailLevelService,
     private tailTypeService: TailTypeService,
     private pageUtilService: PageUtilService,
+    private msg: NzMessageService,
     private router: Router,
   ) { 
     this.user = this.authenticationService.getUserFromLocalCache();
@@ -72,16 +74,44 @@ export class AddTailModalComponent {
   }
 
   handleOk(): void {
-    for (let i = 0; i < this.metadataKeys.length; i ++) {
-      this.metadata[this.metadataKeys[i].key] = this.metadataValues[i].value;
-    }
-    this.tailAlert.metadata = this.metadata;
+    if (!this.isValidTailAlert()) return;
 
-    this.alertService.createManualTail(this.organizationId, this.user.id, this.tailAlert).subscribe(() => {
-      this.modal.close(this.tailAlert);
-      if (this.router.url === '/dashboard') window.location.reload();
-      else this.router.navigate(['/dashboard']);
-    });
+    this.tailAlert.metadata = this.buildMetadata();
+    this.alertService.createManualTail(this.organizationId, this.user.id, this.tailAlert)
+      .subscribe({
+        next: () => {
+          this.modal.close(this.tailAlert);
+          this.navigateToDashboard();
+        },
+        error: (err) => this.msg.error(`Failed to create tail alert: ${err.message || err}`)
+      });
+  }
+
+  private isValidTailAlert(): boolean {
+    if (!this.tailAlert.title?.trim()) {
+      this.msg.error('The tail title cannot be empty.');
+      return false;
+    }
+    if (!this.tailAlert.description?.trim()) {
+      this.msg.error('The tail description cannot be empty.');
+      return false;
+    }
+    return true;
+  }
+
+  private buildMetadata(): Record<string, string> {
+    return this.metadataKeys.reduce((acc, { key }, index) => {
+      acc[key] = this.metadataValues[index].value;
+      return acc;
+    }, {} as Record<string, string>);
+  }
+
+  private navigateToDashboard(): void {
+    if (this.router.url === '/dashboard') {
+      window.location.reload();
+    } else {
+      this.router.navigate(['/dashboard']);
+    }
   }
 
   handleCancel(): void {

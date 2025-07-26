@@ -1,9 +1,21 @@
 package com.n1netails.n1netails.api.service.impl;
 
 import com.n1netails.n1netails.api.exception.type.OrganizationNotFoundException;
-import com.n1netails.n1netails.api.model.entity.*;
+import com.n1netails.n1netails.api.model.entity.N1neTokenEntity;
+import com.n1netails.n1netails.api.model.entity.OrganizationEntity;
+import com.n1netails.n1netails.api.model.entity.TailEntity;
+import com.n1netails.n1netails.api.model.entity.TailLevelEntity;
+import com.n1netails.n1netails.api.model.entity.TailStatusEntity;
+import com.n1netails.n1netails.api.model.entity.TailTypeEntity;
+import com.n1netails.n1netails.api.model.entity.TailVariableEntity;
+import com.n1netails.n1netails.api.model.entity.UsersEntity;
 import com.n1netails.n1netails.api.model.request.KudaTailRequest;
-import com.n1netails.n1netails.api.repository.*;
+import com.n1netails.n1netails.api.repository.N1neTokenRepository;
+import com.n1netails.n1netails.api.repository.OrganizationRepository;
+import com.n1netails.n1netails.api.repository.TailLevelRepository;
+import com.n1netails.n1netails.api.repository.TailRepository;
+import com.n1netails.n1netails.api.repository.TailStatusRepository;
+import com.n1netails.n1netails.api.repository.TailTypeRepository;
 import com.n1netails.n1netails.api.service.AlertService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,8 +62,15 @@ public class AlertServiceImpl implements AlertService {
                 .orElseThrow(() -> new OrganizationNotFoundException("Requested organization for creating manual tail not found."));
         saveTailAlert(organizationEntity, usersEntity, request);
     }
+    
+    private void saveTailAlert(OrganizationEntity organizationEntity,
+                               UsersEntity usersEntity, KudaTailRequest request) {
+        TailEntity tailEntity = buildTailEntity(organizationEntity, usersEntity, request);
+        tailRepository.save(tailEntity);
+    }
 
-    private void saveTailAlert(OrganizationEntity organizationEntity, UsersEntity usersEntity, KudaTailRequest request) {
+    private TailEntity buildTailEntity(OrganizationEntity organizationEntity,
+                                       UsersEntity usersEntity, KudaTailRequest request) {
         TailEntity tailEntity = new TailEntity();
         tailEntity.setAssignedUserId(usersEntity.getId());
         tailEntity.setTitle(request.getTitle());
@@ -60,83 +79,90 @@ public class AlertServiceImpl implements AlertService {
         tailEntity.setTimestamp(request.getTimestamp());
         tailEntity.setDetails(request.getDetails());
         tailEntity.setOrganization(organizationEntity);
+        tailEntity.setTitle(request.getTitle());
+        tailEntity.setDescription(request.getDescription());
+        tailEntity.setTimestamp(request.getTimestamp());
+        tailEntity.setDetails(request.getDetails());
+        tailEntity.setOrganization(organizationEntity);
 
-        log.info("finding extra tail info");
-        // tail level
-        log.info("tail level");
+        this.attachTailLevel(tailEntity, request);
+        this.attachTailType(tailEntity, request);
+        this.attachTailStatus(tailEntity);
+        this.attachTailMetadata(tailEntity, request);
+        return tailEntity;
+    }
+
+    private void attachTailLevel(TailEntity tailEntity, KudaTailRequest request) {
         TailLevelEntity tailLevelEntity;
-        if (this.levelRepository.findTailLevelByName(request.getLevel()).isPresent()) {
-            tailLevelEntity = this.levelRepository.findTailLevelByName(request.getLevel()).get();
+        Optional<TailLevelEntity> optionalTailLevel = this.levelRepository.findTailLevelByName(request.getLevel());
+        if (optionalTailLevel.isPresent()) {
+            tailLevelEntity = optionalTailLevel.get();
         } else if (request.getLevel() == null || request.getLevel().isBlank()) {
             tailLevelEntity = this.levelRepository.findTailLevelByName(INFO)
-                    .orElseGet(() -> {
-                        TailLevelEntity newLevel = new TailLevelEntity();
-                        newLevel.setName(INFO);
-                        newLevel.setDeletable(false);
-                        return this.levelRepository.save(newLevel);
-                    });
+                .orElseGet(() -> {
+                    TailLevelEntity newLevel = new TailLevelEntity();
+                    newLevel.setName(INFO);
+                    newLevel.setDeletable(false);
+                    return this.levelRepository.save(newLevel);
+                });
         } else {
             tailLevelEntity = new TailLevelEntity();
             tailLevelEntity.setName(request.getLevel());
             tailLevelEntity.setDeletable(true);
             tailLevelEntity = this.levelRepository.save(tailLevelEntity);
         }
+        tailEntity.setLevel(tailLevelEntity);
+    }
 
-        // tail type
-        log.info("tail type");
+    private void attachTailType(TailEntity tailEntity, KudaTailRequest request) {
         TailTypeEntity tailTypeEntity;
-        if (this.typeRepository.findTailTypeByName(request.getType()).isPresent()) {
-            tailTypeEntity = this.typeRepository.findTailTypeByName(request.getType()).get();
+        Optional<TailTypeEntity> optionalTailType = this.typeRepository.findTailTypeByName(request.getType());
+        if (optionalTailType.isPresent()) {
+            tailTypeEntity = optionalTailType.get();
         } else if (request.getType() == null || request.getType().isBlank()) {
             tailTypeEntity = this.typeRepository.findTailTypeByName(SYSTEM_ALERT)
-                    .orElseGet(() -> {
-                        TailTypeEntity newType = new TailTypeEntity();
-                        newType.setName(SYSTEM_ALERT);
-                        newType.setDeletable(false);
-                        return this.typeRepository.save(newType);
-                    });
+                .orElseGet(() -> {
+                    TailTypeEntity newType = new TailTypeEntity();
+                    newType.setName(SYSTEM_ALERT);
+                    newType.setDeletable(false);
+                    return this.typeRepository.save(newType);
+                });
         } else {
             tailTypeEntity = new TailTypeEntity();
             tailTypeEntity.setName(request.getType());
             tailTypeEntity.setDeletable(true);
             tailTypeEntity = this.typeRepository.save(tailTypeEntity);
         }
+        tailEntity.setType(tailTypeEntity);
+    }
 
-        // tail status (set NEW status for incoming tails)
-        log.info("tail status");
+    private void attachTailStatus(TailEntity tailEntity) {
         TailStatusEntity tailStatusEntity;
-        if (this.statusRepository.findTailStatusByName(NEW).isPresent()) {
-            tailStatusEntity = this.statusRepository.findTailStatusByName(NEW).get();
+        Optional<TailStatusEntity> optionalNewTailStatus = this.statusRepository.findTailStatusByName(NEW);
+        if (optionalNewTailStatus.isPresent()) {
+            tailStatusEntity = optionalNewTailStatus.get();
         } else {
             tailStatusEntity = new TailStatusEntity();
             tailStatusEntity.setName(NEW);
             tailStatusEntity.setDeletable(false);
             tailStatusEntity = this.statusRepository.save(tailStatusEntity);
         }
-
-        tailEntity.setLevel(tailLevelEntity);
-        tailEntity.setType(tailTypeEntity);
         tailEntity.setStatus(tailStatusEntity);
+    }
 
-
-        log.info("save tail");
-        tailEntity = this.tailRepository.save(tailEntity);
-
+    private void attachTailMetadata(TailEntity tailEntity, KudaTailRequest request) {
         if (request.getMetadata() != null) {
             log.info("mapping tail variables");
             log.info(request.getMetadata().toString());
             List<TailVariableEntity> tailVariableEntities = new ArrayList<>();
-            TailEntity finalTailEntity = tailEntity;
             request.getMetadata().forEach((k, v) -> {
                 TailVariableEntity tailVariable = new TailVariableEntity();
                 tailVariable.setKey(k);
                 tailVariable.setValue(v);
-                tailVariable.setTail(finalTailEntity);
+                tailVariable.setTail(tailEntity);
                 tailVariableEntities.add(tailVariable);
             });
-
-            finalTailEntity.setCustomVariables(tailVariableEntities);
-            this.tailRepository.save(finalTailEntity);
+            tailEntity.setCustomVariables(tailVariableEntities);
         }
     }
 }

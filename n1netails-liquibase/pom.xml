@@ -57,6 +57,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>n1netails-liquibase</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

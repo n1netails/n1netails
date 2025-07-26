@@ -74,3 +74,9 @@ For community users, open an issue on GitHub or Join our Discord
 ## Contributing
 
 Please use the following guidelines for contributions [CONTRIBUTING](./contributing.md)
+
+## N1netails Contributors
+
+Thanks to all the amazing people who contributed to N1netails! 💙
+
+[![Contributors](https://contrib.rocks/image?repo=n1netails/n1netails)](https://github.com/n1netails/n1netails/graphs/contributors)

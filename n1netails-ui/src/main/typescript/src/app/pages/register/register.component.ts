@@ -8,10 +8,11 @@ import { AuthenticationService } from '../../service/authentication.service';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { HeaderType } from '../../model/enum/header-type.enum';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 
 @Component({
   selector: 'app-register',
-  imports: [NzFormModule,FormsModule,RouterModule],
+  imports: [NzFormModule,FormsModule,RouterModule,NzIconModule],
   templateUrl: './register.component.html',
   styleUrl: './register.component.less'
 })
@@ -34,6 +35,12 @@ export class RegisterComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+  loginWithGithub() {
+    // Redirects to Spring Boot's OAuth2 authorization endpoint
+    // TODO MAKE URL TO /oauth2/authorization/github MORE DYNAMIC GET URL FROM CONFIGS
+    window.location.href = 'http://localhost:9901/oauth2/authorization/github';
   }
 
   public onRegister(form: NgForm): void {

@@ -32,10 +32,11 @@ public class JwtTokenUtil {
                         .map(GrantedAuthority::getAuthority)
                         .collect(Collectors.toList()))
                 .claim("userId", (userPrincipal.getUser()).getUserId()) // Add userId to token
+                .claim("id", userPrincipal.getId())
                 .build();
 
         JwtEncoderParameters parameters = JwtEncoderParameters.from(claimsSet);
-        log.info("getting JWT TOKEN: {}", jwtEncoder.encode(parameters).getTokenValue());
+        log.info("getting JWT TOKEN");
         return jwtEncoder.encode(parameters).getTokenValue();
     }
 }

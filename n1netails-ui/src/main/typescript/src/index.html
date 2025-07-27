@@ -10,4 +10,12 @@
 <body>
   <app-root></app-root>
 </body>
+
+<script>
+  // If the URL path is "/oauth2/success", rewrite it to the hash version before Angular boots
+  if (window.location.pathname === '/oauth2/success') {
+    const query = window.location.search || '';
+    window.location.replace(`/#/oauth2/success${query}`);
+  }
+</script>
 </html>

@@ -12,6 +12,7 @@ import com.n1netails.n1netails.api.repository.OrganizationRepository;
 import com.n1netails.n1netails.api.repository.UserRepository;
 import com.n1netails.n1netails.api.service.LoginAttemptService;
 import com.n1netails.n1netails.api.service.UserService;
+import com.n1netails.n1netails.api.util.UserUtil;
 import io.micrometer.common.util.StringUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -86,7 +87,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         else encodedPassword = encodePassword(newUser.getPassword());
 
         UsersEntity user = new UsersEntity();
-        user.setUserId(generateUserId());
+        user.setUserId(UserUtil.generateUserId());
         user.setFirstName(newUser.getFirstName());
         user.setLastName(newUser.getLastName());
         user.setUsername(newUser.getUsername());
@@ -129,12 +130,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return passwordEncoder.encode(password);
     }
 
-    private String generateUserId() {
-        RandomStringGenerator generator = new RandomStringGenerator.Builder()
-                .withinRange('0', '9')
-                .build();
-        return generator.generate(10);
-    }
+//    private String generateUserId() {
+//        RandomStringGenerator generator = new RandomStringGenerator.Builder()
+//                .withinRange('0', '9')
+//                .build();
+//        return generator.generate(10);
+//    }
 
     private void validateLoginAttempt(UsersEntity user) {
         if (user.isNotLocked()) {

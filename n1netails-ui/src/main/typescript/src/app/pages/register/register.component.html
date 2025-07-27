@@ -4,7 +4,7 @@
       <img src="n1netails_icon_transparent.png" alt="N1netails Logo" class="login-logo" />
     </div>
     <h2>Create Account</h2>
-    <nz-form-item class="netflix-form-item">
+    <nz-form-item class="n1netails-form-item">
       <nz-form-label [nzSpan]="24" nzFor="email" nzRequired>Email</nz-form-label>
       <nz-form-control [nzSpan]="24">
         <input
@@ -15,11 +15,11 @@
           ngModel
           required
           placeholder="Enter your email"
-          class="netflix-input"
+          class="n1netails-input"
         />
       </nz-form-control>
     </nz-form-item>
-    <nz-form-item class="netflix-form-item">
+    <nz-form-item class="n1netails-form-item">
       <nz-form-label [nzSpan]="24" nzFor="username" nzRequired>Username</nz-form-label>
       <nz-form-control [nzSpan]="24">
         <input
@@ -30,11 +30,11 @@
           ngModel
           required
           placeholder="Choose a username"
-          class="netflix-input"
+          class="n1netails-input"
         />
       </nz-form-control>
     </nz-form-item>
-    <nz-form-item class="netflix-form-item">
+    <nz-form-item class="n1netails-form-item">
       <nz-form-label [nzSpan]="24" nzFor="password" nzRequired>Password</nz-form-label>
       <nz-form-control [nzSpan]="24">
         <input
@@ -45,7 +45,7 @@
           ngModel
           required
           placeholder="Create a password"
-          class="netflix-input"
+          class="n1netails-input"
         />
       </nz-form-control>
     </nz-form-item>
@@ -58,6 +58,18 @@
     >
       Register with Email
     </button>
+
+    <button 
+      nz-button
+      nzType="default"
+      (click)="loginWithGithub()"
+      class="login-btn github-login-btn"
+      type="button"
+    >
+      <nz-icon nzType="github" nzTheme="outline" style="margin-right: 8px;"/>
+      Register with GitHub
+    </button>
+
     <div class="register-link">
       <span>Already have an account?</span>
       <a routerLink="/login">Login here</a>

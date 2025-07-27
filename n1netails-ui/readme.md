@@ -22,6 +22,7 @@ Run the project with environment variables.
 - API_BASE_URL (n1netails-api url defaults to http://localhost:9901)
 - GEMINI_ENABLED (enable gemini defaults to false)
 - OPENAI_ENABLED (enable openai defaults to false)
+- GITHUB_OAUTH2_ENABLED (enable github login defaults to false)
 
 Example:
 ```bash

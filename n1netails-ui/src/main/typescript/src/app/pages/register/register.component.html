@@ -60,6 +60,7 @@
     </button>
 
     <button 
+      *ngIf="githubAuthEnabled"
       nz-button
       nzType="default"
       (click)="loginWithGithub()"

@@ -1,6 +1,9 @@
 auth:
   github:
     enabled: ${GITHUB_OAUTH2_ENABLED:false}
+  oauth2:
+    redirects:
+      success: ${AUTH_OAUTH2_REDIRECT_SUCCESS:http://localhost:4200/#/oauth2/success?token=}
 
 spring:
   security:
@@ -8,8 +11,8 @@ spring:
       client:
         registration:
           github:
-            client-id: ${GITHUB_CLIENT_ID}
-            client-secret: ${GITHUB_CLIENT_SECRET}
+            client-id: ${GITHUB_CLIENT_ID:your-github-client-id}
+            client-secret: ${GITHUB_CLIENT_SECRET:your-github-client-secret}
             scope: read:user,user:email
             redirect-uri: "{baseUrl}/login/oauth2/code/github"
             client-name: GitHub

@@ -48,8 +48,8 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   loginWithGithub() {
     // Redirects to Spring Boot's OAuth2 authorization endpoint
-    // TODO MAKE URL TO /oauth2/authorization/github MORE DYNAMIC GET URL FROM CONFIGS
-    window.location.href = 'http://localhost:9901/oauth2/authorization/github';
+    // window.location.href = 'http://localhost:9901/oauth2/authorization/github';
+    window.location.href = this.uiConfigService.getApiUrl() + '/oauth2/authorization/github';
   }
 
   public onLogin(form: NgForm): void {

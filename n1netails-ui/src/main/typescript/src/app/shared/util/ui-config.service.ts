@@ -43,6 +43,15 @@ export class UiConfigService {
     } catch (error) {
       console.warn('Failed to check if gemini enabled, using fallback:', this.geminiEnabled);
     }
+
+    try {
+      this.githubAuthEnabled = await firstValueFrom(
+        this.http.get<boolean>('/ui/n1netails-config/github-auth-enabled')
+      );
+      console.log('Github Auth Enabled:', this.githubAuthEnabled);
+    } catch (error) {
+      console.warn('Failed to check if github auth enabled, using fallback:', this.githubAuthEnabled);
+    }
   }
 
   getApiUrl(): string {

@@ -17,6 +17,5 @@ export const routes: Routes = [
   { path: 'welcome', loadChildren: () => import('./pages/welcome/welcome.routes').then(m => m.WELCOME_ROUTES) },
   { path: 'tail/:id', component: TailComponent },
   { path: 'tails', component: TailsComponent, title: 'Tails' },
-
   { path: 'oauth2/success', component: Oauth2SuccessComponent }
 ];

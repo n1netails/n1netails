@@ -131,10 +131,6 @@ export class DashboardComponent implements OnInit {
     private router: Router
   ) {
     this.user = this.authenticationService.getUserFromLocalCache();
-    console.log('USER', this.user);
-    if (this.user.username === undefined) {
-      console.log('user is not defined');
-    }
   }
 
   ngOnInit() {

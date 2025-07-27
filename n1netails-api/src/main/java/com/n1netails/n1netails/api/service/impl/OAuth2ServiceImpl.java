@@ -97,13 +97,9 @@ public class OAuth2ServiceImpl implements OAuth2Service {
         String accessToken = client.getAccessToken().getTokenValue();
 
         // --- Get Primary Email (if available) ---
-//        String email = oAuth2User.getAttribute("email");
-        if (email == null) {
-            email = fetchPrimaryEmailFromGithub(accessToken);
-        }
-
+        if (email == null) email = fetchPrimaryEmailFromGithub(accessToken);
         // set no reply email if none available
-//        if (email == null) email = username + "@users.noreply.github.com";
+        if (email == null) email = username + "@users.noreply.github.com";
         user.setEmail(email);
 
         user.setUsername(username);
@@ -127,7 +123,7 @@ public class OAuth2ServiceImpl implements OAuth2Service {
         user.setLastLoginDateDisplay(user.getLastLoginDate());
         user.setLastLoginDate(new Date());
 
-        log.info("saving oauth2 user");
+        log.info("saving github oauth2 user");
         userRepository.save(user);
 
         UserPrincipal principal = new UserPrincipal(user);

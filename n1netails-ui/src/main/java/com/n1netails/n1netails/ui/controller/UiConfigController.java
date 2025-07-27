@@ -21,6 +21,9 @@ public class UiConfigController {
     @Value("${gemini.enabled}")
     private boolean geminiEnabled;
 
+    @Value("${auth.github.enabled}")
+    private boolean githubAuthEnabled;
+
     @GetMapping("/api-url")
     public Map<String, String> getApiUrl() {
         return Collections.singletonMap("n1netailsApiUrl", apiBaseUrl);
@@ -29,6 +32,9 @@ public class UiConfigController {
     @GetMapping("/openai-enabled")
     public boolean isOpenaiEnabled() { return openaiEnabled; }
 
-    @GetMapping("gemini-enabled")
+    @GetMapping("/gemini-enabled")
     public boolean isGeminiEnabled() { return geminiEnabled; }
+
+    @GetMapping("/github-auth-enabled")
+    public boolean isGithubAuthEnabled() { return githubAuthEnabled; }
 }

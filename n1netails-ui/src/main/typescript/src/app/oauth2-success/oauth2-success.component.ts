@@ -7,8 +7,7 @@ import { User } from '../model/user';
 @Component({
   selector: 'app-oauth2-success',
   imports: [],
-  templateUrl: './oauth2-success.component.html',
-  styleUrl: './oauth2-success.component.less'
+  template: ''
 })
 export class Oauth2SuccessComponent {
   constructor(

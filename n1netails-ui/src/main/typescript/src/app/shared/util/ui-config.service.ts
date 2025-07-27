@@ -11,6 +11,7 @@ export class UiConfigService {
   private apiUrl: string = environment.n1netailsApiUrl;
   private openaiEnabled: boolean = environment.openaiEnabled;
   private geminiEnabled: boolean = environment.geminiEnabled;
+  private githubAuthEnabled: boolean = environment.githubAuthEnabled;
 
   constructor(private http: HttpClient) {}
 
@@ -54,5 +55,9 @@ export class UiConfigService {
 
   isGeminiEnabled(): boolean {
     return this.geminiEnabled;
+  }
+
+  isGithubAuthEnabled(): boolean {
+    return this.githubAuthEnabled;
   }
 }

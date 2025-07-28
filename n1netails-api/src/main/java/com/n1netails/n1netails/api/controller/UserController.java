@@ -57,7 +57,16 @@ public class UserController {
     private final JwtTokenUtil jwtTokenUtil;
     private final JwtDecoder jwtDecoder;
 
-    // TODO add swagger docs
+    @Operation(
+            summary = "Get user self",
+            description = "Get logged in user profile",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "User profile located successfully",
+                            content = @Content(schema = @Schema(implementation = UsersEntity.class))),
+                    @ApiResponse(responseCode = "401", description = "Authentication failed",
+                            content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
+            }
+    )
     @GetMapping("/self")
     public ResponseEntity<UsersEntity> getCurrentUser(@RequestHeader(AUTHORIZATION) String authorizationHeader) throws AccessDeniedException {
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {

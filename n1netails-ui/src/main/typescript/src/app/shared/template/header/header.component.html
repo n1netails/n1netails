@@ -7,19 +7,15 @@
   <span style="float:right; margin-right: 21px;">
     <div>
       <span class="pointer" nz-dropdown [nzDropdownMenu]="profile" [nzTrigger]="'click'">
-        <!-- todo possibly implement way to store user images -->
-        <!-- <nz-avatar *ngIf="loggedInUser.profileImageUrl === null" nzIcon="user"></nz-avatar>
-        <nz-avatar *ngIf="loggedInUser.profileImageUrl !== null" nzSize="default" [nzSrc]="loggedInUser.profileImageUrl"></nz-avatar> -->
-        <nz-avatar nzIcon="user"></nz-avatar>
+        <nz-avatar *ngIf="loggedInUser.providerId === null" nzIcon="user"></nz-avatar>
+        <nz-avatar *ngIf="loggedInUser.providerId !== null" nzSize="default" [nzSrc]="loggedInUser.profileImageUrl"></nz-avatar>
       </span>
       <nz-dropdown-menu #profile="nzDropdownMenu">
         <ul nz-menu style="padding: 8px; width: 220px;">
           <li>
             <div style="display: flex; align-items: center;">
-              <!-- todo possibly implement way to store user images -->
-              <!-- <nz-avatar *ngIf="loggedInUser.profileImageUrl === null" nzSize="large" nzSrc="n1netails_icon_transparent.png"></nz-avatar>
-              <nz-avatar *ngIf="loggedInUser.profileImageUrl !== null" nzSize="large" [nzSrc]="loggedInUser.profileImageUrl"></nz-avatar> -->
-              <nz-avatar nzSize="large" nzIcon="user"></nz-avatar>
+              <nz-avatar *ngIf="loggedInUser.providerId === null" nzSize="large" nzIcon="user"></nz-avatar>
+              <nz-avatar *ngIf="loggedInUser.providerId !== null" nzSize="large" [nzSrc]="loggedInUser.profileImageUrl"></nz-avatar>
               <div style="margin-left: 10px;">
                 <p style="margin: 0;">{{ loggedInUser.username }}</p>
                 <p style="margin: 0;">{{ loggedInUser.email }}</p>

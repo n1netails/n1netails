@@ -166,6 +166,22 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
+    
+    # Route OAuth2
+    location /oauth2/ {
+        proxy_pass http://localhost:9901/oauth2/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+
+    # Route OAuth2 Login
+    location /login/ {
+        proxy_pass http://localhost:9901/login/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
 
     # Route OpenAPI config (Swagger needs this)
     location /v3/ {

@@ -1,8 +1,6 @@
 package com.n1netails.n1netails.api.service.impl;
 
 import com.n1netails.n1netails.api.constant.Authority;
-import com.n1netails.n1netails.api.exception.type.EmailExistException;
-import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
 import com.n1netails.n1netails.api.model.UserPrincipal;
 import com.n1netails.n1netails.api.model.entity.OrganizationEntity;
 import com.n1netails.n1netails.api.model.entity.UsersEntity;
@@ -11,7 +9,6 @@ import com.n1netails.n1netails.api.repository.UserRepository;
 import com.n1netails.n1netails.api.service.OAuth2Service;
 import com.n1netails.n1netails.api.util.JwtTokenUtil;
 import com.n1netails.n1netails.api.util.UserUtil;
-import io.micrometer.common.util.StringUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -61,7 +58,6 @@ public class OAuth2ServiceImpl implements OAuth2Service {
         log.info("name");
         String name = oAuth2User.getAttribute("name");
         log.info("getting user info from OAuth2User COMPLETED");
-
 
         OAuth2AuthorizedClient client = authorizedClientService.loadAuthorizedClient(
                 authentication.getAuthorizedClientRegistrationId(),
@@ -128,72 +124,6 @@ public class OAuth2ServiceImpl implements OAuth2Service {
         userRepository.save(user);
 
         return jwtTokenUtil.createToken(new UserPrincipal(user));
-
-//        UsersEntity user = userRepository.findByProviderAndProviderId(provider, providerId)
-//                .orElseGet(() -> {
-//                    log.info("creating new user from github oauth2");
-//                    UsersEntity newUser = new UsersEntity();
-//                    newUser.setProvider(provider);
-//                    newUser.setProviderId(providerId);
-//                    newUser.setUserId(UserUtil.generateUserId());
-//                    newUser.setJoinDate(new Date());
-//                    newUser.setActive(true);
-//                    newUser.setEnabled(true);
-//                    newUser.setNotLocked(true);
-//                    newUser.setRole(com.n1netails.n1netails.api.model.enumeration.Role.ROLE_USER.name());
-//                    newUser.setAuthorities(Authority.USER_AUTHORITIES);
-//
-//                    // Associate with "n1netails" organization
-//                    OrganizationEntity n1netailsOrg = organizationRepository.findByName("n1netails")
-//                            .orElseThrow(() -> new RuntimeException("Default 'n1netails' organization not found. Liquibase script might have failed."));
-//
-//                    if (newUser.getOrganizations() == null) {
-//                        newUser.setOrganizations(new HashSet<>());
-//                    }
-//                    newUser.getOrganizations().add(n1netailsOrg);
-//                    return newUser;
-//                });
-//
-//
-//        // --- Extract GitHub Access Token ---
-//        OAuth2AuthorizedClient client = authorizedClientService.loadAuthorizedClient(
-//                authentication.getAuthorizedClientRegistrationId(),
-//                authentication.getName()
-//        );
-//        String accessToken = client.getAccessToken().getTokenValue();
-//
-//        // --- Get Primary Email (if available) ---
-//        if (email == null) email = fetchPrimaryEmailFromGithub(accessToken);
-//        // set no reply email if none available
-//        if (email == null) email = username + "@users.noreply.github.com";
-//        user.setEmail(email);
-//
-//        user.setUsername(username);
-//        user.setProfileImageUrl(avatarUrl);
-//
-//        // split name into first and last name
-//        String firstName = "";
-//        String lastName = "";
-//        if (name != null && !name.isBlank()) {
-//            if (name.contains(" ")) {
-//                int lastSpace = name.lastIndexOf(" ");
-//                firstName = name.substring(0, lastSpace);
-//                lastName = name.substring(lastSpace + 1); // skip the space
-//            } else {
-//                firstName = name; // if only one name is provided
-//            }
-//        }
-//        user.setFirstName(firstName);
-//        user.setLastName(lastName);
-//
-//        user.setLastLoginDateDisplay(user.getLastLoginDate());
-//        user.setLastLoginDate(new Date());
-//
-//        log.info("saving github oauth2 user");
-//        userRepository.save(user);
-//
-//        UserPrincipal principal = new UserPrincipal(user);
-//        return jwtTokenUtil.createToken(principal);
     }
 
 

@@ -67,7 +67,6 @@ export class EditProfileComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
 
-  // TODO DISABLE EDIT PROFILE, PASSWORD RESET AND REGISER PASSKEY IF OAUTH2 USER
   // TODO ADD METHOD TO VALIDATE EMAIL
   onSaveProfile(form: NgForm) {
     const editUser = this.user;

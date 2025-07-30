@@ -1,0 +1,23 @@
+auth:
+  github:
+    enabled: ${GITHUB_OAUTH2_ENABLED:false}
+  oauth2:
+    redirects:
+      success: ${AUTH_OAUTH2_REDIRECT_SUCCESS:http://localhost:4200/#/oauth2/success?token=}
+
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: ${GITHUB_CLIENT_ID:your-github-client-id}
+            client-secret: ${GITHUB_CLIENT_SECRET:your-github-client-secret}
+            scope: read:user,user:email
+            redirect-uri: "{baseUrl}/login/oauth2/code/github"
+            client-name: GitHub
+        provider:
+          github:
+            authorization-uri: https://github.com/login/oauth/authorize
+            token-uri: https://github.com/login/oauth/access_token
+            user-info-uri: https://api.github.com/user

@@ -1,4 +1,4 @@
-package com.n1netails.n1netails.api.config;
+package com.n1netails.n1netails.api.config.security;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.JWKSet;

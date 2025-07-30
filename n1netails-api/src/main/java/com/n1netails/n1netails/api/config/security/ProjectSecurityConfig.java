@@ -1,10 +1,9 @@
-package com.n1netails.n1netails.api.config;
+package com.n1netails.n1netails.api.config.security;
 
 import com.n1netails.n1netails.api.handler.JwtAccessDeniedHandler;
 import com.n1netails.n1netails.api.handler.JwtAuthenticationEntryHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -30,6 +29,7 @@ import static com.n1netails.n1netails.api.constant.ProjectSecurityConstant.PUBLI
 @RequiredArgsConstructor
 @EnableMethodSecurity
 @Configuration
+@Order(2)
 public class ProjectSecurityConfig {
 
     private final UserDetailsService userDetailsService;
@@ -38,10 +38,13 @@ public class ProjectSecurityConfig {
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
     @Bean
-    @Order(SecurityProperties.BASIC_AUTH_ORDER)
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http
+            .securityMatcher("/ninetails/**")
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            );
         http.csrf(AbstractHttpConfigurer::disable);
 
         http.cors(cors -> cors.configurationSource(request -> {
@@ -60,10 +63,10 @@ public class ProjectSecurityConfig {
                         jwtConfigurer.jwtAuthenticationConverter(jwtAuthenticationConverter())));
 
         http
-                .exceptionHandling(httpSecurityExceptionHandlingConfigurer ->
-                        httpSecurityExceptionHandlingConfigurer.accessDeniedHandler(jwtAccessDeniedHandler))
-                .exceptionHandling(httpSecurityExceptionHandlingConfigurer ->
-                        httpSecurityExceptionHandlingConfigurer.authenticationEntryPoint(jwtAuthenticationEntryHandler));
+            .exceptionHandling(httpSecurityExceptionHandlingConfigurer ->
+                    httpSecurityExceptionHandlingConfigurer.accessDeniedHandler(jwtAccessDeniedHandler))
+            .exceptionHandling(httpSecurityExceptionHandlingConfigurer ->
+                    httpSecurityExceptionHandlingConfigurer.authenticationEntryPoint(jwtAuthenticationEntryHandler));
 
         http.authorizeHttpRequests(
                 auth -> auth

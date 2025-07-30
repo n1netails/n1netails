@@ -28,6 +28,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.AccessDeniedException;
@@ -53,6 +55,37 @@ public class UserController {
     private final AuthorizationService authorizationService;
     private final UserRepository userRepository;
     private final JwtTokenUtil jwtTokenUtil;
+    private final JwtDecoder jwtDecoder;
+
+    @Operation(
+            summary = "Get user self",
+            description = "Get logged in user profile",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "User profile located successfully",
+                            content = @Content(schema = @Schema(implementation = UsersEntity.class))),
+                    @ApiResponse(responseCode = "401", description = "Authentication failed",
+                            content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
+            }
+    )
+    @GetMapping("/self")
+    public ResponseEntity<UsersEntity> getCurrentUser(@RequestHeader(AUTHORIZATION) String authorizationHeader) throws AccessDeniedException {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new AccessDeniedException("Missing or invalid Authorization header");
+        }
+
+        try {
+            String token = authorizationHeader.substring(TOKEN_PREFIX.length());
+            Long id = jwtDecoder.decode(token).getClaim("id");
+            log.info("Fetching current user with ID: {}", id);
+            UsersEntity user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("Get current user not found."));
+            if (!user.isEnabled() || !user.isActive() || !user.isNotLocked()) {
+                throw new AccessDeniedException("User is disabled or locked");
+            }
+            return ResponseEntity.ok(user);
+        } catch (JwtException | UserNotFoundException e) {
+            throw new AccessDeniedException(ACCESS_DENIED_MESSAGE);
+        }
+    }
 
     @Operation(
             summary = "Edit user profile",

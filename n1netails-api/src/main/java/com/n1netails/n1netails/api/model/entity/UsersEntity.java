@@ -24,11 +24,15 @@ public class UsersEntity {
     @Column(nullable = false, updatable = false)
     private Long id;
     private String userId;
+    private String provider; // used for oauth2 login ex. "GITHUB","GOOGLE"
+    private String providerId; // used for oauth2 user id
     private String firstName;
     private String lastName;
     private String username;
     private String password;
+    @Column(unique = true)
     private String email;
+    private boolean emailVerified = false;
     private String profileImageUrl;
     private Date lastLoginDate;
     private Date lastLoginDateDisplay;

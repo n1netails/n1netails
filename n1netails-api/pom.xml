@@ -12,7 +12,7 @@
 
 	<groupId>com.n1netails</groupId>
 	<artifactId>n1netails-api</artifactId>
-	<version>0.2.11</version>
+	<version>0.2.12</version>
 	<name>n1netails-api</name>
 	<description>N1netails Alert Service API</description>
 
@@ -49,6 +49,10 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
 		</dependency>
 		<!-- openapi -->
@@ -80,17 +84,6 @@
 			<version>1.13.1</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-
 		<!-- Passkey (WebAuthn) Library -->
 		<dependency>
 			<groupId>com.yubico</groupId>
@@ -106,6 +99,24 @@
 			<groupId>com.yubico</groupId>
 			<artifactId>yubico-util</artifactId>
 			<version>2.7.0</version>
+		</dependency>
+
+		<!-- test -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 

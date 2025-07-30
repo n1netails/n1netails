@@ -12,11 +12,11 @@ import com.n1netails.n1netails.api.repository.OrganizationRepository;
 import com.n1netails.n1netails.api.repository.UserRepository;
 import com.n1netails.n1netails.api.service.LoginAttemptService;
 import com.n1netails.n1netails.api.service.UserService;
+import com.n1netails.n1netails.api.util.UserUtil;
 import io.micrometer.common.util.StringUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.text.RandomStringGenerator;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -26,8 +26,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.HashSet;
-
-import static com.n1netails.n1netails.api.model.enumeration.Role.ROLE_USER;
 
 @Slf4j
 @Service
@@ -86,7 +84,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         else encodedPassword = encodePassword(newUser.getPassword());
 
         UsersEntity user = new UsersEntity();
-        user.setUserId(generateUserId());
+        user.setUserId(UserUtil.generateUserId());
         user.setFirstName(newUser.getFirstName());
         user.setLastName(newUser.getLastName());
         user.setUsername(newUser.getUsername());
@@ -127,13 +125,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     private String encodePassword(String password) {
         return passwordEncoder.encode(password);
-    }
-
-    private String generateUserId() {
-        RandomStringGenerator generator = new RandomStringGenerator.Builder()
-                .withinRange('0', '9')
-                .build();
-        return generator.generate(10);
     }
 
     private void validateLoginAttempt(UsersEntity user) {

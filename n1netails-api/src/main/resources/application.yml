@@ -1,4 +1,4 @@
-spring.profiles.active: db, ai
+spring.profiles.active: db, ai, oauth
 spring.banner.location: classpath:banner.txt
 server:
   port: ${PORT:9901}
@@ -45,3 +45,7 @@ n1netails:
     origins: ${N1NETAILS_PASSKEY_ORIGINS:http://localhost:8080,http://localhost:9900,http://localhost:9901,http://localhost:4200}
     # Add all expected origins (frontend, API itself if serving UI pages that use WebAuthn)
     # For production, this would be e.g. "https://n1netails.com", "https://app.n1netails.com"
+
+logging:
+  level:
+    org.springframework.security: INFO

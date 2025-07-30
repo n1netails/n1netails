@@ -11,6 +11,7 @@ export class UiConfigService {
   private apiUrl: string = environment.n1netailsApiUrl;
   private openaiEnabled: boolean = environment.openaiEnabled;
   private geminiEnabled: boolean = environment.geminiEnabled;
+  private githubAuthEnabled: boolean = environment.githubAuthEnabled;
 
   constructor(private http: HttpClient) {}
 
@@ -42,6 +43,15 @@ export class UiConfigService {
     } catch (error) {
       console.warn('Failed to check if gemini enabled, using fallback:', this.geminiEnabled);
     }
+
+    try {
+      this.githubAuthEnabled = await firstValueFrom(
+        this.http.get<boolean>('/ui/n1netails-config/github-auth-enabled')
+      );
+      console.log('Github Auth Enabled:', this.githubAuthEnabled);
+    } catch (error) {
+      console.warn('Failed to check if github auth enabled, using fallback:', this.githubAuthEnabled);
+    }
   }
 
   getApiUrl(): string {
@@ -54,5 +64,9 @@ export class UiConfigService {
 
   isGeminiEnabled(): boolean {
     return this.geminiEnabled;
+  }
+
+  isGithubAuthEnabled(): boolean {
+    return this.githubAuthEnabled;
   }
 }

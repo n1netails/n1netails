@@ -28,6 +28,7 @@
                           [(ngModel)]="usernameInput"
                           required
                           placeholder="Enter username"
+                          [disabled]="user.providerId !== null"
                         />
                       </nz-form-control>
                     </nz-form-item>
@@ -42,6 +43,7 @@
                           [(ngModel)]="firstNameInput"
                           required
                           placeholder="Enter first name"
+                          [disabled]="user.providerId !== null"
                         />
                       </nz-form-control>
                     </nz-form-item>
@@ -56,14 +58,15 @@
                           [(ngModel)]="lastNameInput"
                           required
                           placeholder="Enter last name"
+                          [disabled]="user.providerId !== null"
                         />
                       </nz-form-control>
                     </nz-form-item>
-                    <button
+                    <button *ngIf="user.providerId === null"
                       nz-button
                       nzType="primary"
                       type="submit"
-                      [disabled]="!profileForm.valid"
+                      [disabled]="!profileForm.valid || user.providerId !== null"
                     >
                       Save
                     </button>
@@ -75,7 +78,7 @@
             </nz-card>
           </nz-col>
         </nz-row> 
-        <nz-row [nzGutter]="[16, 16]" class="profile-actions-row">
+        <nz-row [nzGutter]="[16, 16]" class="profile-actions-row" *ngIf="user.providerId === null">
           <nz-col [nzXs]="24" [nzSm]="24" [nzMd]="12">
             <nz-card nzTitle="Password Reset" class="tails-primary-color profile-side-card" [nzBordered]="false">
               <div *ngIf="passwordResetErrorMessage" class="error-message">

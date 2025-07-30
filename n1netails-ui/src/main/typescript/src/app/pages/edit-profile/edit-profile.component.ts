@@ -67,6 +67,7 @@ export class EditProfileComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
 
+  // TODO ADD METHOD TO VALIDATE EMAIL
   onSaveProfile(form: NgForm) {
     const editUser = this.user;
     editUser.username = form.value.username;

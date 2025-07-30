@@ -16,6 +16,11 @@ export class UserService {
     private uiConfigService: UiConfigService
   ) {}
 
+  getSelf(): Observable<User> {
+    this.host = this.uiConfigService.getApiUrl();
+    return this.http.get<User>(`${this.host}/ninetails/user/self`);
+  }
+
   editUser(user: User): Observable<User> {
     this.host = this.uiConfigService.getApiUrl();
     return this.http.post<User>(`${this.host}/ninetails/user/edit`, user);

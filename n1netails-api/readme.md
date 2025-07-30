@@ -67,6 +67,10 @@ Run the project with environment variables.
 - OPENAI_API_URL (defaults to https://api.openai.com)
 - N1NETAILS_PASSKEY_RELYING_PARTY_ID (defaults to localhost)
 - N1NETAILS_PASSKEY_ORIGINS (defaults to http://localhost:8080,http://localhost:9900,http://localhost:9901,http://localhost:4200)
+- GITHUB_OAUTH2_ENABLED (defaults to false)
+- AUTH_OAUTH2_REDIRECT_SUCCESS (defaults to http://localhost:4200/#/oauth2/success?token=)
+- GITHUB_CLIENT_ID (create your own github client id via https://github.com/settings/developers)
+- GITHUB_CLIENT_SECRET (create your own github client secret via https://github.com/settings/developers)
 
 Example:
 ```bash

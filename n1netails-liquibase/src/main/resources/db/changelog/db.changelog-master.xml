@@ -18,5 +18,5 @@
     <include file="db/changelog/db.changelog-00009-alter-notes-table.xml"/>
     <include file="db/changelog/db.changelog-00010-create-table-passkey-credentials.xml"/>
     <include file="db/changelog/db.changelog-00011-alter-user-for-oauth2.xml"/>
-
+    <include file="db/changelog/db.changelog-00012-create-email-notification-template-table.xml"/>
 </databaseChangeLog>

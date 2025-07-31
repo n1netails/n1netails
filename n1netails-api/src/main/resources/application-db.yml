@@ -3,7 +3,7 @@ spring:
     driver-class-name: org.postgresql.Driver
     initialization-mode: never
 #    initialization-mode: always
-    url: ${POSTGRES_URL:jdbc:postgresql://localhost/n1netails}
+    url: ${POSTGRES_URL:jdbc:postgresql://localhost:6789/n1netails}
     username: ${POSTGRES_USERNAME:n1netails}
     password: ${POSTGRES_PASSWORD:n1netails}
   jpa:

@@ -20,6 +20,7 @@ public class ProjectSecurityConstant {
             "/ninetails/user/register",
             "/ninetails/auth/passkey/**",
             "/ninetails/alert",
+            "/ninetails/notification/**",
             "/"
     };
 

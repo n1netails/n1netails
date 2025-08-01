@@ -2,5 +2,6 @@ spring:
   mail:
     host: ${EMAIL_HOST:localhost}
     port: ${EMAIL_PORT:1025}
-    username: ${EMAIL_USERNAME:}
-    password: ${EMAIL_PASSWORD:}
+    username: ${EMAIL_USERNAME:host-username}
+    password: ${EMAIL_PASSWORD:host-password}
+    from: ${EMAIL_SENDER:n1netails.org@gmail.com}

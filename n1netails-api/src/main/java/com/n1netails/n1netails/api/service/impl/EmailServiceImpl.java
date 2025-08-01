@@ -10,6 +10,7 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -25,12 +26,14 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Qualifier("emailService")
 public class EmailServiceImpl implements EmailService {
+    @Value("${spring.mail.from}")
+    private String from;
+
     private static final String MAIL_PARAM_OPENING = "{{";
     private static final String MAIL_PARAM_CLOSING = "}}";
 
     private final JavaMailSender mailSender;
     private final EmailNotificationTemplateRepository emailNotificationTemplateRepository;
-    private final String FROM = "n1netails.org@gmail.com";
     @Override
     public void sendMail(SendMailRequest sendMailRequest) throws EmailTemplateNotFoundException, MessagingException {
         Optional<EmailNotificationTemplateEntity> optionalTemplate = emailNotificationTemplateRepository
@@ -44,7 +47,7 @@ public class EmailServiceImpl implements EmailService {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
         mimeMessageHelper.setTo(sendMailRequest.getTo());
-        mimeMessageHelper.setFrom(FROM);
+        mimeMessageHelper.setFrom(from);
         mimeMessageHelper.setSubject(this.applyParameters(template.getSubject(), sendMailRequest.getSubjectParams()));
         mimeMessageHelper.setText(this.applyParameters(template.getHtmlBody(), sendMailRequest.getBodyParams()), true);
         mimeMessageHelper.setCc(sendMailRequest.getCc().toArray(String[]::new));

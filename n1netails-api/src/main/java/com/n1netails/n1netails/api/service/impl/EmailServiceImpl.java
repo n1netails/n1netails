@@ -34,10 +34,10 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendMail(SendMailRequest sendMailRequest) throws EmailTemplateNotFoundException, MessagingException {
         Optional<EmailNotificationTemplateEntity> optionalTemplate = emailNotificationTemplateRepository
-                .findById(sendMailRequest.getNotificationTemplateId());
+                .findByName(sendMailRequest.getNotificationTemplateName());
         if (optionalTemplate.isEmpty()) {
             throw new EmailTemplateNotFoundException(
-                    String.format("Email with template id " + sendMailRequest.getNotificationTemplateId() + " not found")
+                    String.format("Email template with name " + sendMailRequest.getNotificationTemplateName() + " not found")
             );
         }
         EmailNotificationTemplateEntity template = optionalTemplate.get();

@@ -16,7 +16,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SendMailRequest {
-    private String notificationTemplateId;
+    private String notificationTemplateName;
     private String to;
     private List<String> cc = new ArrayList<>();
     private List<String> bcc = new ArrayList<>();

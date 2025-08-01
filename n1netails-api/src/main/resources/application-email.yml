@@ -1,6 +1,6 @@
 spring:
   mail:
-    host: localhost
-    port: 1025
-    username:
-    password:
+    host: ${EMAIL_HOST:localhost}
+    port: ${EMAIL_PORT:1025}
+    username: ${EMAIL_USERNAME:}
+    password: ${EMAIL_PASSWORD:}

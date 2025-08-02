@@ -26,6 +26,7 @@ spring:
   sql:
     init:
       mode: never
+
 n1netails:
   passkey:
     relying-party-id: ${N1NETAILS_PASSKEY_RELYING_PARTY_ID:localhost} # This should be your actual domain in production e.g. n1netails.com

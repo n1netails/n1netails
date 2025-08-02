@@ -158,3 +158,5 @@ VALUES (
 </html>
 $$
 );
+
+SELECT setval('ntail.email_notification_template_seq', (SELECT MAX(id) FROM ntail.email_notification_template), true);

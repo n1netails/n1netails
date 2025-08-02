@@ -74,8 +74,8 @@ Run the project with environment variables.
 - EMAIL_ENABLED (defaults to false)
 - EMAIL_HOST (defaults to localhost)
 - EMAIL_PORT (defaults to 1025)
-- EMAIL_USERNAME (use your desired email)
-- EMAIL_PASSWORD (set email password)
+- EMAIL_USERNAME (use your desired email leave blank if testing with mailhog)
+- EMAIL_PASSWORD (set email password leave blank if testing with mailhog)
 - EMAIL_SENDER (set email sender)
 
 Example:

@@ -1,7 +1,11 @@
+n1netails:
+  email:
+    enabled: ${EMAIL_ENABLED:false}
+
 spring:
   mail:
     host: ${EMAIL_HOST:localhost}
     port: ${EMAIL_PORT:1025}
     username: ${EMAIL_USERNAME:host-username}
     password: ${EMAIL_PASSWORD:host-password}
-    from: ${EMAIL_SENDER:n1netails.org@gmail.com}
+    from: ${EMAIL_SENDER:support@n1netails.com}

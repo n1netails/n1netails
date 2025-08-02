@@ -4,11 +4,10 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
 
-    <changeSet id="00012-create-email-notification-template-table" author="mxtu1905">
-        <sqlFile path="db/changelog/sql/db.changelog-00012-create-notification-template-table.sql"/>
+    <changeSet id="00013-create-email-welcome-and-alert-templates" author="shahidfoy">
+        <sqlFile path="db/changelog/sql/db.changelog-00013-create-email-welcome-and-alert-templates.sql"/>
         <rollback>
-            DROP SEQUENCE IF EXISTS email_notification_template_seq;
-            DROP TABLE IF EXISTS ntail.email_notification_template;
+            DELETE FROM ntail.email_notification_template WHERE id IN (1, 2);
         </rollback>
     </changeSet>
 </databaseChangeLog>

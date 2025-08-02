@@ -26,6 +26,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Qualifier("emailService")
 public class EmailServiceImpl implements EmailService {
+
+    @Value("${n1netails.email.enabled}")
+    private boolean emailEnabled;
+
     @Value("${spring.mail.from}")
     private String from;
 
@@ -36,6 +40,8 @@ public class EmailServiceImpl implements EmailService {
     private final EmailNotificationTemplateRepository emailNotificationTemplateRepository;
     @Override
     public void sendMail(SendMailRequest sendMailRequest) throws EmailTemplateNotFoundException, MessagingException {
+        if (!emailEnabled) return;
+
         Optional<EmailNotificationTemplateEntity> optionalTemplate = emailNotificationTemplateRepository
                 .findByName(sendMailRequest.getNotificationTemplateName());
         if (optionalTemplate.isEmpty()) {
@@ -45,7 +51,7 @@ public class EmailServiceImpl implements EmailService {
         }
         EmailNotificationTemplateEntity template = optionalTemplate.get();
         MimeMessage mimeMessage = mailSender.createMimeMessage();
-        MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
+        MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
         mimeMessageHelper.setTo(sendMailRequest.getTo());
         mimeMessageHelper.setFrom(from);
         mimeMessageHelper.setSubject(this.applyParameters(template.getSubject(), sendMailRequest.getSubjectParams()));

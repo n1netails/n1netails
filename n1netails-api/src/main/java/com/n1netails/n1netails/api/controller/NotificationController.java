@@ -3,6 +3,8 @@ package com.n1netails.n1netails.api.controller;
 import com.n1netails.n1netails.api.exception.type.EmailTemplateNotFoundException;
 import com.n1netails.n1netails.api.model.request.SendMailRequest;
 import com.n1netails.n1netails.api.service.EmailService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;
@@ -29,6 +31,10 @@ public class NotificationController {
 
     private final EmailService emailService;
 
+    @Operation(summary = "Create email (Used for demo purposes will be removed in the future as other services will be utilizing the email service in the background.)", responses = {
+            @ApiResponse(responseCode = "202", description = "Email request accepted"),
+            @ApiResponse(responseCode = "403", description = "Unauthorized")
+    })
     @PostMapping("/email")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> sendMail(@RequestBody SendMailRequest request)

@@ -71,6 +71,12 @@ Run the project with environment variables.
 - AUTH_OAUTH2_REDIRECT_SUCCESS (defaults to http://localhost:4200/#/oauth2/success?token=)
 - GITHUB_CLIENT_ID (create your own github client id via https://github.com/settings/developers)
 - GITHUB_CLIENT_SECRET (create your own github client secret via https://github.com/settings/developers)
+- EMAIL_ENABLED (defaults to false)
+- EMAIL_HOST (defaults to localhost)
+- EMAIL_PORT (defaults to 1025)
+- EMAIL_USERNAME (use your desired email)
+- EMAIL_PASSWORD (set email password)
+- EMAIL_SENDER (set email sender)
 
 Example:
 ```bash

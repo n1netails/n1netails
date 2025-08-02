@@ -1,4 +1,4 @@
-spring.profiles.active: db, ai, oauth
+spring.profiles.active: db, ai, oauth, email
 
 info:
   app:
@@ -26,12 +26,6 @@ spring:
   sql:
     init:
       mode: never
-  mail:
-    host: ${EMAIL_HOST:localhost}
-    port: ${EMAIL_PORT:1025}
-    username: ${EMAIL_USERNAME:host-username}
-    password: ${EMAIL_PASSWORD:host-password}
-    from: ${EMAIL_SENDER:n1netails.org@gmail.com}
 n1netails:
   passkey:
     relying-party-id: ${N1NETAILS_PASSKEY_RELYING_PARTY_ID:localhost} # This should be your actual domain in production e.g. n1netails.com

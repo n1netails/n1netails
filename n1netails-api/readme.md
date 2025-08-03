@@ -77,6 +77,8 @@ Run the project with environment variables.
 - EMAIL_USERNAME (use your desired email leave blank if testing with mailhog)
 - EMAIL_PASSWORD (set email password leave blank if testing with mailhog)
 - EMAIL_SENDER (set email sender)
+- EMAIL_PROPERTIES_AUTH (defaults to false)
+- EMAIL_PROPERTIES_STARTTLS_ENABLE (defaults to false)
 
 Example:
 ```bash

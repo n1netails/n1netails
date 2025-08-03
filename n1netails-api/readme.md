@@ -71,6 +71,11 @@ Run the project with environment variables.
 - AUTH_OAUTH2_REDIRECT_SUCCESS (defaults to http://localhost:4200/#/oauth2/success?token=)
 - GITHUB_CLIENT_ID (create your own github client id via https://github.com/settings/developers)
 - GITHUB_CLIENT_SECRET (create your own github client secret via https://github.com/settings/developers)
+EMAIL_HOST (your own smtp mail server, localhost if you setup mail server using docker mailhog in the below section)
+- EMAIL_PORT (your own smtp mail server, 1025 if you setup mail server using docker mailhog in the below section)
+- EMAIL_USERNAME (your own smtp mail server, empty if you setup mail server using docker mailhog in the below section as mailhog does not require auth)
+- EMAIL_PASSWORD (your own smtp mail server, localhost if you setup mail server using docker mailhog in the below section as mailhog does not require auth)
+- EMAIL_ENABLED (enable the email function or not, default will be false)
 
 Example:
 ```bash
@@ -82,6 +87,22 @@ mvn spring-boot:run
 -DPOSTGRES_PASSWORD=n1netails 
 -DN1NETAILS_PASSKEY_RELYING_PARTY_ID=localhost 
 -DN1NETAILS_PASSKEY_ORIGINS=http://localhost:8080,http://localhost:9900,http://localhost:9901,http://localhost:4200
+-DEMAIL_HOST=localhost
+-DEMAIL_PORT=1025
+-DEMAIL_USERNAME=
+-DEMAIL_PASSWORD=
+-DEMAIL_ENABLED=true
+```
+
+## Setup the mailhog for email notification feature
+Add this service to your docker compose, you can bind different port but remember to change the mail port from env
+```
+mailhog:
+    image: mailhog/mailhog:v1.0.1
+    container_name: mailhog
+    ports:
+      - 1025:1025
+      - 8025:8025
 ```
 
 ## Deploy Docker Image to Dockerhub

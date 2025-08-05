@@ -15,6 +15,7 @@ import com.n1netails.n1netails.api.repository.TailLevelRepository;
 import com.n1netails.n1netails.api.repository.TailRepository;
 import com.n1netails.n1netails.api.repository.TailStatusRepository;
 import com.n1netails.n1netails.api.repository.TailTypeRepository;
+import com.n1netails.n1netails.api.service.EmailService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -62,6 +63,9 @@ public class AlertServiceImplTest {
 
     @Mock
     private N1neTokenRepository n1neTokenRepository;
+
+    @Mock
+    private EmailService emailService;
 
     @InjectMocks
     private AlertServiceImpl alertService;
@@ -168,8 +172,9 @@ public class AlertServiceImplTest {
         // Verify save with expected value
         ArgumentCaptor<TailEntity> tailEntityArgumentCaptor = ArgumentCaptor.forClass(TailEntity.class);
         verify(tailRepository, times(1)).save(tailEntityArgumentCaptor.capture());
-        TailEntity actualSavedTailEntity = tailEntityArgumentCaptor.getValue();
+        verify(emailService, times(1)).sendAlertEmail(any(), any());
 
+        TailEntity actualSavedTailEntity = tailEntityArgumentCaptor.getValue();
         assertEquals(fullPopulatedKudaTailRequest.getTitle(), actualSavedTailEntity.getTitle());
         assertEquals(fullPopulatedKudaTailRequest.getDescription(), actualSavedTailEntity.getDescription());
         assertEquals(fullPopulatedKudaTailRequest.getDetails(), actualSavedTailEntity.getDetails());
@@ -207,6 +212,8 @@ public class AlertServiceImplTest {
 
         ArgumentCaptor<TailEntity> tailEntityArgumentCaptor = ArgumentCaptor.forClass(TailEntity.class);
         verify(tailRepository, times(1)).save(tailEntityArgumentCaptor.capture());
+        verify(emailService, times(1)).sendAlertEmail(any(), any());
+
         TailEntity actualSavedTailEntity = tailEntityArgumentCaptor.getValue();
         assertEquals(fullPopulatedKudaTailRequest.getTitle(), actualSavedTailEntity.getTitle());
         assertEquals(fullPopulatedKudaTailRequest.getDescription(), actualSavedTailEntity.getDescription());
@@ -246,6 +253,8 @@ public class AlertServiceImplTest {
 
         ArgumentCaptor<TailEntity> tailEntityArgumentCaptor = ArgumentCaptor.forClass(TailEntity.class);
         verify(tailRepository, times(1)).save(tailEntityArgumentCaptor.capture());
+        verify(emailService, times(1)).sendAlertEmail(any(), any());
+
         TailEntity actualSavedTailEntity = tailEntityArgumentCaptor.getValue();
         assertEquals(emptyInputKudaTailRequest.getTitle(), actualSavedTailEntity.getTitle());
         assertEquals(emptyInputKudaTailRequest.getDescription(), actualSavedTailEntity.getDescription());
@@ -294,6 +303,7 @@ public class AlertServiceImplTest {
 
         ArgumentCaptor<TailEntity> tailArgCaptor = ArgumentCaptor.forClass(TailEntity.class);
         verify(tailRepository, times(1)).save(tailArgCaptor.capture());
+        verify(emailService, times(1)).sendAlertEmail(any(), any());
 
         TailEntity actualSavedTail = tailArgCaptor.getValue();
         assertEquals(newValuesKudaTailRequest.getTitle(), actualSavedTail.getTitle());
@@ -324,6 +334,8 @@ public class AlertServiceImplTest {
         // Verify save with expected value
         ArgumentCaptor<TailEntity> tailEntityArgumentCaptor = ArgumentCaptor.forClass(TailEntity.class);
         verify(tailRepository, times(1)).save(tailEntityArgumentCaptor.capture());
+        verify(emailService, times(1)).sendAlertEmail(any(), any());
+
         TailEntity actualSavedTailEntity = tailEntityArgumentCaptor.getValue();
 
         assertEquals(fullPopulatedKudaTailRequest.getTitle(), actualSavedTailEntity.getTitle());

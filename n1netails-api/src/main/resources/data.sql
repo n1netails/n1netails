@@ -138,7 +138,7 @@ VALUES (
             <tr>
               <td style="padding: 40px 40px 20px; text-align: center;">
                 <h2 style="margin: 0; font-size: 26px; color: #222;">
-                  🚨 New <span style="color: #F06D0F;">N1netails</span> Alert!
+                  New <span style="color: #F06D0F;">N1netails</span> Alert!
                 </h2>
               </td>
             </tr>

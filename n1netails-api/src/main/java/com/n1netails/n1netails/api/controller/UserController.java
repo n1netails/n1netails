@@ -1,18 +1,17 @@
 package com.n1netails.n1netails.api.controller;
 
-import com.n1netails.n1netails.api.exception.type.EmailExistException;
-import com.n1netails.n1netails.api.exception.type.InvalidRoleException;
-import com.n1netails.n1netails.api.exception.type.PasswordRegexException;
-import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
+import com.n1netails.n1netails.api.exception.type.*;
 import com.n1netails.n1netails.api.model.UserPrincipal;
 import com.n1netails.n1netails.api.model.entity.OrganizationEntity;
 import com.n1netails.n1netails.api.model.entity.UsersEntity;
+import com.n1netails.n1netails.api.model.request.SendMailRequest;
 import com.n1netails.n1netails.api.model.request.UpdateUserRoleRequest;
 import com.n1netails.n1netails.api.model.request.UserLoginRequest;
 import com.n1netails.n1netails.api.model.request.UserRegisterRequest;
 import com.n1netails.n1netails.api.model.response.HttpErrorResponse;
 import com.n1netails.n1netails.api.repository.UserRepository;
 import com.n1netails.n1netails.api.service.AuthorizationService;
+import com.n1netails.n1netails.api.service.EmailService;
 import com.n1netails.n1netails.api.service.UserService;
 import com.n1netails.n1netails.api.util.JwtTokenUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,9 +19,11 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,6 +34,8 @@ import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.AccessDeniedException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -56,6 +59,7 @@ public class UserController {
     private final UserRepository userRepository;
     private final JwtTokenUtil jwtTokenUtil;
     private final JwtDecoder jwtDecoder;
+    private final EmailService emailService;
 
     @Operation(
             summary = "Get user self",
@@ -160,6 +164,7 @@ public class UserController {
         authenticate(user.getEmail(), user.getPassword());
         UserPrincipal userPrincipal = new UserPrincipal(newUser);
         HttpHeaders jwtHeader = setJwtHeader(userPrincipal);
+        emailService.sendWelcomeEmail(newUser);
         return new ResponseEntity<>(newUser, jwtHeader, OK);
     }
 

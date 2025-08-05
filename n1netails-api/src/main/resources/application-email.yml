@@ -1,4 +1,5 @@
 n1netails:
+  ui: ${N1NETAILS_UI:http://localhost:4200}
   email:
     enabled: ${EMAIL_ENABLED:false}
 

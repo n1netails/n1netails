@@ -17,6 +17,7 @@ import com.n1netails.n1netails.api.repository.TailRepository;
 import com.n1netails.n1netails.api.repository.TailStatusRepository;
 import com.n1netails.n1netails.api.repository.TailTypeRepository;
 import com.n1netails.n1netails.api.service.AlertService;
+import com.n1netails.n1netails.api.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -44,6 +45,7 @@ public class AlertServiceImpl implements AlertService {
     private final TailStatusRepository statusRepository;
     private final N1neTokenRepository n1neTokenRepository;
     private final OrganizationRepository organizationRepository;
+    private final EmailService emailService;
 
     @Override
     public void createTail(String token, KudaTailRequest request) {
@@ -54,6 +56,7 @@ public class AlertServiceImpl implements AlertService {
         if (optionalN1neTokenEntity.isPresent()) n1neTokenEntity = optionalN1neTokenEntity.get();
         UsersEntity usersEntity = n1neTokenEntity.getUser();
         saveTailAlert(n1neTokenEntity.getOrganization(), usersEntity, request);
+        this.emailService.sendAlertEmail(usersEntity, request);
     }
 
     @Override
@@ -61,6 +64,7 @@ public class AlertServiceImpl implements AlertService {
         OrganizationEntity organizationEntity = this.organizationRepository.findById(organizationId)
                 .orElseThrow(() -> new OrganizationNotFoundException("Requested organization for creating manual tail not found."));
         saveTailAlert(organizationEntity, usersEntity, request);
+        this.emailService.sendAlertEmail(usersEntity, request);
     }
     
     private void saveTailAlert(OrganizationEntity organizationEntity,

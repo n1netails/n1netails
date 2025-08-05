@@ -55,22 +55,39 @@ mvn spring-boot:run -DSPRING_PROFILE_ACTIVE=local
 ```
 
 Run the project with environment variables.
+
+### Required
 - PORT (application port defaults to 9901)
 - POSTGRES_URL (postgres database url defaults to jdbc:postgresql://localhost/n1netails)
 - POSTGRES_USERNAME (n1netails user defaults to n1netails)
 - POSTGRES_PASSWORD (n1netails user password defaults to n1netails)
+- N1NETAILS_PASSKEY_RELYING_PARTY_ID (defaults to localhost)
+- N1NETAILS_PASSKEY_ORIGINS (defaults to http://localhost:8080,http://localhost:9900,http://localhost:9901,http://localhost:4200)
+
+### AI
 - GEMINI_ENABLED (defaults to false)
 - GEMINI_API_KEY (create your own gemini api key)
 - GEMINI_API_URL (defaults to https://generativelanguage.googleapis.com)
 - OPENAI_ENABLED (defaults to false)
 - OPENAI_API_KEY (create your own openai api key)
 - OPENAI_API_URL (defaults to https://api.openai.com)
-- N1NETAILS_PASSKEY_RELYING_PARTY_ID (defaults to localhost)
-- N1NETAILS_PASSKEY_ORIGINS (defaults to http://localhost:8080,http://localhost:9900,http://localhost:9901,http://localhost:4200)
+
+### OAuth2
 - GITHUB_OAUTH2_ENABLED (defaults to false)
 - AUTH_OAUTH2_REDIRECT_SUCCESS (defaults to http://localhost:4200/#/oauth2/success?token=)
 - GITHUB_CLIENT_ID (create your own github client id via https://github.com/settings/developers)
 - GITHUB_CLIENT_SECRET (create your own github client secret via https://github.com/settings/developers)
+
+### Email 
+- EMAIL_ENABLED (defaults to false)
+- EMAIL_HOST (defaults to localhost)
+- EMAIL_PORT (defaults to 1025)
+- EMAIL_USERNAME (use your desired email leave blank if testing with mailhog)
+- EMAIL_PASSWORD (set email password leave blank if testing with mailhog)
+- EMAIL_SENDER (set email sender)
+- EMAIL_PROPERTIES_AUTH (defaults to false)
+- EMAIL_PROPERTIES_STARTTLS_ENABLE (defaults to false)
+- N1NETAILS_UI (defaults to http://localhost:4200)
 
 Example:
 ```bash

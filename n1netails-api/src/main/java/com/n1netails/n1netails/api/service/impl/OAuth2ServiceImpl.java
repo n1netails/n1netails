@@ -6,6 +6,7 @@ import com.n1netails.n1netails.api.model.entity.OrganizationEntity;
 import com.n1netails.n1netails.api.model.entity.UsersEntity;
 import com.n1netails.n1netails.api.repository.OrganizationRepository;
 import com.n1netails.n1netails.api.repository.UserRepository;
+import com.n1netails.n1netails.api.service.EmailService;
 import com.n1netails.n1netails.api.service.OAuth2Service;
 import com.n1netails.n1netails.api.util.JwtTokenUtil;
 import com.n1netails.n1netails.api.util.UserUtil;
@@ -37,6 +38,7 @@ public class OAuth2ServiceImpl implements OAuth2Service {
     private final UserRepository userRepository;
     private final OrganizationRepository organizationRepository;
     private final JwtTokenUtil jwtTokenUtil;
+    private final EmailService emailService;
 
     private final OAuth2AuthorizedClientService authorizedClientService;
     private final RestTemplate restTemplate = new RestTemplate();
@@ -70,7 +72,7 @@ public class OAuth2ServiceImpl implements OAuth2Service {
 
         // Step 1: Try to find existing user by provider+providerId
         UsersEntity user = userRepository.findByProviderAndProviderId(provider, providerId).orElse(null);
-
+        boolean isNewUser = false;
         if (user == null) {
             // Step 2: Try to find by email
             user = userRepository.findUserByEmail(email).orElse(null);
@@ -83,6 +85,7 @@ public class OAuth2ServiceImpl implements OAuth2Service {
             } else {
                 // Step 4: New user registration
                 log.info("Creating new user from GitHub OAuth2");
+                isNewUser = true;
                 user = new UsersEntity();
                 user.setProvider(provider);
                 user.setProviderId(providerId);
@@ -123,6 +126,8 @@ public class OAuth2ServiceImpl implements OAuth2Service {
         log.info("Saving user from GitHub OAuth2");
         userRepository.save(user);
 
+        // send welcome email if new user
+        if (isNewUser && !user.getEmail().contains("@users.noreply.github.com")) emailService.sendWelcomeEmail(user);
         return jwtTokenUtil.createToken(new UserPrincipal(user));
     }
 

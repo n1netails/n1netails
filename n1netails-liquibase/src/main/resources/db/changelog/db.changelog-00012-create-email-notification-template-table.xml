@@ -1,0 +1,14 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="00012-create-email-notification-template-table" author="mxtu1905">
+        <sqlFile path="db/changelog/sql/db.changelog-00012-create-notification-template-table.sql"/>
+        <rollback>
+            DROP SEQUENCE IF EXISTS email_notification_template_seq;
+            DROP TABLE IF EXISTS ntail.email_notification_template;
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

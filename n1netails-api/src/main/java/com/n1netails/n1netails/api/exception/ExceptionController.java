@@ -4,6 +4,7 @@ import com.n1netails.n1netails.api.exception.type.*;
 import com.n1netails.n1netails.api.model.response.HttpErrorResponse;
 import com.yubico.webauthn.data.exception.Base64UrlException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.BadRequestException;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,7 @@ public class ExceptionController implements ErrorController {
      * @return http error response
      */
     @ExceptionHandler({
+            NoteNoContentException.class,
             PasswordRegexException.class,
             Base64UrlException.class
     })

@@ -20,4 +20,5 @@
     <include file="db/changelog/db.changelog-00011-alter-user-for-oauth2.xml"/>
     <include file="db/changelog/db.changelog-00012-create-email-notification-template-table.xml"/>
     <include file="db/changelog/db.changelog-00013-create-email-welcome-and-alert-templates.xml"/>
+    <include file="db/changelog/db.changelog-00014-alter-user-id-to-uuid-in-users-table.xml"/>
 </databaseChangeLog>

@@ -136,16 +136,19 @@ public class TailServiceImpl implements TailService {
         tail.setResolvedTimestamp(Instant.now());
         // set tail assigned user id to the resolverUser's ID from the request
         tail.setAssignedUserId(resolverUser.getId());
-        NoteEntity noteEntity = new NoteEntity();
-        noteEntity.setTail(tail);
-        noteEntity.setUser(resolverUser); // The note should be associated with the resolverUser
-        noteEntity.setContent(request.getNote());
-        noteEntity.setCreatedAt(Instant.now());
-        noteEntity.setHuman(true);
-        noteEntity.setN1(false);
-        noteEntity.setOrganization(tail.getOrganization());
-        // save note
-        this.noteRepository.save(noteEntity);
+
+        if (!request.getNote().isBlank()) {
+            NoteEntity noteEntity = new NoteEntity();
+            noteEntity.setTail(tail);
+            noteEntity.setUser(resolverUser); // The note should be associated with the resolverUser
+            noteEntity.setContent(request.getNote());
+            noteEntity.setCreatedAt(Instant.now());
+            noteEntity.setHuman(true);
+            noteEntity.setN1(false);
+            noteEntity.setOrganization(tail.getOrganization());
+            // save note
+            this.noteRepository.save(noteEntity);
+        }
         // save tail
         this.tailRepository.save(tail);
     }

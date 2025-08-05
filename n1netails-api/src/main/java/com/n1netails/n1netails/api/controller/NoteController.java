@@ -8,6 +8,7 @@ import com.n1netails.n1netails.api.service.NoteService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -53,7 +54,7 @@ public class NoteController {
     @PostMapping
     public ResponseEntity<Note> createNote(@RequestHeader("Authorization") String authorizationHeader,
                                            @RequestBody Note noteRequest)
-            throws UserNotFoundException, TailNotFoundException, UnauthorizedException, N1NoteAlreadyExistsException {
+            throws UserNotFoundException, TailNotFoundException, UnauthorizedException, N1NoteAlreadyExistsException, NoteNoContentException {
         UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
         log.info("User {} attempting to create note for tail {}", currentUser.getUsername(), noteRequest.getTailId());
 
@@ -64,6 +65,8 @@ public class NoteController {
 
         noteRequest.setUserId(currentUser.getId());
         noteRequest.setUsername(currentUser.getUsername());
+
+        if (noteRequest.getContent().isBlank()) throw new NoteNoContentException("No content was provided in the note.");
 
         Note createdNote = noteService.add(noteRequest);
         log.info("Note created with ID {} for tail {} by user {}", createdNote.getId(), createdNote.getTailId(), currentUser.getUsername());

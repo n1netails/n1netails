@@ -131,8 +131,8 @@
                       ></nz-avatar>
                     </td>
                     <td>{{ tail.id }}</td>
-                    <td><a (click)="goToTail(tail.id)">{{ tail.title }}</a></td>
-                    <td>{{ tail.description }}</td>
+                    <td class="col-word-break"><a (click)="goToTail(tail.id)">{{ tail.title }}</a></td>
+                    <td class="col-word-break">{{ tail.description }}</td>
                     <td>{{ tail.timestamp | date:'medium' }}</td>
                     <td><nz-tag [nzColor]="tailUtilService.getStatusColor(tail.status)">{{ tail.status }}</nz-tag></td>
                     <td><nz-tag [nzColor]="tailUtilService.getTypeColor(tail.type)">{{ tail.type }}</nz-tag></td>

@@ -100,7 +100,7 @@ export class LoginComponent implements OnInit, OnDestroy {
                 if (credential) {
                   this.passkeyService.finishPasskeyAuthentication(startResponse.flowId, credential).subscribe({
                     next: (finishResponse) => {
-                      if (finishResponse.success && finishResponse.jwtToken 
+                      if (finishResponse.success && finishResponse.jwtToken
                         && finishResponse.user
                       ) {
                         // Successful login using passkey, token and user are already saved by PasskeyService

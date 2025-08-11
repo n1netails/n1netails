@@ -3,11 +3,13 @@ import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
 import { Observable, tap } from "rxjs";
 import { AuthenticationService } from "../service/authentication.service";
+import { UserService } from "../service/user.service";
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
     constructor(
         private authenticationService: AuthenticationService,
+        private userService: UserService,
         private router: Router
     ) {}
 
@@ -20,7 +22,9 @@ export class AuthInterceptor implements HttpInterceptor {
             // request.url.includes(`${this.authenticationService.host}/ninetails/auth/passkey/register/start`) ||
             request.url.includes(`${this.authenticationService.host}/ninetails/auth/passkey/register/finish`) ||
             request.url.includes(`${this.authenticationService.host}/ninetails/auth/passkey/login/start`) ||
-            request.url.includes(`${this.authenticationService.host}/ninetails/auth/passkey/login/finish`)
+            request.url.includes(`${this.authenticationService.host}/ninetails/auth/passkey/login/finish`) ||
+            request.url.includes(`${this.userService.host}/ninetails/password/forgot`) ||
+            request.url.includes(`${this.userService.host}/ninetails/password/reset/forgot`)
         ) {
             return next.handle(request);
         }

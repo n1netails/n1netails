@@ -4,7 +4,6 @@ import com.n1netails.n1netails.api.exception.type.*;
 import com.n1netails.n1netails.api.model.response.HttpErrorResponse;
 import com.yubico.webauthn.data.exception.Base64UrlException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +26,7 @@ public class ExceptionController implements ErrorController {
     @ExceptionHandler({
             NoteNoContentException.class,
             PasswordRegexException.class,
+            ForgotPasswordRequestExpiredException.class,
             Base64UrlException.class
     })
     public ResponseEntity<HttpErrorResponse> badRequestException(Exception exception) {
@@ -59,6 +59,7 @@ public class ExceptionController implements ErrorController {
             UserNotFoundException.class,
             NoteNotFoundException.class,
             OrganizationNotFoundException.class,
+            ForgotPasswordRequestNotFoundException.class,
             IllegalArgumentException.class
     })
     public ResponseEntity<HttpErrorResponse> notFoundException(Exception exception) {
@@ -73,7 +74,8 @@ public class ExceptionController implements ErrorController {
      */
     @ExceptionHandler({
             EmailExistException.class,
-            N1NoteAlreadyExistsException.class
+            N1NoteAlreadyExistsException.class,
+            PreviousPasswordMatchException.class
     })
     public ResponseEntity<HttpErrorResponse> conflictException(Exception exception) {
         log.error(exception.getMessage());

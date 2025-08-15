@@ -21,4 +21,6 @@
     <include file="db/changelog/db.changelog-00012-create-email-notification-template-table.xml"/>
     <include file="db/changelog/db.changelog-00013-create-email-welcome-and-alert-templates.xml"/>
     <include file="db/changelog/db.changelog-00014-alter-user-id-to-uuid-in-users-table.xml"/>
+    <include file="db/changelog/db.changelog-00015-create-forgot-password-request-table.xml"/>
+    <include file="db/changelog/db.changelog-00016-insert-forgot-password-mail-template.xml"/>
 </databaseChangeLog>

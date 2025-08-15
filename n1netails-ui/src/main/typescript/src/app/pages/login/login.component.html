@@ -55,7 +55,7 @@
       Login with Passkey
     </button>
 
-    <button 
+    <button
       *ngIf="githubAuthEnabled"
       nz-button
       nzType="default"
@@ -71,6 +71,10 @@
     <div class="register-link">
       <span>Don't have an account?</span>
       <a routerLink="/register">Register here</a>
+    </div>
+
+    <div class="forgot-password-link">
+      <a routerLink="/forgot-password">Forgot Password?</a>
     </div>
   </form>
 </div>

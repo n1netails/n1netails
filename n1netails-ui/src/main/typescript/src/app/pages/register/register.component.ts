@@ -11,6 +11,7 @@ import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { UiConfigService } from '../../shared/util/ui-config.service';
 import { CommonModule } from '@angular/common';
+import { validateEmail, validatePassword } from '../../shared/validation/user-login-validation';
 
 @Component({
   selector: 'app-register',
@@ -92,8 +93,8 @@ export class RegisterComponent implements OnInit, OnDestroy {
   }
 
   private validateEmail(email: string): boolean {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    const emailValidated = validateEmail(email);
+    if (!emailValidated) {
       this.presentToast('Invalid email format.');
       return false;
     }
@@ -101,9 +102,8 @@ export class RegisterComponent implements OnInit, OnDestroy {
   }
 
   private validatePassword(password: string): boolean {
-    // Password must be at least 8 characters, contain 1 uppercase, and 1 special character
-    const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
-    if (!passwordRegex.test(password)) {
+    const passwordValidated = validatePassword(password);
+    if (!passwordValidated) {
       this.presentToast('Password must be at least 8 characters long, contain at least 1 uppercase letter, and 1 special character.');
       return false;
     }

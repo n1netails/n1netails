@@ -4,6 +4,10 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { User } from '../model/user';
+import { ForgotPasswordResetRequest } from '../pages/reset-password/reset-password.component';
+
+const USER_FORGOT_PASSWORD_REQUEST_URL = (email: string) => `/ninetails/password/forgot?email=${email}`
+const USER_RESET_PASSWORD_FORGOT_URL = `/ninetails/password/reset/forgot`
 
 @Injectable({
   providedIn: 'root'
@@ -22,13 +26,13 @@ export class AuthenticationService {
 
   public login(user: User): Observable<HttpResponse<User>> {
     this.host = this.uiConfigService.getApiUrl();
-    console.log('login API URL:', this.host); 
+    console.log('login API URL:', this.host);
     return this.http.post<User>(`${this.host}/ninetails/user/login`, user, { observe: 'response' });
   }
 
   public register(user: User): Observable<HttpResponse<User>> {
     this.host = this.uiConfigService.getApiUrl();
-    console.log('register API URL:', this.host); 
+    console.log('register API URL:', this.host);
     return this.http.post<User>(`${this.host}/ninetails/user/register`, user, { observe: 'response' });
   }
 
@@ -71,18 +75,28 @@ export class AuthenticationService {
         if (!this.jwtHelper.isTokenExpired(this.token)) {
           this.loggedInUsername = this.jwtHelper.decodeToken(this.token).sub;
           return true;
-        } 
+        }
         else {
           this.logOut();
           return false;
         }
       }
-    } 
+    }
     this.logOut();
     return false;
   }
 
   public resetPassword(email: string, newPassword: string): Observable<string> {
     return this.http.post(`${this.host}/ninetails/password/reset`, { email, newPassword }, { responseType: 'text' });
+  }
+
+  forgotPassword(email: string): Observable<string> {
+    this.host = this.uiConfigService.getApiUrl();
+    return this.http.post(`${this.host}${USER_FORGOT_PASSWORD_REQUEST_URL(email)}`, null, { responseType: 'text' });
+  }
+
+  resetPasswordOnForgot(forgotPasswordResetRequest: ForgotPasswordResetRequest): Observable<string> {
+    this.host = this.uiConfigService.getApiUrl();
+    return this.http.put(`${this.host}${USER_RESET_PASSWORD_FORGOT_URL}`, forgotPasswordResetRequest, { responseType: 'text'})
   }
 }

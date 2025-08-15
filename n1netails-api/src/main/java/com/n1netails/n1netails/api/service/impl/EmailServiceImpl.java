@@ -1,7 +1,9 @@
 package com.n1netails.n1netails.api.service.impl;
 
+import com.google.common.collect.Maps;
 import com.n1netails.n1netails.api.exception.type.EmailTemplateNotFoundException;
 import com.n1netails.n1netails.api.model.entity.EmailNotificationTemplateEntity;
+import com.n1netails.n1netails.api.model.entity.ForgotPasswordRequestEntity;
 import com.n1netails.n1netails.api.model.entity.UsersEntity;
 import com.n1netails.n1netails.api.model.request.KudaTailRequest;
 import com.n1netails.n1netails.api.model.request.SendMailRequest;
@@ -22,7 +24,9 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -140,8 +144,32 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
+    @Override
+    public void sendPasswordResetEmail(ForgotPasswordRequestEntity forgotPasswordRequest) throws MessagingException, EmailTemplateNotFoundException {
+        SendMailRequest forgotPasswordMailRequest = new SendMailRequest();
+        forgotPasswordMailRequest.setNotificationTemplateName("forgot_password_reset");
+        forgotPasswordMailRequest.setTo(forgotPasswordRequest.getUser().getEmail());
+        forgotPasswordMailRequest.setBodyParams(Map.of(
+                "username", forgotPasswordRequest.getUser().getUsername(),
+                "resetPasswordLink", n1netailsUi + "/#/reset-password?request_id=" + forgotPasswordRequest.getId(),
+                "n1netailsEmail", this.from
+        ));
+        try {
+            this.sendMail(forgotPasswordMailRequest).exceptionally(ex -> {
+                log.warn("Failed to send alert email to {}: {}", forgotPasswordRequest.getUser().getEmail(), ex.getMessage());
+                return null;
+            });
+        } catch (EmailTemplateNotFoundException | MessagingException e) {
+            log.warn("Unexpected error while preparing alert email for {}: {}", forgotPasswordRequest.getUser().getEmail(), e.getMessage());
+        }
+    }
+
     private String applyParameters(String content, Map<String, String> parameters) {
         String result = content;
+        Set<Entry<String, String>> entries = parameters.entrySet();
+        if (entries.isEmpty()) {
+            return result;
+        }
         for (Map.Entry<String, String> entry : parameters.entrySet()) {
             String paramName = entry.getKey();
             String paramValue = entry.getValue() != null ? entry.getValue() : "";

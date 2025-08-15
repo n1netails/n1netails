@@ -2,18 +2,24 @@ package com.n1netails.n1netails.api.service.impl;
 
 import com.n1netails.n1netails.api.constant.Authority;
 import com.n1netails.n1netails.api.exception.type.EmailExistException;
+import com.n1netails.n1netails.api.exception.type.EmailTemplateNotFoundException;
 import com.n1netails.n1netails.api.exception.type.InvalidRoleException;
 import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
 import com.n1netails.n1netails.api.model.UserPrincipal;
+import com.n1netails.n1netails.api.model.entity.ForgotPasswordRequestEntity;
 import com.n1netails.n1netails.api.model.entity.OrganizationEntity;
 import com.n1netails.n1netails.api.model.entity.UsersEntity;
+import com.n1netails.n1netails.api.model.request.SendMailRequest;
 import com.n1netails.n1netails.api.model.request.UserRegisterRequest;
+import com.n1netails.n1netails.api.repository.ForgotPasswordRequestRepository;
 import com.n1netails.n1netails.api.repository.OrganizationRepository;
 import com.n1netails.n1netails.api.repository.UserRepository;
+import com.n1netails.n1netails.api.service.EmailService;
 import com.n1netails.n1netails.api.service.LoginAttemptService;
 import com.n1netails.n1netails.api.service.UserService;
 import com.n1netails.n1netails.api.util.UserUtil;
 import io.micrometer.common.util.StringUtils;
+import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,8 +30,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -39,8 +49,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     private final UserRepository userRepository;
     private final LoginAttemptService loginAttemptService;
+    private final EmailService emailService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final OrganizationRepository organizationRepository;
+    private final ForgotPasswordRequestRepository forgotPasswordRequestRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -208,5 +220,20 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
 
         return userRepository.save(user);
+    }
+
+    @Override
+    public void forgotPasswordRequest(String email) throws MessagingException, EmailTemplateNotFoundException {
+        Optional<UsersEntity> optionalUser = userRepository.findUserByEmail(email);
+        if (optionalUser.isEmpty()) {
+            // Now do nothing
+            return;
+        }
+        UsersEntity user = optionalUser.get();
+        ForgotPasswordRequestEntity forgotPasswordRequest = new ForgotPasswordRequestEntity();
+        forgotPasswordRequest.setId(UUID.randomUUID());
+        forgotPasswordRequest.setUser(user);
+        forgotPasswordRequest.setExpiredAt(LocalDateTime.now().plusDays(2));
+        emailService.sendPasswordResetEmail(forgotPasswordRequestRepository.save(forgotPasswordRequest));
     }
 }

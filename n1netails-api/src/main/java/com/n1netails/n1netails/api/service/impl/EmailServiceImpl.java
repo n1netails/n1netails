@@ -48,8 +48,6 @@ public class EmailServiceImpl implements EmailService {
     @Value("${spring.mail.from}")
     private String from;
 
-    @Value("${app.ui-url}")
-    private String uiUrl;
     private static final String MAIL_PARAM_OPENING = "{{";
     private static final String MAIL_PARAM_CLOSING = "}}";
 
@@ -153,7 +151,7 @@ public class EmailServiceImpl implements EmailService {
         forgotPasswordMailRequest.setTo(forgotPasswordRequest.getUser().getEmail());
         forgotPasswordMailRequest.setBodyParams(Map.of(
                 "username", forgotPasswordRequest.getUser().getUsername(),
-                "resetPasswordLink", uiUrl + "/#/reset-password?request_id=" + forgotPasswordRequest.getId(),
+                "resetPasswordLink", n1netailsUi + "/#/reset-password?request_id=" + forgotPasswordRequest.getId(),
                 "n1netailsEmail", this.from
         ));
         try {

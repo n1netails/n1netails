@@ -49,5 +49,3 @@ n1netails:
 logging:
   level:
     org.springframework.security: INFO
-app:
-  ui-url: http://localhost:4200

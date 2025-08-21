@@ -75,7 +75,8 @@ public class ExceptionController implements ErrorController {
     @ExceptionHandler({
             EmailExistException.class,
             N1NoteAlreadyExistsException.class,
-            PreviousPasswordMatchException.class
+            PreviousPasswordMatchException.class,
+            TailAlreadyBookmarkedException.class
     })
     public ResponseEntity<HttpErrorResponse> conflictException(Exception exception) {
         log.error(exception.getMessage());

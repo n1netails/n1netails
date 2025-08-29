@@ -25,6 +25,8 @@ import { ResolveTailRequest, TailResponse, TailSummary } from '../../model/tail.
 import { LlmPromptRequest, LlmPromptResponse } from '../../model/llm.model';
 import { NoteService } from '../../service/note.service';
 import { Note } from '../../model/note.model';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 
 @Component({
   selector: 'app-tail',
@@ -40,6 +42,8 @@ import { Note } from '../../model/note.model';
     NzCardModule,
     NzAvatarModule,
     NzButtonModule,
+    NzIconModule,
+    NzToolTipModule,
     HeaderComponent,
     SidenavComponent,
     ResolveTailModalComponent,
@@ -51,6 +55,8 @@ import { Note } from '../../model/note.model';
 })
 export class TailComponent implements OnInit {
   objectKeys = Object.keys;
+
+  bookmarkActive = false;
 
   tail: TailResponse | null = null;
   metadataKeys: string[] = [];

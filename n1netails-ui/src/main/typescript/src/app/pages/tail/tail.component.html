@@ -29,6 +29,19 @@
 
                   <!-- Modified section for action buttons -->
                   <div class="tail-actions">
+                    <button 
+                      id="bookmark-button"
+                      [class.active]="bookmarkActive"
+                      nzTooltipTitle="Bookmark tail" 
+                      nzType="default"
+                      nzTooltipPlacement="topRight" 
+                      nz-button nz-tooltip
+                      (click)="bookmarkActive = !bookmarkActive">
+                      <nz-icon 
+                        nzType="book" 
+                        nzTheme="outline"/>
+                    </button>
+
                     <button nz-button nzType="primary" (click)="openResolveModal()" *ngIf="tail && tail.status !== 'RESOLVED' && tail.assignedUserId == currentUser.id.toString()">
                       Resolve Tail
                     </button>

@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATION_JSON;
 
 @RestController
-@RequestMapping("/api/bookmarks")
+@RequestMapping("/ninetails/bookmarks")
 @RequiredArgsConstructor
 @Tag(name = "Tail Bookmark Controller", description = "Operations related to tail bookmarks")
 @SecurityRequirement(name = "bearerAuth")

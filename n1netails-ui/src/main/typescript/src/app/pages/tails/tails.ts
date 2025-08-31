@@ -43,7 +43,6 @@ import { TailPageRequest, TailPageResponse } from '../../model/interface/tail-pa
     NzAvatarModule,
     NzTagModule,
     NzIconModule,
-    NzToolTipModule,
     CommonModule,
     FormsModule,
     HeaderComponent,

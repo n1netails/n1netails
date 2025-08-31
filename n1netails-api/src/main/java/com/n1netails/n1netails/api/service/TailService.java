@@ -19,7 +19,6 @@ public interface TailService {
     List<String> getTailTypes(TailPageRequest request) throws TailTypeNotFoundException;
     List<String> getTailStatuses(TailPageRequest request) throws TailStatusNotFoundException;
 
-
     List<TailResponse> getTop9NewestTails(UserPrincipal currentUser);
     TailResponse getTailById(Long id, UserPrincipal currentUser) throws TailNotFoundException, UnauthorizedException;
 

@@ -13,9 +13,23 @@
         <nz-row class="edit-profile" [nzGutter]="8">
           <nz-col [nzSpan]="24">
             <nz-card class="tails-primary-color" nzTitle="Tail Information" [nzBordered]="false">
-
+              
               <!-- Search & Filters Row -->
               <div class="filters-row">
+
+                <button 
+                  id="bookmark-button"
+                  [class.active]="bookmarksActive"
+                  nzTooltipTitle="View bookmarked tails" 
+                  nzType="default"
+                  nzTooltipPlacement="topRight" 
+                  nz-button nz-tooltip
+                  (click)="bookmarksActive = !bookmarksActive">
+                  <nz-icon 
+                    nzType="book" 
+                    nzTheme="outline"/>
+                </button>
+
                 <input
                   nz-input
                   type="text"
@@ -84,7 +98,7 @@
                   <nz-option nzValue="100" nzLabel="100"></nz-option>
                 </nz-select>
 
-                <button nz-button nzType="primary" (click)="onSearchTermChange()"><nz-icon nzType="search" nzTheme="outline" /></button>
+                <button id="search-button" nz-button nzType="primary" (click)="onSearchTermChange()"><nz-icon nzType="search" nzTheme="outline" /></button>
               </div>
 
               <!-- Ng Zorro Table -->

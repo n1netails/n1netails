@@ -26,7 +26,6 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { ResolveTailRequest, TailSummary } from '../../model/tail.model';
 import { PageRequest } from '../../model/interface/page.interface';
 import { PageUtilService } from '../../shared/util/page-util.service';
-import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 
 @Component({
   selector: 'app-tails',
@@ -41,7 +40,6 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
     NzAvatarModule,
     NzTagModule,
     NzIconModule,
-    NzToolTipModule,
     CommonModule,
     FormsModule,
     HeaderComponent,
@@ -52,8 +50,6 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
   styleUrl: './tails.less'
 })
 export class TailsComponent implements OnInit {
-
-  bookmarksActive = false;
 
   tails: Tail[] = [];
   currentPage: number = 0;

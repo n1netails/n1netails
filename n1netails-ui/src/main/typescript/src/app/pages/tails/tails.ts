@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TailDataService, Tail, TailPageRequest, TailPageResponse } from '../../service/tail-data';
+import { TailDataService } from '../../service/tail-data';
 import { NzLayoutModule } from 'ng-zorro-antd/layout';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { HeaderComponent } from '../../shared/template/header/header.component';
@@ -23,9 +23,12 @@ import { User } from '../../model/user';
 import { AuthenticationService } from '../../service/authentication.service';
 import { TailService } from '../../service/tail.service';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { ResolveTailRequest, TailSummary } from '../../model/tail.model';
+import { ResolveTailRequest, TailResponse, TailSummary } from '../../model/tail.model';
 import { PageRequest } from '../../model/interface/page.interface';
 import { PageUtilService } from '../../shared/util/page-util.service';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
+import { BookmarkService } from '../../service/bookmark.service';
+import { TailPageRequest, TailPageResponse } from '../../model/interface/tail-page.interface';
 
 @Component({
   selector: 'app-tails',
@@ -51,7 +54,9 @@ import { PageUtilService } from '../../shared/util/page-util.service';
 })
 export class TailsComponent implements OnInit {
 
-  tails: Tail[] = [];
+  bookmarksActive = false;
+
+  tails: TailResponse[] = [];
   currentPage: number = 0;
   pageSize: number = 10;
   totalElements: number = 0;
@@ -62,7 +67,7 @@ export class TailsComponent implements OnInit {
   selectedType: string = '';   // Bound to type dropdown
   selectedLevel: string = '';  // Bound to level dropdown
 
-  selectedTails: Set<Tail> = new Set();
+  selectedTails: Set<TailResponse> = new Set();
 
   tailLevels: string[] = [];
   tailStatusList: string[] = [];
@@ -80,6 +85,7 @@ export class TailsComponent implements OnInit {
     private tailStatusService: TailStatusService,
     private tailTypeService: TailTypeService,
     private tailService: TailService,
+    private bookmarkService: BookmarkService,
     private authenticationService: AuthenticationService,
     private messageService: NzMessageService,
     private router: Router,
@@ -97,7 +103,13 @@ export class TailsComponent implements OnInit {
     this.router.navigate(['/tail', id]);
   }
 
-  loadTails(): void {
+  setBookmarkActive() {
+    this.bookmarksActive = !this.bookmarksActive
+    this.currentPage = 0;
+    this.loadTails();
+  }
+
+  loadTailsDefault(): void {
     const request: TailPageRequest = {
       page: this.currentPage,
       size: this.pageSize,
@@ -108,7 +120,7 @@ export class TailsComponent implements OnInit {
     };
 
     this.tailDataService.getTails(request).subscribe({
-      next: (response: TailPageResponse<Tail>) => {
+      next: (response: TailPageResponse<TailResponse>) => {
         response.content.forEach(tail => {
           tail.selected = false;
           this.tails.push(tail);
@@ -127,6 +139,43 @@ export class TailsComponent implements OnInit {
         this.totalPages = 0;
       }
     });
+  }
+
+  loadTails() {
+    if (!this.bookmarksActive) {
+      this.loadTailsDefault();
+    } else {
+      const request: TailPageRequest = {
+        page: this.currentPage,
+        size: this.pageSize,
+        searchTerm: this.searchTerm,
+        filterByStatus: this.selectedStatus || undefined,
+        filterByType: this.selectedType || undefined,
+        filterByLevel: this.selectedLevel || undefined
+      };
+
+      this.bookmarkService.getUserTailBookmarks(request).subscribe({
+        next: (response: TailPageResponse<TailResponse>) => {
+          response.content.forEach(tail => {
+            tail.selected = false;
+            this.tails.push(tail);
+          });
+          this.tails = response.content;
+          this.totalElements = response.totalElements;
+          this.totalPages = response.totalPages;
+          if (this.currentPage >= this.totalPages && this.totalPages > 0) {
+            this.currentPage = this.totalPages - 1;
+          }
+        },
+        error: (err) => {
+          console.log('Error loading bookmarked tails:', err);
+          this.tails = [];
+          this.totalElements = 0;
+          this.totalPages = 0;
+          this.bookmarksActive = false;
+        }
+      });
+    }
   }
 
   loadTailInfoData(): void {
@@ -193,7 +242,7 @@ export class TailsComponent implements OnInit {
     }
   }
 
-  toggleSelection(tail: Tail): void {
+  toggleSelection(tail: TailResponse): void {
     if (this.selectedTails.has(tail)) {
       this.selectedTails.delete(tail);
     } else {
@@ -201,7 +250,7 @@ export class TailsComponent implements OnInit {
     }
   }
 
-  isSelected(tail: Tail): boolean {
+  isSelected(tail: TailResponse): boolean {
     return this.selectedTails.has(tail);
   }
 

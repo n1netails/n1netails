@@ -64,12 +64,26 @@ input[nz-input], .ant-input, .ant-input-affix-wrapper {
   }
 }
 
-button[nz-button] {
+#bookmark-button {
+  background-color: transparent;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 18px;
+
+  &.active nz-icon {
+    color: @primary-color;
+  }
+}
+
+.tails-button {
   background: @primary-color;
   color: #fff;
   border: none;
   border-radius: 4px;
   font-weight: 600;
+  font-size: 18px;
   &:hover, &:focus {
     background: @secondary-color;
     color: #fff;

@@ -4,7 +4,7 @@ export interface TailResponse {
   description: string;
   timestamp: string;
   resolvedTimestamp: string;
-  assignedUserId: string;
+  assignedUserId: number;
   assignedUsername: string;
   details: string;
   level: string;
@@ -12,6 +12,7 @@ export interface TailResponse {
   status: string;
   metadata: { [key: string]: string };
   organizationId: number;
+  selected: boolean;
 }
 
 export interface TailSummary {

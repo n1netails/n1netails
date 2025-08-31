@@ -27,6 +27,7 @@ import { NoteService } from '../../service/note.service';
 import { Note } from '../../model/note.model';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
+import { BookmarkService, IsBookmarkedResponse } from '../../service/bookmark.service';
 
 @Component({
   selector: 'app-tail',
@@ -93,6 +94,7 @@ export class TailComponent implements OnInit {
   private authService = inject(AuthenticationService);
   private llmService = inject(LlmService);
   private noteService = inject(NoteService);
+  private bookmarkService = inject(BookmarkService);
 
   constructor() {
     this.currentUser = this.authService.getUserFromLocalCache();
@@ -113,9 +115,49 @@ export class TailComponent implements OnInit {
         return;
       }
       this.loadTailData(id);
+      this.checkForBookmark(id);
     } else {
       this.error = 'No Tail ID found in URL.';
       this.isLoading = false;
+    }
+  }
+
+  checkForBookmark(id: number) {
+    console.log('checking for bookmark');
+    this.bookmarkService.isTailBookmarkedByUser(id).subscribe({
+      next: (data: IsBookmarkedResponse) => {
+        console.log('is bookmarked by user: ', data);
+        if (data.bookmarked) this.bookmarkActive = true;
+        else this.bookmarkActive = false;
+      },
+      error: (err) => {
+        console.error('Error checking if tail bookmarked by user:', err);
+        this.error = `Failed to check bookmark by user. Status: ${err.status}, message: ${err.message || err}`;
+      }
+    });
+  }
+
+  bookmarkTailEvent(id: number) {
+    if (this.bookmarkActive === false) {
+      this.bookmarkService.bookmarkTail(id).subscribe({
+        next: () => {
+          this.bookmarkActive = true;
+        },
+        error: (err) => {
+          console.error('Error bookmarking tail:', err);
+          this.error = `Failed to bookmark. Status: ${err.status}, message: ${err.message || err}`;
+        }
+      });
+    } else {
+      this.bookmarkService.removeBookmark(id).subscribe({
+        next: () => {
+          this.bookmarkActive = false;
+        },
+        error: (err) => {
+          console.error('Error removing bookmark for tail:', err);
+          this.error = `Failed to remove bookmark. Status: ${err.status}, message: ${err.message || err}`;
+        }
+      })
     }
   }
 

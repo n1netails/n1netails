@@ -6,6 +6,7 @@ import com.n1netails.n1netails.api.exception.type.UnauthorizedException;
 import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
 import com.n1netails.n1netails.api.model.UserPrincipal;
 import com.n1netails.n1netails.api.model.entity.TailEntity;
+import com.n1netails.n1netails.api.model.response.IsBookmarkedResponse;
 import com.n1netails.n1netails.api.model.response.TailResponse;
 import com.n1netails.n1netails.api.service.AuthorizationService;
 import com.n1netails.n1netails.api.service.TailBookmarkService;
@@ -81,12 +82,14 @@ public class TailBookmarkController {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/{tailId}/exists")
-    public ResponseEntity<Map<String, Boolean>> isBookmarked(@PathVariable Long tailId,
+    public ResponseEntity<IsBookmarkedResponse> isBookmarked(@PathVariable Long tailId,
                                                              @RequestHeader("Authorization") String authorizationHeader)
             throws UserNotFoundException, UnauthorizedException {
         UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
         boolean isBookmarked = tailBookmarkService.isBookmarked(currentUser.getId(), tailId);
-        return ResponseEntity.ok(Collections.singletonMap("isBookmarked", isBookmarked));
+        IsBookmarkedResponse isBookmarkedResponse = new IsBookmarkedResponse();
+        isBookmarkedResponse.setBookmarked(isBookmarked);
+        return ResponseEntity.ok(isBookmarkedResponse);
     }
 
     private TailResponse toTailResponse(TailEntity tailEntity) {

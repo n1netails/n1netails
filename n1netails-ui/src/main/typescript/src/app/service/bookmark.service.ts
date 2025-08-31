@@ -3,6 +3,10 @@ import { UiConfigService } from '../shared/util/ui-config.service';
 import { HttpClient } from '@angular/common/http';
 import { TailResponse } from '../model/tail.model';
 
+export interface IsBookmarkedResponse {
+  bookmarked: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -33,6 +37,6 @@ export class BookmarkService {
 
   isTailBookmarkedByUser(tailId: number) {
     this.host = this.uiConfigService.getApiUrl() + this.apiPath;
-    return this.http.get<Map<string, boolean>>(`${this.host}/${tailId}/exists`);
+    return this.http.get<IsBookmarkedResponse>(`${this.host}/${tailId}/exists`);
   }
 }

@@ -42,7 +42,7 @@
                         nzTheme="outline"/>
                     </button>
 
-                    <button nz-button nzType="primary" (click)="openResolveModal()" *ngIf="tail && tail.status !== 'RESOLVED' && tail.assignedUserId == currentUser.id.toString()">
+                    <button nz-button nzType="primary" (click)="openResolveModal()" *ngIf="tail && tail.status !== 'RESOLVED' && tail.assignedUserId == currentUser.id">
                       Resolve Tail
                     </button>
                     <button nz-button nzType="default" (click)="investigateTail()" *ngIf="llmEnabled && tail && tail.status !== 'RESOLVED' && n1Note.content === ''" [nzLoading]="isInvestigating" [disabled]="!tail || isInvestigating">

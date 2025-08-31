@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.n1netails.n1netails.api.util.UserUtil.isInN1netailsOrg;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -292,12 +294,12 @@ public class TailServiceImpl implements TailService {
         return tailResponseList;
     }
 
-    private static boolean isInN1netailsOrg(UserPrincipal currentUser) {
-        boolean isN1netails = currentUser.getOrganizations().stream()
-                .map(OrganizationEntity::getName)
-                .anyMatch(N1NETAILS_ORG::equals);
-        return isN1netails;
-    }
+//    private static boolean isInN1netailsOrg(UserPrincipal currentUser) {
+//        boolean isN1netails = currentUser.getOrganizations().stream()
+//                .map(OrganizationEntity::getName)
+//                .anyMatch(N1NETAILS_ORG::equals);
+//        return isN1netails;
+//    }
 
     private TailResponse setTailSummaryResponse(TailSummary tailSummary) {
         TailResponse tailResponse  = new TailResponse();

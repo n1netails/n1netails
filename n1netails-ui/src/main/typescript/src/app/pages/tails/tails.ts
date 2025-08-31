@@ -105,6 +105,7 @@ export class TailsComponent implements OnInit {
 
   setBookmarkActive() {
     this.bookmarksActive = !this.bookmarksActive
+    this.currentPage = 0;
     this.loadTails();
   }
 
@@ -144,7 +145,6 @@ export class TailsComponent implements OnInit {
     if (!this.bookmarksActive) {
       this.loadTailsDefault();
     } else {
-      this.currentPage = 0;
       const request: TailPageRequest = {
         page: this.currentPage,
         size: this.pageSize,

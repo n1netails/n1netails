@@ -98,7 +98,7 @@
                   <nz-option nzValue="100" nzLabel="100"></nz-option>
                 </nz-select>
 
-                <button nz-button nzType="primary" (click)="onSearchTermChange()"><nz-icon nzType="search" nzTheme="outline" /></button>
+                <button class="tails-button" nz-button nzType="primary" (click)="onSearchTermChange()"><nz-icon nzType="search" nzTheme="outline" /></button>
               </div>
 
               <!-- Ng Zorro Table -->
@@ -158,9 +158,9 @@
               </nz-table>
 
               <div *ngIf="totalPages > 0" class="table-pagination">
-                <button nz-button nzType="default" (click)="previousPage()" [disabled]="currentPage === 0"><nz-icon nzType="left" nzTheme="outline" /></button>
+                <button class="tails-button" nz-button nzType="default" (click)="previousPage()" [disabled]="currentPage === 0"><nz-icon nzType="left" nzTheme="outline" /></button>
                 <span style="margin: 0 12px; color: #f1f1f1;">Page {{ displayedCurrentPage }} of {{ totalPages }}</span>
-                <button nz-button nzType="default" (click)="nextPage()" [disabled]="currentPage >= totalPages - 1"><nz-icon nzType="right" nzTheme="outline" /></button>
+                <button class="tails-button" nz-button nzType="default" (click)="nextPage()" [disabled]="currentPage >= totalPages - 1"><nz-icon nzType="right" nzTheme="outline" /></button>
                 <span style="margin-left: 16px;">Total items: {{ totalElements }}</span>
               </div>
             </nz-card>

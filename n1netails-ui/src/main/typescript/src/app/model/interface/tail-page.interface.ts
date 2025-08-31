@@ -14,16 +14,3 @@ export interface TailPageResponse<T> {
   size: number;
   number: number; // current page number
 }
-
-// export interface Tail {
-//   id: number;
-//   title: string;
-//   description?: string;
-//   timestamp: string; // Assuming ISO date string
-//   status: string;
-//   type: string;
-//   level: string;
-//   assignedUserId?: number;
-//   assignedUsername?: string;
-//   selected: boolean;
-// }

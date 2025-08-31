@@ -2,7 +2,6 @@ package com.n1netails.n1netails.api.controller;
 
 import com.n1netails.n1netails.api.exception.type.*;
 import com.n1netails.n1netails.api.model.UserPrincipal;
-import com.n1netails.n1netails.api.model.entity.TailEntity;
 import com.n1netails.n1netails.api.model.request.TailPageRequest;
 import com.n1netails.n1netails.api.model.response.IsBookmarkedResponse;
 import com.n1netails.n1netails.api.model.response.TailResponse;
@@ -17,12 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATION_JSON;
 
 @RestController
 @RequestMapping("/ninetails/bookmarks")
@@ -70,10 +63,6 @@ public class TailBookmarkController {
             throws UserNotFoundException, UnauthorizedException, TailTypeNotFoundException, TailLevelNotFoundException, TailStatusNotFoundException {
         UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
         Page<TailResponse> bookmarks = tailBookmarkService.getUserBookmarks(request, currentUser);
-        // todo handle page request
-//        List<TailResponse> response = bookmarks.stream()
-//                .map(this::toTailResponse)
-//                .collect(Collectors.toList());
         return ResponseEntity.ok(bookmarks);
     }
 
@@ -91,22 +80,4 @@ public class TailBookmarkController {
         isBookmarkedResponse.setBookmarked(isBookmarked);
         return ResponseEntity.ok(isBookmarkedResponse);
     }
-
-//    private TailResponse toTailResponse(TailEntity tailEntity) {
-//        return new TailResponse(
-//                tailEntity.getId(),
-//                tailEntity.getTitle(),
-//                tailEntity.getDescription(),
-//                tailEntity.getTimestamp(),
-//                tailEntity.getResolvedTimestamp(),
-//                tailEntity.getAssignedUserId(),
-//                null, // assignedUsername is not in TailEntity, so I'll leave it null
-//                tailEntity.getDetails(),
-//                tailEntity.getLevel() != null ? tailEntity.getLevel().getName() : null,
-//                tailEntity.getType() != null ? tailEntity.getType().getName() : null,
-//                tailEntity.getStatus() != null ? tailEntity.getStatus().getName() : null,
-//                null, // metadata is not in TailEntity
-//                tailEntity.getOrganization() != null ? tailEntity.getOrganization().getId() : null
-//        );
-//    }
 }

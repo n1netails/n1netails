@@ -12,7 +12,7 @@
 
 	<groupId>com.n1netails</groupId>
 	<artifactId>n1netails-ui</artifactId>
-	<version>0.2.15</version>
+	<version>0.2.16</version>
 	<name>n1netails-ui</name>
 	<description>N1netails Alert Service UI</description>
 
@@ -71,7 +71,7 @@
 						<executions>
 							<execution>
 								<id>npm-install-win</id>
-								<phase>prepare-package</phase>
+								<phase>generate-resources</phase>
 								<goals>
 									<goal>exec</goal>
 								</goals>
@@ -86,7 +86,7 @@
 							</execution>
 							<execution>
 								<id>npm-build-win</id>
-								<phase>prepare-package</phase>
+								<phase>generate-resources</phase>
 								<goals>
 									<goal>exec</goal>
 								</goals>
@@ -122,7 +122,7 @@
 						<executions>
 							<execution>
 								<id>npm-install-unix</id>
-								<phase>prepare-package</phase>
+								<phase>generate-resources</phase>
 								<goals>
 									<goal>exec</goal>
 								</goals>
@@ -136,7 +136,7 @@
 							</execution>
 							<execution>
 								<id>npm-build-unix</id>
-								<phase>prepare-package</phase>
+								<phase>generate-resources</phase>
 								<goals>
 									<goal>exec</goal>
 								</goals>

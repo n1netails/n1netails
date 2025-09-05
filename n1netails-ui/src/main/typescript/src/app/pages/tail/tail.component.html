@@ -27,27 +27,66 @@
 
                 <div *ngIf="!isLoading && tail" class="tail-content">
 
-                  <!-- Modified section for action buttons -->
-                  <div class="tail-actions">
-                    <button 
-                      id="bookmark-button"
-                      [class.active]="bookmarkActive"
-                      nzTooltipTitle="Bookmark tail" 
-                      nzType="default"
-                      nzTooltipPlacement="topRight" 
-                      nz-button nz-tooltip
-                      (click)="bookmarkTailEvent(tail.id)">
-                      <nz-icon 
-                        nzType="book" 
-                        nzTheme="outline"/>
-                    </button>
+                  <div class="tail-actions-row">
+                    <!-- Modified section for action buttons -->
+                    <div class="tail-actions">
+                      <button 
+                        id="bookmark-button"
+                        [class.active]="bookmarkActive"
+                        nzTooltipTitle="Bookmark tail" 
+                        nzType="default"
+                        nzTooltipPlacement="topRight" 
+                        nz-button nz-tooltip
+                        (click)="bookmarkTailEvent(tail.id)">
+                        <nz-icon 
+                          nzType="book" 
+                          nzTheme="outline"/>
+                      </button>
 
-                    <button nz-button nzType="primary" (click)="openResolveModal()" *ngIf="tail && tail.status !== 'RESOLVED' && tail.assignedUserId == currentUser.id">
-                      Resolve Tail
-                    </button>
-                    <button nz-button nzType="default" (click)="investigateTail()" *ngIf="llmEnabled && tail && tail.status !== 'RESOLVED' && n1Note.content === ''" [nzLoading]="isInvestigating" [disabled]="!tail || isInvestigating">
-                      Investigate with Inari
-                    </button>
+                      <button nz-button nzType="primary" (click)="openResolveModal()" *ngIf="tail && tail.status !== 'RESOLVED' && tail.assignedUserId == currentUser.id">
+                        Resolve Tail
+                      </button>
+                      <button nz-button nzType="default" (click)="investigateTail()" *ngIf="llmEnabled && tail && tail.status !== 'RESOLVED' && n1Note.content === ''" [nzLoading]="isInvestigating" [disabled]="!tail || isInvestigating">
+                        Investigate with Inari
+                      </button>
+                    </div>
+
+                    <div class="tail-github-actions">
+                      <!-- TODO pr bot -->
+                       <!-- implement service to get and list user repositories and branches -->
+                        <!-- DISABLE CREATE PULL REQUEST BUTTON -->
+                      <button nz-button nz-dropdown [nzDropdownMenu]="menuGitHubRepository">
+                        <nz-icon nzType="github" nzTheme="outline" />
+                        Repository
+                        <nz-icon nzType="down" />
+                      </button>
+                      <nz-dropdown-menu #menuGitHubRepository="nzDropdownMenu">
+                        <ul nz-menu>
+                          <li nz-menu-item>s3-demo-n1netails</li>
+                          <li nz-menu-item>cheflei-service</li>
+                          <li nz-menu-item>bee-coin</li>
+                        </ul>
+                      </nz-dropdown-menu>
+
+                      <button nz-button nz-dropdown [nzDropdownMenu]="menuGitHubBranch">
+                        <nz-icon nzType="branches" nzTheme="outline" />
+                        Branch
+                        <nz-icon nzType="down" />
+                      </button>
+                      <nz-dropdown-menu #menuGitHubBranch="nzDropdownMenu">
+                        <ul nz-menu>
+                          <li nz-menu-item>main</li>
+                          <li nz-menu-item>dev</li>
+                          <li nz-menu-item>qa</li>
+                        </ul>
+                      </nz-dropdown-menu>
+
+                      <button nz-button nzType="primary">
+                        Create Pull Request
+                        <nz-icon nzType="enter"></nz-icon>
+                      </button>
+                    </div>
+                    <!-- TODO pr bot END -->
                   </div>
 
                   <nz-row [nzGutter]="[16,16]">

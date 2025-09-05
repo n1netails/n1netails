@@ -22,6 +22,9 @@ public class ProjectSecurityConstant {
             "/ninetails/password/reset/forgot",
             "/ninetails/auth/passkey/**",
             "/ninetails/alert",
+
+            // TODO REMOVE AFTER PROTOTYPE COMPLETE
+            "/ninetails/inari/**",
             "/"
     };
 

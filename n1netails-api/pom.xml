@@ -12,7 +12,7 @@
 
 	<groupId>com.n1netails</groupId>
 	<artifactId>n1netails-api</artifactId>
-	<version>0.2.18</version>
+	<version>0.3.0</version>
 	<name>n1netails-api</name>
 	<description>N1netails Alert Service API</description>
 
@@ -89,6 +89,12 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-text</artifactId>
 			<version>1.14.0</version>
+		</dependency>
+		<!-- auth0 java jwt -->
+		<dependency>
+			<groupId>com.auth0</groupId>
+			<artifactId>java-jwt</artifactId>
+			<version>4.4.0</version>
 		</dependency>
 
 		<!-- Passkey (WebAuthn) Library -->

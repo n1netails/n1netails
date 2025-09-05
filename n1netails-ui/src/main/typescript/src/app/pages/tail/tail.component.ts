@@ -28,6 +28,7 @@ import { Note } from '../../model/note.model';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { BookmarkService, IsBookmarkedResponse } from '../../service/bookmark.service';
+import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 
 @Component({
   selector: 'app-tail',
@@ -45,6 +46,7 @@ import { BookmarkService, IsBookmarkedResponse } from '../../service/bookmark.se
     NzButtonModule,
     NzIconModule,
     NzToolTipModule,
+    NzDropDownModule,
     HeaderComponent,
     SidenavComponent,
     ResolveTailModalComponent,

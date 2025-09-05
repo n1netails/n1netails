@@ -39,16 +39,34 @@ nz-header {
       letter-spacing: 0.5px;
     }
 
-    .tail-actions {
+    .tail-actions-row {
       display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-      margin-bottom: 16px;
+      justify-content: space-between;
+      align-items: center;
+
+      .tail-actions {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+
+      .tail-github-actions {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
 
       @media (max-width: @screen-sm-max) {
         flex-direction: column;
-        button {
+        .tail-actions,
+        .tail-github-actions {
+          flex-direction: column;
           width: 100%;
+        }
+        #bookmark-button {
+          display: block;
+          margin-left: auto;
+          margin-right: auto;
         }
       }
     }
@@ -94,6 +112,7 @@ nz-header {
     }
 
     .tags {
+      margin-top: 20px;
       margin-bottom: 20px;
       text-align: center; // Center tags by default
       @media (min-width: @screen-sm-max) {

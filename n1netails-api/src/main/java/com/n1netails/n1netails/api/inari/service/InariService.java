@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface InariService {
 
-    void handleTailAlert(String owner, String repository, String branch, TailResponse tailResponse) throws Exception;
+    void handleTailAlert(Long organizationId, String owner, String repository, String branch, TailResponse tailResponse) throws Exception;
 }

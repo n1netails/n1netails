@@ -2,48 +2,67 @@ package com.n1netails.n1netails.api.inari.controller;
 
 import com.n1netails.n1netails.api.inari.service.GitHubService;
 import com.n1netails.n1netails.api.inari.service.InariService;
-import com.n1netails.n1netails.api.model.dto.Note;
-import com.n1netails.n1netails.api.model.response.TailLevelResponse;
+import com.n1netails.n1netails.api.model.UserPrincipal;
+import com.n1netails.n1netails.api.model.entity.OrganizationEntity;
 import com.n1netails.n1netails.api.model.response.TailResponse;
+import com.n1netails.n1netails.api.service.AuthorizationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATION_JSON;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Slf4j
 @RequiredArgsConstructor
 @Tag(name = "Inari Controller", description = "Operations related to Inari AI Proxy")
 //@SecurityRequirement(name = "bearerAuth")
 @RestController
-@RequestMapping(path = {"/ninetails/inari"}, produces = APPLICATION_JSON)
+@RequestMapping(path = {"/api/inari"}, produces = APPLICATION_JSON)
 public class InariController {
 
     private final InariService inariService;
     private final GitHubService gitHubService;
+    private final AuthorizationService authorizationService;
+
+    @GetMapping("/github/installation/callback")
+    public ResponseEntity<String> handleGitHubInstallationCallback(
+            @RequestHeader(AUTHORIZATION) String authorizationHeader,
+            @RequestParam("installation_id") String installationId,
+            @RequestParam("setup_action") String setupAction) throws Exception {
+        UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
+        Optional<OrganizationEntity> organization = currentUser.getOrganizations().stream().findFirst();
+        if (organization.isEmpty()) {
+            return ResponseEntity.badRequest().body("User is not part of any organization.");
+        }
+        gitHubService.saveInstallationId(installationId, organization.get().getId());
+        return ResponseEntity.ok("GitHub App installation successful.");
+    }
 
     @Operation(summary = "Get all user repositories", responses = {
             @ApiResponse(responseCode = "200", description = "List result containing user repositories",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class))))
     })
     @GetMapping("/list-repositories")
-    public ResponseEntity<List<String>> getUserRepositories() throws Exception {
+    public ResponseEntity<List<String>> getUserRepositories(@RequestHeader(AUTHORIZATION) String authorizationHeader) throws Exception {
         gitHubService.checkAppAuth();
-        return ResponseEntity.ok(gitHubService.listRepositories());
+        UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
+        Optional<OrganizationEntity> organization = currentUser.getOrganizations().stream().findFirst();
+        if (organization.isEmpty()) {
+            return ResponseEntity.badRequest().body(new ArrayList<>());
+        }
+        return ResponseEntity.ok(gitHubService.listRepositories(organization.get().getId()));
     }
 
     @Operation(summary = "Get all user repository branches", responses = {
@@ -52,11 +71,17 @@ public class InariController {
     })
     @PostMapping("/list-repository-branches")
     public ResponseEntity<List<String>> getUserRepositoryBranches(
+            @RequestHeader(AUTHORIZATION) String authorizationHeader,
             // todo implement request arguments
             // owner
             // repository
     ) throws Exception {
-        return ResponseEntity.ok(gitHubService.listBranches("shahidfoy", "s3-demo-n1netails"));
+        UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
+        Optional<OrganizationEntity> organization = currentUser.getOrganizations().stream().findFirst();
+        if (organization.isEmpty()) {
+            return ResponseEntity.badRequest().body(new ArrayList<>());
+        }
+        return ResponseEntity.ok(gitHubService.listBranches(organization.get().getId(), "shahidfoy", "s3-demo-n1netails")); // FIXME: get owner and repo from request
     }
 
     @Operation(summary = "Create pull request from tail response and notes", responses = {
@@ -65,12 +90,19 @@ public class InariController {
     })
     @PostMapping("/initiate-pull-request")
     public ResponseEntity<String> initiatePullRequest(
+            @RequestHeader(AUTHORIZATION) String authorizationHeader,
             // todo implement request arguments
             // tail response
             // owner
             // repository
             // branch
     ) throws Exception {
+
+        UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
+        Optional<OrganizationEntity> organization = currentUser.getOrganizations().stream().findFirst();
+        if (organization.isEmpty()) {
+            return ResponseEntity.badRequest().body("User is not part of any organization.");
+        }
 
         // TODO GET TAIL REQUEST FROM request arguments
         TailResponse alert = new TailResponse();
@@ -97,7 +129,7 @@ public class InariController {
 //        List<Note> notes = new ArrayList<>();
 
         // todo replace owner, repository, and branch by using incoming request parameters
-        inariService.handleTailAlert("shahidfoy", "s3-demo-n1netails", "main", alert);
+        inariService.handleTailAlert(organization.get().getId(), "shahidfoy", "s3-demo-n1netails", "main", alert); // FIXME: get owner and repo from request
 
         return ResponseEntity.ok("Pull request initiated");
     }

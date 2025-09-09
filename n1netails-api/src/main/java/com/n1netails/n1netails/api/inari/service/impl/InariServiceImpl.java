@@ -27,13 +27,13 @@ public class InariServiceImpl implements InariService {
     @Autowired
     private AiAgentService aiService;
 
-    public void handleTailAlert(String owner, String repository, String branch, TailResponse tailResponse) throws Exception {
+    public void handleTailAlert(Long organizationId, String owner, String repository, String branch, TailResponse tailResponse) throws Exception {
 
         // TODO get notes for tail response
 
         // 0. Fetch repo tree from GitHub
         log.info("0. Fetch repo tree from GitHub");
-        List<String> filePaths = githubService.getRepoFileTree(owner, repository, branch);
+        List<String> filePaths = githubService.getRepoFileTree(organizationId, owner, repository, branch);
         log.info("repo tree: {}", filePaths);
 
         // 1. Ask AI which files to change
@@ -45,7 +45,7 @@ public class InariServiceImpl implements InariService {
         log.info("2. Fetch files from GitHub");
         Map<String, String> fileContents = new HashMap<>();
         for (String file : files) {
-            String content = githubService.getFileContents(owner, repository, file, branch);
+            String content = githubService.getFileContents(organizationId, owner, repository, file, branch);
 
             log.info("FOR LOOP FILE: {}", file);
             log.info("FOR LOOP FILE CONTENT: {}", content);
@@ -63,16 +63,16 @@ public class InariServiceImpl implements InariService {
 //        String branchName = "fix-tail-alert-" + alert.getId();
         String inariBranchName = "n1netails-inari/fix-tail-alert-" + tailResponse.getId() + "-" + System.currentTimeMillis();
         log.info("BRANCH NAME: {}", inariBranchName);
-        githubService.createBranch(owner, repository, inariBranchName);
+        githubService.createBranch(organizationId, owner, repository, inariBranchName);
 
         for (Map.Entry<String, String> entry : fixedFiles.entrySet()) {
             log.info("commit file: {}", entry.getKey());
-            githubService.commitFile(owner, repository, inariBranchName, entry.getKey(), entry.getValue(),
+            githubService.commitFile(organizationId, owner, repository, inariBranchName, entry.getKey(), entry.getValue(),
                     "Fix bug from tail alert " + tailResponse.getId());
         }
 
         log.info("creating pull request");
-        githubService.createPullRequest(owner, repository, inariBranchName, branch,
+        githubService.createPullRequest(organizationId, owner, repository, inariBranchName, branch,
                 "Fix tail alert " + tailResponse.getId(),
                 "Automated fix for stack trace:\n```\n" + tailResponse.getDetails() + "\n```");
     }

@@ -3,7 +3,12 @@ package com.n1netails.n1netails.api.inari.service.impl;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.n1netails.n1netails.api.exception.type.OrganizationNotFoundException;
 import com.n1netails.n1netails.api.inari.service.GitHubService;
+import com.n1netails.n1netails.api.model.entity.GitHubInstallationEntity;
+import com.n1netails.n1netails.api.model.entity.OrganizationEntity;
+import com.n1netails.n1netails.api.repository.GitHubInstallationRepository;
+import com.n1netails.n1netails.api.repository.OrganizationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -29,13 +34,27 @@ import java.util.*;
 @Qualifier("gitHubService")
 public class GitHubServiceImpl implements GitHubService {
 
+    private final GitHubInstallationRepository gitHubInstallationRepository;
+    private final OrganizationRepository organizationRepository;
+
     private final String appId = "1787765"; // GitHub App ID
-    // TODO DYNAMICALLY GET USER INSTALLATION ID FROM DATABASE, FIGURE OUT HOW TO GET THE INSTALLATION ID WHEN THE USER ADDS THE N1NETAILS GITHUB APP TO THEIR REPOSITORY
-    private final String installationId = "84018858"; // Installation ID
     // TODO FIGURE OUT HOW TO LOAD IN PEM KEY SECURELY
     private final String pemFilePath = "D:/N1NE_TAILS/GITHUB_APP/n1netails-local.pem";
 
     private RestTemplate restTemplate = new RestTemplate();
+
+    @Override
+    public void saveInstallationId(String installationId, Long organizationId) throws OrganizationNotFoundException {
+        OrganizationEntity organization = organizationRepository.findById(organizationId)
+                .orElseThrow(() -> new OrganizationNotFoundException("Organization not found"));
+
+        GitHubInstallationEntity installation = gitHubInstallationRepository.findByOrganization(organization)
+                .orElse(new GitHubInstallationEntity());
+
+        installation.setOrganization(organization);
+        installation.setInstallationId(installationId);
+        gitHubInstallationRepository.save(installation);
+    }
 
     // Step 1: Generate JWT for the GitHub App
     private String generateJwt() throws Exception {
@@ -63,11 +82,18 @@ public class GitHubServiceImpl implements GitHubService {
     }
 
     // Step 2: Get Installation Access Token
-    private String getInstallationToken() throws Exception {
+    private String getInstallationToken(Long organizationId) throws Exception {
         String jwt = generateJwt();
 
         DecodedJWT decoded = JWT.decode(jwt);
         log.info("iss: {}, iat: {}, exp: {}", decoded.getIssuer(), decoded.getIssuedAt(), decoded.getExpiresAt());
+
+        OrganizationEntity organization = organizationRepository.findById(organizationId)
+                .orElseThrow(() -> new OrganizationNotFoundException("Organization not found"));
+        GitHubInstallationEntity installation = gitHubInstallationRepository.findByOrganization(organization)
+                .orElseThrow(() -> new RuntimeException("GitHub App not installed for this organization"));
+        String installationId = installation.getInstallationId();
+
 
         String url = "https://api.github.com/app/installations/" + installationId + "/access_tokens";
         HttpHeaders headers = new HttpHeaders();
@@ -79,8 +105,8 @@ public class GitHubServiceImpl implements GitHubService {
         return response.getBody().get("token").toString();
     }
 
-    private HttpHeaders authHeaders() throws Exception {
-        String token = getInstallationToken();
+    private HttpHeaders authHeaders(Long organizationId) throws Exception {
+        String token = getInstallationToken(organizationId);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
         headers.set("Accept", "application/vnd.github+json");
@@ -129,9 +155,9 @@ public class GitHubServiceImpl implements GitHubService {
 //    }
 
     @Override
-    public List<String> listRepositories() throws Exception {
+    public List<String> listRepositories(Long organizationId) throws Exception {
         log.info("listRepositories");
-        HttpHeaders headers = authHeaders();
+        HttpHeaders headers = authHeaders(organizationId);
 
         String url = "https://api.github.com/installation/repositories?per_page=100";
         List<String> repoNames = new ArrayList<>();
@@ -166,9 +192,9 @@ public class GitHubServiceImpl implements GitHubService {
     }
 
     @Override
-    public List<String> listBranches(String owner, String repo) throws Exception {
+    public List<String> listBranches(Long organizationId, String owner, String repo) throws Exception {
         log.info("listBranches");
-        HttpHeaders headers = authHeaders();
+        HttpHeaders headers = authHeaders(organizationId);
 
         String url = String.format("https://api.github.com/repos/%s/%s/branches", owner, repo);
 
@@ -191,9 +217,9 @@ public class GitHubServiceImpl implements GitHubService {
     // === CORE METHODS ===
 
     @Override
-    public List<String> getRepoFileTree(String owner, String repo, String branch) throws Exception {
+    public List<String> getRepoFileTree(Long organizationId, String owner, String repo, String branch) throws Exception {
         log.info("getRepoFileTree");
-        HttpHeaders headers = authHeaders();
+        HttpHeaders headers = authHeaders(organizationId);
 
         String url = String.format("https://api.github.com/repos/%s/%s/git/trees/%s?recursive=1",
                 owner, repo, branch);
@@ -214,9 +240,9 @@ public class GitHubServiceImpl implements GitHubService {
     }
 
     @Override
-    public String getFileContents(String owner, String repo, String filePath, String branch) throws Exception {
+    public String getFileContents(Long organizationId, String owner, String repo, String filePath, String branch) throws Exception {
         log.info("getFileContents");
-        HttpHeaders headers = authHeaders();
+        HttpHeaders headers = authHeaders(organizationId);
 
         String url = String.format("https://api.github.com/repos/%s/%s/contents/%s?ref=%s",
                 owner, repo, filePath, branch);
@@ -227,9 +253,9 @@ public class GitHubServiceImpl implements GitHubService {
     }
 
     @Override
-    public void createBranch(String owner, String repo, String branchName) throws Exception {
+    public void createBranch(Long organizationId, String owner, String repo, String branchName) throws Exception {
         log.info("createBranch");
-        HttpHeaders headers = authHeaders();
+        HttpHeaders headers = authHeaders(organizationId);
 
         // Get latest main SHA
         ResponseEntity<Map> mainRefResponse = restTemplate.exchange(
@@ -249,11 +275,11 @@ public class GitHubServiceImpl implements GitHubService {
     }
 
     @Override
-    public void commitFile(String owner, String repo, String branchName,
+    public void commitFile(Long organizationId, String owner, String repo, String branchName,
                            String filePath, String contentBase64, String message) throws Exception {
         log.info("commitFile");
 
-        HttpHeaders headers = authHeaders();
+        HttpHeaders headers = authHeaders(organizationId);
         Map<String, Object> fileBody = new HashMap<>();
         fileBody.put("message", message);
         fileBody.put("content", contentBase64);
@@ -279,10 +305,10 @@ public class GitHubServiceImpl implements GitHubService {
     }
 
     @Override
-    public void createPullRequest(String owner, String repo, String branchName,
+    public void createPullRequest(Long organizationId, String owner, String repo, String branchName,
                                   String baseBranch, String title, String body) throws Exception {
         log.info("createPullRequest");
-        HttpHeaders headers = authHeaders();
+        HttpHeaders headers = authHeaders(organizationId);
 
         Map<String, Object> prBody = new HashMap<>();
         prBody.put("title", title);

@@ -24,4 +24,5 @@
     <include file="db/changelog/db.changelog-00015-create-forgot-password-request-table.xml"/>
     <include file="db/changelog/db.changelog-00016-insert-forgot-password-mail-template.xml"/>
     <include file="db/changelog/db.changelog-00017-create-table-tail-bookmark.xml"/>
+    <include file="db/changelog/db.changelog-00018-create-table-github-installation.xml"/>
 </databaseChangeLog>

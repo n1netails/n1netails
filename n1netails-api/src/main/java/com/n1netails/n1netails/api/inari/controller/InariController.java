@@ -1,9 +1,12 @@
 package com.n1netails.n1netails.api.inari.controller;
 
+import com.n1netails.n1netails.api.inari.service.GitHubService;
 import com.n1netails.n1netails.api.inari.service.InariService;
 import com.n1netails.n1netails.api.model.dto.Note;
+import com.n1netails.n1netails.api.model.response.TailLevelResponse;
 import com.n1netails.n1netails.api.model.response.TailResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -12,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,12 +28,36 @@ import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATIO
 @Slf4j
 @RequiredArgsConstructor
 @Tag(name = "Inari Controller", description = "Operations related to Inari AI Proxy")
-@SecurityRequirement(name = "bearerAuth")
+//@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping(path = {"/ninetails/inari"}, produces = APPLICATION_JSON)
 public class InariController {
 
     private final InariService inariService;
+    private final GitHubService gitHubService;
+
+    @Operation(summary = "Get all user repositories", responses = {
+            @ApiResponse(responseCode = "200", description = "List result containing user repositories",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class))))
+    })
+    @GetMapping("/list-repositories")
+    public ResponseEntity<List<String>> getUserRepositories() throws Exception {
+        gitHubService.checkAppAuth();
+        return ResponseEntity.ok(gitHubService.listRepositories());
+    }
+
+    @Operation(summary = "Get all user repository branches", responses = {
+            @ApiResponse(responseCode = "200", description = "List result containing user repository branches",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class))))
+    })
+    @PostMapping("/list-repository-branches")
+    public ResponseEntity<List<String>> getUserRepositoryBranches(
+            // todo implement request arguments
+            // owner
+            // repository
+    ) throws Exception {
+        return ResponseEntity.ok(gitHubService.listBranches("shahidfoy", "s3-demo-n1netails"));
+    }
 
     @Operation(summary = "Create pull request from tail response and notes", responses = {
             @ApiResponse(responseCode = "200", description = "Pull request initiated",

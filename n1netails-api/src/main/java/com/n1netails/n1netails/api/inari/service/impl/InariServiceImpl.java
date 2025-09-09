@@ -61,7 +61,7 @@ public class InariServiceImpl implements InariService {
         // 4. Commit and PR
         log.info("4. Commit and PR");
 //        String branchName = "fix-tail-alert-" + alert.getId();
-        String inariBranchName = "fix-tail-alert-" + tailResponse.getId() + "-" + System.currentTimeMillis();
+        String inariBranchName = "n1netails-inari/fix-tail-alert-" + tailResponse.getId() + "-" + System.currentTimeMillis();
         log.info("BRANCH NAME: {}", inariBranchName);
         githubService.createBranch(owner, repository, inariBranchName);
 

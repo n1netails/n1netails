@@ -2,6 +2,7 @@ package com.n1netails.n1netails.api.inari.service.impl;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.n1netails.n1netails.api.inari.service.GitHubService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,13 +58,16 @@ public class GitHubServiceImpl implements GitHubService {
         return JWT.create()
                 .withIssuer(appId)
                 .withIssuedAt(Date.from(Instant.now()))
-                .withExpiresAt(Date.from(Instant.now().plusSeconds(600))) // max 10 mins
+                .withExpiresAt(Date.from(Instant.now().plusSeconds(540))) // max 10 mins
                 .sign(algorithm);
     }
 
     // Step 2: Get Installation Access Token
     private String getInstallationToken() throws Exception {
         String jwt = generateJwt();
+
+        DecodedJWT decoded = JWT.decode(jwt);
+        log.info("iss: {}, iat: {}, exp: {}", decoded.getIssuer(), decoded.getIssuedAt(), decoded.getExpiresAt());
 
         String url = "https://api.github.com/app/installations/" + installationId + "/access_tokens";
         HttpHeaders headers = new HttpHeaders();
@@ -82,6 +86,107 @@ public class GitHubServiceImpl implements GitHubService {
         headers.set("Accept", "application/vnd.github+json");
         return headers;
     }
+
+
+    public void checkAppAuth() throws Exception {
+        String jwt = generateJwt();
+
+        String url = "https://api.github.com/app/installations";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwt);
+        headers.set("Accept", "application/vnd.github+json");
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
+
+        log.info("Status: {}", response.getStatusCode());
+        log.info("Body: {}", response.getBody());
+    }
+
+
+    // == repository controls ===
+//    @Override
+//    public List<String> listRepositories() throws Exception {
+//        log.info("listRepositories");
+//        HttpHeaders headers = authHeaders();
+//
+//        String url = "https://api.github.com/installation/repositories";
+//
+//        ResponseEntity<Map> response = restTemplate.exchange(
+//                url, HttpMethod.GET, new HttpEntity<>(headers), Map.class);
+//
+//        log.info("RESPONSE: {}", response);
+//
+//        List<Map<String, Object>> repos = (List<Map<String, Object>>) response.getBody().get("repositories");
+//        log.info("REPOS: {}", repos);
+//
+//        List<String> repoNames = new ArrayList<>();
+//        for (Map<String, Object> repo : repos) {
+//            repoNames.add(repo.get("full_name").toString()); // owner/repo format
+//        }
+//
+//        return repoNames;
+//    }
+
+    @Override
+    public List<String> listRepositories() throws Exception {
+        log.info("listRepositories");
+        HttpHeaders headers = authHeaders();
+
+        String url = "https://api.github.com/installation/repositories?per_page=100";
+        List<String> repoNames = new ArrayList<>();
+
+        while (url != null) {
+            ResponseEntity<Map> response = restTemplate.exchange(
+                    url, HttpMethod.GET, new HttpEntity<>(headers), Map.class);
+
+            List<Map<String, Object>> repos =
+                    (List<Map<String, Object>>) response.getBody().get("repositories");
+
+            for (Map<String, Object> repo : repos) {
+                repoNames.add(repo.get("full_name").toString());
+            }
+
+            // Look for "Link" header to see if there's a "next"
+            List<String> linkHeaders = response.getHeaders().get("Link");
+            url = null;
+            if (linkHeaders != null) {
+                for (String linkHeader : linkHeaders) {
+                    for (String part : linkHeader.split(",")) {
+                        if (part.contains("rel=\"next\"")) {
+                            url = part.substring(part.indexOf("<") + 1, part.indexOf(">"));
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return repoNames;
+    }
+
+    @Override
+    public List<String> listBranches(String owner, String repo) throws Exception {
+        log.info("listBranches");
+        HttpHeaders headers = authHeaders();
+
+        String url = String.format("https://api.github.com/repos/%s/%s/branches", owner, repo);
+
+        ResponseEntity<List> response = restTemplate.exchange(
+                url, HttpMethod.GET, new HttpEntity<>(headers), List.class);
+
+        List<Map<String, Object>> branches = (List<Map<String, Object>>) response.getBody();
+
+        List<String> branchNames = new ArrayList<>();
+        for (Map<String, Object> branch : branches) {
+            branchNames.add(branch.get("name").toString());
+        }
+
+        return branchNames;
+    }
+
+
+
 
     // === CORE METHODS ===
 

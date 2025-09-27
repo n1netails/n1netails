@@ -16,9 +16,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 
 @RestController
-@RequestMapping("/ninetails/bookmarks")
+@RequestMapping(path = {"/ninetails/bookmarks"}, produces = APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 @Tag(name = "Tail Bookmark Controller", description = "Operations related to tail bookmarks")
 @SecurityRequirement(name = "bearerAuth")

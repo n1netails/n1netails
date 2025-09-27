@@ -26,15 +26,15 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATION_JSON;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
 @RequiredArgsConstructor
 @Tag(name = "Tail Metrics Controller", description = "Operations related to Tail Metrics")
 @SecurityRequirement(name = "bearerAuth")
 @RestController
-@RequestMapping(value = "/ninetails/metrics/tails", produces = APPLICATION_JSON)
+@RequestMapping(value = "/ninetails/metrics/tails", produces = APPLICATION_JSON_VALUE)
 public class TailMetricsController {
 
     private final TailMetricsService tailMetricsService;

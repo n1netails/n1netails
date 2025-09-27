@@ -21,14 +21,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.AccessDeniedException;
 
-import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATION_JSON;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
 @RequiredArgsConstructor
 @Tag(name = "Large Language Model Controller", description = "Operations related requests and responses for Large Language Models")
 @RestController
-@RequestMapping(path = {"/ninetails/llm"}, produces = APPLICATION_JSON)
+@RequestMapping(path = {"/ninetails/llm"}, produces = APPLICATION_JSON_VALUE)
 public class LlmController {
 
     private final InvestigationService investigationService;
@@ -48,7 +48,7 @@ public class LlmController {
             @ApiResponse(responseCode = "409", description = "N1 note already exists for this tail",
                     content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
     })
-    @PostMapping(path = "/investigate", consumes = APPLICATION_JSON)
+    @PostMapping(path = "/investigate", consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<LlmPromptResponse>  investigateTail(
             @RequestHeader(AUTHORIZATION) String authorizationHeader,
             @RequestBody LlmPromptRequest llmRequest) throws UserNotFoundException, AccessDeniedException, TailNotFoundException, N1NoteAlreadyExistsException {
@@ -76,7 +76,7 @@ public class LlmController {
             @ApiResponse(responseCode = "404", description = "Tail or User not found",
                     content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
     })
-    @PostMapping(path = "/prompt", consumes = APPLICATION_JSON)
+    @PostMapping(path = "/prompt", consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<LlmPromptResponse>  promptTail(
             @RequestHeader(AUTHORIZATION) String authorizationHeader,
             @RequestBody LlmPromptRequest llmRequest) throws UserNotFoundException, AccessDeniedException, TailNotFoundException, N1NoteAlreadyExistsException {

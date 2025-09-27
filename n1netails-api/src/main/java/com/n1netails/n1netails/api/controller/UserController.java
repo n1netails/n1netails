@@ -4,7 +4,6 @@ import com.n1netails.n1netails.api.exception.type.*;
 import com.n1netails.n1netails.api.model.UserPrincipal;
 import com.n1netails.n1netails.api.model.entity.OrganizationEntity;
 import com.n1netails.n1netails.api.model.entity.UsersEntity;
-import com.n1netails.n1netails.api.model.request.SendMailRequest;
 import com.n1netails.n1netails.api.model.request.UpdateUserRoleRequest;
 import com.n1netails.n1netails.api.model.request.UserLoginRequest;
 import com.n1netails.n1netails.api.model.request.UserRegisterRequest;
@@ -19,11 +18,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,21 +31,19 @@ import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.AccessDeniedException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATION_JSON;
 import static com.n1netails.n1netails.api.constant.ProjectSecurityConstant.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
 @RequiredArgsConstructor
 @Tag(name = "Users Controller", description = "Operations related to Users")
 @RestController
-@RequestMapping(path = {"/ninetails/user"}, produces = APPLICATION_JSON)
+@RequestMapping(path = {"/ninetails/user"}, produces = APPLICATION_JSON_VALUE)
 public class UserController {
 
     private static final String N1NETAILS_ORGANIZATION_NAME = "n1netails"; // C
@@ -101,7 +96,7 @@ public class UserController {
                             content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
             }
     )
-    @PostMapping(value = "/edit", consumes = APPLICATION_JSON)
+    @PostMapping(value = "/edit", consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<UsersEntity> editUser(
             @RequestHeader(AUTHORIZATION) String authorizationHeader,
             @RequestBody UsersEntity user
@@ -129,7 +124,7 @@ public class UserController {
                             content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
             }
     )
-    @PostMapping(value = "/login", consumes = APPLICATION_JSON)
+    @PostMapping(value = "/login", consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<UsersEntity> login(@RequestBody UserLoginRequest user) {
 
         log.info("attempting user login");
@@ -152,7 +147,7 @@ public class UserController {
                             content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
             }
     )
-    @PostMapping(value = "/register", consumes = APPLICATION_JSON)
+    @PostMapping(value = "/register", consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<UsersEntity> register(@RequestBody UserRegisterRequest user) throws UserNotFoundException, EmailExistException, PasswordRegexException {
 
         String password = user.getPassword();

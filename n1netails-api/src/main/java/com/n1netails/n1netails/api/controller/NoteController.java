@@ -8,7 +8,6 @@ import com.n1netails.n1netails.api.service.NoteService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,14 +23,15 @@ import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
-import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATION_JSON;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 
 @Slf4j
 @RequiredArgsConstructor
 @Tag(name = "Note Controller", description = "Operations related to Notes")
 @SecurityRequirement(name = "bearerAuth")
 @RestController
-@RequestMapping(path = {"/ninetails/note"}, produces = APPLICATION_JSON)
+@RequestMapping(path = {"/ninetails/note"}, produces = APPLICATION_JSON_VALUE)
 public class NoteController {
 
     private final NoteService noteService;

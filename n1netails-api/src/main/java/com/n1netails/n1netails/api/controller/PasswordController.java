@@ -19,7 +19,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,15 +30,15 @@ import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATION_JSON;
 import static com.n1netails.n1netails.api.constant.ProjectSecurityConstant.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
 @RequiredArgsConstructor
 @Tag(name = "Password Controller", description = "Operations for managing credentials")
 @RestController
-@RequestMapping(path = {"/ninetails/password"}, produces = APPLICATION_JSON)
+@RequestMapping(path = {"/ninetails/password"}, produces = APPLICATION_JSON_VALUE)
 public class PasswordController {
 
     private final UserService userService;

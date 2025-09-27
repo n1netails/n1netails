@@ -22,17 +22,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.AccessDeniedException;
-import java.util.List;
 
-import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATION_JSON;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
 @RequiredArgsConstructor
 @Tag(name = "N1ne Token Controller", description = "Operations related to N1ne Tokens")
 @SecurityRequirement(name = "bearerAuth")
 @RestController
-@RequestMapping(path = {"/ninetails/n1ne-token"}, produces = APPLICATION_JSON)
+@RequestMapping(path = {"/ninetails/n1ne-token"}, produces = APPLICATION_JSON_VALUE)
 public class N1neTokenController {
 
     private final N1neTokenService n1neTokenService;
@@ -42,7 +41,7 @@ public class N1neTokenController {
             @ApiResponse(responseCode = "200", description = "Token created",
                     content = @Content(schema = @Schema(implementation = N1neTokenResponse.class)))
     })
-    @PostMapping(consumes = APPLICATION_JSON)
+    @PostMapping(consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<N1neTokenResponse> create(
             @RequestHeader(AUTHORIZATION) String authorizationHeader,
             @RequestBody CreateTokenRequest createTokenRequest

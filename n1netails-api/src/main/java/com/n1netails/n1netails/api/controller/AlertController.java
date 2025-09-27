@@ -22,14 +22,14 @@ import java.nio.file.AccessDeniedException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATION_JSON;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
 @RequiredArgsConstructor
 @Tag(name = "Alert Controller", description = "Operations related to N1ne Alerts (Utilized by Kuda)")
 @RestController
-@RequestMapping(path = {"/ninetails/alert"}, produces = APPLICATION_JSON)
+@RequestMapping(path = {"/ninetails/alert"}, produces = APPLICATION_JSON_VALUE)
 public class AlertController {
 
     private static final int TITLE_MAX_LENGTH = 255;
@@ -45,7 +45,7 @@ public class AlertController {
             @ApiResponse(responseCode = "204", description = "Alert created"),
             @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
-    @PostMapping(consumes = APPLICATION_JSON)
+    @PostMapping(consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> create(
             @RequestHeader("N1ne-Token") String n1neToken,
             @RequestBody KudaTailRequest request
@@ -70,7 +70,7 @@ public class AlertController {
             @ApiResponse(responseCode = "204", description = "Manual Alert created"),
             @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
-    @PostMapping(value = "/manual/{userId}/organization/{organizationId}", consumes = APPLICATION_JSON)
+    @PostMapping(value = "/manual/{userId}/organization/{organizationId}", consumes = APPLICATION_JSON_VALUE)
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Void> createManual(
             @RequestHeader(AUTHORIZATION) String authorizationHeader,

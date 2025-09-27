@@ -17,21 +17,21 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.nio.file.AccessDeniedException;
 
-import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATION_JSON;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
 @RequiredArgsConstructor
 @Tag(name = "Passkey Controller", description = "Operations related to Passkey (WebAuthn) authentication")
 @RestController
-@RequestMapping(path = {"/ninetails/auth/passkey"}, produces = APPLICATION_JSON)
+@RequestMapping(path = {"/ninetails/auth/passkey"}, produces = APPLICATION_JSON_VALUE)
 public class PasskeyController {
 
     private final PasskeyServiceImpl passkeyService;
     private final AuthorizationService authorizationService;
 
     @Operation(summary = "Start Passkey Registration", description = "Initiates the passkey registration process for a user.")
-    @PostMapping(value = "/register/start", consumes = APPLICATION_JSON)
+    @PostMapping(value = "/register/start", consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<PasskeyRegistrationStartResponseDto> startRegistration(
             @RequestHeader(AUTHORIZATION) String authorizationHeader,
             @RequestBody PasskeyRegistrationStartRequestDto request
@@ -58,7 +58,7 @@ public class PasskeyController {
     }
 
     @Operation(summary = "Finish Passkey Registration", description = "Completes the passkey registration process.")
-    @PostMapping(value = "/register/finish", consumes = APPLICATION_JSON)
+    @PostMapping(value = "/register/finish", consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<PasskeyApiResponseDto> finishRegistration(@RequestBody PasskeyRegistrationFinishRequestDto request) {
         try {
             log.info("Received request to finish passkey registration with flowId: {}", request.getFlowId());
@@ -80,7 +80,7 @@ public class PasskeyController {
     }
 
     @Operation(summary = "Start Passkey Authentication", description = "Initiates the passkey authentication process.")
-    @PostMapping(value = "/login/start", consumes = APPLICATION_JSON)
+    @PostMapping(value = "/login/start", consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<PasskeyAuthenticationStartResponseDto> startAuthentication(@RequestBody(required = false) PasskeyAuthenticationStartRequestDto request) {
         // Request can be null or empty for discoverable credentials (passkeys)
         PasskeyAuthenticationStartRequestDto actualRequest = (request == null) ? new PasskeyAuthenticationStartRequestDto() : request;
@@ -104,7 +104,7 @@ public class PasskeyController {
     }
 
     @Operation(summary = "Finish Passkey Authentication", description = "Completes the passkey authentication process and returns a JWT if successful.")
-    @PostMapping(value = "/login/finish", consumes = APPLICATION_JSON)
+    @PostMapping(value = "/login/finish", consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<PasskeyAuthenticationResponseDto> finishAuthentication(@RequestBody PasskeyAuthenticationFinishRequestDto request) {
         try {
             log.info("Received request to finish passkey authentication with flowId: {}", request.getFlowId());

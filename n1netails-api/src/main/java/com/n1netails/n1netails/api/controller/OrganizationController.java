@@ -19,15 +19,15 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.n1netails.n1netails.api.constant.ControllerConstant.APPLICATION_JSON;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
 @RequiredArgsConstructor
 @Tag(name = "Organization Controller", description = "Operations related to Organizations")
 @SecurityRequirement(name = "bearerAuth")
 @RestController
-@RequestMapping(path = {"/ninetails/organizations"}, produces = APPLICATION_JSON)
+@RequestMapping(path = {"/ninetails/organizations"}, produces = APPLICATION_JSON_VALUE)
 public class OrganizationController {
 
     private final OrganizationService organizationService;

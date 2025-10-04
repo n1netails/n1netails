@@ -15,5 +15,6 @@ public interface N1neTokenRepository extends JpaRepository<N1neTokenEntity, Long
 
     List<N1neTokenEntity> findByUserId(Long userId);
     Page<N1neTokenEntity> findByUserId(Long userId, Pageable pageable);
-    Optional<N1neTokenEntity> findByToken(UUID token);
+//    Optional<N1neTokenEntity> findByToken(UUID token);
+    Optional<N1neTokenEntity> findByN1TokenHash(byte[] n1TokenHash);
 }

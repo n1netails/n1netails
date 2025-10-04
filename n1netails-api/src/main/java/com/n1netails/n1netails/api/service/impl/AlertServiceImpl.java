@@ -1,5 +1,6 @@
 package com.n1netails.n1netails.api.service.impl;
 
+import com.n1netails.n1netails.api.exception.type.N1neTokenGenerateException;
 import com.n1netails.n1netails.api.exception.type.OrganizationNotFoundException;
 import com.n1netails.n1netails.api.model.entity.N1neTokenEntity;
 import com.n1netails.n1netails.api.model.entity.OrganizationEntity;
@@ -18,6 +19,7 @@ import com.n1netails.n1netails.api.repository.TailStatusRepository;
 import com.n1netails.n1netails.api.repository.TailTypeRepository;
 import com.n1netails.n1netails.api.service.AlertService;
 import com.n1netails.n1netails.api.service.EmailService;
+import com.n1netails.n1netails.api.util.N1TokenGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -48,10 +50,16 @@ public class AlertServiceImpl implements AlertService {
     private final EmailService emailService;
 
     @Override
-    public void createTail(String token, KudaTailRequest request) {
+    public void createTail(String token, KudaTailRequest request) throws N1neTokenGenerateException {
+        // todo remove old token and instead hash incoming token to check if it matches token hash in db
         log.info("create tail");
-        UUID uuid = UUID.fromString(token);
-        Optional<N1neTokenEntity> optionalN1neTokenEntity = this.n1neTokenRepository.findByToken(uuid);
+//        UUID uuid = UUID.fromString(token);
+//        Optional<N1neTokenEntity> optionalN1neTokenEntity = this.n1neTokenRepository.findByToken(uuid);
+
+        byte[] tokenHash = N1TokenGenerator.sha256(token);
+        Optional<N1neTokenEntity> optionalN1neTokenEntity = this.n1neTokenRepository.findByN1TokenHash(tokenHash);
+
+
         N1neTokenEntity n1neTokenEntity = new N1neTokenEntity();
         if (optionalN1neTokenEntity.isPresent()) n1neTokenEntity = optionalN1neTokenEntity.get();
         UsersEntity usersEntity = n1neTokenEntity.getUser();

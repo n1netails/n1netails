@@ -1,5 +1,6 @@
 package com.n1netails.n1netails.api.controller;
 
+import com.n1netails.n1netails.api.exception.type.N1neTokenGenerateException;
 import com.n1netails.n1netails.api.exception.type.N1neTokenNotFoundException;
 import com.n1netails.n1netails.api.exception.type.OrganizationNotFoundException;
 import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
@@ -49,14 +50,14 @@ public class AlertController {
     public ResponseEntity<Void> create(
             @RequestHeader("N1ne-Token") String n1neToken,
             @RequestBody KudaTailRequest request
-    ) throws N1neTokenNotFoundException {
+    ) throws N1neTokenNotFoundException, N1neTokenGenerateException {
         log.info("=====================");
         log.info("RECEIVED KUDA REQUEST");
         sanitizeRequestData(request);
         boolean tokenValid = this.n1neTokenService.validateToken(n1neToken);
         if (tokenValid) {
             this.n1neTokenService.setLastUsedAt(n1neToken);
-            alertService.createTail(n1neToken, request);
+            this.alertService.createTail(n1neToken, request);
         }
         else {
             // Log internally, but don’t reveal to client

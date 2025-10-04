@@ -77,7 +77,7 @@
                     <tr>
                       <th>Name</th>
                       <th>ID</th>
-                      <th>Token Value</th>
+                      <!-- <th>Token Value</th> -->
                       <th>Created At</th>
                       <th>Expires At</th>
                       <th>Last Used At</th>
@@ -92,7 +92,7 @@
                     <tr *ngFor="let token of tokens; let i = index">
                       <td>{{ token.name }}</td>
                       <td>{{ token.id }}</td>
-                      <td>
+                      <!-- <td>
                         <div class="token-value-cell">
                           <input
                             nz-input
@@ -124,7 +124,7 @@
                             <span nz-icon nzType="copy"></span>
                           </button>
                         </div>
-                      </td>
+                      </td> -->
                       <td>{{ token.createdAt | date:'short' }}</td>
                       <td>{{ token.expiresAt ? (token.expiresAt | date:'short') : 'Never' }}</td>
                       <td>{{ token.lastUsedAt ? (token.lastUsedAt | date:'short') : 'Never' }}</td>
@@ -233,3 +233,10 @@
     </nz-content>
   </nz-layout>
 </nz-layout>
+
+<app-n1-token-modal
+  [isVisible]="n1TokenModalVisible"
+  [n1Token]="generatedN1neToken"
+  (onOk)="handleResolveOk()"
+  (onCancel)="handleResolveCancel()"
+></app-n1-token-modal>

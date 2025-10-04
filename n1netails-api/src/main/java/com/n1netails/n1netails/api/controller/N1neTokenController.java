@@ -1,5 +1,6 @@
 package com.n1netails.n1netails.api.controller;
 
+import com.n1netails.n1netails.api.exception.type.N1neTokenGenerateException;
 import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
 import com.n1netails.n1netails.api.model.UserPrincipal;
 import com.n1netails.n1netails.api.model.request.CreateTokenRequest;
@@ -45,12 +46,15 @@ public class N1neTokenController {
     public ResponseEntity<N1neTokenResponse> create(
             @RequestHeader(AUTHORIZATION) String authorizationHeader,
             @RequestBody CreateTokenRequest createTokenRequest
-    ) throws AccessDeniedException, UserNotFoundException {
+    ) throws AccessDeniedException, UserNotFoundException, N1neTokenGenerateException {
 
         UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
         if (authorizationService.isSelf(currentUser, createTokenRequest.getUserId())) {
             log.info("Create n1ne token");
             N1neTokenResponse n1neTokenResponse = n1neTokenService.create(createTokenRequest);
+
+            log.info("Create n1 token result: {}", n1neTokenResponse);
+            log.info("n1 token: {}", n1neTokenResponse.getN1Token());
             return ResponseEntity.ok(n1neTokenResponse);
         } else {
             throw new AccessDeniedException("Create Token request access denied.");

@@ -52,9 +52,6 @@ public class N1neTokenController {
         if (authorizationService.isSelf(currentUser, createTokenRequest.getUserId())) {
             log.info("Create n1ne token");
             N1neTokenResponse n1neTokenResponse = n1neTokenService.create(createTokenRequest);
-
-            log.info("Create n1 token result: {}", n1neTokenResponse);
-            log.info("n1 token: {}", n1neTokenResponse.getN1Token());
             return ResponseEntity.ok(n1neTokenResponse);
         } else {
             throw new AccessDeniedException("Create Token request access denied.");

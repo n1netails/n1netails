@@ -1,11 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzModalModule } from 'ng-zorro-antd/modal';
-import { NzTagModule } from 'ng-zorro-antd/tag';
 import { N1neTokenResponse } from '../../../service/n1ne-token.service';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -14,11 +11,8 @@ import { NzMessageService } from 'ng-zorro-antd/message';
   selector: 'app-n1-token-modal',
   imports: [
     CommonModule,
-    FormsModule,
     NzModalModule,
     NzAvatarModule,
-    NzTagModule,
-    NzInputModule,
     NzButtonModule,
     NzIconModule
   ],
@@ -46,7 +40,6 @@ export class N1TokenModalComponent {
 
   copyToken(tokenValue: string): void {
     navigator.clipboard.writeText(tokenValue).then(() => {
-      // Optionally show a notification/toast here
       console.log('copied token');
       this.msg.success("Token copied successfully.");
     });

@@ -21,6 +21,7 @@ public class N1neTokenEntity {
     @Column(nullable = false, updatable = false)
     private Long id;
 
+    // todo remove this column after migration complete
     @Column(name = "token", nullable = false, unique = true, updatable = false)
     private UUID token;
 

@@ -29,7 +29,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -51,11 +50,7 @@ public class AlertServiceImpl implements AlertService {
 
     @Override
     public void createTail(String token, KudaTailRequest request) throws N1neTokenGenerateException {
-        // todo remove old token and instead hash incoming token to check if it matches token hash in db
         log.info("create tail");
-//        UUID uuid = UUID.fromString(token);
-//        Optional<N1neTokenEntity> optionalN1neTokenEntity = this.n1neTokenRepository.findByToken(uuid);
-
         byte[] tokenHash = N1TokenGenerator.sha256(token);
         Optional<N1neTokenEntity> optionalN1neTokenEntity = this.n1neTokenRepository.findByN1TokenHash(tokenHash);
 

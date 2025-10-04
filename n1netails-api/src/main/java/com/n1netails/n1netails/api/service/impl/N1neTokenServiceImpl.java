@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -54,15 +53,11 @@ public class N1neTokenServiceImpl implements N1neTokenService {
             n1neTokenEntity.setExpiresAt(createTokenRequest.getExpiresAt());
             n1neTokenEntity.setName(createTokenRequest.getName());
 
-            // done replace with n1_token_hash and return token to user but do not have token value in database
-//            n1neTokenEntity.setToken(UUID.randomUUID());
-
+            // generating n1 token and token hash
             N1TokenGenerator.N1TokenResult n1TokenResult = N1TokenGenerator.generateToken();
             String token = n1TokenResult.getTokenPlain();
             byte[] tokenHash = n1TokenResult.getTokenHash();
-
             n1neTokenEntity.setN1TokenHash(tokenHash);
-
 
             n1neTokenEntity.setOrganization(organization);
             log.info("Saving new token");
@@ -115,12 +110,6 @@ public class N1neTokenServiceImpl implements N1neTokenService {
 
     @Override
     public boolean validateToken(String n1neToken) throws N1neTokenGenerateException {
-        // todo remove old token and instead hash incoming token to check if it matches token hash in db
-//        log.info("validating token");
-//        UUID token = UUID.fromString(n1neToken);
-//        log.info("attempting to locate token");
-//        Optional<N1neTokenEntity> optionalN1neTokenEntity = this.n1neTokenRepository.findByToken(token);
-
         log.info("attempting to locate token hash");
         byte[] tokenHash = N1TokenGenerator.sha256(n1neToken);
         Optional<N1neTokenEntity> optionalN1neTokenEntity = this.n1neTokenRepository.findByN1TokenHash(tokenHash);
@@ -140,11 +129,6 @@ public class N1neTokenServiceImpl implements N1neTokenService {
 
     @Override
     public void setLastUsedAt(String n1neToken) throws N1neTokenNotFoundException, N1neTokenGenerateException {
-        // todo remove old token and instead hash incoming token to check if it matches token hash in db
-//        UUID token = UUID.fromString(n1neToken);
-//        N1neTokenEntity n1neTokenEntity = this.n1neTokenRepository.findByToken(token)
-//                .orElseThrow(() -> new N1neTokenNotFoundException("Unable to set token last used at. N1ne token not found."));
-
         byte[] tokenHash = N1TokenGenerator.sha256(n1neToken);
         N1neTokenEntity n1neTokenEntity = this.n1neTokenRepository.findByN1TokenHash(tokenHash)
                 .orElseThrow(() -> new N1neTokenNotFoundException("Unable to set token last used at. N1ne token not found."));
@@ -157,7 +141,6 @@ public class N1neTokenServiceImpl implements N1neTokenService {
     private static N1neTokenResponse generateN1neTokenResponse(N1neTokenEntity n1neTokenEntity) {
         N1neTokenResponse n1neTokenResponse = new N1neTokenResponse();
         n1neTokenResponse.setId(n1neTokenEntity.getId());
-//        n1neTokenResponse.setToken(n1neTokenEntity.getToken()); // Token value is included
         n1neTokenResponse.setCreatedAt(n1neTokenEntity.getCreatedAt());
         n1neTokenResponse.setRevoked(n1neTokenEntity.isRevoked());
         n1neTokenResponse.setExpiresAt(n1neTokenEntity.getExpiresAt());
@@ -172,25 +155,9 @@ public class N1neTokenServiceImpl implements N1neTokenService {
         return n1neTokenResponse;
     }
 
-
     private static N1neTokenResponse generateN1neTokenCreateResponse(N1neTokenEntity n1neTokenEntity, String token) {
-        N1neTokenResponse n1neTokenResponse = new N1neTokenResponse();
-        n1neTokenResponse.setId(n1neTokenEntity.getId());
-//        n1neTokenResponse.setToken(n1neTokenEntity.getToken()); // Token value is included
-
+        N1neTokenResponse n1neTokenResponse = generateN1neTokenResponse(n1neTokenEntity);
         n1neTokenResponse.setN1Token(token);
-
-        n1neTokenResponse.setCreatedAt(n1neTokenEntity.getCreatedAt());
-        n1neTokenResponse.setRevoked(n1neTokenEntity.isRevoked());
-        n1neTokenResponse.setExpiresAt(n1neTokenEntity.getExpiresAt());
-        n1neTokenResponse.setName(n1neTokenEntity.getName());
-        if (n1neTokenEntity.getUser() != null) {
-            n1neTokenResponse.setUserId(n1neTokenEntity.getUser().getId());
-        }
-        if (n1neTokenEntity.getOrganization() != null) {
-            n1neTokenResponse.setOrganizationId(n1neTokenEntity.getOrganization().getId());
-        }
-        n1neTokenResponse.setLastUsedAt(n1neTokenEntity.getLastUsedAt());
-        return n1neTokenResponse;
+        return  n1neTokenResponse;
     }
 }

@@ -11,7 +11,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class N1neToken {
-//    private UUID token;
     private String n1Token;
     private Instant createdAt;
     private Instant expiresAt;

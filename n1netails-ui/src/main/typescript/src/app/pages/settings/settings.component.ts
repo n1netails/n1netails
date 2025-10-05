@@ -20,6 +20,7 @@ import { NzSelectModule } from 'ng-zorro-antd/select';
 import { PageRequest, PageResponse } from '../../model/interface/page.interface';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { PageUtilService } from '../../shared/util/page-util.service';
+import { N1TokenModalComponent } from '../../shared/components/n1-token-modal/n1-token-modal.component';
 
 @Component({
   selector: 'app-settings',
@@ -35,7 +36,8 @@ import { PageUtilService } from '../../shared/util/page-util.service';
     CommonModule,
     NzDividerModule,
     NzSelectModule,
-    NzIconModule
+    NzIconModule,
+    N1TokenModalComponent
   ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.less'
@@ -68,6 +70,18 @@ export class SettingsComponent implements OnInit {
   searchTailLevel: string = '';
   searchTailStatus: string = '';
   searchTailType: string = '';
+
+  // Modal properties
+  n1TokenModalVisible = false;
+  generatedN1neToken: N1neTokenResponse = {
+    id: 0,
+    userId: 0,
+    organizationId: 0,
+    n1Token: '',
+    name: '',
+    lastUsedAt: '',
+    revoked: false
+  };
 
   constructor(
     private authenticationService: AuthenticationService,
@@ -184,9 +198,11 @@ export class SettingsComponent implements OnInit {
     }
 
     this.n1neTokenService.createToken(request).subscribe({
-      next: () => {
+      next: (response: N1neTokenResponse) => {
         this.newTokenRequestForm = {}; // Reset form
         this.loadTokens(); // Reloads tokens and sets isLoading = false
+        this.generatedN1neToken = response;
+        this.n1TokenModalVisible = true;
       },
       error: (err) => {
         this.errorMessage = 'Failed to create token.';
@@ -379,5 +395,32 @@ export class SettingsComponent implements OnInit {
     this.tailTypeService.getTailTypes(pageRequest).subscribe((response: PageResponse<TailTypeResponse>) => {
       this.tailTypes = response.content;
     });
+  }
+
+  // n1 token modal 
+  handleResolveCancel(): void {
+    this.n1TokenModalVisible = false;
+    this.generatedN1neToken = {
+      id: 0,
+      userId: 0,
+      organizationId: 0,
+      n1Token: '',
+      name: '',
+      lastUsedAt: '',
+      revoked: false
+    };
+  }
+
+  handleResolveOk(): void {
+    this.n1TokenModalVisible = false;
+    this.generatedN1neToken = {
+      id: 0,
+      userId: 0,
+      organizationId: 0,
+      n1Token: '',
+      name: '',
+      lastUsedAt: '',
+      revoked: false
+    };
   }
 }

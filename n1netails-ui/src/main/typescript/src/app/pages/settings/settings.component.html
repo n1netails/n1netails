@@ -77,7 +77,6 @@
                     <tr>
                       <th>Name</th>
                       <th>ID</th>
-                      <th>Token Value</th>
                       <th>Created At</th>
                       <th>Expires At</th>
                       <th>Last Used At</th>
@@ -92,39 +91,6 @@
                     <tr *ngFor="let token of tokens; let i = index">
                       <td>{{ token.name }}</td>
                       <td>{{ token.id }}</td>
-                      <td>
-                        <div class="token-value-cell">
-                          <input
-                            nz-input
-                            [type]="showTokenIndex === i ? 'text' : 'password'"
-                            [value]="token.token"
-                            readonly
-                            style="width: 140px; margin-right: 4px;"
-                            (click)="toggleShowToken(i)"
-                          />
-                          <button
-                            nz-button
-                            nzType="link"
-                            nzSize="small"
-                            (click)="toggleShowToken(i)"
-                            [attr.aria-label]="showTokenIndex === i ? 'Hide' : 'Show'"
-                            style="padding: 0 4px;"
-                          >
-                            <span *ngIf="showTokenIndex !== i" nz-icon nzType="eye-invisible"></span>
-                            <span *ngIf="showTokenIndex === i" nz-icon nzType="eye"></span>
-                          </button>
-                          <button
-                            nz-button
-                            nzType="link"
-                            nzSize="small"
-                            (click)="copyToken(token.token)"
-                            aria-label="Copy"
-                            style="padding: 0 4px;"
-                          >
-                            <span nz-icon nzType="copy"></span>
-                          </button>
-                        </div>
-                      </td>
                       <td>{{ token.createdAt | date:'short' }}</td>
                       <td>{{ token.expiresAt ? (token.expiresAt | date:'short') : 'Never' }}</td>
                       <td>{{ token.lastUsedAt ? (token.lastUsedAt | date:'short') : 'Never' }}</td>
@@ -233,3 +199,10 @@
     </nz-content>
   </nz-layout>
 </nz-layout>
+
+<app-n1-token-modal
+  [isVisible]="n1TokenModalVisible"
+  [n1Token]="generatedN1neToken"
+  (onOk)="handleResolveOk()"
+  (onCancel)="handleResolveCancel()"
+></app-n1-token-modal>

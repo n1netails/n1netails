@@ -16,7 +16,7 @@ export interface N1neTokenResponse {
   id: number;
   userId: number;
   organizationId: number;
-  token: string;
+  n1Token: string;
   name: string;
   lastUsedAt: string; // ISO 8601 format
   expiresAt?: string; // ISO 8601 format

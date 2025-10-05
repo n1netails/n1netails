@@ -21,8 +21,12 @@ public class N1neTokenEntity {
     @Column(nullable = false, updatable = false)
     private Long id;
 
+    // todo remove this column after migration complete
     @Column(name = "token", nullable = false, unique = true, updatable = false)
     private UUID token;
+
+    @Column(name = "n1_token_hash", nullable = false, unique = true, updatable = false, length = 32)
+    private byte[] n1TokenHash;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private UsersEntity user;

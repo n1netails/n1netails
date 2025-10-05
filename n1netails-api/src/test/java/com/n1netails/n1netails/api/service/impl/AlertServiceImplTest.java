@@ -1,5 +1,6 @@
 package com.n1netails.n1netails.api.service.impl;
 
+import com.n1netails.n1netails.api.exception.type.N1neTokenGenerateException;
 import com.n1netails.n1netails.api.exception.type.OrganizationNotFoundException;
 import com.n1netails.n1netails.api.model.entity.N1neTokenEntity;
 import com.n1netails.n1netails.api.model.entity.OrganizationEntity;
@@ -16,6 +17,7 @@ import com.n1netails.n1netails.api.repository.TailRepository;
 import com.n1netails.n1netails.api.repository.TailStatusRepository;
 import com.n1netails.n1netails.api.repository.TailTypeRepository;
 import com.n1netails.n1netails.api.service.EmailService;
+import com.n1netails.n1netails.api.util.N1TokenGenerator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +30,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -71,8 +72,9 @@ public class AlertServiceImplTest {
     private AlertServiceImpl alertService;
     private static final String NEW_TAIL_LEVEL_TRACE = "TRACE";
     private static final String NEW_TAIL_TYPE_MONITOR_ALERT = "MONITOR_ALERT";
+    private static final String n1Token = "n1_c7PNos3Nru2NLxVA6ANBbbJZsuJ5g8RVzZJhBpQjz5Hz7qrUB5yloRKjouRU9yzzGpbLhuZAS_ga0HQ_a7dLOQ";
 
-    private static final UUID n1neTokenUUID = UUID.randomUUID();
+    private static byte[] n1TokenHash = null;
     private static OrganizationEntity n1neDefaultOrganization;
     private static UsersEntity user;
     private static N1neTokenEntity n1neToken;
@@ -88,7 +90,7 @@ public class AlertServiceImplTest {
     private static TailTypeEntity newTailTypeMonitorAlert;
 
     @BeforeAll
-    public static void setUp() {
+    public static void setUp() throws N1neTokenGenerateException {
         n1neDefaultOrganization = new OrganizationEntity(
                 1L, "N1ne", "Default n1netails organization", "",
                 new Date(), new Date(), new HashSet<>());
@@ -99,7 +101,9 @@ public class AlertServiceImplTest {
         user.setEmail("user-01@n1netails.com");
 
         n1neToken = new N1neTokenEntity();
-        n1neToken.setToken(n1neTokenUUID);
+        n1TokenHash = N1TokenGenerator.sha256(n1Token);
+        n1neToken.setN1TokenHash(n1TokenHash);
+
         n1neToken.setUser(user);
         n1neToken.setOrganization(n1neDefaultOrganization);
 
@@ -132,10 +136,8 @@ public class AlertServiceImplTest {
         emptyInputKudaTailRequest.setTitle("Kuda Title");
         emptyInputKudaTailRequest.setDescription("Kuda Description");
         emptyInputKudaTailRequest.setDetails("Kuda Details");
-//        emptyInputKudaTailRequest.setTimestamp(new Date().toInstant());
         emptyInputKudaTailRequest.setLevel("");
         emptyInputKudaTailRequest.setType("");
-//        emptyInputKudaTailRequest.setMetadata(Map.of("env", "prod", "test", "info"));
 
         newValuesKudaTailRequest = new KudaTailRequest();
         newValuesKudaTailRequest.setTitle("Kuda Title");
@@ -155,15 +157,15 @@ public class AlertServiceImplTest {
     }
 
     @Test
-    public void testCreateTail_fullyPopulatedRequest_ShouldCreateNewTailWithFullyPopulatedValues() {
+    public void testCreateTail_fullyPopulatedRequest_ShouldCreateNewTailWithFullyPopulatedValues() throws N1neTokenGenerateException {
         // Mock Data
-        when(n1neTokenRepository.findByToken(eq(n1neTokenUUID))).thenReturn(Optional.of(n1neToken));
+        when(n1neTokenRepository.findByN1TokenHash(eq(n1TokenHash))).thenReturn(Optional.of(n1neToken));
         when(tailLevelRepository.findTailLevelByName(eq(AlertServiceImpl.INFO))).thenReturn(Optional.of(infoTailLevel));
         when(tailTypeRepository.findTailTypeByName(eq(AlertServiceImpl.SYSTEM_ALERT))).thenReturn(Optional.of(systemAlertTailType));
         when(tailStatusRepository.findTailStatusByName(AlertServiceImpl.NEW)).thenReturn(Optional.of(newTailStatus));
 
         // Action
-        alertService.createTail(n1neTokenUUID.toString(), fullPopulatedKudaTailRequest);
+        alertService.createTail(n1Token, fullPopulatedKudaTailRequest);
 
         // Verify mock call
         verify(tailLevelRepository, times(1)).findTailLevelByName(eq(AlertServiceImpl.INFO));
@@ -187,9 +189,9 @@ public class AlertServiceImplTest {
     }
 
     @Test
-    public void testCreateTail_NullRequestAndDefaultValuesNotInDB_ShouldCreateDefaultValuesAndTailWithDefaultValues() {
+    public void testCreateTail_NullRequestAndDefaultValuesNotInDB_ShouldCreateDefaultValuesAndTailWithDefaultValues() throws N1neTokenGenerateException {
         // Mock Data
-        when(n1neTokenRepository.findByToken(eq(n1neTokenUUID))).thenReturn(Optional.of(n1neToken));
+        when(n1neTokenRepository.findByN1TokenHash(n1TokenHash)).thenReturn(Optional.of(n1neToken));
         when(tailLevelRepository.findTailLevelByName(any())).thenReturn(Optional.empty());
         when(tailLevelRepository.save(any())).thenReturn(infoTailLevel);
 
@@ -199,7 +201,7 @@ public class AlertServiceImplTest {
         when(tailStatusRepository.save(any())).thenReturn(newTailStatus);
 
         // Action
-        alertService.createTail(n1neTokenUUID.toString(), notFullPopulatedKudaTailRequest);
+        alertService.createTail(n1Token, notFullPopulatedKudaTailRequest);
 
         // Verify mock call
         verify(tailLevelRepository, times(1)).findTailLevelByName(eq(null));
@@ -227,8 +229,8 @@ public class AlertServiceImplTest {
     }
 
     @Test
-    public void testCreateTail_BlankRequestAndDefaultValuesNotInDB_ShouldCreateDefaultValuesAndTailWithDefaultValues() {
-        when(n1neTokenRepository.findByToken(eq(n1neTokenUUID))).thenReturn(Optional.of(n1neToken));
+    public void testCreateTail_BlankRequestAndDefaultValuesNotInDB_ShouldCreateDefaultValuesAndTailWithDefaultValues() throws N1neTokenGenerateException {
+        when(n1neTokenRepository.findByN1TokenHash(n1TokenHash)).thenReturn(Optional.of(n1neToken));
 
         when(tailLevelRepository.findTailLevelByName(eq(""))).thenReturn(Optional.empty());
         when(tailLevelRepository.findTailLevelByName(eq(AlertServiceImpl.INFO))).thenReturn(Optional.empty());
@@ -241,7 +243,7 @@ public class AlertServiceImplTest {
         when(tailStatusRepository.findTailStatusByName(eq(AlertServiceImpl.NEW))).thenReturn(Optional.empty());
         when(tailStatusRepository.save(any())).thenReturn(newTailStatus);
 
-        alertService.createTail(n1neTokenUUID.toString(), emptyInputKudaTailRequest);
+        alertService.createTail(n1Token, emptyInputKudaTailRequest);
 
         verify(tailLevelRepository, times(1)).findTailLevelByName(eq(""));
         verify(tailLevelRepository, times(1)).findTailLevelByName(eq(AlertServiceImpl.INFO));
@@ -268,8 +270,8 @@ public class AlertServiceImplTest {
     }
 
     @Test
-    public void testCreateTail_DefaultValuesNotInDBButNewValuePresentInRequest_ShouldCreateTailWithGivenValues() {
-        when(n1neTokenRepository.findByToken(eq(n1neTokenUUID))).thenReturn(Optional.of(n1neToken));
+    public void testCreateTail_DefaultValuesNotInDBButNewValuePresentInRequest_ShouldCreateTailWithGivenValues() throws N1neTokenGenerateException {
+        when(n1neTokenRepository.findByN1TokenHash(n1TokenHash)).thenReturn(Optional.of(n1neToken));
 
         when(tailLevelRepository.findTailLevelByName(anyString())).thenReturn(Optional.empty());
         when(tailLevelRepository.save(any())).thenReturn(newTailLevelTrace);
@@ -280,7 +282,7 @@ public class AlertServiceImplTest {
         when(tailStatusRepository.findTailStatusByName(eq(AlertServiceImpl.NEW))).thenReturn(Optional.empty());
         when(tailStatusRepository.save(any())).thenReturn(newTailStatus);
 
-        alertService.createTail(n1neTokenUUID.toString(), newValuesKudaTailRequest);
+        alertService.createTail(n1Token, newValuesKudaTailRequest);
 
         verify(tailLevelRepository, times(1)).findTailLevelByName(eq(newValuesKudaTailRequest.getLevel()));
         ArgumentCaptor<TailLevelEntity> tailLevelArgCaptor = ArgumentCaptor.forClass(TailLevelEntity.class);

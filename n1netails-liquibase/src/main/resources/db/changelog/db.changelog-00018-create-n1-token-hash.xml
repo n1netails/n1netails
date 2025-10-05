@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="00018-create-n1-token-hash" author="shahidfoy">
+        <sqlFile path="sql/db.changelog-00018-create-n1-token-hash.sql" relativeToChangelogFile="true"/>
+        <rollback>
+            <sql>
+                ALTER TABLE ntail.n1ne_token DROP CONSTRAINT IF EXISTS unique_n1_token_hash;
+                ALTER TABLE ntail.n1ne_token DROP COLUMN IF EXISTS n1_token_hash;
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

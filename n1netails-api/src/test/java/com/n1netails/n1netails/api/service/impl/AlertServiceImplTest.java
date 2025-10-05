@@ -1,5 +1,6 @@
 package com.n1netails.n1netails.api.service.impl;
 
+import com.n1netails.n1netails.api.exception.type.N1neTokenGenerateException;
 import com.n1netails.n1netails.api.exception.type.OrganizationNotFoundException;
 import com.n1netails.n1netails.api.model.entity.N1neTokenEntity;
 import com.n1netails.n1netails.api.model.entity.OrganizationEntity;
@@ -16,6 +17,7 @@ import com.n1netails.n1netails.api.repository.TailRepository;
 import com.n1netails.n1netails.api.repository.TailStatusRepository;
 import com.n1netails.n1netails.api.repository.TailTypeRepository;
 import com.n1netails.n1netails.api.service.EmailService;
+import com.n1netails.n1netails.api.util.N1TokenGenerator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +30,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -71,8 +72,9 @@ public class AlertServiceImplTest {
     private AlertServiceImpl alertService;
     private static final String NEW_TAIL_LEVEL_TRACE = "TRACE";
     private static final String NEW_TAIL_TYPE_MONITOR_ALERT = "MONITOR_ALERT";
+    private static final String n1Token = "n1_c7PNos3Nru2NLxVA6ANBbbJZsuJ5g8RVzZJhBpQjz5Hz7qrUB5yloRKjouRU9yzzGpbLhuZAS_ga0HQ_a7dLOQ";
 
-    private static final UUID n1neTokenUUID = UUID.randomUUID();
+    private static byte[] n1TokenHash = null;
     private static OrganizationEntity n1neDefaultOrganization;
     private static UsersEntity user;
     private static N1neTokenEntity n1neToken;
@@ -88,7 +90,7 @@ public class AlertServiceImplTest {
     private static TailTypeEntity newTailTypeMonitorAlert;
 
     @BeforeAll
-    public static void setUp() {
+    public static void setUp() throws N1neTokenGenerateException {
         n1neDefaultOrganization = new OrganizationEntity(
                 1L, "N1ne", "Default n1netails organization", "",
                 new Date(), new Date(), new HashSet<>());
@@ -99,7 +101,9 @@ public class AlertServiceImplTest {
         user.setEmail("user-01@n1netails.com");
 
         n1neToken = new N1neTokenEntity();
-        n1neToken.setToken(n1neTokenUUID);
+        n1TokenHash = N1TokenGenerator.sha256(n1Token);
+        n1neToken.setN1TokenHash(n1TokenHash);
+
         n1neToken.setUser(user);
         n1neToken.setOrganization(n1neDefaultOrganization);
 
@@ -132,10 +136,8 @@ public class AlertServiceImplTest {
         emptyInputKudaTailRequest.setTitle("Kuda Title");
         emptyInputKudaTailRequest.setDescription("Kuda Description");
         emptyInputKudaTailRequest.setDetails("Kuda Details");
-//        emptyInputKudaTailRequest.setTimestamp(new Date().toInstant());
         emptyInputKudaTailRequest.setLevel("");
         emptyInputKudaTailRequest.setType("");
-//        emptyInputKudaTailRequest.setMetadata(Map.of("env", "prod", "test", "info"));
 
         newValuesKudaTailRequest = new KudaTailRequest();
         newValuesKudaTailRequest.setTitle("Kuda Title");
@@ -154,168 +156,168 @@ public class AlertServiceImplTest {
         newTailTypeMonitorAlert.setName(NEW_TAIL_TYPE_MONITOR_ALERT);
     }
 
-//    @Test
-//    public void testCreateTail_fullyPopulatedRequest_ShouldCreateNewTailWithFullyPopulatedValues() {
-//        // Mock Data
-//        when(n1neTokenRepository.findByToken(eq(n1neTokenUUID))).thenReturn(Optional.of(n1neToken));
-//        when(tailLevelRepository.findTailLevelByName(eq(AlertServiceImpl.INFO))).thenReturn(Optional.of(infoTailLevel));
-//        when(tailTypeRepository.findTailTypeByName(eq(AlertServiceImpl.SYSTEM_ALERT))).thenReturn(Optional.of(systemAlertTailType));
-//        when(tailStatusRepository.findTailStatusByName(AlertServiceImpl.NEW)).thenReturn(Optional.of(newTailStatus));
-//
-//        // Action
-//        alertService.createTail(n1neTokenUUID.toString(), fullPopulatedKudaTailRequest);
-//
-//        // Verify mock call
-//        verify(tailLevelRepository, times(1)).findTailLevelByName(eq(AlertServiceImpl.INFO));
-//        verify(tailTypeRepository, times(1)).findTailTypeByName(eq(AlertServiceImpl.SYSTEM_ALERT));
-//        verify(tailStatusRepository, times(1)).findTailStatusByName(eq(AlertServiceImpl.NEW));
-//        // Verify save with expected value
-//        ArgumentCaptor<TailEntity> tailEntityArgumentCaptor = ArgumentCaptor.forClass(TailEntity.class);
-//        verify(tailRepository, times(1)).save(tailEntityArgumentCaptor.capture());
-//        verify(emailService, times(1)).sendAlertEmail(any(), any());
-//
-//        TailEntity actualSavedTailEntity = tailEntityArgumentCaptor.getValue();
-//        assertEquals(fullPopulatedKudaTailRequest.getTitle(), actualSavedTailEntity.getTitle());
-//        assertEquals(fullPopulatedKudaTailRequest.getDescription(), actualSavedTailEntity.getDescription());
-//        assertEquals(fullPopulatedKudaTailRequest.getDetails(), actualSavedTailEntity.getDetails());
-//        assertEquals(AlertServiceImpl.INFO, actualSavedTailEntity.getLevel().getName());
-//        assertEquals(AlertServiceImpl.SYSTEM_ALERT, actualSavedTailEntity.getType().getName());
-//        assertEquals(AlertServiceImpl.NEW, actualSavedTailEntity.getStatus().getName());
-//        assertEquals(user.getId(), actualSavedTailEntity.getAssignedUserId());
-//        assertEquals(n1neDefaultOrganization.getId(), actualSavedTailEntity.getOrganization().getId());
-//        assertEquals(2, actualSavedTailEntity.getCustomVariables().size());
-//    }
-//
-//    @Test
-//    public void testCreateTail_NullRequestAndDefaultValuesNotInDB_ShouldCreateDefaultValuesAndTailWithDefaultValues() {
-//        // Mock Data
-//        when(n1neTokenRepository.findByToken(eq(n1neTokenUUID))).thenReturn(Optional.of(n1neToken));
-//        when(tailLevelRepository.findTailLevelByName(any())).thenReturn(Optional.empty());
-//        when(tailLevelRepository.save(any())).thenReturn(infoTailLevel);
-//
-//        when(tailTypeRepository.findTailTypeByName(any())).thenReturn(Optional.empty());
-//        when(tailTypeRepository.save(any())).thenReturn(systemAlertTailType);
-//
-//        when(tailStatusRepository.save(any())).thenReturn(newTailStatus);
-//
-//        // Action
-//        alertService.createTail(n1neTokenUUID.toString(), notFullPopulatedKudaTailRequest);
-//
-//        // Verify mock call
-//        verify(tailLevelRepository, times(1)).findTailLevelByName(eq(null));
-//        verify(tailLevelRepository, times(1)).findTailLevelByName(eq(AlertServiceImpl.INFO));
-//
-//        verify(tailTypeRepository, times(1)).findTailTypeByName(eq(null));
-//        verify(tailTypeRepository, times(1)).findTailTypeByName(eq(AlertServiceImpl.SYSTEM_ALERT));
-//
-//        verify(tailStatusRepository, never()).findTailStatusByName(eq(null));
-//
-//        ArgumentCaptor<TailEntity> tailEntityArgumentCaptor = ArgumentCaptor.forClass(TailEntity.class);
-//        verify(tailRepository, times(1)).save(tailEntityArgumentCaptor.capture());
-//        verify(emailService, times(1)).sendAlertEmail(any(), any());
-//
-//        TailEntity actualSavedTailEntity = tailEntityArgumentCaptor.getValue();
-//        assertEquals(fullPopulatedKudaTailRequest.getTitle(), actualSavedTailEntity.getTitle());
-//        assertEquals(fullPopulatedKudaTailRequest.getDescription(), actualSavedTailEntity.getDescription());
-//        assertEquals(fullPopulatedKudaTailRequest.getDetails(), actualSavedTailEntity.getDetails());
-//        assertEquals(AlertServiceImpl.INFO, actualSavedTailEntity.getLevel().getName());
-//        assertEquals(AlertServiceImpl.SYSTEM_ALERT, actualSavedTailEntity.getType().getName());
-//        assertEquals(AlertServiceImpl.NEW, actualSavedTailEntity.getStatus().getName());
-//        assertEquals(user.getId(), actualSavedTailEntity.getAssignedUserId());
-//        assertEquals(n1neDefaultOrganization.getId(), actualSavedTailEntity.getOrganization().getId());
-//        assertEquals(2, actualSavedTailEntity.getCustomVariables().size());
-//    }
-//
-//    @Test
-//    public void testCreateTail_BlankRequestAndDefaultValuesNotInDB_ShouldCreateDefaultValuesAndTailWithDefaultValues() {
-//        when(n1neTokenRepository.findByToken(eq(n1neTokenUUID))).thenReturn(Optional.of(n1neToken));
-//
-//        when(tailLevelRepository.findTailLevelByName(eq(""))).thenReturn(Optional.empty());
-//        when(tailLevelRepository.findTailLevelByName(eq(AlertServiceImpl.INFO))).thenReturn(Optional.empty());
-//        when(tailLevelRepository.save(any())).thenReturn(infoTailLevel);
-//
-//        when(tailTypeRepository.findTailTypeByName(eq(""))).thenReturn(Optional.empty());
-//        when(tailTypeRepository.findTailTypeByName(eq(AlertServiceImpl.SYSTEM_ALERT))).thenReturn(Optional.empty());
-//        when(tailTypeRepository.save(any())).thenReturn(systemAlertTailType);
-//
-//        when(tailStatusRepository.findTailStatusByName(eq(AlertServiceImpl.NEW))).thenReturn(Optional.empty());
-//        when(tailStatusRepository.save(any())).thenReturn(newTailStatus);
-//
-//        alertService.createTail(n1neTokenUUID.toString(), emptyInputKudaTailRequest);
-//
-//        verify(tailLevelRepository, times(1)).findTailLevelByName(eq(""));
-//        verify(tailLevelRepository, times(1)).findTailLevelByName(eq(AlertServiceImpl.INFO));
-//
-//        verify(tailTypeRepository, times(1)).findTailTypeByName(eq(""));
-//        verify(tailTypeRepository, times(1)).findTailTypeByName(eq(AlertServiceImpl.SYSTEM_ALERT));
-//
-//        verify(tailStatusRepository, never()).findTailStatusByName(eq(""));
-//
-//        ArgumentCaptor<TailEntity> tailEntityArgumentCaptor = ArgumentCaptor.forClass(TailEntity.class);
-//        verify(tailRepository, times(1)).save(tailEntityArgumentCaptor.capture());
-//        verify(emailService, times(1)).sendAlertEmail(any(), any());
-//
-//        TailEntity actualSavedTailEntity = tailEntityArgumentCaptor.getValue();
-//        assertEquals(emptyInputKudaTailRequest.getTitle(), actualSavedTailEntity.getTitle());
-//        assertEquals(emptyInputKudaTailRequest.getDescription(), actualSavedTailEntity.getDescription());
-//        assertEquals(emptyInputKudaTailRequest.getDetails(), actualSavedTailEntity.getDetails());
-//        assertEquals(AlertServiceImpl.INFO, actualSavedTailEntity.getLevel().getName());
-//        assertEquals(AlertServiceImpl.SYSTEM_ALERT, actualSavedTailEntity.getType().getName());
-//        assertEquals(AlertServiceImpl.NEW, actualSavedTailEntity.getStatus().getName());
-//        assertEquals(user.getId(), actualSavedTailEntity.getAssignedUserId());
-//        assertEquals(n1neDefaultOrganization.getId(), actualSavedTailEntity.getOrganization().getId());
-//        assertNull(actualSavedTailEntity.getCustomVariables());
-//    }
-//
-//    @Test
-//    public void testCreateTail_DefaultValuesNotInDBButNewValuePresentInRequest_ShouldCreateTailWithGivenValues() {
-//        when(n1neTokenRepository.findByToken(eq(n1neTokenUUID))).thenReturn(Optional.of(n1neToken));
-//
-//        when(tailLevelRepository.findTailLevelByName(anyString())).thenReturn(Optional.empty());
-//        when(tailLevelRepository.save(any())).thenReturn(newTailLevelTrace);
-//
-//        when(tailTypeRepository.findTailTypeByName(anyString())).thenReturn(Optional.empty());
-//        when(tailTypeRepository.save(any())).thenReturn(newTailTypeMonitorAlert);
-//
-//        when(tailStatusRepository.findTailStatusByName(eq(AlertServiceImpl.NEW))).thenReturn(Optional.empty());
-//        when(tailStatusRepository.save(any())).thenReturn(newTailStatus);
-//
-//        alertService.createTail(n1neTokenUUID.toString(), newValuesKudaTailRequest);
-//
-//        verify(tailLevelRepository, times(1)).findTailLevelByName(eq(newValuesKudaTailRequest.getLevel()));
-//        ArgumentCaptor<TailLevelEntity> tailLevelArgCaptor = ArgumentCaptor.forClass(TailLevelEntity.class);
-//        verify(tailLevelRepository, times(1)).save(tailLevelArgCaptor.capture());
-//        TailLevelEntity newTailLevelSaved = tailLevelArgCaptor.getValue();
-//        assertEquals(newValuesKudaTailRequest.getLevel(), newTailLevelSaved.getName());
-//
-//        verify(tailTypeRepository, times(1)).findTailTypeByName(eq(newValuesKudaTailRequest.getType()));
-//        verify(tailStatusRepository, times(1)).findTailStatusByName(eq(AlertServiceImpl.NEW));
-//        ArgumentCaptor<TailTypeEntity> tailTypeArgCaptor = ArgumentCaptor.forClass(TailTypeEntity.class);
-//        verify(tailTypeRepository, times(1)).save(tailTypeArgCaptor.capture());
-//        TailTypeEntity newTailTypeSaved = tailTypeArgCaptor.getValue();
-//        assertEquals(newValuesKudaTailRequest.getType(), newTailTypeSaved.getName());
-//
-//        verify(tailStatusRepository, times(1)).findTailStatusByName(eq(AlertServiceImpl.NEW));
-//        ArgumentCaptor<TailStatusEntity> tailStatusArgCaptor = ArgumentCaptor.forClass(TailStatusEntity.class);
-//        verify(tailStatusRepository, times(1)).save(tailStatusArgCaptor.capture());
-//        TailStatusEntity newTailStatusSaved = tailStatusArgCaptor.getValue();
-//        assertEquals(AlertServiceImpl.NEW, newTailStatusSaved.getName());
-//
-//        ArgumentCaptor<TailEntity> tailArgCaptor = ArgumentCaptor.forClass(TailEntity.class);
-//        verify(tailRepository, times(1)).save(tailArgCaptor.capture());
-//        verify(emailService, times(1)).sendAlertEmail(any(), any());
-//
-//        TailEntity actualSavedTail = tailArgCaptor.getValue();
-//        assertEquals(newValuesKudaTailRequest.getTitle(), actualSavedTail.getTitle());
-//        assertEquals(newValuesKudaTailRequest.getDescription(), actualSavedTail.getDescription());
-//        assertEquals(newValuesKudaTailRequest.getDetails(), actualSavedTail.getDetails());
-//        assertEquals(newValuesKudaTailRequest.getLevel(), actualSavedTail.getLevel().getName());
-//        assertEquals(newValuesKudaTailRequest.getType(), actualSavedTail.getType().getName());
-//        assertEquals(AlertServiceImpl.NEW, actualSavedTail.getStatus().getName());
-//        assertEquals(user.getId(), actualSavedTail.getAssignedUserId());
-//        assertEquals(n1neDefaultOrganization.getId(), actualSavedTail.getOrganization().getId());
-//        assertEquals(2, actualSavedTail.getCustomVariables().size());
-//    }
+    @Test
+    public void testCreateTail_fullyPopulatedRequest_ShouldCreateNewTailWithFullyPopulatedValues() throws N1neTokenGenerateException {
+        // Mock Data
+        when(n1neTokenRepository.findByN1TokenHash(eq(n1TokenHash))).thenReturn(Optional.of(n1neToken));
+        when(tailLevelRepository.findTailLevelByName(eq(AlertServiceImpl.INFO))).thenReturn(Optional.of(infoTailLevel));
+        when(tailTypeRepository.findTailTypeByName(eq(AlertServiceImpl.SYSTEM_ALERT))).thenReturn(Optional.of(systemAlertTailType));
+        when(tailStatusRepository.findTailStatusByName(AlertServiceImpl.NEW)).thenReturn(Optional.of(newTailStatus));
+
+        // Action
+        alertService.createTail(n1Token, fullPopulatedKudaTailRequest);
+
+        // Verify mock call
+        verify(tailLevelRepository, times(1)).findTailLevelByName(eq(AlertServiceImpl.INFO));
+        verify(tailTypeRepository, times(1)).findTailTypeByName(eq(AlertServiceImpl.SYSTEM_ALERT));
+        verify(tailStatusRepository, times(1)).findTailStatusByName(eq(AlertServiceImpl.NEW));
+        // Verify save with expected value
+        ArgumentCaptor<TailEntity> tailEntityArgumentCaptor = ArgumentCaptor.forClass(TailEntity.class);
+        verify(tailRepository, times(1)).save(tailEntityArgumentCaptor.capture());
+        verify(emailService, times(1)).sendAlertEmail(any(), any());
+
+        TailEntity actualSavedTailEntity = tailEntityArgumentCaptor.getValue();
+        assertEquals(fullPopulatedKudaTailRequest.getTitle(), actualSavedTailEntity.getTitle());
+        assertEquals(fullPopulatedKudaTailRequest.getDescription(), actualSavedTailEntity.getDescription());
+        assertEquals(fullPopulatedKudaTailRequest.getDetails(), actualSavedTailEntity.getDetails());
+        assertEquals(AlertServiceImpl.INFO, actualSavedTailEntity.getLevel().getName());
+        assertEquals(AlertServiceImpl.SYSTEM_ALERT, actualSavedTailEntity.getType().getName());
+        assertEquals(AlertServiceImpl.NEW, actualSavedTailEntity.getStatus().getName());
+        assertEquals(user.getId(), actualSavedTailEntity.getAssignedUserId());
+        assertEquals(n1neDefaultOrganization.getId(), actualSavedTailEntity.getOrganization().getId());
+        assertEquals(2, actualSavedTailEntity.getCustomVariables().size());
+    }
+
+    @Test
+    public void testCreateTail_NullRequestAndDefaultValuesNotInDB_ShouldCreateDefaultValuesAndTailWithDefaultValues() throws N1neTokenGenerateException {
+        // Mock Data
+        when(n1neTokenRepository.findByN1TokenHash(n1TokenHash)).thenReturn(Optional.of(n1neToken));
+        when(tailLevelRepository.findTailLevelByName(any())).thenReturn(Optional.empty());
+        when(tailLevelRepository.save(any())).thenReturn(infoTailLevel);
+
+        when(tailTypeRepository.findTailTypeByName(any())).thenReturn(Optional.empty());
+        when(tailTypeRepository.save(any())).thenReturn(systemAlertTailType);
+
+        when(tailStatusRepository.save(any())).thenReturn(newTailStatus);
+
+        // Action
+        alertService.createTail(n1Token, notFullPopulatedKudaTailRequest);
+
+        // Verify mock call
+        verify(tailLevelRepository, times(1)).findTailLevelByName(eq(null));
+        verify(tailLevelRepository, times(1)).findTailLevelByName(eq(AlertServiceImpl.INFO));
+
+        verify(tailTypeRepository, times(1)).findTailTypeByName(eq(null));
+        verify(tailTypeRepository, times(1)).findTailTypeByName(eq(AlertServiceImpl.SYSTEM_ALERT));
+
+        verify(tailStatusRepository, never()).findTailStatusByName(eq(null));
+
+        ArgumentCaptor<TailEntity> tailEntityArgumentCaptor = ArgumentCaptor.forClass(TailEntity.class);
+        verify(tailRepository, times(1)).save(tailEntityArgumentCaptor.capture());
+        verify(emailService, times(1)).sendAlertEmail(any(), any());
+
+        TailEntity actualSavedTailEntity = tailEntityArgumentCaptor.getValue();
+        assertEquals(fullPopulatedKudaTailRequest.getTitle(), actualSavedTailEntity.getTitle());
+        assertEquals(fullPopulatedKudaTailRequest.getDescription(), actualSavedTailEntity.getDescription());
+        assertEquals(fullPopulatedKudaTailRequest.getDetails(), actualSavedTailEntity.getDetails());
+        assertEquals(AlertServiceImpl.INFO, actualSavedTailEntity.getLevel().getName());
+        assertEquals(AlertServiceImpl.SYSTEM_ALERT, actualSavedTailEntity.getType().getName());
+        assertEquals(AlertServiceImpl.NEW, actualSavedTailEntity.getStatus().getName());
+        assertEquals(user.getId(), actualSavedTailEntity.getAssignedUserId());
+        assertEquals(n1neDefaultOrganization.getId(), actualSavedTailEntity.getOrganization().getId());
+        assertEquals(2, actualSavedTailEntity.getCustomVariables().size());
+    }
+
+    @Test
+    public void testCreateTail_BlankRequestAndDefaultValuesNotInDB_ShouldCreateDefaultValuesAndTailWithDefaultValues() throws N1neTokenGenerateException {
+        when(n1neTokenRepository.findByN1TokenHash(n1TokenHash)).thenReturn(Optional.of(n1neToken));
+
+        when(tailLevelRepository.findTailLevelByName(eq(""))).thenReturn(Optional.empty());
+        when(tailLevelRepository.findTailLevelByName(eq(AlertServiceImpl.INFO))).thenReturn(Optional.empty());
+        when(tailLevelRepository.save(any())).thenReturn(infoTailLevel);
+
+        when(tailTypeRepository.findTailTypeByName(eq(""))).thenReturn(Optional.empty());
+        when(tailTypeRepository.findTailTypeByName(eq(AlertServiceImpl.SYSTEM_ALERT))).thenReturn(Optional.empty());
+        when(tailTypeRepository.save(any())).thenReturn(systemAlertTailType);
+
+        when(tailStatusRepository.findTailStatusByName(eq(AlertServiceImpl.NEW))).thenReturn(Optional.empty());
+        when(tailStatusRepository.save(any())).thenReturn(newTailStatus);
+
+        alertService.createTail(n1Token, emptyInputKudaTailRequest);
+
+        verify(tailLevelRepository, times(1)).findTailLevelByName(eq(""));
+        verify(tailLevelRepository, times(1)).findTailLevelByName(eq(AlertServiceImpl.INFO));
+
+        verify(tailTypeRepository, times(1)).findTailTypeByName(eq(""));
+        verify(tailTypeRepository, times(1)).findTailTypeByName(eq(AlertServiceImpl.SYSTEM_ALERT));
+
+        verify(tailStatusRepository, never()).findTailStatusByName(eq(""));
+
+        ArgumentCaptor<TailEntity> tailEntityArgumentCaptor = ArgumentCaptor.forClass(TailEntity.class);
+        verify(tailRepository, times(1)).save(tailEntityArgumentCaptor.capture());
+        verify(emailService, times(1)).sendAlertEmail(any(), any());
+
+        TailEntity actualSavedTailEntity = tailEntityArgumentCaptor.getValue();
+        assertEquals(emptyInputKudaTailRequest.getTitle(), actualSavedTailEntity.getTitle());
+        assertEquals(emptyInputKudaTailRequest.getDescription(), actualSavedTailEntity.getDescription());
+        assertEquals(emptyInputKudaTailRequest.getDetails(), actualSavedTailEntity.getDetails());
+        assertEquals(AlertServiceImpl.INFO, actualSavedTailEntity.getLevel().getName());
+        assertEquals(AlertServiceImpl.SYSTEM_ALERT, actualSavedTailEntity.getType().getName());
+        assertEquals(AlertServiceImpl.NEW, actualSavedTailEntity.getStatus().getName());
+        assertEquals(user.getId(), actualSavedTailEntity.getAssignedUserId());
+        assertEquals(n1neDefaultOrganization.getId(), actualSavedTailEntity.getOrganization().getId());
+        assertNull(actualSavedTailEntity.getCustomVariables());
+    }
+
+    @Test
+    public void testCreateTail_DefaultValuesNotInDBButNewValuePresentInRequest_ShouldCreateTailWithGivenValues() throws N1neTokenGenerateException {
+        when(n1neTokenRepository.findByN1TokenHash(n1TokenHash)).thenReturn(Optional.of(n1neToken));
+
+        when(tailLevelRepository.findTailLevelByName(anyString())).thenReturn(Optional.empty());
+        when(tailLevelRepository.save(any())).thenReturn(newTailLevelTrace);
+
+        when(tailTypeRepository.findTailTypeByName(anyString())).thenReturn(Optional.empty());
+        when(tailTypeRepository.save(any())).thenReturn(newTailTypeMonitorAlert);
+
+        when(tailStatusRepository.findTailStatusByName(eq(AlertServiceImpl.NEW))).thenReturn(Optional.empty());
+        when(tailStatusRepository.save(any())).thenReturn(newTailStatus);
+
+        alertService.createTail(n1Token, newValuesKudaTailRequest);
+
+        verify(tailLevelRepository, times(1)).findTailLevelByName(eq(newValuesKudaTailRequest.getLevel()));
+        ArgumentCaptor<TailLevelEntity> tailLevelArgCaptor = ArgumentCaptor.forClass(TailLevelEntity.class);
+        verify(tailLevelRepository, times(1)).save(tailLevelArgCaptor.capture());
+        TailLevelEntity newTailLevelSaved = tailLevelArgCaptor.getValue();
+        assertEquals(newValuesKudaTailRequest.getLevel(), newTailLevelSaved.getName());
+
+        verify(tailTypeRepository, times(1)).findTailTypeByName(eq(newValuesKudaTailRequest.getType()));
+        verify(tailStatusRepository, times(1)).findTailStatusByName(eq(AlertServiceImpl.NEW));
+        ArgumentCaptor<TailTypeEntity> tailTypeArgCaptor = ArgumentCaptor.forClass(TailTypeEntity.class);
+        verify(tailTypeRepository, times(1)).save(tailTypeArgCaptor.capture());
+        TailTypeEntity newTailTypeSaved = tailTypeArgCaptor.getValue();
+        assertEquals(newValuesKudaTailRequest.getType(), newTailTypeSaved.getName());
+
+        verify(tailStatusRepository, times(1)).findTailStatusByName(eq(AlertServiceImpl.NEW));
+        ArgumentCaptor<TailStatusEntity> tailStatusArgCaptor = ArgumentCaptor.forClass(TailStatusEntity.class);
+        verify(tailStatusRepository, times(1)).save(tailStatusArgCaptor.capture());
+        TailStatusEntity newTailStatusSaved = tailStatusArgCaptor.getValue();
+        assertEquals(AlertServiceImpl.NEW, newTailStatusSaved.getName());
+
+        ArgumentCaptor<TailEntity> tailArgCaptor = ArgumentCaptor.forClass(TailEntity.class);
+        verify(tailRepository, times(1)).save(tailArgCaptor.capture());
+        verify(emailService, times(1)).sendAlertEmail(any(), any());
+
+        TailEntity actualSavedTail = tailArgCaptor.getValue();
+        assertEquals(newValuesKudaTailRequest.getTitle(), actualSavedTail.getTitle());
+        assertEquals(newValuesKudaTailRequest.getDescription(), actualSavedTail.getDescription());
+        assertEquals(newValuesKudaTailRequest.getDetails(), actualSavedTail.getDetails());
+        assertEquals(newValuesKudaTailRequest.getLevel(), actualSavedTail.getLevel().getName());
+        assertEquals(newValuesKudaTailRequest.getType(), actualSavedTail.getType().getName());
+        assertEquals(AlertServiceImpl.NEW, actualSavedTail.getStatus().getName());
+        assertEquals(user.getId(), actualSavedTail.getAssignedUserId());
+        assertEquals(n1neDefaultOrganization.getId(), actualSavedTail.getOrganization().getId());
+        assertEquals(2, actualSavedTail.getCustomVariables().size());
+    }
 
     @Test
     public void testCreateManualTail_ExistedOrganization_ShouldCreateManualTailWithGivenValues() throws OrganizationNotFoundException {

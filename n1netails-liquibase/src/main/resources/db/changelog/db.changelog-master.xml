@@ -25,4 +25,5 @@
     <include file="db/changelog/db.changelog-00016-insert-forgot-password-mail-template.xml"/>
     <include file="db/changelog/db.changelog-00017-create-table-tail-bookmark.xml"/>
     <include file="db/changelog/db.changelog-00018-create-n1-token-hash.xml"/>
+    <include file="db/changelog/db.changelog-00019-remove-uuid-token.xml"/>
 </databaseChangeLog>

@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -20,10 +19,6 @@ public class N1neTokenEntity {
     @SequenceGenerator(name = "token_seq", sequenceName = "token_seq", allocationSize = 1)
     @Column(nullable = false, updatable = false)
     private Long id;
-
-    // todo remove this column after migration complete
-    @Column(name = "token", nullable = false, unique = true, updatable = false)
-    private UUID token;
 
     @Column(name = "n1_token_hash", nullable = false, unique = true, updatable = false, length = 32)
     private byte[] n1TokenHash;
@@ -51,7 +46,6 @@ public class N1neTokenEntity {
     private Instant lastUsedAt;
 
     public N1neTokenEntity() {
-        this.token = UUID.randomUUID();
         this.createdAt = Instant.now();
     }
 }

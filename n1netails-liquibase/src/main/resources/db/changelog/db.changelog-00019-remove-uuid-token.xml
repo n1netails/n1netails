@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="00019-remove-uuid-token" author="shahidfoy">
+        <sqlFile path="sql/db.changelog-00019-remove-uuid-token.sql" relativeToChangelogFile="true"/>
+        <rollback>
+            <sql>
+                ALTER TABLE ntail.n1ne_token ADD COLUMN token UUID;
+                UPDATE ntail.n1ne_token SET token = gen_random_uuid();
+                ALTER TABLE ntail.n1ne_token ALTER COLUMN token SET NOT NULL;
+                ALTER TABLE ntail.n1ne_token ADD CONSTRAINT n1ne_token_unique UNIQUE (token);
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

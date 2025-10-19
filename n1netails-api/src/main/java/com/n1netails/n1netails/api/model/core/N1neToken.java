@@ -3,7 +3,6 @@ package com.n1netails.n1netails.api.model.core;
 import lombok.*;
 
 import java.time.Instant;
-import java.util.UUID;
 
 @Getter
 @Setter

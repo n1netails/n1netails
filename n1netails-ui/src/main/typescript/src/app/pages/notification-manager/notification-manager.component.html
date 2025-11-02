@@ -1,0 +1,77 @@
+<nz-layout class="app-layout">
+  <nz-sider class="menu-sidebar" nzCollapsible nzCollapsed="true" [nzTrigger]="null">
+    <app-sidenav></app-sidenav>
+  </nz-sider>
+
+  <nz-layout>
+    <nz-header>
+      <app-header></app-header>
+    </nz-header>
+
+    <nz-content>
+      <div class="inner-content">
+        <nz-card nzTitle="Notification Manager for Token: {{ token.name }}">
+          <!-- Notification Platform Toggles -->
+          <div class="notification-platforms">
+            <label>Enable notifications for:</label>
+            <nz-switch [(ngModel)]="platforms[this.EMAIL].enabled" (ngModelChange)="onPlatformToggle('email')"></nz-switch> Email
+            <nz-switch [(ngModel)]="platforms[this.MICROSOFT_TEAMS].enabled" (ngModelChange)="onPlatformToggle('msteams')"></nz-switch> Microsoft Teams
+            <nz-switch [(ngModel)]="platforms[this.SLACK].enabled" (ngModelChange)="onPlatformToggle('slack')"></nz-switch> Slack
+            <nz-switch [(ngModel)]="platforms[this.DISCORD].enabled" (ngModelChange)="onPlatformToggle('discord')"></nz-switch> Discord
+            <nz-switch [(ngModel)]="platforms[this.TELEGRAM].enabled" (ngModelChange)="onPlatformToggle('telegram')"></nz-switch> Telegram
+          </div>
+
+          <!-- Configuration Sections -->
+          <div *ngIf="platforms[this.EMAIL].enabled">
+            <h3>Email Configuration</h3>
+            <div *ngFor="let email of platforms[this.EMAIL].configs; let i = index">
+              <input nz-input [(ngModel)]="email.address" placeholder="Enter email address">
+              <button nz-button nzDanger (click)="removeConfig('email', i)">Remove</button>
+            </div>
+            <button nz-button nzType="dashed" (click)="addConfig('email')">+ Add Email</button>
+          </div>
+
+          <div *ngIf="platforms[this.MICROSOFT_TEAMS].enabled">
+            <h3>Microsoft Teams Configuration</h3>
+            <div *ngFor="let config of platforms[this.MICROSOFT_TEAMS].configs; let i = index">
+              <input nz-input [(ngModel)]="config.webhookUrl" placeholder="Enter webhook URL">
+              <button nz-button nzDanger (click)="removeConfig('msteams', i)">Remove</button>
+            </div>
+            <button nz-button nzType="dashed" (click)="addConfig('msteams')">+ Add Webhook</button>
+          </div>
+
+          <div *ngIf="platforms[this.SLACK].enabled">
+            <h3>Slack Configuration</h3>
+            <div *ngFor="let config of platforms[this.SLACK].configs; let i = index">
+              <input nz-input [(ngModel)]="config.botToken" placeholder="Enter bot token">
+              <input nz-input [(ngModel)]="config.channel" placeholder="Enter channel name">
+              <button nz-button nzDanger (click)="removeConfig('slack', i)">Remove</button>
+            </div>
+            <button nz-button nzType="dashed" (click)="addConfig('slack')">+ Add Slack Config</button>
+          </div>
+
+          <div *ngIf="platforms[this.DISCORD].enabled">
+            <h3>Discord Configuration</h3>
+            <div *ngFor="let config of platforms[this.DISCORD].configs; let i = index">
+              <input nz-input [(ngModel)]="config.webhookUrl" placeholder="Enter webhook URL">
+              <button nz-button nzDanger (click)="removeConfig('discord', i)">Remove</button>
+            </div>
+            <button nz-button nzType="dashed" (click)="addConfig('discord')">+ Add Webhook</button>
+          </div>
+
+          <div *ngIf="platforms[this.TELEGRAM].enabled">
+            <h3>Telegram Configuration</h3>
+            <div *ngFor="let config of platforms[this.TELEGRAM].configs; let i = index">
+              <input nz-input [(ngModel)]="config.botToken" placeholder="Enter bot token">
+              <input nz-input [(ngModel)]="config.chatId" placeholder="Enter chat ID">
+              <button nz-button nzDanger (click)="removeConfig('telegram', i)">Remove</button>
+            </div>
+            <button nz-button nzType="dashed" (click)="addConfig('telegram')">+ Add Telegram Config</button>
+          </div>
+
+          <button nz-button nzType="primary" (click)="saveConfigurations()">Save Configurations</button>
+        </nz-card>
+      </div>
+    </nz-content>
+  </nz-layout>
+</nz-layout>

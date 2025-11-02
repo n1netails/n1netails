@@ -83,6 +83,7 @@
                       <th>Status</th>
                       <th>User</th>
                       <th>Org</th>
+                      <th>Manage</th>
                       <th>Actions</th>
                       <th>Delete</th>
                     </tr>
@@ -101,6 +102,9 @@
                       <td>{{ user.username }}</td>
                       <!-- TODO GET ORGANIATION INFO BY ORGANIZATION ID (DISPLAY ORGANIZATON NAME HERE)-->
                       <td>{{ token.organizationId }}</td>
+                      <td>
+                        <button nz-button style="background-color: green;" nzType="primary" [routerLink]="['/notification-manager', token.id]" nzSize="small">Manage</button>
+                      </td>
                       <td>
                         <button nz-button nzType="default" (click)="revokeToken(token)" *ngIf="!token.revoked" [disabled]="isLoading" nzSize="small" style="margin-right: 5px;">Revoke</button>
                         <button nz-button nzType="default" (click)="enableToken(token)" *ngIf="token.revoked" [disabled]="isLoading" nzSize="small" style="margin-right: 5px;">Enable</button>
@@ -125,17 +129,15 @@
             </nz-card>
           </nz-col>
 
-          <!-- TODO ADD THIS FEATURE IN LATER allow users to select perferred alert types -->
-          <!-- provide users with options to selete their perferred alert types -->
-          <!-- <nz-col [nzXs]="24" [nzSm]="24" [nzMd]="24" [nzLg]="24" [nzXl]="24">
-            <nz-card nzTitle="Preferred Alert Types" class="tails-primary-color" [nzBordered]="false">
-              <form nz-form (ngSubmit)="onSavePreferredTypes()" #preferredTypesForm="ngForm">
-                <nz-checkbox-group [(ngModel)]="preferredAlertTypes" [nzOptions]="alertTypeOptions"
-                  name="preferredAlertTypes"></nz-checkbox-group>
+          <nz-col [nzXs]="24" [nzSm]="24" [nzMd]="24" [nzLg]="24" [nzXl]="24">
+            <nz-card nzTitle="Preferred Notification Methods" class="tails-primary-color" [nzBordered]="false">
+              <form nz-form (ngSubmit)="onSaveNotificationPreferences()" #notificationPreferencesForm="ngForm">
+                <nz-checkbox-group [(ngModel)]="notificationPreferences" [nzOptions]="notificationTypeOptions"
+                  name="notificationPreferences"></nz-checkbox-group>
                 <button nz-button nzType="primary" type="submit" style="margin-top: 16px;">Save Preferences</button>
               </form>
             </nz-card>
-          </nz-col> -->
+          </nz-col>
 
           <nz-col [nzXs]="24" [nzSm]="24" [nzMd]="24" [nzLg]="24" [nzXl]="24">
             <nz-card nzTitle="Alert Levels, Statuses, and Types" class="tails-primary-color" [nzBordered]="false">

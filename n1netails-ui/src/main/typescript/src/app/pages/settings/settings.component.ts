@@ -21,6 +21,8 @@ import { PageRequest, PageResponse } from '../../model/interface/page.interface'
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { PageUtilService } from '../../shared/util/page-util.service';
 import { N1TokenModalComponent } from '../../shared/components/n1-token-modal/n1-token-modal.component';
+import { RouterModule } from '@angular/router';
+import { NotificationService } from '../../service/notification.service';
 
 @Component({
   selector: 'app-settings',
@@ -37,7 +39,8 @@ import { N1TokenModalComponent } from '../../shared/components/n1-token-modal/n1
     NzDividerModule,
     NzSelectModule,
     NzIconModule,
-    N1TokenModalComponent
+    N1TokenModalComponent,
+    RouterModule
   ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.less'
@@ -83,15 +86,25 @@ export class SettingsComponent implements OnInit {
     revoked: false
   };
 
+  // Notification Preferences
+  notificationPreferences: string[] = [];
+  notificationTypeOptions: NzCheckBoxOptionInterface[] = [
+    { label: 'Email', value: 'email' },
+    { label: 'Microsoft Teams', value: 'msteams' },
+    { label: 'Slack', value: 'slack' },
+    { label: 'Discord', value: 'discord' },
+    { label: 'Telegram', value: 'telegram' }
+  ];
+
   constructor(
     private authenticationService: AuthenticationService,
     private tailLevelService: TailLevelService,
     private tailStatusService: TailStatusService,
     private tailTypeService: TailTypeService,
     private n1neTokenService: N1neTokenService,
-    private pageUtilService: PageUtilService
+    private pageUtilService: PageUtilService,
+    private notificationService: NotificationService
   ) {
-    this.updateAlertTypeOptions();
     this.user = this.authenticationService.getUserFromLocalCache();
     this.organizations = this.user.organizations;
   }
@@ -101,6 +114,7 @@ export class SettingsComponent implements OnInit {
     this.listTailLevels();
     this.listTailStatus();
     this.listTailTypes();
+    this.getUserNotificationPreferences();
   }
 
   private listTailLevels() {
@@ -121,7 +135,6 @@ export class SettingsComponent implements OnInit {
     const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequest();
     this.tailTypeService.getTailTypes(pageRequest).subscribe((response: PageResponse<TailTypeResponse>) => {
       this.tailTypes = response.content;
-      this.updateAlertTypeOptions();
     });
   }
 
@@ -324,7 +337,6 @@ export class SettingsComponent implements OnInit {
         console.log('TailType created:', response);
         this.tailTypes.push(response);
         this.newTailType = '';
-        this.updateAlertTypeOptions(); // Call after adding a new type
       });
     }
   }
@@ -335,45 +347,22 @@ export class SettingsComponent implements OnInit {
       this.tailTypeService.deleteTailType(typeToRemove.id).subscribe(() => {
         console.log('TailType deleted:', typeToRemove.id);
         this.tailTypes = this.tailTypes.filter(type => type.id !== typeToRemove.id);
-        this.updateAlertTypeOptions(); // Call after removing a type
-        this.preferredAlertTypes = this.preferredAlertTypes.filter(
-          (t: string) => t !== typeName
-        );
       });
     } else {
       console.warn('TailType not found or id missing for type:', typeName);
     }
   }
 
-  // Preferred Alert Types
-  alertTypeOptions: NzCheckBoxOptionInterface[] = [];
-  preferredAlertTypes: string[] = [];
-
-  updateAlertTypeOptions() {
-    // TODO CONSIDER REMOVING THIS
-    // this.tailTypeService.getTailTypes().subscribe((response: TailTypeResponse[]) => {
-    //   this.alertTypeOptions = response.map(type => ({
-    //     label: type.name,
-    //     value: type.name,
-    //     // `checked` property can be managed based on `preferredAlertTypes`
-    //     // For now, we just populate the options.
-    //     // checked: this.preferredAlertTypes.includes(type.name)
-    //   }));
-    //   console.log('Updated alertTypeOptions:', this.alertTypeOptions);
-    // });
+  onSaveNotificationPreferences() {
+    this.notificationService.saveUserNotificationPreferences(this.user.id, this.notificationPreferences).subscribe(() => {
+      // Show success message
+    });
   }
 
-  onSavePreferredTypes() {
-    console.log('Saving preferred tail types:', this.preferredAlertTypes);
-    // TODO: Implement backend call to save preferredAlertTypes
-    // For example, this might involve a service call like:
-    // this.userPreferenceService.savePreferredTailTypes(this.preferredAlertTypes).subscribe(...);
-    //
-    // The following tasks would also need to be addressed in a full implementation:
-    // - Extend upon the /api/tail-type: Create a process to save a user's preferred tail types.
-    // - Modify /n1netails-liquibase and /n1netails-api services in the root directory to include and save the user's preferred tail types.
-    // - If tail types do not exist in the tail types list, they should be removed from the user's preferred tail types as well.
-    //   This does not need to be corrected until the user checks to confirm and view their preferred tail type list.
+  getUserNotificationPreferences() {
+    this.notificationService.getUserNotificationPreferences(this.user.id).subscribe(preferences => {
+      this.notificationPreferences = preferences;
+    });
   }
 
   searchLevels() {

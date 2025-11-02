@@ -1,36 +1,11 @@
-spring.profiles.active: db, ai, oauth, email
-
-info:
-  app:
-    name: '@project.name@'
-    description: '@project.description@'
-    version: '@project.version@'
-
 spring:
-  datasource:
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-  jpa:
-    hibernate:
-      ddl-auto: none
-    show-sql: true
-    database-platform: org.hibernate.dialect.H2Dialect
-    properties:
-      hibernate.hbm2ddl.auto: none
-      hibernate.hbm2ddl.schema_generation: none
-      hibernate.hbm2ddl.import_files: ''
-      hibernate.hbm2ddl.validate_on_map: false
-      hibernate.hbm2ddl.validate: false
-  sql:
-    init:
-      mode: never
-
+  liquibase:
+    change-log: db/changelog/db.changelog-master.xml
 n1netails:
+  encryption:
+    secret:
+      key: /Hh80As4vDGl9pG1djbVraMi5fKf4DQwDXpF+82mDPI=
   passkey:
-    relying-party-id: ${N1NETAILS_PASSKEY_RELYING_PARTY_ID:localhost} # This should be your actual domain in production e.g. n1netails.com
+    relying-party-id: localhost
     relying-party-name: "N1netails"
-    origins: ${N1NETAILS_PASSKEY_ORIGINS:http://localhost:8080,http://localhost:9900,http://localhost:9901,http://localhost:4200}
-    # Add all expected origins (frontend, API itself if serving UI pages that use WebAuthn)
-    # For production, this would be e.g. "https://n1netails.com", "https://app.n1netails.com"
+    origins: http://localhost:8080,http://localhost:9900,http://localhost:9901,http://localhost:4200

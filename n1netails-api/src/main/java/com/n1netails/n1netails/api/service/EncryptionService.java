@@ -23,7 +23,7 @@ public class EncryptionService {
 
     // In a production environment, this key should be stored securely in a Key Management Service (KMS)
     // and not hardcoded in the application.properties file.
-    @Value("${encryption.secret.key}")
+    @Value("${n1netails.encryption.secret.key}")
     private String secretKeyString;
 
     private SecretKey secretKey;
@@ -31,7 +31,7 @@ public class EncryptionService {
     @PostConstruct
     public void init() {
         if (secretKeyString == null || secretKeyString.isEmpty()) {
-            throw new IllegalStateException("encryption.secret.key must be set in application.properties");
+            throw new IllegalStateException("n1netails.encryption.secret.key must be set in application.properties");
         }
         byte[] decodedKey = Base64.getDecoder().decode(secretKeyString);
         this.secretKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");

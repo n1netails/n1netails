@@ -6,7 +6,6 @@ import com.n1netails.n1netails.api.model.entity.UserNotificationPreferenceEntity
 import com.n1netails.n1netails.api.repository.NotificationConfigRepository;
 import com.n1netails.n1netails.api.repository.UserNotificationPreferenceRepository;
 import com.n1netails.n1netails.api.service.EncryptionService;
-import com.n1netails.n1netails.api.service.NotificationService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,7 +20,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class NotificationServiceTest {
+public class NotificationServiceImplTest {
 
     @Mock
     private NotificationConfigRepository notificationConfigRepository;
@@ -36,7 +35,7 @@ public class NotificationServiceTest {
     private ObjectMapper objectMapper;
 
     @InjectMocks
-    private NotificationService notificationService;
+    private NotificationServiceImpl notificationService;
 
     @Test
     public void testGetDecryptedConfigurations() throws Exception {

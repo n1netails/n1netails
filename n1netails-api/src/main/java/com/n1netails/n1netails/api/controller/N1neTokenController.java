@@ -78,7 +78,7 @@ public class N1neTokenController {
         }
     }
 
-    // TODO IMPLEMENT CONTROLLER TO GET TOKEN BY ID
+    // TODO IMPLEMENT CONTROLLER ENDPOINT TO GET TOKEN BY ID
 
     @Operation(summary = "Revoke token by ID", responses = {
             @ApiResponse(responseCode = "204", description = "Revoke submitted"),

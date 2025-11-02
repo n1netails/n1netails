@@ -37,7 +37,22 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
   ]
 })
 export class NotificationManagerComponent implements OnInit {
-  token: N1neTokenResponse | null = null;
+
+  EMAIL: string = 'email';
+  MICROSOFT_TEAMS: string = 'msteams';
+  SLACK: string = 'slack';
+  DISCORD: string = 'discord';
+  TELEGRAM: string = 'telegram';
+
+  token: N1neTokenResponse = {
+    id: 0,
+    userId: 0,
+    organizationId: 0,
+    n1Token: '',
+    name: '',
+    lastUsedAt: '', // ISO 8601 format
+    revoked: true
+  };
   platforms: { [key: string]: { enabled: boolean; configs: any[] } } = {
     email: { enabled: false, configs: [] },
     msteams: { enabled: false, configs: [] },
@@ -57,6 +72,7 @@ export class NotificationManagerComponent implements OnInit {
     if (tokenId) {
       this.n1neTokenService.getTokenById(+tokenId).subscribe(token => {
         this.token = token;
+        console.log('TOKEN', this.token);
         this.loadConfigurations(token.id);
       });
     }
@@ -64,17 +80,17 @@ export class NotificationManagerComponent implements OnInit {
 
   loadConfigurations(tokenId: number): void {
     this.notificationService.getConfigurations(tokenId).subscribe(configs => {
-      this.platforms.email.configs = configs.filter(c => c.platform === 'email');
-      this.platforms.msteams.configs = configs.filter(c => c.platform === 'msteams');
-      this.platforms.slack.configs = configs.filter(c => c.platform === 'slack');
-      this.platforms.discord.configs = configs.filter(c => c.platform === 'discord');
-      this.platforms.telegram.configs = configs.filter(c => c.platform === 'telegram');
+      this.platforms[this.EMAIL].configs = configs.filter(c => c.platform === this.EMAIL);
+      this.platforms[this.MICROSOFT_TEAMS].configs = configs.filter(c => c.platform === this.MICROSOFT_TEAMS);
+      this.platforms[this.SLACK].configs = configs.filter(c => c.platform === this.SLACK);
+      this.platforms[this.DISCORD].configs = configs.filter(c => c.platform === this.DISCORD);
+      this.platforms[this.TELEGRAM].configs = configs.filter(c => c.platform === this.TELEGRAM);
 
-      this.platforms.email.enabled = this.platforms.email.configs.length > 0;
-      this.platforms.msteams.enabled = this.platforms.msteams.configs.length > 0;
-      this.platforms.slack.enabled = this.platforms.slack.configs.length > 0;
-      this.platforms.discord.enabled = this.platforms.discord.configs.length > 0;
-      this.platforms.telegram.enabled = this.platforms.telegram.configs.length > 0;
+      this.platforms[this.EMAIL].enabled = this.platforms[this.EMAIL].configs.length > 0;
+      this.platforms[this.MICROSOFT_TEAMS].enabled = this.platforms[this.MICROSOFT_TEAMS].configs.length > 0;
+      this.platforms[this.SLACK].enabled = this.platforms[this.SLACK].configs.length > 0;
+      this.platforms[this.DISCORD].enabled = this.platforms[this.DISCORD].configs.length > 0;
+      this.platforms[this.TELEGRAM].enabled = this.platforms[this.TELEGRAM].configs.length > 0;
     });
   }
 

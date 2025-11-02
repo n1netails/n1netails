@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+       http://www.liquibase.org/xml/ns/dbchangelog
+       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+
+    <changeSet id="00020-create-tables-notifications" author="shahidfoy">
+        <sqlFile path="sql/db.changelog-00020-create-tables-notifications.sql" relativeToChangelogFile="true"/>
+        <rollback>
+            <sql>
+                -- Rollback for user-notification-preference
+                ALTER TABLE IF EXISTS user_notification_preference DROP CONSTRAINT IF EXISTS fk_user_notification_preference_user;
+                DROP TABLE IF EXISTS user_notification_preference;
+                DROP SEQUENCE IF EXISTS user_notification_preference_seq;
+
+                -- Rollback for notification-config
+                ALTER TABLE IF EXISTS notification_config DROP CONSTRAINT IF EXISTS fk_notification_config_token;
+                DROP TABLE IF EXISTS notification_config;
+                DROP SEQUENCE IF EXISTS notification_config_seq;
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

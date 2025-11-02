@@ -1,8 +1,8 @@
 package com.n1netails.n1netails.api.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.n1netails.n1netails.api.model.NotificationConfig;
-import com.n1netails.n1netails.api.model.UserNotificationPreference;
+import com.n1netails.n1netails.api.model.entity.NotificationConfigEntity;
+import com.n1netails.n1netails.api.model.entity.UserNotificationPreferenceEntity;
 import com.n1netails.n1netails.api.repository.NotificationConfigRepository;
 import com.n1netails.n1netails.api.repository.UserNotificationPreferenceRepository;
 import com.n1netails.n1netails.api.service.EncryptionService;
@@ -40,14 +40,14 @@ public class NotificationServiceTest {
 
     @Test
     public void testGetDecryptedConfigurations() throws Exception {
-        NotificationConfig config = new NotificationConfig();
+        NotificationConfigEntity config = new NotificationConfigEntity();
         config.setDetails(new java.util.HashMap<>() {{
             put("key", "encryptedDetails");
         }});
         when(notificationConfigRepository.findByTokenId(1L)).thenReturn(Arrays.asList(config));
         when(encryptionService.decrypt("encryptedDetails")).thenReturn("decryptedDetails");
 
-        List<NotificationConfig> result = notificationService.getDecryptedConfigurations(1L);
+        List<NotificationConfigEntity> result = notificationService.getDecryptedConfigurations(1L);
 
         assertEquals(1, result.size());
         assertEquals("decryptedDetails", result.get(0).getDetails().get("key"));
@@ -55,11 +55,11 @@ public class NotificationServiceTest {
 
     @Test
     public void testSaveConfigurations() throws Exception {
-        NotificationConfig config = new NotificationConfig();
+        NotificationConfigEntity config = new NotificationConfigEntity();
         config.setDetails(new java.util.HashMap<>() {{
             put("key", "details");
         }});
-        when(notificationConfigRepository.findByTokenId(1L)).thenReturn(Arrays.asList(new NotificationConfig()));
+        when(notificationConfigRepository.findByTokenId(1L)).thenReturn(Arrays.asList(new NotificationConfigEntity()));
         when(encryptionService.encrypt("details")).thenReturn("encryptedDetails");
 
         notificationService.saveConfigurations(1L, Arrays.asList(config));
@@ -70,7 +70,7 @@ public class NotificationServiceTest {
 
     @Test
     public void testGetUserNotificationPreferences() {
-        UserNotificationPreference preference = new UserNotificationPreference();
+        UserNotificationPreferenceEntity preference = new UserNotificationPreferenceEntity();
         preference.setPlatform("email");
         when(userNotificationPreferenceRepository.findByUserId(1L)).thenReturn(Arrays.asList(preference));
 
@@ -82,7 +82,7 @@ public class NotificationServiceTest {
 
     @Test
     public void testSaveUserNotificationPreferences() {
-        when(userNotificationPreferenceRepository.findByUserId(1L)).thenReturn(Arrays.asList(new UserNotificationPreference()));
+        when(userNotificationPreferenceRepository.findByUserId(1L)).thenReturn(Arrays.asList(new UserNotificationPreferenceEntity()));
         notificationService.saveUserNotificationPreferences(1L, Arrays.asList("email"));
 
         verify(userNotificationPreferenceRepository, times(1)).delete(any());

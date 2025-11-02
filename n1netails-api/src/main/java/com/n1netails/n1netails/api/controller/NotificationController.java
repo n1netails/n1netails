@@ -1,6 +1,6 @@
 package com.n1netails.n1netails.api.controller;
 
-import com.n1netails.n1netails.api.model.NotificationConfig;
+import com.n1netails.n1netails.api.model.entity.NotificationConfigEntity;
 import com.n1netails.n1netails.api.service.NotificationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,12 +18,12 @@ public class NotificationController {
     }
 
     @GetMapping("/{tokenId}")
-    public ResponseEntity<List<NotificationConfig>> getConfigurations(@PathVariable Long tokenId) {
+    public ResponseEntity<List<NotificationConfigEntity>> getConfigurations(@PathVariable Long tokenId) {
         return ResponseEntity.ok(notificationService.getDecryptedConfigurations(tokenId));
     }
 
     @PostMapping("/{tokenId}")
-    public ResponseEntity<Void> saveConfigurations(@PathVariable Long tokenId, @RequestBody List<NotificationConfig> configs) {
+    public ResponseEntity<Void> saveConfigurations(@PathVariable Long tokenId, @RequestBody List<NotificationConfigEntity> configs) {
         notificationService.saveConfigurations(tokenId, configs);
         return ResponseEntity.ok().build();
     }

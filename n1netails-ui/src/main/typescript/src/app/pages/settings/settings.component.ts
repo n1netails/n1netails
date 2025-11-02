@@ -360,7 +360,7 @@ export class SettingsComponent implements OnInit {
   }
 
   getUserNotificationPreferences() {
-    this.notificationService.getUserNotificationPreferences(this.user.id).subscribe(preferences => {
+    this.notificationService.getUserNotificationPreferences(this.user.id).subscribe((preferences: string[]) => {
       this.notificationPreferences = preferences;
     });
   }

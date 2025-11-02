@@ -1,8 +1,8 @@
 package com.n1netails.n1netails.api.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.n1netails.n1netails.api.model.NotificationConfig;
-import com.n1netails.n1netails.api.model.UserNotificationPreference;
+import com.n1netails.n1netails.api.model.entity.NotificationConfigEntity;
+import com.n1netails.n1netails.api.model.entity.UserNotificationPreferenceEntity;
 import com.n1netails.n1netails.api.repository.NotificationConfigRepository;
 import com.n1netails.n1netails.api.repository.UserNotificationPreferenceRepository;
 import org.slf4j.Logger;
@@ -31,7 +31,7 @@ public class NotificationService {
         this.objectMapper = objectMapper;
     }
 
-    public List<NotificationConfig> getDecryptedConfigurations(Long tokenId) {
+    public List<NotificationConfigEntity> getDecryptedConfigurations(Long tokenId) {
         return notificationConfigRepository.findByTokenId(tokenId).stream()
                 .peek(config -> {
                     config.getDetails().forEach((key, value) -> {
@@ -46,7 +46,7 @@ public class NotificationService {
                 .collect(Collectors.toList());
     }
 
-    public void saveConfigurations(Long tokenId, List<NotificationConfig> configs) {
+    public void saveConfigurations(Long tokenId, List<NotificationConfigEntity> configs) {
         notificationConfigRepository.findByTokenId(tokenId).forEach(notificationConfigRepository::delete);
         configs.forEach(config -> {
             try {
@@ -69,14 +69,14 @@ public class NotificationService {
 
     public List<String> getUserNotificationPreferences(Long userId) {
         return userNotificationPreferenceRepository.findByUserId(userId).stream()
-                .map(UserNotificationPreference::getPlatform)
+                .map(UserNotificationPreferenceEntity::getPlatform)
                 .collect(Collectors.toList());
     }
 
     public void saveUserNotificationPreferences(Long userId, List<String> platforms) {
         userNotificationPreferenceRepository.findByUserId(userId).forEach(userNotificationPreferenceRepository::delete);
         platforms.forEach(platform -> {
-            UserNotificationPreference preference = new UserNotificationPreference();
+            UserNotificationPreferenceEntity preference = new UserNotificationPreferenceEntity();
             preference.setUserId(userId);
             preference.setPlatform(platform);
             userNotificationPreferenceRepository.save(preference);

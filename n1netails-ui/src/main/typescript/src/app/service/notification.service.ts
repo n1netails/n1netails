@@ -25,4 +25,12 @@ export class NotificationService {
   saveConfigurations(tokenId: number, configs: NotificationConfig[]): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/${tokenId}`, configs);
   }
+
+  getUserNotificationPreferences(userId: number): any {
+    return []; // TODO: IMPLEMENT THIS
+  }
+
+  saveUserNotificationPreferences(userId: number, notificationPreferences: string[]): any {
+    return []; // TODO: IMPLEMENT THIS
+  }
 }

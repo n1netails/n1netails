@@ -1,10 +1,6 @@
-package com.n1netails.n1netails.api.model;
+package com.n1netails.n1netails.api.model.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -14,10 +10,11 @@ import java.util.Map;
 @Data
 @Entity
 @Table(name = "notification_config")
-public class NotificationConfig {
+public class NotificationConfigEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "notification_config_seq")
+    @SequenceGenerator(name = "notification_config_seq", sequenceName = "notification_config_seq", allocationSize = 1)
     private Long id;
 
     private Long tokenId;

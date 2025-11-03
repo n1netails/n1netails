@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { UiConfigService } from '../shared/util/ui-config.service';
 
 export type NotificationPlatform = 'email' | 'msteams' | 'slack' | 'discord' | 'telegram';
 
@@ -14,23 +15,30 @@ export interface NotificationConfig {
   providedIn: 'root'
 })
 export class NotificationService {
-  private apiUrl = '/api/notifications';
 
-  constructor(private http: HttpClient) {}
+  host: string = '';
+  private apiPath = '/ninetails/notifications';
+
+  constructor(
+    private http: HttpClient,
+    private uiConfigService: UiConfigService
+  ) {
+    this.host = this.uiConfigService.getApiUrl() + this.apiPath;
+  }
 
   getConfigurations(tokenId: number): Observable<NotificationConfig[]> {
-    return this.http.get<NotificationConfig[]>(`${this.apiUrl}/${tokenId}`);
+    return this.http.get<NotificationConfig[]>(`${this.host}/${tokenId}`);
   }
 
   saveConfigurations(tokenId: number, configs: NotificationConfig[]): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/${tokenId}`, configs);
+    return this.http.post<void>(`${this.host}/${tokenId}`, configs);
   }
 
-  getUserNotificationPreferences(userId: number): any {
-    return []; // TODO: IMPLEMENT THIS
+  getUserNotificationPreferences(userId: number): Observable<string[]> {
+    return this.http.get<string[]>(`${this.host}/user/${userId}/preferences`);
   }
 
-  saveUserNotificationPreferences(userId: number, notificationPreferences: string[]): any {
-    return []; // TODO: IMPLEMENT THIS
+  saveUserNotificationPreferences(userId: number, notificationPreferences: string[]): Observable<void> {
+    return this.http.post<void>(`${this.host}/user/${userId}/preferences`, notificationPreferences);
   }
 }

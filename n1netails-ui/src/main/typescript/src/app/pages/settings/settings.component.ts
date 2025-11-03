@@ -23,6 +23,7 @@ import { PageUtilService } from '../../shared/util/page-util.service';
 import { N1TokenModalComponent } from '../../shared/components/n1-token-modal/n1-token-modal.component';
 import { RouterModule } from '@angular/router';
 import { NotificationService } from '../../service/notification.service';
+import { NzMessageService } from 'ng-zorro-antd/message';
 
 @Component({
   selector: 'app-settings',
@@ -103,7 +104,8 @@ export class SettingsComponent implements OnInit {
     private tailTypeService: TailTypeService,
     private n1neTokenService: N1neTokenService,
     private pageUtilService: PageUtilService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private msg: NzMessageService,
   ) {
     this.user = this.authenticationService.getUserFromLocalCache();
     this.organizations = this.user.organizations;
@@ -354,8 +356,9 @@ export class SettingsComponent implements OnInit {
   }
 
   onSaveNotificationPreferences() {
+    console.log('NOTIFICATION PREFERENCES', this.notificationPreferences);
     this.notificationService.saveUserNotificationPreferences(this.user.id, this.notificationPreferences).subscribe(() => {
-      // Show success message
+      this.msg.success('Notification preferences saved successfully.');
     });
   }
 

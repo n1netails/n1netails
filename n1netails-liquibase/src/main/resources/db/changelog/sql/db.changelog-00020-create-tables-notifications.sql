@@ -4,7 +4,7 @@ CREATE TABLE notification_config (
     id BIGINT PRIMARY KEY DEFAULT nextval('notification_config_seq'),
     token_id BIGINT NOT NULL,
     platform VARCHAR(255) NOT NULL,
-    details TEXT NOT NULL,
+    details JSONB NOT NULL,
     CONSTRAINT fk_notification_config_token
         FOREIGN KEY (token_id) REFERENCES n1ne_token (id)
 );

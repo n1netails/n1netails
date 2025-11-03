@@ -1,5 +1,6 @@
 package com.n1netails.n1netails.api.service.impl;
 
+import com.n1netails.n1netails.api.service.EncryptionService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,21 +21,20 @@ import java.util.Base64;
 @Service
 @RequiredArgsConstructor
 @Qualifier("encryptionService")
-public class AesEncryptionServiceImpl {
+public class AesEncryptionServiceImpl implements EncryptionService {
 
     private static final String ENCRYPT_ALGO = "AES/GCM/NoPadding";
     private static final int TAG_LENGTH_BIT = 128;
     private static final int IV_LENGTH_BYTE = 12;
 
     // In a production environment, this key should be stored securely in a Key Management Service (KMS)
-    // and not hardcoded in the application.properties file.
     @Value("${n1netails.encryption.secret.key}")
     private String secretKeyString;
 
     private SecretKey secretKey;
 
     @PostConstruct
-    public void init() {
+    private void init() {
         if (secretKeyString == null || secretKeyString.isEmpty()) {
             throw new IllegalStateException("n1netails.encryption.secret.key must be set in application.properties");
         }

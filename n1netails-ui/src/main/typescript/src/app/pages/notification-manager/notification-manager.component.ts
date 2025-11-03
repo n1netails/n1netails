@@ -17,12 +17,15 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { RouterModule } from '@angular/router';
 import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzGridModule } from 'ng-zorro-antd/grid';
 
 @Component({
   selector: 'app-notification-manager',
   templateUrl: './notification-manager.component.html',
   styleUrls: ['./notification-manager.component.less'],
   imports: [
+    NzLayoutModule,
+    NzGridModule,
     FormsModule,
     NzCardModule,
     NzSwitchModule,

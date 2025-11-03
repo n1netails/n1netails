@@ -6,6 +6,10 @@ nz-header {
   z-index: 2;
 }
 
+.notification-manager-container {
+  padding: 8px 0;
+}
+
 .notification-platforms {
   margin-bottom: 20px;
 }
@@ -21,4 +25,38 @@ h3 {
 
 input[nz-input] {
   margin-bottom: 10px;
+}
+
+.config-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+
+  .input-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  input[nz-input] {
+    margin-bottom: 0;
+  }
+
+  button[nz-button] {
+    flex-shrink: 0;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: @screen-sm-max) {
+  .config-row {
+    flex-direction: column;
+    
+    button[nz-button] {
+      align-self: flex-end;
+    }
+  }
 }

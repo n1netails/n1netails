@@ -356,7 +356,6 @@ export class SettingsComponent implements OnInit {
   }
 
   onSaveNotificationPreferences() {
-    console.log('NOTIFICATION PREFERENCES', this.notificationPreferences);
     this.notificationService.saveUserNotificationPreferences(this.user.id, this.notificationPreferences).subscribe(() => {
       this.msg.success('Notification preferences saved successfully.');
     });

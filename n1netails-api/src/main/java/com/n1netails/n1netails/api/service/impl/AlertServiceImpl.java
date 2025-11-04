@@ -59,6 +59,8 @@ public class AlertServiceImpl implements AlertService {
         if (optionalN1neTokenEntity.isPresent()) n1neTokenEntity = optionalN1neTokenEntity.get();
         UsersEntity usersEntity = n1neTokenEntity.getUser();
         saveTailAlert(n1neTokenEntity.getOrganization(), usersEntity, request);
+
+        // TODO:: REPLACE THIS WITH A NEW METHOD TO SEND NOTIFICATIONS TO USERS
         this.emailService.sendAlertEmail(usersEntity, request);
     }
 
@@ -67,6 +69,8 @@ public class AlertServiceImpl implements AlertService {
         OrganizationEntity organizationEntity = this.organizationRepository.findById(organizationId)
                 .orElseThrow(() -> new OrganizationNotFoundException("Requested organization for creating manual tail not found."));
         saveTailAlert(organizationEntity, usersEntity, request);
+
+        // TODO:: REPLACE THIS WITH A NEW METHOD TO SEND NOTIFICATIONS TO USERS
         this.emailService.sendAlertEmail(usersEntity, request);
     }
     

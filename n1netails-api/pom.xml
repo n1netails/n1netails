@@ -108,6 +108,28 @@
 			<version>2.7.0</version>
 		</dependency>
 
+		<!-- n1netails -->
+		<dependency>
+			<groupId>com.n1netails</groupId>
+			<artifactId>n1netails-discord-webhook-client</artifactId>
+			<version>0.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.n1netails</groupId>
+			<artifactId>n1netails-telegram-client</artifactId>
+			<version>0.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.n1netails</groupId>
+			<artifactId>n1netails-slack-client</artifactId>
+			<version>0.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.n1netails</groupId>
+			<artifactId>n1netails-teams-webhook-client</artifactId>
+			<version>0.1.0</version>
+		</dependency>
+
 		<!-- test -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

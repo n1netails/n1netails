@@ -27,11 +27,11 @@ export class NotificationService {
   }
 
   getConfigurations(tokenId: number): Observable<NotificationConfig[]> {
-    return this.http.get<NotificationConfig[]>(`${this.host}/${tokenId}`);
+    return this.http.get<NotificationConfig[]>(`${this.host}/save/config/${tokenId}`);
   }
 
   saveConfigurations(tokenId: number, configs: NotificationConfig[]): Observable<void> {
-    return this.http.post<void>(`${this.host}/${tokenId}`, configs);
+    return this.http.post<void>(`${this.host}/save/config/${tokenId}`, configs);
   }
 
   getUserNotificationPreferences(userId: number): Observable<string[]> {

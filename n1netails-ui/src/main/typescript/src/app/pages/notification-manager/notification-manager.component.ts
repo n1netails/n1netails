@@ -18,6 +18,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { RouterModule } from '@angular/router';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzGridModule } from 'ng-zorro-antd/grid';
+import { NzMessageService } from 'ng-zorro-antd/message';
 
 @Component({
   selector: 'app-notification-manager',
@@ -67,7 +68,8 @@ export class NotificationManagerComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private n1neTokenService: N1neTokenService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private msg: NzMessageService,
   ) {}
 
   ngOnInit(): void {
@@ -83,6 +85,7 @@ export class NotificationManagerComponent implements OnInit {
 
   loadConfigurations(tokenId: number): void {
     this.notificationService.getConfigurations(tokenId).subscribe(configs => {
+      console.log('NOTIFICATION CONFIGS', configs);
       this.platforms[this.EMAIL].configs = configs.filter(c => c.platform === this.EMAIL);
       this.platforms[this.MICROSOFT_TEAMS].configs = configs.filter(c => c.platform === this.MICROSOFT_TEAMS);
       this.platforms[this.SLACK].configs = configs.filter(c => c.platform === this.SLACK);
@@ -107,17 +110,25 @@ export class NotificationManagerComponent implements OnInit {
     let newConfig = {};
     switch (platform) {
       case 'email':
-        newConfig = { address: '' };
+        newConfig = { details: { address: '' }};
         break;
       case 'msteams':
       case 'discord':
-        newConfig = { webhookUrl: '' };
+        newConfig = { details: { webhookUrl: '' }};
         break;
       case 'slack':
-        newConfig = { botToken: '', channel: '' };
+        newConfig = { 
+          details: {
+            botToken: '', channel: '' 
+          }
+        };
         break;
       case 'telegram':
-        newConfig = { botToken: '', chatId: '' };
+        newConfig = {
+          details: {
+            botToken: '', chatId: '' 
+          }
+        };
         break;
     }
     this.platforms[platform].configs.push(newConfig);
@@ -140,14 +151,26 @@ export class NotificationManagerComponent implements OnInit {
           allConfigs.push({
             tokenId: this.token.id,
             platform: platformName as NotificationPlatform,
-            details: config
+            details: config.details
           });
         });
       }
     }
 
-    this.notificationService.saveConfigurations(this.token.id, allConfigs).subscribe(() => {
-      // Show success message
+    this.notificationService.saveConfigurations(this.token.id, allConfigs).subscribe({
+      next: () => {
+        this.msg.success('Token notification configurations saved.');
+      },
+      error: (err) => {
+        this.msg.error('There was an error saving token notification configurations. Please try again.');
+      }
     });
+  }
+
+  getMsTeamsWebhookUrl(config: any) {
+    if (config.details.webhookUrl) {
+      return config.details.webhookUrl;
+    }
+    else return undefined;
   }
 }

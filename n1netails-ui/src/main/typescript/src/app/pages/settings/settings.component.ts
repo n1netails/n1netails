@@ -356,8 +356,9 @@ export class SettingsComponent implements OnInit {
   }
 
   onSaveNotificationPreferences() {
-    this.notificationService.saveUserNotificationPreferences(this.user.id, this.notificationPreferences).subscribe(() => {
-      this.msg.success('Notification preferences saved successfully.');
+    this.notificationService.saveUserNotificationPreferences(this.user.id, this.notificationPreferences).subscribe({
+      next: () => { this.msg.success('Notification preferences saved successfully.') },
+      error: (err) => { this.msg.error('There was an error saving notification preferences.') }
     });
   }
 

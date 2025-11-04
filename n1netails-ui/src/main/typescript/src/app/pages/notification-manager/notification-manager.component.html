@@ -31,8 +31,8 @@
             *ngIf="platforms[this.EMAIL].enabled">
               <nz-card [nzBordered]="false">
                 <h3>Email Configuration</h3>
-                <div class="config-row" *ngFor="let email of platforms[this.EMAIL].configs; let i = index">
-                  <input nz-input [(ngModel)]="email.address" placeholder="Enter email address">
+                <div class="config-row" *ngFor="let config of platforms[this.EMAIL].configs; let i = index">
+                  <input nz-input [(ngModel)]="config.details.address" placeholder="Enter email address">
                   <button nz-button nzDanger (click)="removeConfig('email', i)">Remove</button>
                 </div>
                 <button nz-button nzType="dashed" (click)="addConfig('email')">+ Add Email</button>
@@ -43,7 +43,7 @@
               <nz-card [nzBordered]="false">
                 <h3>Microsoft Teams Configuration</h3>
                 <div class="config-row" *ngFor="let config of platforms[this.MICROSOFT_TEAMS].configs; let i = index">
-                  <input nz-input [(ngModel)]="config.webhookUrl" placeholder="Enter webhook URL">
+                  <input nz-input [(ngModel)]="config.details.webhookUrl" placeholder="Enter webhook URL">
                   <button nz-button nzDanger (click)="removeConfig('msteams', i)">Remove</button>
                 </div>
                 <button nz-button nzType="dashed" (click)="addConfig('msteams')">+ Add Webhook</button>
@@ -54,8 +54,8 @@
               <nz-card [nzBordered]="false">
                 <h3>Slack Configuration</h3>
                 <div class="config-row" *ngFor="let config of platforms[this.SLACK].configs; let i = index">
-                  <input nz-input [(ngModel)]="config.botToken" placeholder="Enter bot token">
-                  <input nz-input [(ngModel)]="config.channel" placeholder="Enter channel name">
+                  <input nz-input [(ngModel)]="config.details.botToken" placeholder="Enter bot token">
+                  <input nz-input [(ngModel)]="config.details.channel" placeholder="Enter channel name">
                   <button nz-button nzDanger (click)="removeConfig('slack', i)">Remove</button>
                 </div>
                 <button nz-button nzType="dashed" (click)="addConfig('slack')">+ Add Slack Config</button>
@@ -66,7 +66,7 @@
               <nz-card [nzBordered]="false">
                 <h3>Discord Configuration</h3>
                 <div class="config-row" *ngFor="let config of platforms[this.DISCORD].configs; let i = index">
-                  <input nz-input [(ngModel)]="config.webhookUrl" placeholder="Enter webhook URL">
+                  <input nz-input [(ngModel)]="config.details.webhookUrl" placeholder="Enter webhook URL">
                   <button nz-button nzDanger (click)="removeConfig('discord', i)">Remove</button>
                 </div>
                 <button nz-button nzType="dashed" (click)="addConfig('discord')">+ Add Webhook</button>
@@ -77,8 +77,8 @@
               <nz-card [nzBordered]="false">
                 <h3>Telegram Configuration</h3>
                 <div class="config-row" *ngFor="let config of platforms[this.TELEGRAM].configs; let i = index">
-                  <input nz-input [(ngModel)]="config.botToken" placeholder="Enter bot token">
-                  <input nz-input [(ngModel)]="config.chatId" placeholder="Enter chat ID">
+                  <input nz-input [(ngModel)]="config.details.botToken" placeholder="Enter bot token">
+                  <input nz-input [(ngModel)]="config.details.chatId" placeholder="Enter chat ID">
                   <button nz-button nzDanger (click)="removeConfig('telegram', i)">Remove</button>
                 </div>
                 <button nz-button nzType="dashed" (click)="addConfig('telegram')">+ Add Telegram Config</button>

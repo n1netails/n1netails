@@ -1,6 +1,5 @@
 package com.n1netails.n1netails.api.service.impl;
 
-import com.google.common.collect.Maps;
 import com.n1netails.n1netails.api.exception.type.EmailTemplateNotFoundException;
 import com.n1netails.n1netails.api.model.entity.EmailNotificationTemplateEntity;
 import com.n1netails.n1netails.api.model.entity.ForgotPasswordRequestEntity;
@@ -108,8 +107,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendAlertEmail(UsersEntity usersEntity, KudaTailRequest request) {
-        String email = usersEntity.getEmail();
+    public void sendNotificationEmail(String email, KudaTailRequest request) {
         Instant now = Instant.now();
         Instant lastSent = lastEmailSentAt.get(email);
         if (lastSent != null && Duration.between(lastSent, now).compareTo(alertEmailCooldown) < 0) {
@@ -117,16 +115,17 @@ public class EmailServiceImpl implements EmailService {
             return;
         }
         lastEmailSentAt.put(email, now);
+        String username = email.substring(0, email.indexOf("@"));
 
         try {
             SendMailRequest alertMailRequest = new SendMailRequest();
             alertMailRequest.setNotificationTemplateName("alert");
-            alertMailRequest.setTo(usersEntity.getEmail());
+            alertMailRequest.setTo(email);
             Map<String, String> subjectParams = new HashMap<>();
             subjectParams.put("tailLevel", request.getLevel());
             alertMailRequest.setSubjectParams(subjectParams);
             Map<String, String> bodyParams = new HashMap<>();
-            bodyParams.put("username", usersEntity.getUsername());
+            bodyParams.put("username", username);
             bodyParams.put("tailLevel", request.getLevel());
             bodyParams.put("tailTitle", request.getTitle());
             bodyParams.put("tailDescription", request.getDescription());
@@ -135,12 +134,12 @@ public class EmailServiceImpl implements EmailService {
             alertMailRequest.setBodyParams(bodyParams);
 
             this.sendMail(alertMailRequest).exceptionally(ex -> {
-                log.warn("Failed to send alert email to {}: {}", usersEntity.getEmail(), ex.getMessage());
+                log.warn("Failed to send alert email to {}: {}", email, ex.getMessage());
                 return null;
             });
 
         } catch (EmailTemplateNotFoundException | MessagingException e) {
-            log.warn("Unexpected error while preparing alert email for {}: {}", usersEntity.getEmail(), e.getMessage());
+            log.warn("Unexpected error while preparing alert email for {}: {}", email, e.getMessage());
         }
     }
 
@@ -156,11 +155,11 @@ public class EmailServiceImpl implements EmailService {
         ));
         try {
             this.sendMail(forgotPasswordMailRequest).exceptionally(ex -> {
-                log.warn("Failed to send alert email to {}: {}", forgotPasswordRequest.getUser().getEmail(), ex.getMessage());
+                log.warn("Failed to password reset email to {}: {}", forgotPasswordRequest.getUser().getEmail(), ex.getMessage());
                 return null;
             });
         } catch (EmailTemplateNotFoundException | MessagingException e) {
-            log.warn("Unexpected error while preparing alert email for {}: {}", forgotPasswordRequest.getUser().getEmail(), e.getMessage());
+            log.warn("Unexpected error while preparing password reset email for {}: {}", forgotPasswordRequest.getUser().getEmail(), e.getMessage());
         }
     }
 

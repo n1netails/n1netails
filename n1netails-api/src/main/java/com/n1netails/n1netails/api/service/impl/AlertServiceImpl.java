@@ -19,6 +19,7 @@ import com.n1netails.n1netails.api.repository.TailStatusRepository;
 import com.n1netails.n1netails.api.repository.TailTypeRepository;
 import com.n1netails.n1netails.api.service.AlertService;
 import com.n1netails.n1netails.api.service.EmailService;
+import com.n1netails.n1netails.api.service.NotificationService;
 import com.n1netails.n1netails.api.util.N1TokenGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +48,7 @@ public class AlertServiceImpl implements AlertService {
     private final N1neTokenRepository n1neTokenRepository;
     private final OrganizationRepository organizationRepository;
     private final EmailService emailService;
+    private final NotificationService notificationService;
 
     @Override
     public void createTail(String token, KudaTailRequest request) throws N1neTokenGenerateException {
@@ -54,14 +56,12 @@ public class AlertServiceImpl implements AlertService {
         byte[] tokenHash = N1TokenGenerator.sha256(token);
         Optional<N1neTokenEntity> optionalN1neTokenEntity = this.n1neTokenRepository.findByN1TokenHash(tokenHash);
 
-
         N1neTokenEntity n1neTokenEntity = new N1neTokenEntity();
         if (optionalN1neTokenEntity.isPresent()) n1neTokenEntity = optionalN1neTokenEntity.get();
         UsersEntity usersEntity = n1neTokenEntity.getUser();
         saveTailAlert(n1neTokenEntity.getOrganization(), usersEntity, request);
 
-        // TODO:: REPLACE THIS WITH A NEW METHOD TO SEND NOTIFICATIONS TO USERS
-        this.emailService.sendAlertEmail(usersEntity, request);
+        this.notificationService.sendNotificationAlert(usersEntity, request, n1neTokenEntity.getId());
     }
 
     @Override
@@ -71,7 +71,8 @@ public class AlertServiceImpl implements AlertService {
         saveTailAlert(organizationEntity, usersEntity, request);
 
         // TODO:: REPLACE THIS WITH A NEW METHOD TO SEND NOTIFICATIONS TO USERS
-        this.emailService.sendAlertEmail(usersEntity, request);
+        this.emailService.sendNotificationEmail(usersEntity.getEmail(), request);
+        // this.notificationService.sendNotificationAlert(usersEntity, request, null);
     }
     
     private void saveTailAlert(OrganizationEntity organizationEntity,

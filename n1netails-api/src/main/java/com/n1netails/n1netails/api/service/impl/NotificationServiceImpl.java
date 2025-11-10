@@ -114,14 +114,14 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void sendNotificationAlert(UsersEntity usersEntity, KudaTailRequest request, Long tokenId) {
         List<UserNotificationPreferenceEntity> userNotificationPreferences = userNotificationPreferenceRepository.findByUserId(usersEntity.getId());
-        Set<String> platforms = new HashSet<>();
+        Set<String> userSelectedPlatforms = new HashSet<>();
         userNotificationPreferences.forEach(preference -> {
-            platforms.add(preference.getPlatform());
+            userSelectedPlatforms.add(preference.getPlatform());
         });
 
         List<NotificationConfigEntity> notificationConfigEntities = this.getDecryptedConfigurations(tokenId);
         notificationConfigEntities.forEach(config -> {
-            if (platforms.contains(config.getPlatform())) {
+            if (userSelectedPlatforms.contains(config.getPlatform())) {
                 switch (config.getPlatform()) {
                     case EMAIL -> {
                         try {

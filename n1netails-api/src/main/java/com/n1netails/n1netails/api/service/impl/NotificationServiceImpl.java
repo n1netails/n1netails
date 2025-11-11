@@ -34,6 +34,7 @@ import com.n1netails.n1netails.telegram.model.TelegramMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -52,6 +53,19 @@ public class NotificationServiceImpl implements NotificationService {
     public static final String SLACK = "slack";
     public static final String MSTEAMS = "msteams";
     public static final String EMAIL = "email";
+
+    @Value("${n1netails.notifications.enabled}")
+    private boolean notificationsEnabled;
+    @Value("${n1netails.notifications.email.enabled}")
+    private boolean emailEnabled;
+    @Value("${n1netails.notifications.msteams.enabled}")
+    private boolean microsoftTeamsEnabled;
+    @Value("${n1netails.notifications.slack.enabled}")
+    private boolean slackEnabled;
+    @Value("${n1netails.notifications.discord.enabled}")
+    private boolean discordEnabled;
+    @Value("${n1netails.notifications.telegram.enabled}")
+    private boolean telegramEnabled;
 
     private final NotificationConfigRepository notificationConfigRepository;
     private final UserNotificationPreferenceRepository userNotificationPreferenceRepository;
@@ -113,6 +127,8 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void sendNotificationAlert(UsersEntity usersEntity, KudaTailRequest request, Long tokenId) {
+        if (!notificationsEnabled) return;
+
         List<UserNotificationPreferenceEntity> userNotificationPreferences = userNotificationPreferenceRepository.findByUserId(usersEntity.getId());
         Set<String> userSelectedPlatforms = new HashSet<>();
         userNotificationPreferences.forEach(preference -> {
@@ -125,35 +141,35 @@ public class NotificationServiceImpl implements NotificationService {
                 switch (config.getPlatform()) {
                     case EMAIL -> {
                         try {
-                            this.runEmail(request, config);
+                            if (emailEnabled) this.runEmail(request, config);
                         } catch (Exception e) {
                             throw new NotificationException("There was an issue sending a notification to Email");
                         }
                     }
                     case MSTEAMS -> {
                         try {
-                            this.runTeamsWebhookClient(request, config);
+                            if (microsoftTeamsEnabled) this.runTeamsWebhookClient(request, config);
                         } catch (TeamsWebhookException e) {
                             throw new NotificationException("There was an issue sending a notification to Microsoft Teams");
                         }
                     }
                     case SLACK -> {
                         try {
-                            this.runSlackClient(request, config);
+                            if (slackEnabled) this.runSlackClient(request, config);
                         } catch (SlackClientException e) {
                             throw new NotificationException("There was an issue sending a notification to Slack");
                         }
                     }
                     case DISCORD -> {
                         try {
-                            this.runDiscordWebhookClient(request, config);
+                            if (discordEnabled) this.runDiscordWebhookClient(request, config);
                         } catch (DiscordWebhookException e) {
                             throw new NotificationException("There was an issue sending a notification to Discord");
                         }
                     }
                     case TELEGRAM -> {
                         try {
-                            this.runTelegramClient(request, config);
+                            if (telegramEnabled) this.runTelegramClient(request, config);
                         } catch (TelegramClientException e) {
                             throw new NotificationException("There was an issue sending a notification to Telegram");
                         }

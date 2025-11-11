@@ -14,7 +14,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      SPRING_PROFILE_ACTIVE: docker, notifications
+      SPRING_PROFILE_ACTIVE: docker
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/n1netails
       SPRING_DATASOURCE_USERNAME: n1netails
       SPRING_DATASOURCE_PASSWORD: n1netails

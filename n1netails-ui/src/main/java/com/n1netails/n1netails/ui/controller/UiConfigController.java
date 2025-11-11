@@ -1,7 +1,6 @@
 package com.n1netails.n1netails.ui.controller;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -49,48 +48,18 @@ public class UiConfigController {
     @GetMapping("/notifications-enabled")
     public boolean isNotificationsEnabled() { return notificationsEnabled; }
 
-    @ConditionalOnProperty(
-            prefix = "n1netails.notifications",
-            name = "enabled",
-            havingValue = "true",
-            matchIfMissing = false
-    )
     @GetMapping("/notifications-email-enabled")
     public boolean isNotificationsEmailEnabled() { return emailEnabled; }
 
-    @ConditionalOnProperty(
-            prefix = "n1netails.notifications",
-            name = "enabled",
-            havingValue = "true",
-            matchIfMissing = false
-    )
     @GetMapping("/notifications-msteams-enabled")
     public boolean isNotificationsMsTeamsEnabled() { return microsoftTeamsEnabled; }
 
-    @ConditionalOnProperty(
-            prefix = "n1netails.notifications",
-            name = "enabled",
-            havingValue = "true",
-            matchIfMissing = false
-    )
     @GetMapping("/notifications-slack-enabled")
     public boolean isNotificationsSlackEnabled() { return slackEnabled; }
 
-    @ConditionalOnProperty(
-            prefix = "n1netails.notifications",
-            name = "enabled",
-            havingValue = "true",
-            matchIfMissing = false
-    )
     @GetMapping("/notifications-discord-enabled")
     public boolean isNotificationsDiscordEnabled() { return discordEnabled; }
 
-    @ConditionalOnProperty(
-            prefix = "n1netails.notifications",
-            name = "enabled",
-            havingValue = "true",
-            matchIfMissing = false
-    )
     @GetMapping("/notifications-telegram-enabled")
     public boolean isNotificationsTelegramEnabled() { return telegramEnabled; }
 

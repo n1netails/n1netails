@@ -54,7 +54,7 @@ Run the project on your local computer using the following command
 mvn spring-boot:run -DSPRING_PROFILE_ACTIVE=local
 ```
 
-Run the project with environment variables.
+## Run the project with environment variables.
 
 ### Required
 - PORT (application port defaults to 9901)

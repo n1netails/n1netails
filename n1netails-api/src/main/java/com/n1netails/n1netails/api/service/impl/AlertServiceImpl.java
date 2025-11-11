@@ -55,7 +55,6 @@ public class AlertServiceImpl implements AlertService {
         log.info("create tail");
         byte[] tokenHash = N1TokenGenerator.sha256(token);
         Optional<N1neTokenEntity> optionalN1neTokenEntity = this.n1neTokenRepository.findByN1TokenHash(tokenHash);
-
         N1neTokenEntity n1neTokenEntity = new N1neTokenEntity();
         if (optionalN1neTokenEntity.isPresent()) n1neTokenEntity = optionalN1neTokenEntity.get();
         UsersEntity usersEntity = n1neTokenEntity.getUser();

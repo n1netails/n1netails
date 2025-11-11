@@ -18,11 +18,25 @@ mvn spring-boot:run -DSPRING_PROFILE_ACTIVE=local
 ```
 
 Run the project with environment variables.
+
+### Required
 - PORT (application port defaults to 9900)
 - API_BASE_URL (n1netails-api url defaults to http://localhost:9901)
+
+### AI
 - GEMINI_ENABLED (enable gemini defaults to false)
 - OPENAI_ENABLED (enable openai defaults to false)
+
+### OAuth2
 - GITHUB_OAUTH2_ENABLED (enable github login defaults to false)
+
+### Notifications
+- N1NETAILS_NOTIFICATIONS_ENABLED (enables notifications defaults to false)
+- N1NETAILS_NOTIFICATIONS_EMAIL_ENABLED (enables email notifications defaults to false)
+- N1NETAILS_NOTIFICATIONS_MSTEAMS_ENABLED (enables Microsoft Teams notifications defaults to false)
+- N1NETAILS_NOTIFICATIONS_SLACK_ENABLED (enables Slack notifications defaults to false)
+- N1NETAILS_NOTIFICATIONS_DISCORD_ENABLED (enables Discord notifications defaults to false)
+- N1NETAILS_NOTIFICATIONS_TELEGRAM_ENABLED (enables Telegram notifications defaults to false)
 
 Example:
 ```bash

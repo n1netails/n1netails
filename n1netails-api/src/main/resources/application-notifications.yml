@@ -1,0 +1,11 @@
+n1netails:
+  encryption:
+    secret:
+      key: ${N1NETAILS_ENCRYPTION_SECRET_KEY:nkey} # make sure to generate your own AES secret key
+  notifications:
+    enabled: ${N1NETAILS_NOTIFICATIONS_ENABLED:false}
+    email-enabled: ${N1NETAILS_NOTIFICATIONS_EMAIL_ENABLED:false}
+    msteams-enabled: ${N1NETAILS_NOTIFICATIONS_MSTEAMS_ENABLED:false}
+    slack-enabled: ${N1NETAILS_NOTIFICATIONS_SLACK_ENABLED:false}
+    discord-enabled: ${N1NETAILS_NOTIFICATIONS_DISCORD_ENABLED:false}
+    telegram-enabled: ${N1NETAILS_NOTIFICATIONS_TELEGRAM_ENABLED:false}

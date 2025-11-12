@@ -5,6 +5,7 @@ services:
 # use for local build
 #    build:
 #      context: ./n1netails-api
+# use for docker hub build
     container_name: n1netails-api
     ports:
       - "9901:9901"
@@ -26,6 +27,7 @@ services:
 # use for local build
 #    build:
 #      context: ./n1netails-ui
+# use for docker hub build
     container_name: n1netails-ui
     ports:
       - "9900:9900"
@@ -40,6 +42,7 @@ services:
 # use for local build
 #    build:
 #      context: ./n1netails-liquibase
+# use for docker hub build
     container_name: n1netails-liquibase
     depends_on:
       db:

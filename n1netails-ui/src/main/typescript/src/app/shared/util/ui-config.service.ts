@@ -22,97 +22,48 @@ export class UiConfigService {
 
   constructor(private http: HttpClient) {}
 
-  async loadConfig(): Promise<void> { // Mark the method as async
+  async loadConfig(): Promise<void> {
+    const fetchBoolean = async (path: string, fallback: boolean): Promise<boolean> => {
+      try {
+        return await firstValueFrom(this.http.get<boolean>(path));
+      } catch (err) {
+        console.warn(`Failed to load ${path}, using fallback:`, fallback);
+        return fallback;
+      }
+    };
+
+    // load API url (single request, keep separate to preserve shape and logs)
     try {
       const config = await firstValueFrom(
         this.http.get<{ n1netailsApiUrl: string }>('/ui/n1netails-config/api-url')
       );
       console.log('Config loaded:', config);
-      if (config) this.apiUrl = config.n1netailsApiUrl;
+      if (config?.n1netailsApiUrl) this.apiUrl = config.n1netailsApiUrl;
     } catch (error) {
       console.warn('Failed to load API URL from server, using fallback:', this.apiUrl);
     }
 
-    try {
-      this.openaiEnabled = await firstValueFrom(
-        this.http.get<boolean>('/ui/n1netails-config/openai-enabled')
-      );
-      console.log('Openai Enabled:', this.openaiEnabled);
-    } catch (error) {
-      console.warn('Failed to check if openai enabled, using fallback:', this.openaiEnabled);
-    }
+    // boolean feature flags - fetch in parallel
+    const endpoints = [
+      { prop: 'openaiEnabled', path: '/ui/n1netails-config/openai-enabled' },
+      { prop: 'geminiEnabled', path: '/ui/n1netails-config/gemini-enabled' },
+      { prop: 'githubAuthEnabled', path: '/ui/n1netails-config/github-auth-enabled' },
+      { prop: 'notificationsEnabled', path: '/ui/n1netails-config/notifications-enabled' },
+      { prop: 'notificationsEmailEnabled', path: '/ui/n1netails-config/notifications-email-enabled' },
+      { prop: 'notificationsMsTeamsEnabled', path: '/ui/n1netails-config/notifications-msteams-enabled' },
+      { prop: 'notificationsSlackEnabled', path: '/ui/n1netails-config/notifications-slack-enabled' },
+      { prop: 'notificationsDiscordEnabled', path: '/ui/n1netails-config/notifications-discord-enabled' },
+      { prop: 'notificationsTelegramEnabled', path: '/ui/n1netails-config/notifications-telegram-enabled' }
+    ];
 
-    try {
-      this.geminiEnabled = await firstValueFrom(
-        this.http.get<boolean>('/ui/n1netails-config/gemini-enabled')
-      );
-      console.log('Gemini Enabled:', this.geminiEnabled);
-    } catch (error) {
-      console.warn('Failed to check if gemini enabled, using fallback:', this.geminiEnabled);
-    }
+    const results = await Promise.all(
+      endpoints.map(e => fetchBoolean(e.path, (this as any)[e.prop]))
+    );
 
-    try {
-      this.githubAuthEnabled = await firstValueFrom(
-        this.http.get<boolean>('/ui/n1netails-config/github-auth-enabled')
-      );
-      console.log('Github Auth Enabled:', this.githubAuthEnabled);
-    } catch (error) {
-      console.warn('Failed to check if github auth enabled, using fallback:', this.githubAuthEnabled);
-    }
-
-    try {
-      this.notificationsEnabled = await firstValueFrom(
-        this.http.get<boolean>('/ui/n1netails-config/notifications-enabled')
-      );
-      console.log('Notifications Enabled:', this.notificationsEnabled);
-    } catch (error) {
-      console.warn('Failed to check if notifications enabled, using fallback:', this.notificationsEnabled);
-    }
-    
-    try {
-      this.notificationsEmailEnabled = await firstValueFrom(
-        this.http.get<boolean>('/ui/n1netails-config/notifications-email-enabled')
-      );
-      console.log('Notifications Email Enabled:', this.notificationsEmailEnabled);
-    } catch (error) {
-      console.warn('Failed to check if notifications email enabled, using fallback:', this.notificationsEmailEnabled);
-    }
-
-    try {
-      this.notificationsMsTeamsEnabled = await firstValueFrom(
-        this.http.get<boolean>('/ui/n1netails-config/notifications-msteams-enabled')
-      );
-      console.log('Notifications Microsoft Teams Enabled:', this.notificationsMsTeamsEnabled);
-    } catch (error) {
-      console.warn('Failed to check if notifications microsoft teams enabled, using fallback:', this.notificationsMsTeamsEnabled);
-    }
-
-    try {
-      this.notificationsSlackEnabled = await firstValueFrom(
-        this.http.get<boolean>('/ui/n1netails-config/notifications-slack-enabled')
-      );
-      console.log('Notifications Slack Enabled:', this.notificationsSlackEnabled);
-    } catch (error) {
-      console.warn('Failed to check if notifications slack enabled, using fallback:', this.notificationsSlackEnabled);
-    }
-
-    try {
-      this.notificationsDiscordEnabled = await firstValueFrom(
-        this.http.get<boolean>('/ui/n1netails-config/notifications-discord-enabled')
-      );
-      console.log('Notifications Discord Enabled:', this.notificationsDiscordEnabled);
-    } catch (error) {
-      console.warn('Failed to check if notifications discord enabled, using fallback:', this.notificationsDiscordEnabled);
-    }
-
-    try {
-      this.notificationsTelegramEnabled = await firstValueFrom(
-        this.http.get<boolean>('/ui/n1netails-config/notifications-telegram-enabled')
-      );
-      console.log('Notifications Telegram Enabled:', this.notificationsTelegramEnabled);
-    } catch (error) {
-      console.warn('Failed to check if notifications telegram enabled, using fallback:', this.notificationsTelegramEnabled);
-    }
+    endpoints.forEach((e, idx) => {
+      (this as any)[e.prop] = results[idx];
+      console.log(`${e.prop}:`, results[idx]);
+    });
   }
 
   getApiUrl(): string {

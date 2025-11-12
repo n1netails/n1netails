@@ -83,7 +83,7 @@
                       <th>Status</th>
                       <th>User</th>
                       <th>Org</th>
-                      <th>Manage</th>
+                      <th *ngIf="UiConfigService.isNotificationsEnabled()">Manage</th>
                       <th>Actions</th>
                       <th>Delete</th>
                     </tr>
@@ -102,7 +102,7 @@
                       <td>{{ user.username }}</td>
                       <!-- TODO GET ORGANIATION INFO BY ORGANIZATION ID (DISPLAY ORGANIZATON NAME HERE)-->
                       <td>{{ token.organizationId }}</td>
-                      <td>
+                      <td *ngIf="UiConfigService.isNotificationsEnabled()">
                         <button nz-button style="background-color: green;" nzType="primary" [routerLink]="['/notification-manager', token.id]" nzSize="small">Manage</button>
                       </td>
                       <td>
@@ -129,7 +129,7 @@
             </nz-card>
           </nz-col>
 
-          <nz-col [nzXs]="24" [nzSm]="24" [nzMd]="24" [nzLg]="24" [nzXl]="24">
+          <nz-col *ngIf="UiConfigService.isNotificationsEnabled()" [nzXs]="24" [nzSm]="24" [nzMd]="24" [nzLg]="24" [nzXl]="24">
             <nz-card nzTitle="Preferred Notification Methods" class="tails-primary-color" [nzBordered]="false">
               <form nz-form (ngSubmit)="onSaveNotificationPreferences()" #notificationPreferencesForm="ngForm">
                 <nz-checkbox-group [(ngModel)]="notificationPreferences" [nzOptions]="notificationTypeOptions"

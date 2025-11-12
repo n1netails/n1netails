@@ -24,6 +24,7 @@ import { N1TokenModalComponent } from '../../shared/components/n1-token-modal/n1
 import { RouterModule } from '@angular/router';
 import { NotificationService } from '../../service/notification.service';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { UiConfigService } from '../../shared/util/ui-config.service';
 
 @Component({
   selector: 'app-settings',
@@ -106,6 +107,7 @@ export class SettingsComponent implements OnInit {
     private pageUtilService: PageUtilService,
     private notificationService: NotificationService,
     private msg: NzMessageService,
+    public UiConfigService: UiConfigService,
   ) {
     this.user = this.authenticationService.getUserFromLocalCache();
     this.organizations = this.user.organizations;

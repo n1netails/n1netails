@@ -13,6 +13,13 @@ export class UiConfigService {
   private geminiEnabled: boolean = environment.geminiEnabled;
   private githubAuthEnabled: boolean = environment.githubAuthEnabled;
 
+  private notificationsEnabled: boolean = environment.notificationsEnabled;
+  private notificationsEmailEnabled: boolean = environment.notificationsEmailEnabled;
+  private notificationsMsTeamsEnabled: boolean = environment.notificationsMsTeamsEnabled;
+  private notificationsSlackEnabled: boolean = environment.notificationsSlackEnabled;
+  private notificationsDiscordEnabled: boolean = environment.notificationsDiscordEnabled;
+  private notificationsTelegramEnabled: boolean = environment.notificationsTelegramEnabled;
+
   constructor(private http: HttpClient) {}
 
   async loadConfig(): Promise<void> { // Mark the method as async
@@ -52,6 +59,60 @@ export class UiConfigService {
     } catch (error) {
       console.warn('Failed to check if github auth enabled, using fallback:', this.githubAuthEnabled);
     }
+
+    try {
+      this.notificationsEnabled = await firstValueFrom(
+        this.http.get<boolean>('/ui/n1netails-config/notifications-enabled')
+      );
+      console.log('Notifications Enabled:', this.notificationsEnabled);
+    } catch (error) {
+      console.warn('Failed to check if notifications enabled, using fallback:', this.notificationsEnabled);
+    }
+    
+    try {
+      this.notificationsEmailEnabled = await firstValueFrom(
+        this.http.get<boolean>('/ui/n1netails-config/notifications-email-enabled')
+      );
+      console.log('Notifications Email Enabled:', this.notificationsEmailEnabled);
+    } catch (error) {
+      console.warn('Failed to check if notifications email enabled, using fallback:', this.notificationsEmailEnabled);
+    }
+
+    try {
+      this.notificationsMsTeamsEnabled = await firstValueFrom(
+        this.http.get<boolean>('/ui/n1netails-config/notifications-msteams-enabled')
+      );
+      console.log('Notifications Microsoft Teams Enabled:', this.notificationsMsTeamsEnabled);
+    } catch (error) {
+      console.warn('Failed to check if notifications microsoft teams enabled, using fallback:', this.notificationsMsTeamsEnabled);
+    }
+
+    try {
+      this.notificationsSlackEnabled = await firstValueFrom(
+        this.http.get<boolean>('/ui/n1netails-config/notifications-slack-enabled')
+      );
+      console.log('Notifications Slack Enabled:', this.notificationsSlackEnabled);
+    } catch (error) {
+      console.warn('Failed to check if notifications slack enabled, using fallback:', this.notificationsSlackEnabled);
+    }
+
+    try {
+      this.notificationsDiscordEnabled = await firstValueFrom(
+        this.http.get<boolean>('/ui/n1netails-config/notifications-discord-enabled')
+      );
+      console.log('Notifications Discord Enabled:', this.notificationsDiscordEnabled);
+    } catch (error) {
+      console.warn('Failed to check if notifications discord enabled, using fallback:', this.notificationsDiscordEnabled);
+    }
+
+    try {
+      this.notificationsTelegramEnabled = await firstValueFrom(
+        this.http.get<boolean>('/ui/n1netails-config/notifications-telegram-enabled')
+      );
+      console.log('Notifications Telegram Enabled:', this.notificationsTelegramEnabled);
+    } catch (error) {
+      console.warn('Failed to check if notifications telegram enabled, using fallback:', this.notificationsTelegramEnabled);
+    }
   }
 
   getApiUrl(): string {
@@ -68,5 +129,29 @@ export class UiConfigService {
 
   isGithubAuthEnabled(): boolean {
     return this.githubAuthEnabled;
+  }
+
+  isNotificationsEnabled(): boolean {
+    return this.notificationsEnabled;
+  }
+
+  isNotificationsEmailEnabled(): boolean {
+    return this.notificationsEmailEnabled;
+  }
+
+  isNotificationsMsTeamsEnabled(): boolean {
+    return this.notificationsMsTeamsEnabled;
+  }
+
+  isNotificationsSlackEnabled(): boolean {
+    return this.notificationsSlackEnabled;
+  }
+
+  isNotificationsDiscordEnabled(): boolean {
+    return this.notificationsDiscordEnabled;
+  }
+
+  isNotificationsTelegramEnabled(): boolean {
+    return this.notificationsTelegramEnabled;
   }
 }

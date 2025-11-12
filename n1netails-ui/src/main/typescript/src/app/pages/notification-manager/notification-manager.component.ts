@@ -19,6 +19,7 @@ import { RouterModule } from '@angular/router';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { UiConfigService } from '../../shared/util/ui-config.service';
 
 @Component({
   selector: 'app-notification-manager',
@@ -70,6 +71,7 @@ export class NotificationManagerComponent implements OnInit {
     private n1neTokenService: N1neTokenService,
     private notificationService: NotificationService,
     private msg: NzMessageService,
+    public UiConfigService: UiConfigService,
   ) {}
 
   ngOnInit(): void {

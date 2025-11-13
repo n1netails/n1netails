@@ -45,6 +45,9 @@ public class UiConfigController {
     @GetMapping("/gemini-enabled")
     public boolean isGeminiEnabled() { return geminiEnabled; }
 
+    @GetMapping("/github-auth-enabled")
+    public boolean isGithubAuthEnabled() { return githubAuthEnabled; }
+
     @GetMapping("/notifications-enabled")
     public boolean isNotificationsEnabled() { return notificationsEnabled; }
 

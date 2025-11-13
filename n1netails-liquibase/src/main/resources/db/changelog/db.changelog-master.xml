@@ -26,4 +26,5 @@
     <include file="db/changelog/db.changelog-00017-create-table-tail-bookmark.xml"/>
     <include file="db/changelog/db.changelog-00018-create-n1-token-hash.xml"/>
     <include file="db/changelog/db.changelog-00019-remove-uuid-token.xml"/>
+    <include file="db/changelog/db.changelog-00020-create-tables-notifications.xml"/>
 </databaseChangeLog>

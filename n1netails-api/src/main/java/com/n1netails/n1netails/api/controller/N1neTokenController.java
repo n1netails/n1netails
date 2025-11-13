@@ -78,6 +78,24 @@ public class N1neTokenController {
         }
     }
 
+    @Operation(summary = "Get token by ID", responses = {
+            @ApiResponse(responseCode = "200", description = "Token found"),
+            @ApiResponse(responseCode = "404", description = "Token not found")
+    })
+    @GetMapping("/{id}")
+    public ResponseEntity<N1neTokenResponse> getTokenById(
+            @RequestHeader(AUTHORIZATION) String authorizationHeader,
+            @PathVariable Long id
+    ) throws AccessDeniedException, UserNotFoundException {
+        N1neTokenResponse n1neToken = this.n1neTokenService.getById(id);
+        UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
+        if (authorizationService.isOwnerOrOrganizationAdmin(currentUser, n1neToken.getUserId(), n1neToken.getOrganizationId())) {
+            return ResponseEntity.ok().body(n1neToken);
+        } else {
+            throw new AccessDeniedException("Get token request access denied.");
+        }
+    }
+
     @Operation(summary = "Revoke token by ID", responses = {
             @ApiResponse(responseCode = "204", description = "Revoke submitted"),
             @ApiResponse(responseCode = "404", description = "Token not found")

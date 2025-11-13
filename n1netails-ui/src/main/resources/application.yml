@@ -22,11 +22,16 @@ management:
 
 n1netails:
   api.url: ${API_BASE_URL:http://localhost:9901}
+  notifications:
+    enabled: ${N1NETAILS_NOTIFICATIONS_ENABLED:false}
+    email.enabled: ${N1NETAILS_NOTIFICATIONS_EMAIL_ENABLED:false}
+    msteams.enabled: ${N1NETAILS_NOTIFICATIONS_MSTEAMS_ENABLED:false}
+    slack.enabled: ${N1NETAILS_NOTIFICATIONS_SLACK_ENABLED:false}
+    discord.enabled: ${N1NETAILS_NOTIFICATIONS_DISCORD_ENABLED:false}
+    telegram.enabled: ${N1NETAILS_NOTIFICATIONS_TELEGRAM_ENABLED:false}
 
-gemini:
-  enabled: ${GEMINI_ENABLED:false}
-openai:
-  enabled: ${OPENAI_ENABLED:false}
+gemini.enabled: ${GEMINI_ENABLED:false}
+openai.enabled: ${OPENAI_ENABLED:false}
 
 auth:
   github:

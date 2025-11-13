@@ -15,6 +15,6 @@ import java.util.concurrent.CompletableFuture;
 public interface EmailService {
     CompletableFuture<Void> sendMail(SendMailRequest sendMailRequest) throws EmailTemplateNotFoundException, MessagingException;
     void sendWelcomeEmail(UsersEntity usersEntity);
-    void sendAlertEmail(UsersEntity usersEntity, KudaTailRequest request);
+    void sendNotificationEmail(String email, KudaTailRequest request);
     void sendPasswordResetEmail(ForgotPasswordRequestEntity forgotPasswordRequest) throws MessagingException, EmailTemplateNotFoundException;
 }

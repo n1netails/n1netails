@@ -54,7 +54,7 @@ Run the project on your local computer using the following command
 mvn spring-boot:run -DSPRING_PROFILE_ACTIVE=local
 ```
 
-Run the project with environment variables.
+## Run the project with environment variables.
 
 ### Required
 - PORT (application port defaults to 9901)
@@ -88,6 +88,15 @@ Run the project with environment variables.
 - EMAIL_PROPERTIES_AUTH (defaults to false)
 - EMAIL_PROPERTIES_STARTTLS_ENABLE (defaults to false)
 - N1NETAILS_UI (defaults to http://localhost:4200)
+
+### Notifications
+- N1NETAILS_ENCRYPTION_SECRET_KEY (defaults to nkey **you will need to generate your own AES secret key for this**)
+- N1NETAILS_NOTIFICATIONS_ENABLED (enables notifications defaults to false)
+- N1NETAILS_NOTIFICATIONS_EMAIL_ENABLED (enables email notifications defaults to false)
+- N1NETAILS_NOTIFICATIONS_MSTEAMS_ENABLED (enables Microsoft Teams notifications defaults to false)
+- N1NETAILS_NOTIFICATIONS_SLACK_ENABLED (enables Slack notifications defaults to false)
+- N1NETAILS_NOTIFICATIONS_DISCORD_ENABLED (enables Discord notifications defaults to false)
+- N1NETAILS_NOTIFICATIONS_TELEGRAM_ENABLED (enables Telegram notifications defaults to false)
 
 Example:
 ```bash

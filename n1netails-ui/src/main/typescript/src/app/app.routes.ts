@@ -3,6 +3,7 @@ import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { EditProfileComponent } from './pages/edit-profile/edit-profile.component';
 import { SettingsComponent } from './pages/settings/settings.component';
+import { NotificationManagerComponent } from './pages/notification-manager/notification-manager.component';
 import { TailComponent } from './pages/tail/tail.component';
 import { TailsComponent } from './pages/tails/tails';
 import { Oauth2SuccessComponent } from './oauth2-success/oauth2-success.component';
@@ -18,6 +19,7 @@ export const routes: Routes = [
   { path: 'forgot-password', component: ForgotPasswordComponent},
   { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'settings', component: SettingsComponent },
+  { path: 'notification-manager/:id', component: NotificationManagerComponent },
   { path: 'welcome', loadChildren: () => import('./pages/welcome/welcome.routes').then(m => m.WELCOME_ROUTES) },
   { path: 'tail/:id', component: TailComponent },
   { path: 'tails', component: TailsComponent, title: 'Tails' },

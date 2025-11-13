@@ -14,15 +14,25 @@ public class UiConfigController {
 
     @Value("${n1netails.api.url}")
     private String apiBaseUrl;
-
     @Value("${openai.enabled}")
     private boolean openaiEnabled;
-
     @Value("${gemini.enabled}")
     private boolean geminiEnabled;
-
     @Value("${auth.github.enabled}")
     private boolean githubAuthEnabled;
+
+    @Value("${n1netails.notifications.enabled}")
+    private boolean notificationsEnabled;
+    @Value("${n1netails.notifications.email.enabled}")
+    private boolean emailEnabled;
+    @Value("${n1netails.notifications.msteams.enabled}")
+    private boolean microsoftTeamsEnabled;
+    @Value("${n1netails.notifications.slack.enabled}")
+    private boolean slackEnabled;
+    @Value("${n1netails.notifications.discord.enabled}")
+    private boolean discordEnabled;
+    @Value("${n1netails.notifications.telegram.enabled}")
+    private boolean telegramEnabled;
 
     @GetMapping("/api-url")
     public Map<String, String> getApiUrl() {
@@ -37,4 +47,23 @@ public class UiConfigController {
 
     @GetMapping("/github-auth-enabled")
     public boolean isGithubAuthEnabled() { return githubAuthEnabled; }
+
+    @GetMapping("/notifications-enabled")
+    public boolean isNotificationsEnabled() { return notificationsEnabled; }
+
+    @GetMapping("/notifications-email-enabled")
+    public boolean isNotificationsEmailEnabled() { return emailEnabled; }
+
+    @GetMapping("/notifications-msteams-enabled")
+    public boolean isNotificationsMsTeamsEnabled() { return microsoftTeamsEnabled; }
+
+    @GetMapping("/notifications-slack-enabled")
+    public boolean isNotificationsSlackEnabled() { return slackEnabled; }
+
+    @GetMapping("/notifications-discord-enabled")
+    public boolean isNotificationsDiscordEnabled() { return discordEnabled; }
+
+    @GetMapping("/notifications-telegram-enabled")
+    public boolean isNotificationsTelegramEnabled() { return telegramEnabled; }
+
 }

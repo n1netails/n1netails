@@ -1,4 +1,4 @@
-spring.profiles.active: db, ai, oauth, email
+spring.profiles.active: db, ai, oauth, email, notifications
 spring.banner.location: classpath:banner.txt
 server:
   port: ${PORT:9901}

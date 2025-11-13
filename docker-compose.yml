@@ -5,6 +5,7 @@ services:
 # use for local build
 #    build:
 #      context: ./n1netails-api
+# use for docker hub build
     container_name: n1netails-api
     ports:
       - "9901:9901"
@@ -26,6 +27,7 @@ services:
 # use for local build
 #    build:
 #      context: ./n1netails-ui
+# use for docker hub build
     container_name: n1netails-ui
     ports:
       - "9900:9900"
@@ -33,14 +35,14 @@ services:
       - api
     environment:
       SPRING_PROFILE_ACTIVE: docker
-      # this can be changed to point to other n1netails-api urls
-      API_BASE_URL: http://localhost:9901
+      API_BASE_URL: http://localhost:9901 # this can be changed to point to other n1netails-api urls
   # N1neTails Liquibase
   liquibase:
     image: shahidfo/n1netails-liquibase:latest
 # use for local build
 #    build:
 #      context: ./n1netails-liquibase
+# use for docker hub build
     container_name: n1netails-liquibase
     depends_on:
       db:

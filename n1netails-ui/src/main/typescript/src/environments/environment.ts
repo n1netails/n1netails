@@ -4,4 +4,10 @@ export const environment = {
     openaiEnabled: true,
     geminiEnabled: false,
     githubAuthEnabled: true,
+    notificationsEnabled: true,
+    notificationsEmailEnabled: true,
+    notificationsMsTeamsEnabled: true,
+    notificationsSlackEnabled: true,
+    notificationsDiscordEnabled: true,
+    notificationsTelegramEnabled: true,
 };

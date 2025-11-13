@@ -12,7 +12,7 @@
 
 	<groupId>com.n1netails</groupId>
 	<artifactId>n1netails-api</artifactId>
-	<version>0.3.1</version>
+	<version>0.3.2</version>
 	<name>n1netails-api</name>
 	<description>N1netails Alert Service API</description>
 
@@ -106,6 +106,28 @@
 			<groupId>com.yubico</groupId>
 			<artifactId>yubico-util</artifactId>
 			<version>2.7.0</version>
+		</dependency>
+
+		<!-- n1netails -->
+		<dependency>
+			<groupId>com.n1netails</groupId>
+			<artifactId>n1netails-discord-webhook-client</artifactId>
+			<version>0.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.n1netails</groupId>
+			<artifactId>n1netails-telegram-client</artifactId>
+			<version>0.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.n1netails</groupId>
+			<artifactId>n1netails-slack-client</artifactId>
+			<version>0.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.n1netails</groupId>
+			<artifactId>n1netails-teams-webhook-client</artifactId>
+			<version>0.1.0</version>
 		</dependency>
 
 		<!-- test -->

@@ -12,5 +12,5 @@ public interface NotificationService {
     void saveConfigurations(Long tokenId, List<NotificationConfigEntity> configs);
     List<String> getUserNotificationPreferences(Long userId);
     void saveUserNotificationPreferences(Long userId, List<String> platforms);
-    void sendNotificationAlert(UsersEntity usersEntity, KudaTailRequest request, Long tokenId);
+    void sendNotificationAlert(UsersEntity usersEntity, KudaTailRequest request, Long tokenId) throws Exception;
 }

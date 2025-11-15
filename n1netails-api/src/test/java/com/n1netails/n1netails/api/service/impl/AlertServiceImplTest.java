@@ -161,7 +161,7 @@ public class AlertServiceImplTest {
     }
 
     @Test
-    public void testCreateTail_fullyPopulatedRequest_ShouldCreateNewTailWithFullyPopulatedValues() throws N1neTokenGenerateException {
+    public void testCreateTail_fullyPopulatedRequest_ShouldCreateNewTailWithFullyPopulatedValues() throws Exception {
         // Mock Data
         when(n1neTokenRepository.findByN1TokenHash(eq(n1TokenHash))).thenReturn(Optional.of(n1neToken));
         when(tailLevelRepository.findTailLevelByName(eq(AlertServiceImpl.INFO))).thenReturn(Optional.of(infoTailLevel));
@@ -192,7 +192,7 @@ public class AlertServiceImplTest {
     }
 
     @Test
-    public void testCreateTail_NullRequestAndDefaultValuesNotInDB_ShouldCreateDefaultValuesAndTailWithDefaultValues() throws N1neTokenGenerateException {
+    public void testCreateTail_NullRequestAndDefaultValuesNotInDB_ShouldCreateDefaultValuesAndTailWithDefaultValues() throws Exception {
         // Mock Data
         when(n1neTokenRepository.findByN1TokenHash(n1TokenHash)).thenReturn(Optional.of(n1neToken));
         when(tailLevelRepository.findTailLevelByName(any())).thenReturn(Optional.empty());
@@ -231,7 +231,7 @@ public class AlertServiceImplTest {
     }
 
     @Test
-    public void testCreateTail_BlankRequestAndDefaultValuesNotInDB_ShouldCreateDefaultValuesAndTailWithDefaultValues() throws N1neTokenGenerateException {
+    public void testCreateTail_BlankRequestAndDefaultValuesNotInDB_ShouldCreateDefaultValuesAndTailWithDefaultValues() throws Exception {
         when(n1neTokenRepository.findByN1TokenHash(n1TokenHash)).thenReturn(Optional.of(n1neToken));
 
         when(tailLevelRepository.findTailLevelByName(eq(""))).thenReturn(Optional.empty());
@@ -271,7 +271,7 @@ public class AlertServiceImplTest {
     }
 
     @Test
-    public void testCreateTail_DefaultValuesNotInDBButNewValuePresentInRequest_ShouldCreateTailWithGivenValues() throws N1neTokenGenerateException {
+    public void testCreateTail_DefaultValuesNotInDBButNewValuePresentInRequest_ShouldCreateTailWithGivenValues() throws Exception {
         when(n1neTokenRepository.findByN1TokenHash(n1TokenHash)).thenReturn(Optional.of(n1neToken));
 
         when(tailLevelRepository.findTailLevelByName(anyString())).thenReturn(Optional.empty());

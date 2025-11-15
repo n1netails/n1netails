@@ -1,5 +1,6 @@
 package com.n1netails.n1netails.api.service;
 
+import com.n1netails.n1netails.api.exception.type.N1neTokenGenerateException;
 import com.n1netails.n1netails.api.model.entity.NotificationConfigEntity;
 import com.n1netails.n1netails.api.model.entity.UsersEntity;
 import com.n1netails.n1netails.api.model.request.KudaTailRequest;

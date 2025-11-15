@@ -1,5 +1,7 @@
 package com.n1netails.n1netails.api.service.impl;
 
+import com.n1netails.n1netails.api.exception.type.N1neTokenGenerateException;
+import com.n1netails.n1netails.api.exception.type.NotificationException;
 import com.n1netails.n1netails.api.exception.type.OrganizationNotFoundException;
 import com.n1netails.n1netails.api.model.entity.N1neTokenEntity;
 import com.n1netails.n1netails.api.model.entity.OrganizationEntity;
@@ -50,7 +52,7 @@ public class AlertServiceImpl implements AlertService {
     private final NotificationService notificationService;
 
     @Override
-    public void createTail(String token, KudaTailRequest request) throws Exception {
+    public void createTail(String token, KudaTailRequest request) throws N1neTokenGenerateException {
         log.info("create tail");
         byte[] tokenHash = N1TokenGenerator.sha256(token);
         Optional<N1neTokenEntity> optionalN1neTokenEntity = this.n1neTokenRepository.findByN1TokenHash(tokenHash);
@@ -59,7 +61,11 @@ public class AlertServiceImpl implements AlertService {
         UsersEntity usersEntity = n1neTokenEntity.getUser();
         saveTailAlert(n1neTokenEntity.getOrganization(), usersEntity, request);
 
-        this.notificationService.sendNotificationAlert(usersEntity, request, n1neTokenEntity.getId());
+        try {
+            this.notificationService.sendNotificationAlert(usersEntity, request, n1neTokenEntity.getId());
+        } catch (Exception e) {
+            throw new NotificationException("Error occurred while sending notifications", e);
+        }
     }
 
     @Override

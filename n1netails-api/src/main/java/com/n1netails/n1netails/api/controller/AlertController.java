@@ -50,7 +50,7 @@ public class AlertController {
     public ResponseEntity<Void> create(
             @RequestHeader("N1ne-Token") String n1neToken,
             @RequestBody KudaTailRequest request
-    ) throws Exception {
+    ) throws N1neTokenNotFoundException, N1neTokenGenerateException {
         log.info("=====================");
         log.info("RECEIVED KUDA REQUEST");
         sanitizeRequestData(request);

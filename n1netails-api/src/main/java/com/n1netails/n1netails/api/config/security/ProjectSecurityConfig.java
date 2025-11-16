@@ -45,7 +45,6 @@ public class ProjectSecurityConfig {
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             );
-        http.csrf(AbstractHttpConfigurer::disable);
 
         http.cors(cors -> cors.configurationSource(request -> {
             CorsConfiguration config = new CorsConfiguration();

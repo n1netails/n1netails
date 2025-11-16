@@ -10,6 +10,7 @@ import com.n1netails.n1netails.slack.internal.SlackClientImpl;
 import com.n1netails.n1netails.slack.model.SlackMessage;
 import com.n1netails.n1netails.slack.service.BotService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import static com.n1netails.n1netails.api.constant.PlatformConstant.SLACK;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SlackNotificationServiceImpl implements NotificationPlatform {
@@ -36,6 +38,7 @@ public class SlackNotificationServiceImpl implements NotificationPlatform {
     @Override
     public void send(KudaTailRequest request, NotificationConfigEntity config) throws SlackClientException {
 
+        log.info("attempting to send slack notification");
         SlackNotificationConfig slackConfig =
                 objectMapper.convertValue(config.getDetails(), SlackNotificationConfig.class);
 

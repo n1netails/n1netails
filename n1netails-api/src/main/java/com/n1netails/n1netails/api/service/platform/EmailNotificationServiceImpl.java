@@ -7,6 +7,7 @@ import com.n1netails.n1netails.api.model.notification.EmailNotificationConfig;
 import com.n1netails.n1netails.api.model.request.KudaTailRequest;
 import com.n1netails.n1netails.api.service.EmailService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import static com.n1netails.n1netails.api.constant.PlatformConstant.EMAIL;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmailNotificationServiceImpl implements NotificationPlatform {
@@ -34,6 +36,7 @@ public class EmailNotificationServiceImpl implements NotificationPlatform {
     @Override
     public void send(KudaTailRequest request, NotificationConfigEntity config) {
 
+        log.info("attempting to send email notification");
         EmailNotificationConfig emailConfig =
                 objectMapper.convertValue(config.getDetails(), EmailNotificationConfig.class);
 

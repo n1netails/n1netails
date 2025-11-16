@@ -10,6 +10,7 @@ import com.n1netails.n1netails.telegram.exception.TelegramClientException;
 import com.n1netails.n1netails.telegram.internal.TelegramClientImpl;
 import com.n1netails.n1netails.telegram.model.TelegramMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import static com.n1netails.n1netails.api.constant.PlatformConstant.TELEGRAM;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TelegramNotificationServiceImpl implements NotificationPlatform {
@@ -36,6 +38,7 @@ public class TelegramNotificationServiceImpl implements NotificationPlatform {
     @Override
     public void send(KudaTailRequest request, NotificationConfigEntity config) throws TelegramClientException {
 
+        log.info("attempting to send telegram notification");
         TelegramNotificationConfig telegramConfig =
                 objectMapper.convertValue(config.getDetails(), TelegramNotificationConfig.class);
 

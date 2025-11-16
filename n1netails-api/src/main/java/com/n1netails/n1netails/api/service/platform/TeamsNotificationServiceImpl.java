@@ -10,6 +10,7 @@ import com.n1netails.n1netails.teams.exception.TeamsWebhookException;
 import com.n1netails.n1netails.teams.internal.TeamsWebhookClientImpl;
 import com.n1netails.n1netails.teams.service.WebhookService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import static com.n1netails.n1netails.api.constant.PlatformConstant.MSTEAMS;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TeamsNotificationServiceImpl implements NotificationPlatform {
@@ -36,6 +38,7 @@ public class TeamsNotificationServiceImpl implements NotificationPlatform {
     @Override
     public void send(KudaTailRequest request, NotificationConfigEntity config) throws TeamsWebhookException {
 
+        log.info("attempting to send teams notification");
         MsTeamsNotificationConfig teamsConfig =
                 objectMapper.convertValue(config.getDetails(), MsTeamsNotificationConfig.class);
 

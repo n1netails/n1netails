@@ -1,6 +1,7 @@
 package com.n1netails.n1netails.api.service.impl;
 
 import com.n1netails.n1netails.api.exception.type.N1neTokenGenerateException;
+import com.n1netails.n1netails.api.exception.type.NotificationException;
 import com.n1netails.n1netails.api.exception.type.OrganizationNotFoundException;
 import com.n1netails.n1netails.api.model.entity.N1neTokenEntity;
 import com.n1netails.n1netails.api.model.entity.OrganizationEntity;
@@ -60,7 +61,11 @@ public class AlertServiceImpl implements AlertService {
         UsersEntity usersEntity = n1neTokenEntity.getUser();
         saveTailAlert(n1neTokenEntity.getOrganization(), usersEntity, request);
 
-        this.notificationService.sendNotificationAlert(usersEntity, request, n1neTokenEntity.getId());
+        try {
+            this.notificationService.sendNotificationAlert(usersEntity, request, n1neTokenEntity.getId());
+        } catch (Exception e) {
+            throw new NotificationException("Error occurred while sending notifications", e);
+        }
     }
 
     @Override
@@ -164,7 +169,6 @@ public class AlertServiceImpl implements AlertService {
     private void attachTailMetadata(TailEntity tailEntity, KudaTailRequest request) {
         if (request.getMetadata() != null) {
             log.info("mapping tail variables");
-            log.info(request.getMetadata().toString());
             List<TailVariableEntity> tailVariableEntities = new ArrayList<>();
             request.getMetadata().forEach((k, v) -> {
                 TailVariableEntity tailVariable = new TailVariableEntity();

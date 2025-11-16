@@ -80,7 +80,7 @@ public class NotificationServiceImplTest {
     }
 
     @Test
-    public void testSaveUserNotificationPreferences() {
+    public void testSaveUserNotificationPreferences() throws Exception {
         when(userNotificationPreferenceRepository.findByUserId(1L)).thenReturn(Arrays.asList(new UserNotificationPreferenceEntity()));
         notificationService.saveUserNotificationPreferences(1L, Arrays.asList("email"));
 

@@ -8,6 +8,7 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 import { TailStatus, TailStatusResponse, TailStatusService } from '../../../service/tail-status.service';
 import { PageRequest } from '../../../model/interface/page.interface';
 import { TailResponse } from '../../../model/tail.model';
+import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 
 @Component({
   selector: 'app-update-tail-status-modal',
@@ -18,7 +19,8 @@ import { TailResponse } from '../../../model/tail.model';
     NzModalModule,
     NzFormModule,
     NzSelectModule,
-    NzInputModule
+    NzInputModule,
+    NzAvatarModule,
   ],
   templateUrl: './update-tail-status-modal.component.html',
   styleUrls: ['./update-tail-status-modal.component.less']
@@ -40,7 +42,7 @@ export class UpdateTailStatusModalComponent implements OnInit {
   }
 
   loadTailStatuses(): void {
-    const pageRequest: PageRequest = { page: 0, size: 100, sort: 'name,asc' };
+    const pageRequest: PageRequest = { pageNumber: 0, pageSize: 100, sortDirection: "DESC", sortBy: 'name' };
     this.tailStatusService.getTailStatusList(pageRequest).subscribe(response => {
       this.tailStatuses = response.content;
     });

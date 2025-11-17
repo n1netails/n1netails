@@ -4,6 +4,15 @@
   (nzOnOk)="handleOk()"
   (nzOnCancel)="handleCancel()">
   <ng-container *nzModalContent>
+
+    <div class="status-modal-header">
+      <nz-avatar
+        nzSrc="Fox_tail.png"
+        [nzSize]="56"
+        class="status-modal-avatar"
+      ></nz-avatar>
+      <p>Update the status for this tail. Make sure to leave some notes for the change.</p>
+    </div>
     <form nz-form>
       <nz-form-item>
         <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="status">Status</nz-form-label>
@@ -14,9 +23,16 @@
         </nz-form-control>
       </nz-form-item>
       <nz-form-item>
-        <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="note">Note</nz-form-label>
-        <nz-form-control [nzSm]="14" [nzXs]="24">
-          <textarea [(ngModel)]="note" name="note" id="note" nz-input rows="4"></textarea>
+        <nz-form-label nzFor="note">Note</nz-form-label>
+        <nz-form-control>
+          <textarea 
+          [(ngModel)]="note" 
+          name="note" 
+          id="note"
+          nz-input rows="4" 
+          class="resolve-modal-textarea"
+          placeholder="Add a note (optional)"
+        ></textarea>
         </nz-form-control>
       </nz-form-item>
     </form>

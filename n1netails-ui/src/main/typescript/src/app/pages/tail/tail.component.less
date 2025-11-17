@@ -20,7 +20,6 @@ nz-header {
 }
 
 .tail-details-container {
-
   .loading-indicator,
   .error-message,
   .no-data-message {
@@ -55,14 +54,23 @@ nz-header {
 
     .avatar-column {
       display: flex;
-      justify-content: center;
+      justify-content: left;
       align-items: center;
       .tail-avatar {
+        max-width: 300px;
+        border: 2px solid @primary-color;
+        background: #181a1b;
+        margin-bottom: 8px;
+        margin-left: 34px;
          // Make avatar responsive if needed, e.g.
         @media (max-width: @screen-sm-max) {
           width: 180px !important; // Smaller avatar on small screens
           height: 180px !important;
+          margin-left: 0px;
         }
+      }
+      @media (max-width: @screen-sm-max) {
+        justify-content: center;
       }
     }
 
@@ -94,7 +102,9 @@ nz-header {
     }
 
     .tags {
+      display: flex;
       margin-bottom: 20px;
+      // margin-left: 52px;
       text-align: center; // Center tags by default
       @media (min-width: @screen-sm-max) {
         text-align: left; // Align left on medium screens and up
@@ -177,10 +187,10 @@ nz-header {
   .meta-key {
     color: @primary-color;
     font-weight: 600;
-    width: 120px; // Fixed width for key column
+    width: 150px; // Fixed width for key column
     white-space: nowrap; // Prevent key from wrapping
     @media (max-width: @screen-sm-max) {
-      width: 100px; // Slightly smaller key column on small screens
+      width: 150px; // Slightly smaller key column on small screens
       font-size: 14px;
     }
   }

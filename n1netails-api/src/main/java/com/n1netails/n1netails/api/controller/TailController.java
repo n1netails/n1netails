@@ -2,6 +2,7 @@ package com.n1netails.n1netails.api.controller;
 
 import com.n1netails.n1netails.api.exception.type.*;
 import com.n1netails.n1netails.api.model.UserPrincipal;
+import com.n1netails.n1netails.api.model.core.TailStatus;
 import com.n1netails.n1netails.api.model.request.ResolveTailRequest;
 import com.n1netails.n1netails.api.model.request.TailPageRequest;
 import com.n1netails.n1netails.api.model.response.HttpErrorResponse;
@@ -76,6 +77,17 @@ public class TailController {
     public ResponseEntity<Void> markTailResolved(@RequestHeader("Authorization") String authorizationHeader, @RequestBody ResolveTailRequest request) throws TailNotFoundException, TailStatusNotFoundException, UserNotFoundException, UnauthorizedException {
         UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
         tailService.markResolved(request, currentUser);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Update tail status", responses = {
+            @ApiResponse(responseCode = "204", description = "Tail status updated"),
+            @ApiResponse(responseCode = "404", description = "Tail or tail status not found")
+    })
+    @PutMapping("/update/status")
+    public ResponseEntity<Void> updateTailStatus(@RequestHeader("Authorization") String authorizationHeader, @RequestBody ResolveTailRequest request) throws TailNotFoundException, TailStatusNotFoundException, UserNotFoundException, UnauthorizedException {
+        UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
+        tailService.updateStatus(request, currentUser);
         return ResponseEntity.noContent().build();
     }
 }

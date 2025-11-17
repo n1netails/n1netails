@@ -71,7 +71,12 @@ public class TailServiceImpl implements TailService {
     }
 
     @Override
-    public TailResponse updateStatus(Long id, TailStatus tailStatus, UserPrincipal currentUser) throws TailNotFoundException, UnauthorizedException { // Added currentUser
+    public TailResponse updateStatus(ResolveTailRequest request, UserPrincipal currentUser) throws TailNotFoundException, UnauthorizedException {
+
+        TailStatus tailStatus = new TailStatus();
+        tailStatus.setName(request.getTailSummary().getStatus());
+        Long id = request.getTailSummary().getId();
+
         // Authorization logic implemented: User must be owner or organization admin to change tail status.
         Optional<TailEntity> tailOptional = tailRepository.findById(id);
         if (tailOptional.isEmpty()) {
@@ -89,15 +94,29 @@ public class TailServiceImpl implements TailService {
         }
 
         Optional<TailStatusEntity> newStatus = statusRepository.findTailStatusByName(tailStatus.getName());
-            if (newStatus.isPresent()) {
-                tail.setStatus(newStatus.get());
-            } else {
-                TailStatusEntity createdStatus = new TailStatusEntity();
-                createdStatus.setName(tailStatus.getName());
-                createdStatus = statusRepository.save(createdStatus);
-                tail.setStatus(createdStatus);
-            }
-            tailRepository.save(tail);
+        if (newStatus.isPresent()) {
+            tail.setStatus(newStatus.get());
+        } else {
+            TailStatusEntity createdStatus = new TailStatusEntity();
+            createdStatus.setName(tailStatus.getName());
+            createdStatus = statusRepository.save(createdStatus);
+            tail.setStatus(createdStatus);
+        }
+
+        if (!request.getNote().isBlank()) {
+            UsersEntity resolverUser = this.usersRepository.findUserById(request.getUserId());
+            NoteEntity noteEntity = new NoteEntity();
+            noteEntity.setTail(tail);
+            noteEntity.setUser(resolverUser); // The note should be associated with the resolverUser
+            noteEntity.setContent(request.getNote());
+            noteEntity.setCreatedAt(Instant.now());
+            noteEntity.setHuman(true);
+            noteEntity.setN1(false);
+            noteEntity.setOrganization(tail.getOrganization());
+            // save note
+            this.noteRepository.save(noteEntity);
+        }
+        tailRepository.save(tail);
 
         return setTailResponse(tail);
     }

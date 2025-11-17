@@ -56,10 +56,12 @@ nz-header {
       display: flex;
       justify-content: left;
       align-items: center;
+      @media (max-width: @screen-sm-max) {
+        justify-content: center;
+      }
+
       .tail-avatar {
         max-width: 300px;
-        border: 2px solid @primary-color;
-        background: #181a1b;
         margin-bottom: 8px;
         margin-left: 34px;
          // Make avatar responsive if needed, e.g.
@@ -68,9 +70,6 @@ nz-header {
           height: 180px !important;
           margin-left: 0px;
         }
-      }
-      @media (max-width: @screen-sm-max) {
-        justify-content: center;
       }
     }
 
@@ -104,7 +103,6 @@ nz-header {
     .tags {
       display: flex;
       margin-bottom: 20px;
-      // margin-left: 52px;
       text-align: center; // Center tags by default
       @media (min-width: @screen-sm-max) {
         text-align: left; // Align left on medium screens and up

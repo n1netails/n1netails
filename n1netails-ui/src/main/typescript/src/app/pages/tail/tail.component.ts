@@ -18,6 +18,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { AuthenticationService } from '../../service/authentication.service';
 import { User } from '../../model/user';
 import { ResolveTailModalComponent } from '../../shared/components/resolve-tail-modal/resolve-tail-modal.component';
+import { UpdateTailStatusModalComponent } from '../../shared/components/update-tail-status-modal/update-tail-status-modal.component';
 import { LlmService } from '../../service/llm.service';
 import { MarkdownModule } from 'ngx-markdown';
 import { AiChatCardComponent } from '../../shared/components/ai-chat-card/ai-chat-card.component';
@@ -48,6 +49,7 @@ import { BookmarkService, IsBookmarkedResponse } from '../../service/bookmark.se
     HeaderComponent,
     SidenavComponent,
     ResolveTailModalComponent,
+    UpdateTailStatusModalComponent,
     MarkdownModule,
     AiChatCardComponent
   ],
@@ -72,6 +74,7 @@ export class TailComponent implements OnInit {
 
   // Modal properties
   resolveModalVisible: boolean = false;
+  updateStatusModalVisible: boolean = false;
   currentUser: User;
   llmResponse: LlmPromptResponse | null = null;
   isInvestigating: boolean = false;
@@ -194,6 +197,51 @@ export class TailComponent implements OnInit {
   openResolveModal(): void {
     if (!this.tail) return;
     this.resolveModalVisible = true;
+  }
+
+  openUpdateStatusModal(): void {
+    if (!this.tail) return;
+    this.updateStatusModalVisible = true;
+  }
+
+  handleUpdateStatusModalCancel(): void {
+    this.updateStatusModalVisible = false;
+  }
+
+  handleUpdateStatusModalOk(event: { status: string, note: string }): void {
+    this.updateStatusModalVisible = false;
+    // Call the service to update the status
+    if (!this.tail) return;
+
+    const tailSummary: TailSummary = {
+      id: this.tail.id,
+      title: this.tail.title,
+      description: this.tail.description,
+      timestamp: this.tail.timestamp,
+      resolvedTimestamp: this.tail.resolvedTimestamp,
+      assignedUserId: this.currentUser.id,
+      level: this.tail.level,
+      type: this.tail.type,
+      status: event.status
+    };
+
+    const tailUpdateRequest: ResolveTailRequest = {
+      userId: this.currentUser.id,
+      tailSummary: tailSummary,
+      note: event.note,
+    };
+
+    this.tailService.updateTailStatus(tailUpdateRequest).subscribe({
+      next: () => {
+        this.messageService.success(`Updated status for "${this.tail?.title}"`);
+        if (this.tail) {
+          this.loadTailData(this.tail.id);
+        }
+      },
+      error: (err) => {
+        this.messageService.error(`Unable to update status for "${this.tail?.title}". Error: ${err.message || err}`);
+      },
+    });
   }
 
   handleModalCancel(): void {

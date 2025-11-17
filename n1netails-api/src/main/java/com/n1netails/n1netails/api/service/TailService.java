@@ -22,7 +22,7 @@ public interface TailService {
     List<TailResponse> getTop9NewestTails(UserPrincipal currentUser);
     TailResponse getTailById(Long id, UserPrincipal currentUser) throws TailNotFoundException, UnauthorizedException;
 
-    TailResponse updateStatus(Long id, TailStatus tailStatus, UserPrincipal currentUser) throws TailNotFoundException, UnauthorizedException;
+    TailResponse updateStatus(ResolveTailRequest request, UserPrincipal currentUser) throws TailNotFoundException, UnauthorizedException;
 
     void markResolved(ResolveTailRequest request, UserPrincipal currentUser) throws TailNotFoundException, TailStatusNotFoundException, UnauthorizedException;
 

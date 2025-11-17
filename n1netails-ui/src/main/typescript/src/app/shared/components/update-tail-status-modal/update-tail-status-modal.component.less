@@ -1,20 +1,16 @@
 @import '../../../../variables.less';
 
-.resolve-modal-header {
+.status-modal-header {
   display: flex;
   align-items: center;
   gap: 12px; /* space between avatar and text */
 }
 
-.resolve-modal-avatar {
-  margin-bottom: 8px;
-}
-
-.resolve-modal-header .resolve-modal-avatar {
+.status-modal-header .status-modal-avatar {
   flex: 0 0 auto;
 }
 
-.resolve-modal-header p {
+.status-modal-header p {
   margin: 0;
   flex: 1 1 auto;
   line-height: 1.3;
@@ -22,7 +18,7 @@
 
 /* optional: stack on small screens */
 @media (max-width: 600px) {
-  .resolve-modal-header {
+  .status-modal-header {
     flex-direction: column;
     align-items: flex-start;
   }

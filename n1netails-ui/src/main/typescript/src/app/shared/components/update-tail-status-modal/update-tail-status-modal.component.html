@@ -1,0 +1,24 @@
+<nz-modal
+  [nzVisible]="isVisible"
+  nzTitle="Update Tail Status"
+  (nzOnOk)="handleOk()"
+  (nzOnCancel)="handleCancel()">
+  <ng-container *nzModalContent>
+    <form nz-form>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="status">Status</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <nz-select [(ngModel)]="selectedStatus" name="status" id="status" nzPlaceHolder="Select a status">
+            <nz-option *ngFor="let status of tailStatuses" [nzValue]="status.name" [nzLabel]="status.name"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="note">Note</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <textarea [(ngModel)]="note" name="note" id="note" nz-input rows="4"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+</nz-modal>

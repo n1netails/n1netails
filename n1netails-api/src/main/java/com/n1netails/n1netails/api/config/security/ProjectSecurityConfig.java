@@ -53,7 +53,7 @@ public class ProjectSecurityConfig {
         );
 
         RequestMatcher ignoreCsrfForCreateAlert =
-                PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/ninetails/alerts");
+                PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/ninetails/alert");
         http.csrf(csrf -> csrf
                 .ignoringRequestMatchers(ignoreCsrfForCreateAlert)
         );

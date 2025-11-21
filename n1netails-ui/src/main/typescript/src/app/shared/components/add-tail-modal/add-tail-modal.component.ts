@@ -77,10 +77,10 @@ export class AddTailModalComponent {
   ) { 
     this.user = this.authenticationService.getUserFromLocalCache();
     this.organizations = this.user.organizations;
-    this.loadUserTokens(this.user.id);
+    this.loadUserTokens();
   }
 
-  loadUserTokens(userId: number) {
+  loadUserTokens() {
     const pageRequest: PageRequest = {
       pageNumber: 0,
       pageSize: 50,
@@ -92,9 +92,7 @@ export class AddTailModalComponent {
       next: (data: PageResponse<N1neTokenResponse>) => {
         this.tokens = data.content;
       },
-      error: (err) => {
-        // todo fill out error msg
-      }
+      error: (err) => this.msg.error(`Failed to load tokens: ${err.message || err}`)
     });
   }
 

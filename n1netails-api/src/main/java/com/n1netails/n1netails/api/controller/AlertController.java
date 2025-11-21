@@ -71,7 +71,10 @@ public class AlertController {
             @ApiResponse(responseCode = "204", description = "Manual Alert created"),
             @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
-    @PostMapping(value = "/manual/{userId}/organization/{organizationId}", consumes = APPLICATION_JSON_VALUE)
+    @PostMapping(value = {
+            "/manual/{userId}/organization/{organizationId}",
+            "/manual/{userId}/organization/{organizationId}/tokenId/{tokenId}"
+    }, consumes = APPLICATION_JSON_VALUE)
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Void> createManual(
             @RequestHeader(AUTHORIZATION) String authorizationHeader,

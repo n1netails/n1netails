@@ -24,6 +24,21 @@
           ></nz-option>
         </nz-select>
 
+        <label for="n1netoken"><b>N1ne-Token:</b></label>
+        <nz-select
+          id="n1netoken"
+          name="n1netoken"
+          [(ngModel)]="tokenId"
+          nzShowSearch
+          (nzOnSearch)="onTokenSearch($event)"
+          nzPlaceHolder="Select notification token (Optional)">
+          <nz-option
+            *ngFor="let token of tokens"
+            [nzValue]="token.id"
+            [nzLabel]="token.name"
+          ></nz-option>
+        </nz-select>
+
         <label for="title"><b>Title:</b></label>
         <input id="title" nz-input [(ngModel)]="tailAlert.title" placeholder="Enter title">
 

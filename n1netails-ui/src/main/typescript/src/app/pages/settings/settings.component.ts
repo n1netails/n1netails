@@ -6,7 +6,7 @@ import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { FormsModule } from '@angular/forms';
 import { NzTableModule } from 'ng-zorro-antd/table';
-import { NzCheckboxModule, NzCheckBoxOptionInterface } from 'ng-zorro-antd/checkbox';
+import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 import { CommonModule } from '@angular/common';
 import { TailLevel, TailLevelResponse, TailLevelService } from '../../service/tail-level.service';
 import { TailStatus, TailStatusResponse, TailStatusService } from '../../service/tail-status.service';
@@ -90,7 +90,7 @@ export class SettingsComponent implements OnInit {
 
   // Notification Preferences
   notificationPreferences: string[] = [];
-  notificationTypeOptions: NzCheckBoxOptionInterface[] = [
+  notificationTypeOptions = [
     { label: 'Email', value: 'email' },
     { label: 'Microsoft Teams', value: 'msteams' },
     { label: 'Slack', value: 'slack' },

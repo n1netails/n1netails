@@ -26,7 +26,6 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { ResolveTailRequest, TailResponse, TailSummary } from '../../model/tail.model';
 import { PageRequest } from '../../model/interface/page.interface';
 import { PageUtilService } from '../../shared/util/page-util.service';
-import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { BookmarkService } from '../../service/bookmark.service';
 import { TailPageRequest, TailPageResponse } from '../../model/interface/tail-page.interface';
 

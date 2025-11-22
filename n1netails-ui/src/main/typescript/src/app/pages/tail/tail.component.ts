@@ -27,7 +27,7 @@ import { LlmPromptRequest, LlmPromptResponse } from '../../model/llm.model';
 import { NoteService } from '../../service/note.service';
 import { Note } from '../../model/note.model';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
+import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
 import { BookmarkService, IsBookmarkedResponse } from '../../service/bookmark.service';
 
 @Component({
@@ -45,7 +45,7 @@ import { BookmarkService, IsBookmarkedResponse } from '../../service/bookmark.se
     NzAvatarModule,
     NzButtonModule,
     NzIconModule,
-    NzToolTipModule,
+    NzTooltipModule,
     HeaderComponent,
     SidenavComponent,
     ResolveTailModalComponent,

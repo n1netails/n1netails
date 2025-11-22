@@ -71,7 +71,7 @@
           <nz-col [nzSpan]="24">
             <nz-card nzTitle="Active Tails" [nzBordered]="false">
               <nz-list [nzLoading]="initLoading">
-                 @if (!initLoading && (!list || list.length === 0)) {
+                @if (!initLoading && (!list || list.length === 0)) {
                   <nz-empty [nzNotFoundContent]="'No active tails found.'"></nz-empty>
                 } @else {
                   @for (item of list; track item) {

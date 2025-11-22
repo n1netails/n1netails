@@ -14,7 +14,7 @@ public class UiConfigController {
 
     @Value("${n1netails.api.url}")
     private String apiBaseUrl;
-    @Value("${n1netails.doc.url")
+    @Value("${n1netails.doc.url}")
     private String docUrl;
     @Value("${openai.enabled}")
     private boolean openaiEnabled;

@@ -19,7 +19,7 @@ import { UiConfigService } from '../../util/ui-config.service';
 })
 export class HeaderComponent {
 
-  n1netailsDocUrl: string = 'https://google.com';
+  n1netailsDocUrl: string = 'https://n1netails.com';
   loggedInUser: User;
   isInSettings: boolean;
   public screenWidth: any;

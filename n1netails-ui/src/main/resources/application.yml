@@ -22,6 +22,7 @@ management:
 
 n1netails:
   api.url: ${API_BASE_URL:http://localhost:9901}
+  doc.url: ${API_DOC_URL:https://n1netails.com}
   notifications:
     enabled: ${N1NETAILS_NOTIFICATIONS_ENABLED:false}
     email.enabled: ${N1NETAILS_NOTIFICATIONS_EMAIL_ENABLED:false}

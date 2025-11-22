@@ -23,6 +23,9 @@ mvn spring-boot:run -DSPRING_PROFILE_ACTIVE=local
 - PORT (application port defaults to 9900)
 - API_BASE_URL (n1netails-api url defaults to http://localhost:9901)
 
+### Documentation Url
+- API_DOC_URL (documentation url defaults to https://n1netails.com)
+
 ### AI
 - GEMINI_ENABLED (enable gemini defaults to false)
 - OPENAI_ENABLED (enable openai defaults to false)

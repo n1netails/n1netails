@@ -19,7 +19,6 @@ import com.n1netails.n1netails.api.repository.TailRepository;
 import com.n1netails.n1netails.api.repository.TailStatusRepository;
 import com.n1netails.n1netails.api.repository.TailTypeRepository;
 import com.n1netails.n1netails.api.service.AlertService;
-import com.n1netails.n1netails.api.service.EmailService;
 import com.n1netails.n1netails.api.service.NotificationService;
 import com.n1netails.n1netails.api.util.N1TokenGenerator;
 import lombok.RequiredArgsConstructor;
@@ -48,7 +47,6 @@ public class AlertServiceImpl implements AlertService {
     private final TailStatusRepository statusRepository;
     private final N1neTokenRepository n1neTokenRepository;
     private final OrganizationRepository organizationRepository;
-    private final EmailService emailService;
     private final NotificationService notificationService;
 
     @Override

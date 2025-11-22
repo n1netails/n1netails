@@ -20,6 +20,9 @@ import { AuthenticationService } from '../../../service/authentication.service';
 import { Router } from '@angular/router';
 import { TailAlert } from '../../../model/interface/tail-alert.interface';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { N1neTokenService } from '../../../service/n1ne-token.service';
+import { N1neTokenResponse } from '../../../service/n1ne-token.service';
+import { PageResponse } from '../../../model/interface/page.interface';
 
 @Component({
   selector: 'app-add-tail-modal',
@@ -44,6 +47,8 @@ export class AddTailModalComponent {
   user: User;
   organizations: Organization[];
   organizationId: number = 0;
+  tokens: N1neTokenResponse[] = [];
+  tokenId: number = -1;
 
   selectedLevel: string = '';
   selectedType: string = '';
@@ -63,6 +68,7 @@ export class AddTailModalComponent {
     private authenticationService: AuthenticationService,
     private modal: NzModalRef<AddTailModalComponent>,
     private alertService: AlertService,
+    private n1neTokenService: N1neTokenService,
     private tailLevelService: TailLevelService,
     private tailTypeService: TailTypeService,
     private pageUtilService: PageUtilService,
@@ -71,20 +77,49 @@ export class AddTailModalComponent {
   ) { 
     this.user = this.authenticationService.getUserFromLocalCache();
     this.organizations = this.user.organizations;
+    this.loadUserTokens();
+  }
+
+  loadUserTokens() {
+    const pageRequest: PageRequest = {
+      pageNumber: 0,
+      pageSize: 50,
+      sortDirection: "DESC",
+      sortBy: "id"
+    };
+
+    this.n1neTokenService.getAllTokensByUserId(this.user.id, pageRequest).subscribe({
+      next: (data: PageResponse<N1neTokenResponse>) => {
+        this.tokens = data.content;
+      },
+      error: (err) => this.msg.error(`Failed to load tokens: ${err.message || err}`)
+    });
   }
 
   handleOk(): void {
     if (!this.isValidTailAlert()) return;
 
     this.tailAlert.metadata = this.buildMetadata();
-    this.alertService.createManualTail(this.organizationId, this.user.id, this.tailAlert)
-      .subscribe({
-        next: () => {
-          this.modal.close(this.tailAlert);
-          this.navigateToDashboard();
-        },
-        error: (err) => this.msg.error(`Failed to create tail alert: ${err.message || err}`)
-      });
+
+    if (this.tokenId !== -1) {
+      this.alertService.createManualTailWithToken(this.organizationId, this.user.id, this.tailAlert, this.tokenId)
+        .subscribe({
+          next: () => {
+            this.modal.close(this.tailAlert);
+            this.navigateToDashboard();
+          },
+          error: (err) => this.msg.error(`Failed to create tail alert: ${err.message || err}`)
+        });
+    } else {
+      this.alertService.createManualTail(this.organizationId, this.user.id, this.tailAlert)
+        .subscribe({
+          next: () => {
+            this.modal.close(this.tailAlert);
+            this.navigateToDashboard();
+          },
+          error: (err) => this.msg.error(`Failed to create tail alert: ${err.message || err}`)
+        });
+    }
   }
 
   private isValidTailAlert(): boolean {
@@ -134,6 +169,14 @@ export class AddTailModalComponent {
       this.metadataKeys.splice(index, 1);
       this.metadataValues.splice(index, 1);
     }
+  }
+
+  onTokenSearch(term: string): void {
+    const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequestWithSearch(term);
+    this.n1neTokenService.getAllTokensByUserId(this.user.id, pageRequest).subscribe(result => {
+      this.tokens = [];
+      result.content.forEach(token => this.tokens.push(token));
+    })
   }
 
   onTypeSearch(term: string): void {

@@ -69,9 +69,6 @@ public class AlertServiceImplTest {
     @Mock
     private NotificationService notificationService;
 
-    @Mock
-    private EmailService emailService;
-
     @InjectMocks
     private AlertServiceImpl alertService;
     private static final String NEW_TAIL_LEVEL_TRACE = "TRACE";
@@ -320,7 +317,7 @@ public class AlertServiceImplTest {
     }
 
     @Test
-    public void testCreateManualTail_ExistedOrganization_ShouldCreateManualTailWithGivenValues() throws OrganizationNotFoundException {
+    public void testCreateManualTail_ExistedOrganization_ShouldCreateManualTailWithGivenValues() throws Exception {
         when(organizationRepository.findById(eq(1L))).thenReturn(Optional.of(n1neDefaultOrganization));
         when(tailLevelRepository.findTailLevelByName(eq(AlertServiceImpl.INFO))).thenReturn(Optional.of(infoTailLevel));
         when(tailTypeRepository.findTailTypeByName(eq(AlertServiceImpl.SYSTEM_ALERT))).thenReturn(Optional.of(systemAlertTailType));
@@ -336,7 +333,6 @@ public class AlertServiceImplTest {
         // Verify save with expected value
         ArgumentCaptor<TailEntity> tailEntityArgumentCaptor = ArgumentCaptor.forClass(TailEntity.class);
         verify(tailRepository, times(1)).save(tailEntityArgumentCaptor.capture());
-        verify(emailService, times(1)).sendNotificationEmail(any(), any());
 
         TailEntity actualSavedTailEntity = tailEntityArgumentCaptor.getValue();
 

@@ -19,7 +19,6 @@ import com.n1netails.n1netails.api.repository.TailRepository;
 import com.n1netails.n1netails.api.repository.TailStatusRepository;
 import com.n1netails.n1netails.api.repository.TailTypeRepository;
 import com.n1netails.n1netails.api.service.AlertService;
-import com.n1netails.n1netails.api.service.EmailService;
 import com.n1netails.n1netails.api.service.NotificationService;
 import com.n1netails.n1netails.api.util.N1TokenGenerator;
 import lombok.RequiredArgsConstructor;
@@ -48,7 +47,6 @@ public class AlertServiceImpl implements AlertService {
     private final TailStatusRepository statusRepository;
     private final N1neTokenRepository n1neTokenRepository;
     private final OrganizationRepository organizationRepository;
-    private final EmailService emailService;
     private final NotificationService notificationService;
 
     @Override
@@ -73,12 +71,18 @@ public class AlertServiceImpl implements AlertService {
         OrganizationEntity organizationEntity = this.organizationRepository.findById(organizationId)
                 .orElseThrow(() -> new OrganizationNotFoundException("Requested organization for creating manual tail not found."));
         saveTailAlert(organizationEntity, usersEntity, request);
-
-        // TODO:: REPLACE THIS WITH A NEW METHOD TO SEND NOTIFICATIONS TO USERS
-        this.emailService.sendNotificationEmail(usersEntity.getEmail(), request);
-        // this.notificationService.sendNotificationAlert(usersEntity, request, null);
     }
-    
+
+    @Override
+    public void createManualTail(Long organizationId, UsersEntity usersEntity, KudaTailRequest request, Long n1neTokenId) throws OrganizationNotFoundException {
+        this.createManualTail(organizationId, usersEntity, request);
+        try {
+            this.notificationService.sendNotificationAlert(usersEntity, request, n1neTokenId);
+        } catch (Exception e) {
+            throw new NotificationException("Error occurred while sending notifications", e);
+        }
+    }
+
     private void saveTailAlert(OrganizationEntity organizationEntity,
                                UsersEntity usersEntity, KudaTailRequest request) {
         TailEntity tailEntity = buildTailEntity(organizationEntity, usersEntity, request);

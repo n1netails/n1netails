@@ -2,9 +2,11 @@ package com.n1netails.n1netails.api.service.impl;
 
 import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
 import com.n1netails.n1netails.api.model.UserPrincipal;
+import com.n1netails.n1netails.api.model.entity.N1neTokenEntity;
 import com.n1netails.n1netails.api.model.entity.OrganizationEntity;
 import com.n1netails.n1netails.api.model.entity.TailEntity;
 import com.n1netails.n1netails.api.model.entity.UsersEntity;
+import com.n1netails.n1netails.api.repository.N1neTokenRepository;
 import com.n1netails.n1netails.api.repository.TailRepository;
 import com.n1netails.n1netails.api.repository.UserRepository;
 import com.n1netails.n1netails.api.service.AuthorizationService;
@@ -28,6 +30,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     private final UserRepository userRepository;
     private final JwtDecoder jwtDecoder;
     private final TailRepository tailRepository;
+    private final N1neTokenRepository n1neTokenRepository;
 
     @Override
     public UserPrincipal getCurrentUserPrincipal(String authorizationHeader) throws UserNotFoundException {
@@ -137,5 +140,16 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         log.info("User {} is not authorized for tail {}", principal.getUsername(), tailId);
         return false;
+    }
+
+    @Override
+    public boolean isN1neTokenOwner(UserPrincipal principal, Long tokenId) {
+        log.info("Checking if User {} is owner of n1ne token", principal.getUsername());
+        if (n1neTokenRepository.findById(tokenId).isPresent()) {
+            N1neTokenEntity n1neTokenEntity = n1neTokenRepository.findById(tokenId).get();
+            return Objects.equals(principal.getId(), n1neTokenEntity.getUser().getId());
+        } else {
+            return false;
+        }
     }
 }

@@ -27,4 +27,9 @@ export class AlertService {
     this.host = this.uiConfigService.getApiUrl() + this.apiPath;
     return this.http.post<void>(`${this.host}/manual/${userId}/organization/${organizationId}`, tailAlert);
   }
+
+  createManualTailWithToken(organizationId: number, userId: number, tailAlert: TailAlert, tokenId: number): Observable<void> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiPath;
+    return this.http.post<void>(`${this.host}/manual/${userId}/organization/${organizationId}/tokenId/${tokenId}`, tailAlert);
+  }
 }

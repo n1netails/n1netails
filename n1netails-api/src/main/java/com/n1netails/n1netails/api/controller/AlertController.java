@@ -71,22 +71,31 @@ public class AlertController {
             @ApiResponse(responseCode = "204", description = "Manual Alert created"),
             @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
-    @PostMapping(value = "/manual/{userId}/organization/{organizationId}", consumes = APPLICATION_JSON_VALUE)
+    @PostMapping(value = {
+            "/manual/{userId}/organization/{organizationId}",
+            "/manual/{userId}/organization/{organizationId}/tokenId/{tokenId}"
+    }, consumes = APPLICATION_JSON_VALUE)
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Void> createManual(
             @RequestHeader(AUTHORIZATION) String authorizationHeader,
             @PathVariable Long userId,
             @PathVariable Long organizationId,
+            @PathVariable(required = false) Long tokenId,
             @RequestBody KudaTailRequest request
     ) throws UserNotFoundException, AccessDeniedException, OrganizationNotFoundException {
         log.info("=====================");
         log.info("RECEIVED MANUAL REQUEST");
 
         UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
-        if (authorizationService.isSelf(currentUser, userId)
+        if (tokenId != null
+            && authorizationService.isSelf(currentUser, userId)
             && authorizationService.belongsToOrganization(currentUser, organizationId)
+            && authorizationService.isN1neTokenOwner(currentUser, tokenId)
         ) {
-            log.info("Manually adding tail alert");
+            sanitizeRequestData(request);
+            alertService.createManualTail(organizationId, currentUser.getUser(), request, tokenId);
+        } else if (authorizationService.isSelf(currentUser, userId)
+                && authorizationService.belongsToOrganization(currentUser, organizationId)) {
             sanitizeRequestData(request);
             alertService.createManualTail(organizationId, currentUser.getUser(), request);
         } else {

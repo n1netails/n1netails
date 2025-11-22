@@ -14,6 +14,8 @@ public class UiConfigController {
 
     @Value("${n1netails.api.url}")
     private String apiBaseUrl;
+    @Value("${n1netails.doc.url}")
+    private String docUrl;
     @Value("${openai.enabled}")
     private boolean openaiEnabled;
     @Value("${gemini.enabled}")
@@ -38,6 +40,9 @@ public class UiConfigController {
     public Map<String, String> getApiUrl() {
         return Collections.singletonMap("n1netailsApiUrl", apiBaseUrl);
     }
+
+    @GetMapping("/doc-url")
+    public Map<String, String> getDocUrl() { return Collections.singletonMap("n1netailsDocUrl", docUrl); }
 
     @GetMapping("/openai-enabled")
     public boolean isOpenaiEnabled() { return openaiEnabled; }

@@ -36,6 +36,7 @@ services:
     environment:
       SPRING_PROFILE_ACTIVE: docker
       API_BASE_URL: http://localhost:9901 # this can be changed to point to other n1netails-api urls
+      API_DOC_URL: https://n1netails.com # this can be changed to point to your own doc url
   # N1neTails Liquibase
   liquibase:
     image: shahidfo/n1netails-liquibase:latest

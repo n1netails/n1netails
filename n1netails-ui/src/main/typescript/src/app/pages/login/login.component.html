@@ -36,7 +36,7 @@
     </nz-form-item>
     <button
       nz-button
-      nzType="primary"
+      nzType="default"
       class="login-btn"
       [disabled]="!loginForm.valid"
       type="submit"
@@ -44,7 +44,8 @@
       Login with Email
     </button>
 
-    <button
+    <!-- TODO after passkey is fully implemented enable this -->
+    <!-- <button
       nz-button
       nzType="default"
       (click)="onLoginWithPasskey()"
@@ -53,7 +54,7 @@
       type="button"
     >
       Login with Passkey
-    </button>
+    </button> -->
 
     <button
       *ngIf="githubAuthEnabled"

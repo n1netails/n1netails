@@ -9,6 +9,8 @@ import { environment } from '../../../environments/environment';
 export class UiConfigService {
 
   private apiUrl: string = environment.n1netailsApiUrl;
+  private docUrl: string = environment.n1netailsDocUrl;
+
   private openaiEnabled: boolean = environment.openaiEnabled;
   private geminiEnabled: boolean = environment.geminiEnabled;
   private githubAuthEnabled: boolean = environment.githubAuthEnabled;
@@ -43,6 +45,17 @@ export class UiConfigService {
       console.warn('Failed to load API URL from server, using fallback:', this.apiUrl);
     }
 
+    // load DOC url (single request, keep separate to preserve shape and logs)
+    try {
+      const config = await firstValueFrom(
+        this.http.get<{ n1netailsDocUrl: string }>('/ui/n1netails-config/doc-url')
+      );
+      console.log('Config loaded:', config);
+      if (config?.n1netailsDocUrl) this.docUrl = config.n1netailsDocUrl;
+    } catch (error) {
+      console.warn('Failed to load DOC URL from server, using fallback:', this.docUrl);
+    }
+
     // boolean feature flags - fetch in parallel
     const endpoints = [
       { prop: 'openaiEnabled', path: '/ui/n1netails-config/openai-enabled' },
@@ -68,6 +81,10 @@ export class UiConfigService {
 
   getApiUrl(): string {
     return this.apiUrl;
+  }
+
+  getDocUrl(): string {
+    return this.docUrl;
   }
 
   isOpenaiEnabled(): boolean {

@@ -50,8 +50,10 @@ public class ProjectSecurityConfig {
 
         RequestMatcher ignoreCsrfForCreateAlert =
                 PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/ninetails/alert");
+        RequestMatcher ignoreCsrfForRegister =
+                PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/ninetails/user/register");
         http.csrf(csrf -> csrf
-                .ignoringRequestMatchers(ignoreCsrfForCreateAlert)
+                .ignoringRequestMatchers(ignoreCsrfForCreateAlert, ignoreCsrfForRegister)
         );
 
         http.cors(cors -> cors.configurationSource(request -> {

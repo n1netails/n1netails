@@ -50,10 +50,23 @@ public class ProjectSecurityConfig {
 
         RequestMatcher ignoreCsrfForCreateAlert =
                 PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/ninetails/alert");
+        RequestMatcher ignoreCsrfForLogin =
+                PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/ninetails/user/login");
         RequestMatcher ignoreCsrfForRegister =
                 PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/ninetails/user/register");
+        RequestMatcher ignoreCsrfForForgot =
+                PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/ninetails/password/forgot");
+        RequestMatcher ignoreCsrfForResetForgot =
+                PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.PUT, "/ninetails/password/reset/forgot");
+
         http.csrf(csrf -> csrf
-                .ignoringRequestMatchers(ignoreCsrfForCreateAlert, ignoreCsrfForRegister)
+                .ignoringRequestMatchers(
+                        ignoreCsrfForCreateAlert,
+                        ignoreCsrfForLogin,
+                        ignoreCsrfForRegister,
+                        ignoreCsrfForForgot,
+                        ignoreCsrfForResetForgot
+                )
         );
 
         http.cors(cors -> cors.configurationSource(request -> {

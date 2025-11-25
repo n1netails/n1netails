@@ -65,18 +65,26 @@ mvn spring-boot:run -DSPRING_PROFILE_ACTIVE=local
 - N1NETAILS_PASSKEY_ORIGINS (defaults to http://localhost:8080,http://localhost:9900,http://localhost:9901,http://localhost:4200)
 
 ### AI
-- GEMINI_ENABLED (defaults to false)
-- GEMINI_API_KEY (create your own gemini api key)
-- GEMINI_API_URL (defaults to https://generativelanguage.googleapis.com)
-- OPENAI_ENABLED (defaults to false)
-- OPENAI_API_KEY (create your own openai api key)
-- OPENAI_API_URL (defaults to https://api.openai.com)
+- Gemini (not implemented yet)
+  - GEMINI_ENABLED (defaults to false)
+  - GEMINI_API_KEY (create your own gemini api key)
+  - GEMINI_API_URL (defaults to https://generativelanguage.googleapis.com)
+- Openai
+  - OPENAI_ENABLED (defaults to false)
+  - OPENAI_API_KEY (create your own openai api key)
+  - OPENAI_API_URL (defaults to https://api.openai.com)
 
 ### OAuth2
-- GITHUB_OAUTH2_ENABLED (defaults to false)
 - AUTH_OAUTH2_REDIRECT_SUCCESS (defaults to http://localhost:4200/#/oauth2/success?token=)
-- GITHUB_CLIENT_ID (create your own github client id via https://github.com/settings/developers)
-- GITHUB_CLIENT_SECRET (create your own github client secret via https://github.com/settings/developers)
+- GitHub
+  - GITHUB_OAUTH2_ENABLED (defaults to false)
+  - GITHUB_CLIENT_ID (create your own github client id via https://github.com/settings/developers)
+  - GITHUB_CLIENT_SECRET (create your own github client secret via https://github.com/settings/developers)
+- Google
+  - GOOGLE_OAUTH2_ENABLED (defaults to false)
+  - GOOGLE_CLIENT_ID (create your own google client id via https://console.cloud.google.com/auth)
+  - GOOGLE_CLIENT_SECRET (create your own google secret id via https://console.cloud.google.com/auth)
+
 
 ### Email 
 - EMAIL_ENABLED (defaults to false)

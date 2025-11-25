@@ -4,7 +4,7 @@ import com.n1netails.n1netails.api.service.OAuth2Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -17,7 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Slf4j
 @RequiredArgsConstructor
-@ConditionalOnProperty(prefix = "auth.github", name = "enabled", havingValue = "true")
+@ConditionalOnExpression("'${auth.github.enabled}' == 'true' or '${auth.google.enabled}' == 'true'")
 @Configuration
 @Order(1)
 public class Oauth2LoginSecurityConfig {
@@ -41,9 +41,19 @@ public class Oauth2LoginSecurityConfig {
                     .successHandler((request, response, authentication) -> {
                         OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
                         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+                        String provider = oauthToken.getAuthorizedClientRegistrationId();
+                        String jwtToken;
 
-                        String jwtToken = oAuth2Service.loginGithub(oAuth2User, oauthToken);
-                        // Redirect to Angular app with the token as query param (ex. "http://localhost:4200/oauth2/success?token=" + jwtToken)
+                        if ("github".equalsIgnoreCase(provider)) {
+                            jwtToken = oAuth2Service.loginGithub(oAuth2User, oauthToken);
+                        } else if ("google".equalsIgnoreCase(provider)) {
+                            jwtToken = oAuth2Service.loginGoogle(oAuth2User, oauthToken);
+                        } else {
+                            // Handle other providers or throw an error
+                            throw new IllegalStateException("Unexpected provider: " + provider);
+                        }
+
+                        // Redirect to Angular app with the token as query param
                         response.sendRedirect(oAuth2RedirectsSuccess + jwtToken);
                     })
             );

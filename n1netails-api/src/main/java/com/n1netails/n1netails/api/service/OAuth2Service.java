@@ -6,4 +6,5 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 public interface OAuth2Service {
 
     String loginGithub(OAuth2User oAuth2User, OAuth2AuthenticationToken authentication);
+    String loginGoogle(OAuth2User oAuth2User, OAuth2AuthenticationToken authentication);
 }

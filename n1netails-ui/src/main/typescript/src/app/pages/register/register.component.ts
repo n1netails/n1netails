@@ -25,6 +25,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
 
   githubAuthEnabled: boolean = false;
+  googleAuthEnabled: boolean = false;
 
   constructor(
     private uiConfigService: UiConfigService,
@@ -39,6 +40,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
     }
 
     this.githubAuthEnabled = this.uiConfigService.isGithubAuthEnabled();
+    this.googleAuthEnabled = this.uiConfigService.isGoogleAuthEnabled();
   }
 
   ngOnDestroy(): void {
@@ -49,6 +51,12 @@ export class RegisterComponent implements OnInit, OnDestroy {
     // Redirects to Spring Boot's OAuth2 authorization endpoint
     // window.location.href = 'http://localhost:9901/oauth2/authorization/github';
     window.location.href = this.uiConfigService.getApiUrl() + '/oauth2/authorization/github';
+  }
+
+  loginWithGoogle() {
+    // Redirects to Spring Boot's OAuth2 authorization endpoint
+    // window.location.href = 'http://localhost:9901/oauth2/authorization/google';
+    window.location.href = this.uiConfigService.getApiUrl() + '/oauth2/authorization/google';
   }
 
   public onRegister(form: NgForm): void {

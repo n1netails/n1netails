@@ -131,6 +131,74 @@ public class OAuth2ServiceImpl implements OAuth2Service {
         return jwtTokenUtil.createToken(new UserPrincipal(user));
     }
 
+    @Override
+    public String loginGoogle(OAuth2User oAuth2User, OAuth2AuthenticationToken authentication) {
+        log.info("Processing Google OAuth2 login");
+        String provider = "GOOGLE";
+        String providerId = oAuth2User.getAttribute("sub");
+        String username = oAuth2User.getAttribute("email");
+        String email = oAuth2User.getAttribute("email");
+        String avatarUrl = oAuth2User.getAttribute("picture");
+        String name = oAuth2User.getAttribute("name");
+        boolean emailVerified = oAuth2User.getAttribute("email_verified");
+
+        // Step 1: Try to find existing user by provider+providerId
+        UsersEntity user = userRepository.findByProviderAndProviderId(provider, providerId).orElse(null);
+        boolean isNewUser = false;
+        if (user == null) {
+            // Step 2: Try to find by email
+            user = userRepository.findUserByEmail(email).orElse(null);
+
+            if (user != null) {
+                // Step 3: Link Google to existing user
+                log.info("Linking Google to existing user: {}", email);
+                user.setProvider(provider);
+                user.setProviderId(providerId);
+            } else {
+                // Step 4: New user registration
+                log.info("Creating new user from Google OAuth2");
+                isNewUser = true;
+                user = new UsersEntity();
+                user.setProvider(provider);
+                user.setProviderId(providerId);
+                user.setUserId(UserUtil.generateUserId());
+                user.setJoinDate(new Date());
+                user.setActive(true);
+                user.setEnabled(true);
+                user.setNotLocked(true);
+                user.setRole(com.n1netails.n1netails.api.model.enumeration.Role.ROLE_USER.name());
+                user.setAuthorities(Authority.USER_AUTHORITIES);
+
+                OrganizationEntity n1netailsOrg = organizationRepository.findByName("n1netails")
+                        .orElseThrow(() -> new RuntimeException("Default 'n1netails' organization not found."));
+
+                user.setOrganizations(new HashSet<>(Set.of(n1netailsOrg)));
+            }
+        }
+
+        // Common fields for all paths
+        user.setEmail(email);
+        user.setUsername(username);
+        user.setProfileImageUrl(avatarUrl);
+        user.setEmailVerified(emailVerified);
+
+        // Set names
+        if (name != null && !name.isBlank()) {
+            user.setFirstName(oAuth2User.getAttribute("given_name"));
+            user.setLastName(oAuth2User.getAttribute("family_name"));
+        }
+
+        user.setLastLoginDateDisplay(user.getLastLoginDate());
+        user.setLastLoginDate(new Date());
+
+        log.info("Saving user from Google OAuth2");
+        userRepository.save(user);
+
+        // send welcome email if new user
+        if (isNewUser) emailService.sendWelcomeEmail(user);
+        return jwtTokenUtil.createToken(new UserPrincipal(user));
+    }
+
 
     private String fetchPrimaryEmailFromGithub(String accessToken) {
         String url = "https://api.github.com/user/emails";

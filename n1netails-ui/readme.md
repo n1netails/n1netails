@@ -32,6 +32,7 @@ mvn spring-boot:run -DSPRING_PROFILE_ACTIVE=local
 
 ### OAuth2
 - GITHUB_OAUTH2_ENABLED (enable github login defaults to false)
+- GOOGLE_OAUTH2_ENABLED (enable google login defaults to false)
 
 ### Notifications
 - N1NETAILS_NOTIFICATIONS_ENABLED (enables notifications defaults to false)

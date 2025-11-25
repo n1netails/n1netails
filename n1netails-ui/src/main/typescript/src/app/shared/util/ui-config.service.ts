@@ -14,6 +14,7 @@ export class UiConfigService {
   private openaiEnabled: boolean = environment.openaiEnabled;
   private geminiEnabled: boolean = environment.geminiEnabled;
   private githubAuthEnabled: boolean = environment.githubAuthEnabled;
+  private googleAuthEnabled: boolean = environment.googleAuthEnabled;
 
   private notificationsEnabled: boolean = environment.notificationsEnabled;
   private notificationsEmailEnabled: boolean = environment.notificationsEmailEnabled;
@@ -61,6 +62,7 @@ export class UiConfigService {
       { prop: 'openaiEnabled', path: '/ui/n1netails-config/openai-enabled' },
       { prop: 'geminiEnabled', path: '/ui/n1netails-config/gemini-enabled' },
       { prop: 'githubAuthEnabled', path: '/ui/n1netails-config/github-auth-enabled' },
+      { prop: 'googleAuthEnabled', path: '/ui/n1netails-config/google-auth-enabled' },
       { prop: 'notificationsEnabled', path: '/ui/n1netails-config/notifications-enabled' },
       { prop: 'notificationsEmailEnabled', path: '/ui/n1netails-config/notifications-email-enabled' },
       { prop: 'notificationsMsTeamsEnabled', path: '/ui/n1netails-config/notifications-msteams-enabled' },
@@ -97,6 +99,10 @@ export class UiConfigService {
 
   isGithubAuthEnabled(): boolean {
     return this.githubAuthEnabled;
+  }
+
+  isGoogleAuthEnabled(): boolean {
+    return this.googleAuthEnabled;
   }
 
   isNotificationsEnabled(): boolean {

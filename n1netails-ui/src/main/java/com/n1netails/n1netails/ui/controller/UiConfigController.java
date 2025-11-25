@@ -22,6 +22,8 @@ public class UiConfigController {
     private boolean geminiEnabled;
     @Value("${auth.github.enabled}")
     private boolean githubAuthEnabled;
+    @Value("${auth.google.enabled}")
+    private boolean googleAuthEnabled;
 
     @Value("${n1netails.notifications.enabled}")
     private boolean notificationsEnabled;
@@ -52,6 +54,9 @@ public class UiConfigController {
 
     @GetMapping("/github-auth-enabled")
     public boolean isGithubAuthEnabled() { return githubAuthEnabled; }
+
+    @GetMapping("/google-auth-enabled")
+    public boolean isGoogleAuthEnabled() { return googleAuthEnabled; }
 
     @GetMapping("/notifications-enabled")
     public boolean isNotificationsEnabled() { return notificationsEnabled; }

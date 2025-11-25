@@ -71,6 +71,18 @@
       Register with GitHub
     </button>
 
+    <button
+      *ngIf="googleAuthEnabled"
+      nz-button
+      nzType="default"
+      (click)="loginWithGoogle()"
+      class="login-btn google-login-btn"
+      type="button"
+    >
+      <nz-icon nzType="google" nzTheme="outline" style="margin-right: 8px;"/>
+      Register with Google
+    </button>
+
     <div class="register-link">
       <span>Already have an account?</span>
       <a routerLink="/login">Login here</a>

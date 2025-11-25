@@ -37,6 +37,8 @@ openai.enabled: ${OPENAI_ENABLED:false}
 auth:
   github:
     enabled: ${GITHUB_OAUTH2_ENABLED:false}
+  google:
+    enabled: ${GOOGLE_OAUTH2_ENABLED:false}
 
 #########################################
 # Docker

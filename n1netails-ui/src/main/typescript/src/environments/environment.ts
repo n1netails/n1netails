@@ -5,6 +5,7 @@ export const environment = {
     openaiEnabled: true,
     geminiEnabled: false,
     githubAuthEnabled: true,
+    googleAuthEnabled: true,
     notificationsEnabled: true,
     notificationsEmailEnabled: true,
     notificationsMsTeamsEnabled: true,

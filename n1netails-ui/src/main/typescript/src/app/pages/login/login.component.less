@@ -1,5 +1,5 @@
 @import '../../../variables.less';
-@import '../../assets/styles/oauth2-buttons.less';
+// @import '../../../assets/styles/oauth2-buttons.less';
 
 .login-container {
   display: flex;
@@ -47,31 +47,6 @@
     border: 1px solid #333;
     &::placeholder {
       color: #888;
-    }
-  }
-
-  .login-btn {
-    width: 100%;
-    margin-top: 16px;
-    background: @primary-color !important;
-    border: none !important;
-    color: #fff !important;
-    font-weight: 600;
-    font-size: 16px;
-    padding: 13px 0 !important;
-    border-radius: 4px;
-    transition: background 0.2s;
-
-    &:hover,
-    &:focus {
-        background: @secondary-color !important;
-        color: #fff !important;
-    }
-
-    &:disabled {
-        background: #444 !important;
-        color: #bbb !important;
-        cursor: not-allowed;
     }
   }
 
@@ -134,3 +109,96 @@
     box-shadow: 0 0 0 2px #e50914;
   }
 }
+
+.login-btn {
+  width: 100%;
+  margin-top: 16px;
+  background: @primary-color !important;
+  border: none !important;
+  color: #fff !important;
+  font-weight: 600;
+  font-size: 16px;
+  padding: 13px 0 !important;
+  border-radius: 4px;
+  transition: background 0.2s;
+
+  &:hover,
+  &:focus {
+      background: @secondary-color !important;
+      color: #fff !important;
+  }
+
+  &:disabled {
+      background: #444 !important;
+      color: #bbb !important;
+      cursor: not-allowed;
+  }
+}
+
+.google-login-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #4285F4 !important; /* Google blue */
+  background-color: #4285F4 !important; /* Google blue */
+  color: #fff !important;
+  padding: 10px 20px !important;
+  border: none !important;
+  border-radius: 5px !important;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.google-login-btn:hover,
+.google-login-btn:focus {
+  background-color: #357ae8 !important;
+  color: #fff !important;
+}
+
+
+// .google-login-btn {
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   background-color: #4285F4 !important;
+//   color: white;
+//   padding: 10px 20px;
+//   border: none;
+//   border-radius: 5px;
+//   cursor: pointer;
+//   font-size: 16px;
+// }
+
+// .google-login-btn img {
+//   margin-right: 8px;
+//   background-color: white;
+// }
+
+// .google-login-btn:hover {
+//   background-color: #357ae8 !important;
+// }
+
+
+
+// .github-login-btn {
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   background-color: #232323 !important;
+//   color: white;
+//   padding: 10px 20px;
+//   border: none;
+//   border-radius: 5px;
+//   cursor: pointer;
+//   font-size: 16px;
+// }
+
+// .github-login-btn img {
+//   margin-right: 8px;
+// }
+
+// .github-login-btn:hover {
+//   background-color: #222121 !important;
+// }

@@ -105,7 +105,17 @@ export class DashboardComponent implements OnInit {
   };
 
   // Tail Alerts Hourly (Bar Chart)
-  alertsTodayData: any = {};
+  alertsTodayData = {
+    labels: ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00','08:00', '09:00'],
+    datasets: [
+      { label: 'Info', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], backgroundColor: '#1E90FF' },
+      { label: 'Success', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], backgroundColor: 'green' },
+      { label: 'Warn', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], backgroundColor: '#FFA500' },
+      { label: 'Error', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], backgroundColor: '#FF4500' },
+      { label: 'Critical', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], backgroundColor: '#FF0000' },
+      { label: 'Kuda', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], backgroundColor: '#8B0000' },
+    ]
+  };
 
   // Monthly Alerts Stacked (Stacked Bar Chart)
   monthlyAlertsData = {

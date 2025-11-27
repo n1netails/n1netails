@@ -12,34 +12,31 @@ jobs:
       - name: Checkout PR branch
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # needed to compare with main
+          fetch-depth: 0
 
-      - name: Install xmllint
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libxml2-utils
-
-      - name: Extract version from PR branch
+      - name: Extract PR version
         id: pr_version
         run: |
           VERSION_PR=$(mvn -q -DforceStdout help:evaluate -Dexpression=project.version)
-          echo "version_pr=$VERSION_PR" >> "$GITHUB_OUTPUT"
+          echo "version_pr=$VERSION_PR" >> $GITHUB_OUTPUT
 
-      - name: Checkout base branch (main)
+      - name: Checkout base (main) into separate folder
         run: |
-          git fetch origin ${{ github.base_ref }} --depth=1
-          git checkout origin/${{ github.base_ref }}
+          git clone --depth 1 --branch ${{ github.base_ref }} \
+            https://github.com/${{ github.repository }} main_branch
 
-      - name: Extract version from base branch
+      - name: Extract base version
         id: base_version
         run: |
+          cd main_branch
           VERSION_BASE=$(mvn -q -DforceStdout help:evaluate -Dexpression=project.version)
-          echo "version_base=$VERSION_BASE" >> "$GITHUB_OUTPUT"
+          echo "version_base=$VERSION_BASE" >> $GITHUB_OUTPUT
 
       - name: Compare versions
         run: |
           echo "Base version: ${{ steps.base_version.outputs.version_base }}"
           echo "PR version:   ${{ steps.pr_version.outputs.version_pr }}"
+
           if [ "${{ steps.base_version.outputs.version_base }}" = "${{ steps.pr_version.outputs.version_pr }}" ]; then
             echo "::error ::Version must be bumped in pom.xml for every PR!"
             exit 1

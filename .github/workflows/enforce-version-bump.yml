@@ -14,6 +14,11 @@ jobs:
         with:
           fetch-depth: 0   # needed to compare with main
 
+      - name: Install xmllint
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxml2-utils
+
       - name: Extract version from PR branch
         id: pr_version
         run: |

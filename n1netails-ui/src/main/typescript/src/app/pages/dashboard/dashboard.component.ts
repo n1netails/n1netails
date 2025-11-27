@@ -92,8 +92,8 @@ export class DashboardComponent implements OnInit {
     maintainAspectRatio: false,
     plugins: {
         legend: {
-          display: true, // hide on mobile
-          position: 'right' as const,  // now typed correctly
+          display: true,
+          position: 'right' as const,
         }
       }
   };
@@ -162,29 +162,25 @@ export class DashboardComponent implements OnInit {
 
     const apiUrl = this.uiConfigService.getApiUrl();
     console.log('API URL:', apiUrl);
-
     this.initDashboard();
 
     this.breakpointObserver.observe([Breakpoints.Small, Breakpoints.XSmall]).subscribe(result => {
       this.isMobile = result.matches;
-      console.log('IS MOBILE', this.isMobile);
       this.updateChartOptions();
     });
   }
 
   updateChartOptions() {
-    console.log('IS MOBILE', this.isMobile);
     this.stackedBarOptions = {
       responsive: true,
       maintainAspectRatio: false,
       scales: { x: { stacked: true }, y: { stacked: true } },
       plugins: {
         legend: {
-          display: !this.isMobile, // hide on mobile
+          display: !this.isMobile,
           position: 'bottom' as const,
         }
       }
-      // ...rest of options...
     };
 
     this.pieChartOptions = {
@@ -192,11 +188,10 @@ export class DashboardComponent implements OnInit {
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          display: true, // hide on mobile
+          display: true,
           position: 'right'
         }
       }
-      // ...rest of options...
     };
   }
 
@@ -260,25 +255,12 @@ export class DashboardComponent implements OnInit {
       };
     });
     this.tailMetricsService.getTailMonthlySummary(userTimezone).subscribe(result => {
-
-      console.log('tail monthly summary count', result);
-
       this.monthlyAlertsData = {
         labels: result.labels,
-        datasets: [
-          // INFO
-          { label: result.datasets[0].label, data: result.datasets[0].data, backgroundColor: '#1E90FF' },
-          // SUCCESS
-          { label: result.datasets[1].label, data: result.datasets[1].data, backgroundColor: 'green' },
-          // WARN
-          { label: result.datasets[2].label, data: result.datasets[2].data, backgroundColor: '#FFA500' },
-          // ERROR
-          { label: result.datasets[3].label, data: result.datasets[3].data, backgroundColor: '#FF4500' },
-          // CRITICAL
-          { label: result.datasets[4].label, data: result.datasets[4].data, backgroundColor: '#FF0000' },
-          // KUDA
-          { label: result.datasets[5] ? result.datasets[5].label : 'KUDA', data: result.datasets[5]?.data, backgroundColor: '#8B0000' },
-        ]
+        datasets: result.datasets.map(dataset => ({
+          ...dataset,
+          backgroundColor: this.tailUtilService.getBarChartLevelColor(dataset.label)
+        }))
       };
     });
   }

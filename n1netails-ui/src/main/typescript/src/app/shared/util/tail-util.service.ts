@@ -44,7 +44,7 @@ export class TailUtilService {
       case 'NEW': return '#1E90FF';
       case 'IN_PROGRESS': return '#FFA500';
       case 'BLOCKED': return '#F00F21';
-      case 'RESOLVED': return '#3ddf1dff';
+      case 'RESOLVED': return '#2ECC71';
       default: return 'orange';
     }
   }

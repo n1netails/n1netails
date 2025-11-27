@@ -25,7 +25,7 @@ jobs:
       - name: Checkout base branch (main)
         run: |
           git clone --depth 1 --branch ${{ github.base_ref }} \
-            https://github.com/n1netails/${{ github.repository }} base_branch
+            https://github.com/${{ github.repository }} base_branch
 
       - name: Extract base version
         id: base_version

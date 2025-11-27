@@ -1,0 +1,45 @@
+name: Enforce Version Bump
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout PR branch into default directory
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract PR version
+        id: pr_version
+        run: |
+          VERSION_PR=$(mvn -q -DforceStdout help:evaluate -Dexpression=project.version)
+          echo "version_pr=$VERSION_PR" >> $GITHUB_OUTPUT
+
+      # Checkout main into a DIFFERENT directory
+      - name: Checkout base branch (main)
+        run: |
+          git clone --depth 1 --branch ${{ github.base_ref }} \
+            https://github.com/${{ github.repository }} base_branch
+
+      - name: Extract base version
+        id: base_version
+        run: |
+          cd base_branch
+          VERSION_BASE=$(mvn -q -DforceStdout help:evaluate -Dexpression=project.version)
+          echo "version_base=$VERSION_BASE" >> $GITHUB_OUTPUT
+
+      - name: Compare versions
+        run: |
+          echo "Base version: ${{ steps.base_version.outputs.version_base }}"
+          echo "PR version:   ${{ steps.pr_version.outputs.version_pr }}"
+
+          if [ "${{ steps.base_version.outputs.version_base }}" = "${{ steps.pr_version.outputs.version_pr }}" ]; then
+            echo "::error ::Version must be bumped in pom.xml for every PR!"
+            exit 1
+          fi

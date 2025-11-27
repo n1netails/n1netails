@@ -25,6 +25,7 @@ import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { TailUtilService } from '../../shared/util/tail-util.service';
 import { ResolveTailModalComponent } from '../../shared/components/resolve-tail-modal/resolve-tail-modal.component';
 import { ResolveTailRequest, TailSummary } from '../../model/tail.model';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 
 @Component({
   selector: 'app-dashboard',
@@ -52,6 +53,7 @@ import { ResolveTailRequest, TailSummary } from '../../model/tail.model';
 export class DashboardComponent implements OnInit {
 
   user: User;
+  isMobile = true;
 
   // metrics
   totalTailAlertsToday = 0;
@@ -64,26 +66,55 @@ export class DashboardComponent implements OnInit {
   stackedBarOptions = { 
     responsive: true, 
     maintainAspectRatio: false,
-    scales: { x: { stacked: true }, y: { stacked: true } } 
+    scales: { x: { stacked: true }, y: { stacked: true } },
+    plugins: {
+      legend: {
+        display: true,
+        position: 'bottom' as const,
+      }
+    }
   };
 
   // Line Chart Options
-  lineChartOptions = { responsive: true, maintainAspectRatio: false, };
-  doughnutOptions = { 
+  lineChartOptions = { 
+    responsive: true, 
+    maintainAspectRatio: false, 
+    plugins: {
+      legend: {
+        display: false
+      }
+    }
+  };
+
+  // Pie Chart Options
+  pieChartOptions = {
     responsive: true,
     maintainAspectRatio: false,
+    plugins: {
+        legend: {
+          display: true,
+          position: 'right' as const,
+        }
+      }
   };
 
   // Tail Resoultion Status (Pie Chart)
   alertStatusData = {
-    labels: ['Resolved', 'Not Resolved'],
-    datasets: [{ data: [this.totalTailsResolved, this.totalTailsNotResolved], backgroundColor: ['#F06D0F', '#F00F21'], borderWidth: 1, borderColor: '#F38A3F'}]
+    labels: ['Resolved', 'Blocked', 'New', 'In progress'],
+    datasets: [{ data: [0, 0, 0, 0], backgroundColor: ['#F06D0F', '#F00F21', '#FFA500', '#1E90FF'], borderWidth: 1, borderColor: '#F38A3F'}]
   };
 
   // Tail Alerts Hourly (Bar Chart)
   alertsTodayData = {
     labels: ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00','08:00', '09:00'],
-    datasets: [{ label: 'Alerts', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], backgroundColor: '#F06D0F' }]
+    datasets: [
+      { label: 'Info', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], backgroundColor: '#1E90FF' },
+      { label: 'Success', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], backgroundColor: 'green' },
+      { label: 'Warn', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], backgroundColor: '#FFA500' },
+      { label: 'Error', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], backgroundColor: '#FF4500' },
+      { label: 'Critical', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], backgroundColor: '#FF0000' },
+      { label: 'Kuda', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], backgroundColor: '#8B0000' },
+    ]
   };
 
   // Monthly Alerts Stacked (Stacked Bar Chart)
@@ -128,7 +159,8 @@ export class DashboardComponent implements OnInit {
     private authenticationService: AuthenticationService,
     private tailMetricsService: TailMetricsService,
     private tailService: TailService,
-    private router: Router
+    private router: Router,
+    private breakpointObserver: BreakpointObserver
   ) {
     this.user = this.authenticationService.getUserFromLocalCache();
   }
@@ -140,8 +172,37 @@ export class DashboardComponent implements OnInit {
 
     const apiUrl = this.uiConfigService.getApiUrl();
     console.log('API URL:', apiUrl);
-
     this.initDashboard();
+
+    this.breakpointObserver.observe([Breakpoints.Small, Breakpoints.XSmall]).subscribe(result => {
+      this.isMobile = result.matches;
+      this.updateChartOptions();
+    });
+  }
+
+  updateChartOptions() {
+    this.stackedBarOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: { x: { stacked: true }, y: { stacked: true } },
+      plugins: {
+        legend: {
+          display: !this.isMobile,
+          position: 'bottom' as const,
+        }
+      }
+    };
+
+    this.pieChartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'right'
+        }
+      }
+    };
   }
 
   goToTail(id: number) {
@@ -179,29 +240,37 @@ export class DashboardComponent implements OnInit {
         datasets: [{ label: 'MTTR (hours)', data: result.data, borderColor: '#F06D0F', tension: 0.4 }]
       };
     });
-    this.tailMetricsService.getTailAlertsHourly(userTimezone).subscribe(result => {
+    this.tailMetricsService.getTailAlertsHourlyByLevel(userTimezone).subscribe(result => {
       this.alertsTodayData = {
         labels: result.labels,
-        datasets: [{ label: 'Alerts', data: result.data, backgroundColor: '#F06D0F' }]
+        datasets: result.datasets.map(dataset => ({
+          ...dataset,
+          backgroundColor: this.tailUtilService.getBarChartLevelColor(dataset.label)
+        }))
+      };
+    });
+    this.tailMetricsService.getTailResolutionStatus().subscribe(result => {
+
+      console.log('tail status count', result);
+
+      this.alertStatusData = {
+        labels: result.labels,
+        datasets: [
+          {
+            data: result.data,
+            backgroundColor: result.labels.map(label => this.tailUtilService.getPieChartStatusColor(label)),
+            borderWidth: 1, borderColor: '#F38A3F'
+          }
+        ]
       };
     });
     this.tailMetricsService.getTailMonthlySummary(userTimezone).subscribe(result => {
       this.monthlyAlertsData = {
         labels: result.labels,
-        datasets: [
-          // INFO
-          { label: result.datasets[0].label, data: result.datasets[0].data, backgroundColor: '#1E90FF' },
-          // SUCCESS
-          { label: result.datasets[1].label, data: result.datasets[1].data, backgroundColor: 'green' },
-          // WARN
-          { label: result.datasets[2].label, data: result.datasets[2].data, backgroundColor: '#FFA500' },
-          // ERROR
-          { label: result.datasets[3].label, data: result.datasets[3].data, backgroundColor: '#FF4500' },
-          // CRITICAL
-          { label: result.datasets[4].label, data: result.datasets[4].data, backgroundColor: '#FF0000' },
-          // KUDA
-          { label: result.datasets[5] ? result.datasets[5].label : 'KUDA', data: result.datasets[5]?.data, backgroundColor: '#8B0000' },
-        ]
+        datasets: result.datasets.map(dataset => ({
+          ...dataset,
+          backgroundColor: this.tailUtilService.getBarChartLevelColor(dataset.label)
+        }))
       };
     });
   }

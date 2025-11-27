@@ -413,4 +413,116 @@ public class TailMetricsServiceImpl implements TailMetricsService {
     private Instant getTomorrowStartOfDay() {
         return LocalDate.now().plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC);
     }
+
+    @Override
+    public TailAlertsHourlyByLevelResponse getTailAlertsHourlyByLevel(String timezoneIdString, Long userId, List<Long> organizationIds) {
+        ZoneId userZone = ZoneId.of(timezoneIdString);
+        ZonedDateTime userZonedNow = ZonedDateTime.now(userZone);
+        Instant nowUtc = userZonedNow.toInstant();
+        Instant nineHoursAgoUtc = nowUtc.minus(9, ChronoUnit.HOURS);
+
+        List<TailLevelAndTimestamp> tailLevelAndTimestampList;
+        if (userId != null) {
+            tailLevelAndTimestampList = tailMetricsRepository.findOnlyLevelAndTimestampsBetweenAndUserId(nineHoursAgoUtc, nowUtc, userId);
+        } else if (organizationIds != null && !organizationIds.isEmpty()) {
+            tailLevelAndTimestampList = tailMetricsRepository.findOnlyLevelAndTimestampsBetweenAndOrganizationIdIn(nineHoursAgoUtc, nowUtc, organizationIds);
+        } else {
+            tailLevelAndTimestampList = tailRepository.findOnlyLevelAndTimestampsBetween(nineHoursAgoUtc, nowUtc);
+        }
+
+        List<String> labels = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:00").withZone(userZone);
+        for (int i = 9; i >= 0; i--) {
+            ZonedDateTime labelTime = userZonedNow.minusHours(i).truncatedTo(ChronoUnit.HOURS);
+            labels.add(formatter.format(labelTime));
+        }
+
+        List<TailLevelEntity> allLevels = tailLevelRepository.findAll();
+        Map<String, Map<String, Integer>> levelHourCounts = new HashMap<>();
+        DateTimeFormatter tailHourFormatter = DateTimeFormatter.ofPattern("HH:00").withZone(userZone);
+
+        for (TailLevelAndTimestamp tail : tailLevelAndTimestampList) {
+            if (tail.getTimestamp() != null && tail.getLevel() != null && tail.getLevel().getName() != null) {
+                String tailHourStr = tailHourFormatter.format(tail.getTimestamp());
+                String levelName = tail.getLevel().getName();
+                levelHourCounts.computeIfAbsent(levelName, k -> new HashMap<>())
+                        .merge(tailHourStr, 1, Integer::sum);
+            }
+        }
+
+        List<TailDatasetResponse> datasets = new ArrayList<>();
+        List<String> standardLevels = Arrays.asList("INFO", "SUCCESS", "WARN", "ERROR", "CRITICAL");
+        Map<String, Integer> kudaCounts = new HashMap<>();
+
+        for (TailLevelEntity levelEntity : allLevels) {
+            String levelName = levelEntity.getName();
+            if (standardLevels.contains(levelName)) {
+                List<Integer> levelData = new ArrayList<>();
+                for (String label : labels) {
+                    levelData.add(levelHourCounts.getOrDefault(levelName, Collections.emptyMap()).getOrDefault(label, 0));
+                }
+                datasets.add(new TailDatasetResponse(levelName, levelData));
+            } else {
+                for (String label : labels) {
+                    kudaCounts.merge(label, levelHourCounts.getOrDefault(levelName, Collections.emptyMap()).getOrDefault(label, 0), Integer::sum);
+                }
+            }
+        }
+
+        List<Integer> kudaData = new ArrayList<>();
+        boolean hasKudaData = false;
+        for (String label : labels) {
+            int count = kudaCounts.getOrDefault(label, 0);
+            kudaData.add(count);
+            if (count > 0) {
+                hasKudaData = true;
+            }
+        }
+        if (hasKudaData || allLevels.stream().anyMatch(l -> !standardLevels.contains(l.getName()))) {
+            datasets.add(new TailDatasetResponse("Kuda", kudaData));
+        }
+
+        datasets.sort(Comparator.comparingInt(ds -> {
+            switch (ds.getLabel()) {
+                case "INFO": return 0;
+                case "SUCCESS": return 1;
+                case "WARN": return 2;
+                case "ERROR": return 3;
+                case "CRITICAL": return 4;
+                case "Kuda": return 5;
+                default: return 6;
+            }
+        }));
+
+        return new TailAlertsHourlyByLevelResponse(labels, datasets);
+    }
+
+    @Override
+    public TailResolutionStatusResponse getTailResolutionStatus(Long userId, List<Long> organizationIds) {
+        List<String> labels = Arrays.asList("NEW", "IN_PROGRESS", "RESOLVED", "BLOCKED");
+        Map<String, Integer> statusCounts = new HashMap<>();
+        for (String label : labels) {
+            statusCounts.put(label, 0);
+        }
+
+        List<com.n1netails.n1netails.api.model.dto.TailStatusCount> counts;
+        if (userId != null) {
+            counts = tailMetricsRepository.countByStatusGroupedAndAssignedUserId(userId);
+        } else if (organizationIds != null && !organizationIds.isEmpty()) {
+            counts = tailMetricsRepository.countByStatusGroupedAndOrganizationIdIn(organizationIds);
+        } else {
+            counts = new ArrayList<>(); // Should not be reached
+        }
+
+        for (com.n1netails.n1netails.api.model.dto.TailStatusCount count : counts) {
+            statusCounts.put(count.getStatusName(), (int) count.getCount());
+        }
+
+        List<Integer> data = new ArrayList<>();
+        for (String label : labels) {
+            data.add(statusCounts.get(label));
+        }
+
+        return new TailResolutionStatusResponse(labels, data);
+    }
 }

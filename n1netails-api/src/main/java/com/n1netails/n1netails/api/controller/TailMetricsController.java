@@ -235,4 +235,43 @@ public class TailMetricsController {
             return tailMetricsService.getTailMonthlySummary(timezoneRequest.getTimezone(), null, organizationIds);
         }
     }
+
+    @Operation(summary = "Get tail alerts count per hour by level for the last 9 hours.", responses = {
+            @ApiResponse(responseCode = "200", description = "Hourly tail alert counts by level",
+                    content = @Content(schema = @Schema(implementation = TailAlertsHourlyByLevelResponse.class)))
+    })
+    @PostMapping("/hourly-by-level")
+    public TailAlertsHourlyByLevelResponse getTailAlertsHourlyByLevel(@RequestHeader(AUTHORIZATION) String authorizationHeader,
+                                                                         @RequestBody TimezoneRequest timezoneRequest) throws UserNotFoundException {
+        UserPrincipal principal = authorizationService.getCurrentUserPrincipal(authorizationHeader);
+        Long currentUserId = principal.getId();
+        List<Long> organizationIds = principal.getOrganizations().stream().map(OrganizationEntity::getId).collect(Collectors.toList());
+        boolean isN1neTailsOrgMember = principal.getOrganizations().stream()
+                .anyMatch(org -> "n1netails".equalsIgnoreCase(org.getName()));
+
+        if (isN1neTailsOrgMember) {
+            return tailMetricsService.getTailAlertsHourlyByLevel(timezoneRequest.getTimezone(), currentUserId, null);
+        } else {
+            return tailMetricsService.getTailAlertsHourlyByLevel(timezoneRequest.getTimezone(), null, organizationIds);
+        }
+    }
+
+    @Operation(summary = "Get tail resolution status counts.", responses = {
+            @ApiResponse(responseCode = "200", description = "Tail resolution status counts",
+                    content = @Content(schema = @Schema(implementation = TailResolutionStatusResponse.class)))
+    })
+    @GetMapping("/resolution-status")
+    public TailResolutionStatusResponse getTailResolutionStatus(@RequestHeader(AUTHORIZATION) String authorizationHeader) throws UserNotFoundException {
+        UserPrincipal principal = authorizationService.getCurrentUserPrincipal(authorizationHeader);
+        Long currentUserId = principal.getId();
+        List<Long> organizationIds = principal.getOrganizations().stream().map(OrganizationEntity::getId).collect(Collectors.toList());
+        boolean isN1neTailsOrgMember = principal.getOrganizations().stream()
+                .anyMatch(org -> "n1netails".equalsIgnoreCase(org.getName()));
+
+        if (isN1neTailsOrgMember) {
+            return tailMetricsService.getTailResolutionStatus(currentUserId, null);
+        } else {
+            return tailMetricsService.getTailResolutionStatus(null, organizationIds);
+        }
+    }
 }

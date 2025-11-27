@@ -31,7 +31,7 @@
           <nz-col [nzXs]="24" [nzLg]="16">
             <nz-card nzTitle="Tail Alerts (Hourly)" [nzBordered]="false">
               <div style="height: 200px">
-                <canvas baseChart [data]="alertsTodayData" [options]="barChartOptions" [type]="'bar'">
+                <canvas baseChart [data]="alertsTodayData" [options]="stackedBarOptions" [type]="'bar'">
                 </canvas>
               </div>
             </nz-card>
@@ -39,7 +39,7 @@
           <nz-col [nzXs]="24" [nzLg]="8">
             <nz-card nzTitle="Tail Resolution Status" [nzBordered]="false">
               <div style="height: 200px">
-                <canvas baseChart [data]="alertStatusData" [options]="doughnutOptions" [type]="'doughnut'">
+                <canvas baseChart [data]="alertStatusData" [options]="pieChartOptions" [type]="'doughnut'">
                 </canvas>
               </div>
             </nz-card>

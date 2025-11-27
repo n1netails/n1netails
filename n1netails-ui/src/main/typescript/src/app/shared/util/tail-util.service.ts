@@ -18,12 +18,33 @@ export class TailUtilService {
     }
   }
 
+  getBarChartLevelColor(level: string): string {
+    switch (level?.toUpperCase()) {
+      case 'INFO': return '#1E90FF';
+      case 'SUCCESS': return 'green';
+      case 'WARN': return '#FFA500';
+      case 'ERROR': return '#FF4500';
+      case 'CRITICAL': return '#FF0000';
+      default: return '#8B0000';
+    }
+  }
+
   getStatusColor(status: string): string {
     switch (status?.toUpperCase()) {
-      case 'NEW': return 'green';
+      case 'NEW': return '#1E90FF';
       case 'IN_PROGRESS': return 'gold';
       case 'BLOCKED': return 'red';
       case 'RESOLVED': return 'blue';
+      default: return 'orange';
+    }
+  }
+
+    getPieChartStatusColor(status: string): string {
+    switch (status?.toUpperCase()) {
+      case 'NEW': return '#1E90FF';
+      case 'IN_PROGRESS': return '#FFA500';
+      case 'BLOCKED': return '#F00F21';
+      case 'RESOLVED': return '#3ddf1dff';
       default: return 'orange';
     }
   }

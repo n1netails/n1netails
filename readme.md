@@ -6,6 +6,16 @@
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](LICENSE)
 
+![Stars](https://img.shields.io/github/stars/n1netails/n1netails) 
+![Issues](https://img.shields.io/github/issues/n1netails/n1netails)
+![Contributors](https://img.shields.io/github/contributors/n1netails/n1netails)
+![Last Commit](https://img.shields.io/github/last-commit/n1netails/n1netails)
+
+[//]: # (![GitHub Release]&#40;https://img.shields.io/github/v/release/n1netails/n1netails&#41;)
+[//]: # (![Forks]&#40;https://img.shields.io/github/forks/n1netails/n1netails&#41;)
+[//]: # (![Docker Pulls]&#40;https://img.shields.io/docker/pulls/n1netails/n1netails?logo=docker&#41;)
+[//]: # (![Twitter Follow]&#40;https://img.shields.io/twitter/follow/n1netails?style=social&#41;)
+
 # Alert Monitoring and Management
 N1netails is an open-source project that provides practical alerts and monitoring for applications. If you're tired of relying on complex SIEM tools 
 to identify issues — or if your application lacks any alerting at all — N1netails offers a straightforward way to gain 

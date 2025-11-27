@@ -23,6 +23,16 @@ export interface TailDatasetResponse {
   data: number[];
 }
 
+export interface TailAlertsHourlyByLevelResponse {
+  labels: string[];
+  datasets: TailDatasetResponse[];
+}
+
+export interface TailResolutionStatusResponse {
+  labels: string[];
+  data: number[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -72,5 +82,16 @@ export class TailMetricsService {
     this.host = this.uiConfigService.getApiUrl() + this.apiPath;
     const payload = { timezone: timezone }
     return this.http.post<TailMonthlySummaryResponse>(`${this.host}/monthly-summary`, payload);
+  }
+
+  getTailAlertsHourlyByLevel(timezone: string): Observable<TailAlertsHourlyByLevelResponse> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiPath;
+    const payload = { timezone: timezone };
+    return this.http.post<TailAlertsHourlyByLevelResponse>(`${this.host}/hourly-by-level`, payload);
+  }
+
+  getTailResolutionStatus(): Observable<TailResolutionStatusResponse> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiPath;
+    return this.http.get<TailResolutionStatusResponse>(`${this.host}/resolution-status`);
   }
 }

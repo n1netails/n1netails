@@ -16,12 +16,6 @@
             <nz-card class="tails-primary-color" nzTitle="Alerts Today" [nzBordered]="false"><b>{{ totalTailAlertsToday }}</b></nz-card>
           </nz-col>
           <nz-col [nzXs]="24" [nzSm]="12" [nzMd]="6">
-            <nz-card class="tails-primary-color" nzTitle="Resolved" [nzBordered]="false"><b>{{ totalTailsResolved }}</b></nz-card>
-          </nz-col>
-          <nz-col [nzXs]="24" [nzSm]="12" [nzMd]="6">
-            <nz-card class="tails-primary-color" nzTitle="Not Resolved" [nzBordered]="false"><b>{{ totalTailsNotResolved }}</b></nz-card>
-          </nz-col>
-          <nz-col [nzXs]="24" [nzSm]="12" [nzMd]="6">
             <nz-card class="tails-primary-color" nzTitle="Avg. MTTR" [nzBordered]="false"><b>{{ mttr | duration }}</b></nz-card>
           </nz-col>
         </nz-row>
@@ -31,7 +25,7 @@
           <nz-col [nzXs]="24" [nzLg]="16">
             <nz-card nzTitle="Tail Alerts (Hourly)" [nzBordered]="false">
               <div style="height: 200px">
-                <canvas baseChart [data]="alertsTodayData" [options]="barChartOptions" [type]="'bar'">
+                <canvas baseChart [data]="alertsTodayData" [options]="stackedBarOptions" [type]="'bar'">
                 </canvas>
               </div>
             </nz-card>
@@ -39,7 +33,7 @@
           <nz-col [nzXs]="24" [nzLg]="8">
             <nz-card nzTitle="Tail Resolution Status" [nzBordered]="false">
               <div style="height: 200px">
-                <canvas baseChart [data]="alertStatusData" [options]="doughnutOptions" [type]="'doughnut'">
+                <canvas baseChart [data]="alertStatusData" [options]="pieChartOptions" [type]="'pie'">
                 </canvas>
               </div>
             </nz-card>

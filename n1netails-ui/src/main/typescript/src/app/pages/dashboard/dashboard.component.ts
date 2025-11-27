@@ -55,8 +55,6 @@ export class DashboardComponent implements OnInit {
 
   // metrics
   totalTailAlertsToday = 0;
-  totalTailsResolved = 0;
-  totalTailsNotResolved = 0;
   mttr = 0;
 
   // Bar Chart Options
@@ -69,22 +67,16 @@ export class DashboardComponent implements OnInit {
 
   // Line Chart Options
   lineChartOptions = { responsive: true, maintainAspectRatio: false, };
-  doughnutOptions = { 
+  pieChartOptions = {
     responsive: true,
     maintainAspectRatio: false,
   };
 
   // Tail Resoultion Status (Pie Chart)
-  alertStatusData = {
-    labels: ['Resolved', 'Not Resolved'],
-    datasets: [{ data: [this.totalTailsResolved, this.totalTailsNotResolved], backgroundColor: ['#F06D0F', '#F00F21'], borderWidth: 1, borderColor: '#F38A3F'}]
-  };
+  alertStatusData: any = {};
 
   // Tail Alerts Hourly (Bar Chart)
-  alertsTodayData = {
-    labels: ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00','08:00', '09:00'],
-    datasets: [{ label: 'Alerts', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], backgroundColor: '#F06D0F' }]
-  };
+  alertsTodayData: any = {};
 
   // Monthly Alerts Stacked (Stacked Bar Chart)
   monthlyAlertsData = {
@@ -162,14 +154,6 @@ export class DashboardComponent implements OnInit {
     this.tailMetricsService.countTailAlertsToday(userTimezone).subscribe(result => {
       this.totalTailAlertsToday = result;
     });
-    this.tailMetricsService.countTailAlertsResolved().subscribe(result => {
-      this.totalTailsResolved = result;
-      this.updateAlertStatusData();
-    });
-    this.tailMetricsService.countTailAlertsNotResolved().subscribe(result => {
-      this.totalTailsNotResolved = result;
-      this.updateAlertStatusData();
-    });
     this.tailMetricsService.mttr().subscribe(result => {
       this.mttr = result;
     });
@@ -179,38 +163,33 @@ export class DashboardComponent implements OnInit {
         datasets: [{ label: 'MTTR (hours)', data: result.data, borderColor: '#F06D0F', tension: 0.4 }]
       };
     });
-    this.tailMetricsService.getTailAlertsHourly(userTimezone).subscribe(result => {
+    this.tailMetricsService.getTailAlertsHourlyByLevel(userTimezone).subscribe(result => {
       this.alertsTodayData = {
         labels: result.labels,
-        datasets: [{ label: 'Alerts', data: result.data, backgroundColor: '#F06D0F' }]
+        datasets: result.datasets.map(dataset => ({
+          ...dataset,
+          backgroundColor: this.tailUtilService.getLevelColor(dataset.label)
+        }))
+      };
+    });
+    this.tailMetricsService.getTailResolutionStatus().subscribe(result => {
+      this.alertStatusData = {
+        labels: result.labels,
+        datasets: [{
+          data: result.data,
+          backgroundColor: result.labels.map(label => this.tailUtilService.getStatusColor(label))
+        }]
       };
     });
     this.tailMetricsService.getTailMonthlySummary(userTimezone).subscribe(result => {
       this.monthlyAlertsData = {
         labels: result.labels,
-        datasets: [
-          // INFO
-          { label: result.datasets[0].label, data: result.datasets[0].data, backgroundColor: '#1E90FF' },
-          // SUCCESS
-          { label: result.datasets[1].label, data: result.datasets[1].data, backgroundColor: 'green' },
-          // WARN
-          { label: result.datasets[2].label, data: result.datasets[2].data, backgroundColor: '#FFA500' },
-          // ERROR
-          { label: result.datasets[3].label, data: result.datasets[3].data, backgroundColor: '#FF4500' },
-          // CRITICAL
-          { label: result.datasets[4].label, data: result.datasets[4].data, backgroundColor: '#FF0000' },
-          // KUDA
-          { label: result.datasets[5] ? result.datasets[5].label : 'KUDA', data: result.datasets[5]?.data, backgroundColor: '#8B0000' },
-        ]
+        datasets: result.datasets.map(dataset => ({
+          ...dataset,
+          backgroundColor: this.tailUtilService.getLevelColor(dataset.label)
+        }))
       };
     });
-  }
-
-  updateAlertStatusData() {
-    this.alertStatusData = {
-      labels: ['Resolved', 'Not Resolved'],
-      datasets: [{ data: [this.totalTailsResolved, this.totalTailsNotResolved], backgroundColor: ['#F06D0F', '#F00F21'], borderWidth: 1, borderColor: '#F38A3F'}]
-    };
   }
 
   getTop9NewestTails(callback: (res: any) => void): void {

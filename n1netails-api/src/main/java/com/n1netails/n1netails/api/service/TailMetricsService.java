@@ -22,4 +22,8 @@ public interface TailMetricsService {
     TailMonthlySummaryResponse getTailMonthlySummary(String timezone, Long userId, List<Long> organizationIds);
 
     TailDatasetMttrResponse getTailMTTRLast7Days(Long userId, List<Long> organizationIds);
+
+    TailAlertsHourlyByLevelResponse getTailAlertsHourlyByLevel(String timezone, Long userId, List<Long> organizationIds);
+
+    TailResolutionStatusResponse getTailResolutionStatus(Long userId, List<Long> organizationIds);
 }

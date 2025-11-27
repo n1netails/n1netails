@@ -54,6 +54,12 @@ public interface TailMetricsRepository extends JpaRepository<TailEntity, Long> {
             "AND t.assignedUserId = :userId")
     List<TailTimestampAndResolvedTimestamp> findAllByTimestampAfterAndResolvedTimestampIsNotNullAndUserId(@Param("daysAgo") Instant daysAgo, @Param("userId") Long userId);
 
+    @Query("SELECT new com.n1netails.n1netails.api.model.dto.TailStatusCount(t.status.name, COUNT(t)) " +
+            "FROM TailEntity t " +
+            "WHERE t.assignedUserId = :userId " +
+            "GROUP BY t.status.name")
+    List<com.n1netails.n1netails.api.model.dto.TailStatusCount> countByStatusGroupedAndAssignedUserId(@Param("userId") Long userId);
+
     // Methods for filtering by OrganizationIdIn
     @Query("SELECT COUNT(t) " +
             "FROM TailEntity t " +
@@ -127,4 +133,11 @@ public interface TailMetricsRepository extends JpaRepository<TailEntity, Long> {
             "AND t.timestamp >= :daysAgo " +
             "AND o.id IN :organizationIds")
     List<TailTimestampAndResolvedTimestamp> findAllByTimestampAfterAndResolvedTimestampIsNotNullAndOrganizationIdIn(@Param("daysAgo") Instant daysAgo, @Param("organizationIds") List<Long> organizationIds);
+
+    @Query("SELECT new com.n1netails.n1netails.api.model.dto.TailStatusCount(t.status.name, COUNT(t)) " +
+            "FROM TailEntity t " +
+            "JOIN t.organization o " +
+            "WHERE o.id IN :organizationIds " +
+            "GROUP BY t.status.name")
+    List<com.n1netails.n1netails.api.model.dto.TailStatusCount> countByStatusGroupedAndOrganizationIdIn(@Param("organizationIds") List<Long> organizationIds);
 }

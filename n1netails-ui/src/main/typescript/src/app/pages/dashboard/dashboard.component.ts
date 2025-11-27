@@ -101,7 +101,7 @@ export class DashboardComponent implements OnInit {
   // Tail Resoultion Status (Pie Chart)
   alertStatusData = {
     labels: ['Resolved', 'Blocked', 'New', 'In progress'],
-    datasets: [{ data: [0, 0, 0, 0], backgroundColor: ['#F06D0F', '#F00F21', '#FFA500', '#1E90FF'], borderWidth: 1, borderColor: '#F38A3F'}]
+    datasets: [{ data: [0, 0, 0, 0], backgroundColor: ['#F06D0F', '#F00F21', '#FFA500', '#1E90FF'], borderWidth: 3, borderColor: '#F38A3F'}]
   };
 
   // Tail Alerts Hourly (Bar Chart)
@@ -259,7 +259,7 @@ export class DashboardComponent implements OnInit {
           {
             data: result.data,
             backgroundColor: result.labels.map(label => this.tailUtilService.getPieChartStatusColor(label)),
-            borderWidth: 1, borderColor: '#F38A3F'
+            borderWidth: 3, borderColor: '#F38A3F'
           }
         ]
       };
@@ -278,7 +278,7 @@ export class DashboardComponent implements OnInit {
   updateAlertStatusData() {
     this.alertStatusData = {
       labels: ['Resolved', 'Not Resolved'],
-      datasets: [{ data: [this.totalTailsResolved, this.totalTailsNotResolved], backgroundColor: ['#F06D0F', '#F00F21'], borderWidth: 1, borderColor: '#F38A3F'}]
+      datasets: [{ data: [this.totalTailsResolved, this.totalTailsNotResolved], backgroundColor: ['#F06D0F', '#F00F21'], borderWidth: 3, borderColor: '#F38A3F'}]
     };
   }
 

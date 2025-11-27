@@ -22,8 +22,8 @@ jobs:
       - name: Extract version from PR branch
         id: pr_version
         run: |
-          VERSION_PR=$(xmllint --xpath "string(//project/version)" pom.xml)
-          echo "version_pr=$VERSION_PR" >> $GITHUB_OUTPUT
+          VERSION_PR=$(mvn -q -DforceStdout help:evaluate -Dexpression=project.version)
+          echo "version_pr=$VERSION_PR" >> "$GITHUB_OUTPUT"
 
       - name: Checkout base branch (main)
         run: |
@@ -33,8 +33,8 @@ jobs:
       - name: Extract version from base branch
         id: base_version
         run: |
-          VERSION_BASE=$(xmllint --xpath "string(//project/version)" pom.xml)
-          echo "version_base=$VERSION_BASE" >> $GITHUB_OUTPUT
+          VERSION_BASE=$(mvn -q -DforceStdout help:evaluate -Dexpression=project.version)
+          echo "version_base=$VERSION_BASE" >> "$GITHUB_OUTPUT"
 
       - name: Compare versions
         run: |

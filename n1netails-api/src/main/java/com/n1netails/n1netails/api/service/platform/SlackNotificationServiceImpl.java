@@ -22,7 +22,6 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.n1netails.n1netails.api.constant.PlatformConstant.SLACK;
@@ -88,7 +87,6 @@ public class SlackNotificationServiceImpl implements NotificationPlatform {
         if (request.getDetails() != null && !request.getDetails().isEmpty() && !request.getDetails().isBlank()) {
             layoutBlocks.add(Blocks.section(section -> section.text(BlockCompositions.markdownText("Details: " + request.getDetails()))));
         }
-        layoutBlocks.add(Blocks.section(section -> section.text(BlockCompositions.markdownText(String.valueOf(request.getTimestamp())))));
         layoutBlocks.add(Blocks.section(section -> section.text(BlockCompositions.markdownText("View notification: " + ui))));
 
         msg.setBlocks(layoutBlocks);

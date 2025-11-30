@@ -73,15 +73,6 @@ public class TeamsNotificationServiceImpl implements NotificationPlatform {
             sections.add(section);
         }
 
-        if (request.getDetails() != null && !request.getDetails().isEmpty() && !request.getDetails().isBlank()) {
-            Section detailsSection = new Section();
-            detailsSection.setTitle("Details");
-            List<Fact> facts = new ArrayList<>();
-            facts.add(new Fact("content", request.getDetails()));
-            detailsSection.setFacts(facts);
-            sections.add(detailsSection);
-        }
-
         Section linkSection = new Section();
         linkSection.setTitle("View notification");
         List<Fact> facts = new ArrayList<>();

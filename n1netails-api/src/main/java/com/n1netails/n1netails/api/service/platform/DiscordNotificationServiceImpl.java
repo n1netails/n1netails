@@ -86,15 +86,7 @@ public class DiscordNotificationServiceImpl implements NotificationPlatform {
         int year = java.time.LocalDate.now().getYear();
         footer.setText("N1netails @ " + year);
         footer.setIcon_url("https://raw.githubusercontent.com/n1netails/n1netails/refs/heads/main/n1netails_icon_transparent.png");
-
-        String description;
-        if (request.getDetails() != null && !request.getDetails().isEmpty() && !request.getDetails().isBlank()) {
-            description = request.getDescription() + " \n" + "Details: \n" + request.getDetails();
-        } else if (request.getDescription() == null && request.getDetails() != null && !request.getDetails().isEmpty() && !request.getDetails().isBlank()) {
-            description = "Details: \n" + request.getDetails();
-        } else {
-            description = request.getDescription();
-        }
+        String description = request.getDescription();
 
         Embed embed = new EmbedBuilder()
                 .withTitle("View Notification")

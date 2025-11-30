@@ -83,10 +83,6 @@ public class SlackNotificationServiceImpl implements NotificationPlatform {
                 layoutBlocks.add(Blocks.section(section -> section.text(BlockCompositions.markdownText("- " + key + ": " + value))));
             });
         }
-
-        if (request.getDetails() != null && !request.getDetails().isEmpty() && !request.getDetails().isBlank()) {
-            layoutBlocks.add(Blocks.section(section -> section.text(BlockCompositions.markdownText("Details: " + request.getDetails()))));
-        }
         layoutBlocks.add(Blocks.section(section -> section.text(BlockCompositions.markdownText("View notification: " + ui))));
 
         msg.setBlocks(layoutBlocks);

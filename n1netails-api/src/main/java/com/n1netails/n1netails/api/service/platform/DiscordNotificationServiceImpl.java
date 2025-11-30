@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.n1netails.n1netails.api.constant.PlatformConstant.DISCORD;
+import static com.n1netails.n1netails.api.constant.TailLevelConstant.*;
 
 @Slf4j
 @Service
@@ -88,11 +89,20 @@ public class DiscordNotificationServiceImpl implements NotificationPlatform {
         footer.setIcon_url("https://raw.githubusercontent.com/n1netails/n1netails/refs/heads/main/n1netails_icon_transparent.png");
         String description = request.getDescription();
 
+        String tailLevelDiscordColor = switch (request.getLevel().toUpperCase()) {
+            case INFO -> DiscordColor.BLUE.getValue();
+            case SUCCESS -> DiscordColor.GREEN.getValue();
+            case WARN -> DiscordColor.GOLD.getValue();
+            case ERROR -> DiscordColor.ORANGE.getValue();
+            case CRITICAL -> DiscordColor.RED.getValue();
+            default -> DiscordColor.DARK_RED.getValue();
+        };
+
         Embed embed = new EmbedBuilder()
                 .withTitle("View Notification")
                 .withDescription(description)
                 .withUrl(ui)
-                .withColor(DiscordColor.ORANGE.getValue())
+                .withColor(tailLevelDiscordColor)
                 .withAuthor(author)
                 .withFields(fields)
                 .withFooter(footer)

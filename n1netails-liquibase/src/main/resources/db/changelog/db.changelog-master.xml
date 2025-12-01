@@ -27,4 +27,5 @@
     <include file="db/changelog/db.changelog-00018-create-n1-token-hash.xml"/>
     <include file="db/changelog/db.changelog-00019-remove-uuid-token.xml"/>
     <include file="db/changelog/db.changelog-00020-create-tables-notifications.xml"/>
+    <include file="db.changelog-00021-add-tutorial-completed-to-users.xml"/>
 </databaseChangeLog>

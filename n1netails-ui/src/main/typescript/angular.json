@@ -38,6 +38,7 @@
             ],
             "styles": [
               "./node_modules/ng-zorro-antd/ng-zorro-antd.min.css",
+              "./node_modules/shepherd.js/dist/css/shepherd.css",
               "src/styles.less"
             ],
             "scripts": []

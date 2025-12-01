@@ -42,6 +42,7 @@ public class UsersEntity {
     private boolean isActive;
     private boolean isNotLocked;
     private boolean enabled;
+    private boolean tutorialCompleted = false;
 
     // Many-to-many relationship with Users (a user can belong to multiple organizations)
     @ManyToMany

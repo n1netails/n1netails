@@ -236,4 +236,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         forgotPasswordRequest.setExpiredAt(LocalDateTime.now().plusDays(2));
         emailService.sendPasswordResetEmail(forgotPasswordRequestRepository.save(forgotPasswordRequest));
     }
+
+    @Override
+    public void completeTutorial(String email) throws UserNotFoundException {
+        UsersEntity user = userRepository.findUserByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
+        user.setTutorialCompleted(true);
+        userRepository.save(user);
+    }
 }

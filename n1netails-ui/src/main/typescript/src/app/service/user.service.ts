@@ -25,4 +25,9 @@ export class UserService {
     this.host = this.uiConfigService.getApiUrl();
     return this.http.post<User>(`${this.host}/ninetails/user/edit`, user);
   }
+
+  completeTutorial(): Observable<any> {
+    this.host = this.uiConfigService.getApiUrl();
+    return this.http.post(`${this.host}/ninetails/user/complete-tutorial`, {});
+  }
 }

@@ -16,4 +16,5 @@ public interface UserService {
     UsersEntity updatePassword(String email, String newPassword) throws UserNotFoundException;
     UsersEntity updateUserRole(Long userId, String newRoleName) throws UserNotFoundException, InvalidRoleException;
     void forgotPasswordRequest(String email) throws MessagingException, EmailTemplateNotFoundException;
+    void completeTutorial(String email) throws UserNotFoundException;
 }

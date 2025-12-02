@@ -19,7 +19,7 @@ export class TutorialService {
 
   startTutorial() {
     this.shepherdService.defaultStepOptions = {
-      classes: 'custom-class-name-1 custom-class-name-2',
+      classes: 'custom-shepherd-theme',
       scrollTo: true,
       cancelIcon: {
         enabled: true
@@ -33,7 +33,7 @@ export class TutorialService {
       {
         id: 'welcome',
         title: 'Welcome to N1neTails!',
-        text: ['N1neTails is a platform for managing and monitoring your applications. This tutorial will guide you through the key features.'],
+        text: ['N1netails is a platform for managing and monitoring your applications. This tutorial will guide you through the key features.'],
         buttons: [
           {
             classes: 'shepherd-button-secondary',
@@ -69,6 +69,7 @@ export class TutorialService {
         },
         buttons: [
           {
+            classes: 'shepherd-button-primary',
             text: 'Next',
             action: () => this.shepherdService.next()
           }
@@ -77,18 +78,20 @@ export class TutorialService {
       {
         id: 'notification-methods',
         title: 'Preferred Notification Methods',
-        text: ['Choose your preferred notification methods and click "Save Preferences".'],
+        text: ['These preferences can be used to set what type of notifications you want to send and will override any n1ne token settings. Choose your preferred notification methods and click "Save Preferences".'],
         attachTo: {
           element: '[data-tutorial-id="notification-methods-form"]',
           on: 'top'
         },
         buttons: [
           {
+            classes: 'shepherd-button-primary',
             text: 'Next',
             action: () => this.shepherdService.next()
           }
         ]
       },
+      // TODO:: add steps here on creating Token Name and selecting Organization
       {
         id: 'create-token',
         title: 'Create a N1ne Token',
@@ -99,6 +102,7 @@ export class TutorialService {
         },
         buttons: [
           {
+            classes: 'shepherd-button-primary',
             text: 'Next',
             action: () => this.shepherdService.next()
           }
@@ -114,6 +118,7 @@ export class TutorialService {
         },
         buttons: [
           {
+            classes: 'shepherd-button-primary',
             text: 'Next',
             action: () => this.shepherdService.next()
           }
@@ -122,13 +127,14 @@ export class TutorialService {
       {
         id: 'notification-manager',
         title: 'Notification Manager',
-        text: ['Next, let\'s go to the Notification Manager. Click the "Manage" button for a token.'],
+        text: ['Next, let\'s go to the Notification Manager. Click the "Manage" button for a token. (If you have not already please create a n1ne token before this step.)'],
         attachTo: {
           element: '.ant-table-tbody > tr:first-child > td:nth-child(9) > button',
           on: 'right'
         },
         buttons: [
           {
+            classes: 'shepherd-button-primary',
             text: 'Next',
             action: () => this.shepherdService.next()
           }
@@ -162,13 +168,14 @@ export class TutorialService {
       {
         id: 'enable-notifications',
         title: 'Enable Notifications',
-        text: ['You can enable notifications for Email, Microsoft Teams, Slack, Discord, and Telegram here.'],
+        text: ['You can enable token notifications for Email, Microsoft Teams, Slack, Discord, and Telegram in the Token Notification Manager.'],
         attachTo: {
           element: '[data-tutorial-id="enable-notifications"]',
           on: 'top'
         },
         buttons: [
           {
+            classes: 'shepherd-button-primary',
             text: 'Next',
             action: () => this.shepherdService.next()
           }
@@ -177,13 +184,14 @@ export class TutorialService {
       {
         id: 'how-to-create',
         title: 'How to Create...',
-        text: ['If you want to learn more about how to create a notification channel, click on the "How to create..." links.'],
+        text: ['If you want to learn more about how to create a notification channel, click on the "How to create..." links provided by the Token Notification Manager. You can also learn more about how to configure them in the <a href="https://n1netails.com" target="_blank">N1netails Doc</a>'],
         attachTo: {
           element: '[data-tutorial-id="how-to-create-link"]',
           on: 'bottom'
         },
         buttons: [
           {
+            classes: 'shepherd-button-primary',
             text: 'Next',
             action: () => this.shepherdService.next()
           }
@@ -208,6 +216,7 @@ export class TutorialService {
         },
         buttons: [
           {
+            classes: 'shepherd-button-primary',
             text: 'Next',
             action: () => this.shepherdService.next()
           }
@@ -233,6 +242,7 @@ export class TutorialService {
         },
         buttons: [
           {
+            classes: 'shepherd-button-primary',
             text: 'Next',
             action: () => this.shepherdService.next()
           }
@@ -248,17 +258,19 @@ export class TutorialService {
         },
         buttons: [
           {
+            classes: 'shepherd-button-primary',
             text: 'Next',
             action: () => this.shepherdService.next()
           }
         ]
       },
       {
-        id: 'send-manual-alert',
-        title: 'Send a Manual Alert',
-        text: ['Now you know how to send manual alerts. Don\'t forget you can use the N1ne tokens to configure where you want to send your notifications to.'],
+        id: 'send-manual-notification',
+        title: 'Send a Manual Notification',
+        text: ['Send your first manual notification by pressing the "Add" button. Now you know how to send manual notifications. Don\'t forget you can use the N1ne tokens to configure where you want to send your notifications to.'],
         buttons: [
           {
+            classes: 'shepherd-button-primary',
             text: 'Next',
             action: () => this.shepherdService.next()
           }
@@ -267,9 +279,10 @@ export class TutorialService {
       {
         id: 'learn-more',
         title: 'Learn More',
-        text: ['If you want to learn how to send a POST request to N1neTails for your web services, check out our documentation at <a href="https://n1netails.com" target="_blank">N1netails Doc</a>.'],
+        text: ['If you want to learn how to send a POST request to N1neTails for your web services, check out the documentation at <a href="https://n1netails.com/docs/n1netails/n1netails-post-tail-alert" target="_blank">Post Tail Alerts to N1netails</a>.'],
         buttons: [
           {
+            classes: 'shepherd-button-primary',
             text: 'Finish',
             action: () => {
               this.completeTutorial();

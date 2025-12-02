@@ -1,0 +1,2 @@
+ALTER TABLE ntail.users
+ADD COLUMN tutorial_completed BOOLEAN NOT NULL DEFAULT FALSE;

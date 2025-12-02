@@ -1,6 +1,6 @@
 {
   "name": "typescript",
-  "version": "0.3.9",
+  "version": "0.3.10",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -16,6 +16,7 @@
   "dependencies": {
     "@angular/common": "^20.3.13",
     "@angular/compiler": "^20.3.13",
+    "@angular/cdk": "^19.2.19",
     "@angular/core": "^20.3.13",
     "@angular/forms": "^20.3.13",
     "@angular/platform-browser": "^20.3.13",

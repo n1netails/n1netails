@@ -46,7 +46,7 @@ export class TutorialService {
           {
             classes: 'shepherd-button-primary',
             text: 'Next',
-            action: this.shepherdService.next
+            action: () => this.shepherdService.next()
           }
         ]
       },
@@ -70,7 +70,7 @@ export class TutorialService {
         buttons: [
           {
             text: 'Next',
-            action: this.shepherdService.next
+            action: () => this.shepherdService.next()
           }
         ]
       },
@@ -85,7 +85,7 @@ export class TutorialService {
         buttons: [
           {
             text: 'Next',
-            action: this.shepherdService.next
+            action: () => this.shepherdService.next()
           }
         ]
       },
@@ -100,14 +100,14 @@ export class TutorialService {
         buttons: [
           {
             text: 'Next',
-            action: this.shepherdService.next
+            action: () => this.shepherdService.next()
           }
         ]
       },
       {
         id: 'manage-tokens',
         title: 'Manage N1ne Tokens',
-        text: ['You can manage your N1ne tokens here. You can edit, delete, or copy them.'],
+        text: ['You can manage your N1ne tokens here. You can manage, revoke, or delete them.'],
         attachTo: {
           element: '[data-tutorial-id="manage-tokens-table"]',
           on: 'top'
@@ -115,7 +115,7 @@ export class TutorialService {
         buttons: [
           {
             text: 'Next',
-            action: this.shepherdService.next
+            action: () => this.shepherdService.next()
           }
         ]
       },
@@ -130,9 +130,34 @@ export class TutorialService {
         buttons: [
           {
             text: 'Next',
-            action: this.shepherdService.next
+            action: () => this.shepherdService.next()
           }
         ]
+        // buttons: [
+        //   {
+        //     text: 'Waiting for click...',
+        //     disabled: true
+        //   }
+        // ],
+        // beforeShowPromise: () => {
+        //   return new Promise(resolve => {
+        //     // Wait for Angular to finish rendering
+        //     setTimeout(() => {
+        //       const button = document.querySelector(
+        //         '.ant-table-tbody > tr:first-child > td:nth-child(9) > button'
+        //       );
+
+        //       if (button) {
+        //         const handler = () => {
+        //           button.removeEventListener('click', handler);
+        //           resolve(null); // Shepherd will move to next step automatically
+        //         };
+
+        //         button.addEventListener('click', handler);
+        //       }
+        //     }, 300);
+        //   });
+        // }
       },
       {
         id: 'enable-notifications',
@@ -145,7 +170,7 @@ export class TutorialService {
         buttons: [
           {
             text: 'Next',
-            action: this.shepherdService.next
+            action: () => this.shepherdService.next()
           }
         ]
       },
@@ -160,7 +185,7 @@ export class TutorialService {
         buttons: [
           {
             text: 'Next',
-            action: this.shepherdService.next
+            action: () => this.shepherdService.next()
           }
         ]
       },
@@ -184,7 +209,7 @@ export class TutorialService {
         buttons: [
           {
             text: 'Next',
-            action: this.shepherdService.next
+            action: () => this.shepherdService.next()
           }
         ]
       },
@@ -209,7 +234,7 @@ export class TutorialService {
         buttons: [
           {
             text: 'Next',
-            action: this.shepherdService.next
+            action: () => this.shepherdService.next()
           }
         ]
       },
@@ -224,25 +249,25 @@ export class TutorialService {
         buttons: [
           {
             text: 'Next',
-            action: this.shepherdService.next
+            action: () => this.shepherdService.next()
           }
         ]
       },
       {
         id: 'send-manual-alert',
         title: 'Send a Manual Alert',
-        text: ['Once you\'ve created a tail, you can send a manual alert from the tail\'s page. To do this, go to the "Tails" page, click on a tail, and then click the "Send Manual Alert" button.'],
+        text: ['Now you know how to send manual alerts. Don\'t forget you can use the N1ne tokens to configure where you want to send your notifications to.'],
         buttons: [
           {
             text: 'Next',
-            action: this.shepherdService.next
+            action: () => this.shepherdService.next()
           }
         ]
       },
       {
         id: 'learn-more',
         title: 'Learn More',
-        text: ['If you want to learn how to send a POST request to N1neTails, check out our documentation at https://n1netails.com.'],
+        text: ['If you want to learn how to send a POST request to N1neTails for your web services, check out our documentation at <a href="https://n1netails.com" target="_blank">N1netails Doc</a>.'],
         buttons: [
           {
             text: 'Finish',

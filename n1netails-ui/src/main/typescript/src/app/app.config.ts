@@ -15,6 +15,7 @@ import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { AuthInterceptor } from './interceptor/auth.interceptor';
 import { UiConfigService } from './shared/util/ui-config.service';
 import { ShepherdService } from 'angular-shepherd';
+import { NzModalModule } from 'ng-zorro-antd/modal';
 
 registerLocaleData(en);
 
@@ -36,6 +37,7 @@ export const appConfig: ApplicationConfig = {
       return configService.loadConfig();
     }),
     provideCharts(withDefaultRegisterables()),
-    ShepherdService
+    ShepherdService,
+    importProvidersFrom(NzModalModule)
   ]
 };

@@ -5,16 +5,24 @@ import com.n1netails.n1netails.api.exception.type.NotificationException;
 import com.n1netails.n1netails.api.model.entity.NotificationConfigEntity;
 import com.n1netails.n1netails.api.model.notification.MsTeamsNotificationConfig;
 import com.n1netails.n1netails.api.model.request.KudaTailRequest;
+import com.n1netails.n1netails.api.util.EmojiUtil;
 import com.n1netails.n1netails.teams.api.TeamsWebhookClient;
 import com.n1netails.n1netails.teams.exception.TeamsWebhookException;
 import com.n1netails.n1netails.teams.internal.TeamsWebhookClientImpl;
+import com.n1netails.n1netails.teams.model.Fact;
+import com.n1netails.n1netails.teams.model.MessageCard;
+import com.n1netails.n1netails.teams.model.Section;
 import com.n1netails.n1netails.teams.service.WebhookService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.n1netails.n1netails.api.constant.PlatformConstant.MSTEAMS;
 
@@ -22,6 +30,9 @@ import static com.n1netails.n1netails.api.constant.PlatformConstant.MSTEAMS;
 @Service
 @RequiredArgsConstructor
 public class TeamsNotificationServiceImpl implements NotificationPlatform {
+
+    @Value("${n1netails.ui}")
+    private String ui;
 
     private final ObjectMapper objectMapper;
 
@@ -45,22 +56,32 @@ public class TeamsNotificationServiceImpl implements NotificationPlatform {
         var webhookService = new WebhookService();
         TeamsWebhookClient client = new TeamsWebhookClientImpl(webhookService);
 
-        com.n1netails.n1netails.teams.model.WebhookMessage message =
-                new com.n1netails.n1netails.teams.model.WebhookMessage();
+        MessageCard messageCard = new MessageCard();
+        messageCard.setTitle(EmojiUtil.getTailLevelEmoji(request.getLevel()) + request.getTitle());
+        messageCard.setSummary(request.getDescription());
 
-        String content;
-        if (request.getTitle() != null && request.getDescription() != null) {
-            content = String.format("%s \n %s", request.getTitle(), request.getDescription());
-        } else if(request.getTitle() != null) {
-            content = request.getTitle();
-        } else if(request.getDescription() != null) {
-            content = request.getDescription();
-        } else {
-            content = "N1netails alert was triggered";
+        List<Section> sections = new ArrayList<>();
+
+        if (!request.getMetadata().isEmpty()) {
+            Section section = new Section();
+            section.setTitle("Metadata");
+            List<Fact> facts = new ArrayList<>();
+            request.getMetadata().forEach((key, value) -> {
+                facts.add(new Fact(key, value));
+            });
+            section.setFacts(facts);
+            sections.add(section);
         }
 
-        message.setContent(content);
-        client.sendMessage(teamsConfig.getWebhookUrl(), message);
+        Section linkSection = new Section();
+        linkSection.setTitle("View notification");
+        List<Fact> facts = new ArrayList<>();
+        facts.add(new Fact("Dashboard", "[N1netails]("+ui+")"));
+        linkSection.setFacts(facts);
+        sections.add(linkSection);
+
+        messageCard.setSections(sections);
+        client.sendMessage(teamsConfig.getWebhookUrl(), messageCard);
     }
 
     @Recover

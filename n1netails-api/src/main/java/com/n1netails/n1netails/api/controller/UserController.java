@@ -163,6 +163,16 @@ public class UserController {
         return new ResponseEntity<>(newUser, jwtHeader, OK);
     }
 
+    @Operation(
+            summary = "Update user role (Super Admin only)",
+            description = "Allows a Super Admin to update another user's role.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "User role updated successfully",
+                            content = @Content(schema = @Schema(implementation = UsersEntity.class))),
+                    @ApiResponse(responseCode = "403", description = "Access denied"),
+                    @ApiResponse(responseCode = "404", description = "User not found")
+            }
+    )
     @PutMapping("/{userId}/role")
     @PreAuthorize("hasAuthority('user:super')") // 'user:super' is unique to SUPER_ADMIN_AUTHORITIES
     public ResponseEntity<?> updateUserRole(

@@ -6,6 +6,9 @@ import com.n1netails.n1netails.api.model.entity.OrganizationEntity;
 import com.n1netails.n1netails.api.model.request.OrganizationRequest;
 import com.n1netails.n1netails.api.service.AuthorizationService;
 import com.n1netails.n1netails.api.service.OrganizationService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -33,6 +36,13 @@ public class OrganizationController {
     private final OrganizationService organizationService;
     private final AuthorizationService authorizationService;
 
+    @Operation(
+        summary = "Create a new organization",
+        responses = {
+            @ApiResponse(responseCode = "201", description = "Organization created"),
+            @ApiResponse(responseCode = "400", description = "Invalid request")
+        }
+    )
     @PostMapping
     @PreAuthorize("hasAuthority('user:super')") // Corresponds to SUPER_ADMIN_AUTHORITIES which includes 'user:super'
     public ResponseEntity<OrganizationEntity> createOrganization(@Valid @RequestBody OrganizationRequest organizationRequest) {
@@ -40,6 +50,12 @@ public class OrganizationController {
         return new ResponseEntity<>(newOrganization, HttpStatus.CREATED);
     }
 
+    @Operation(
+        summary = "Get all organizations",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "List of organizations")
+        }
+    )
     @GetMapping
     @PreAuthorize("hasAuthority('user:super')")
     public ResponseEntity<List<OrganizationEntity>> getAllOrganizations() {
@@ -48,6 +64,13 @@ public class OrganizationController {
     }
 
     // Endpoints for Super Admin to manage any organization's users
+     @Operation(
+        summary = "Add user to organization (Super Admin)",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "User added"),
+            @ApiResponse(responseCode = "404", description = "Organization or user not found")
+        }
+    )
     @PostMapping("/{organizationId}/users/{userId}")
     @PreAuthorize("hasAuthority('user:super')")
     public ResponseEntity<Void> addUserToOrganization(@PathVariable Long organizationId, @PathVariable Long userId) {
@@ -55,6 +78,13 @@ public class OrganizationController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(
+        summary = "Remove user from organization (Super Admin)",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "User removed"),
+            @ApiResponse(responseCode = "404", description = "Organization or user not found")
+        }
+    )
     @DeleteMapping("/{organizationId}/users/{userId}")
     @PreAuthorize("hasAuthority('user:super')")
     public ResponseEntity<Void> removeUserFromOrganization(@PathVariable Long organizationId, @PathVariable Long userId) {
@@ -63,6 +93,14 @@ public class OrganizationController {
     }
 
     // Endpoints for Admin (of an org) to manage their own organization's members
+    @Operation(
+        summary = "Add member to organization (Admin)",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Member added"),
+            @ApiResponse(responseCode = "403", description = "Forbidden"),
+            @ApiResponse(responseCode = "404", description = "User or organization not found")
+        }
+    )
     @PostMapping("/{organizationId}/members/{targetUserId}")
     @PreAuthorize("hasAuthority('user:admin')")
     public ResponseEntity<Void> addMemberToOrganization(
@@ -80,6 +118,14 @@ public class OrganizationController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(
+        summary = "Remove member from organization (Admin)",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Member removed"),
+            @ApiResponse(responseCode = "403", description = "Forbidden"),
+            @ApiResponse(responseCode = "404", description = "User or organization not found")
+        }
+    )
     @DeleteMapping("/{organizationId}/members/{targetUserId}")
     @PreAuthorize("hasAuthority('user:admin')")
     public ResponseEntity<Void> removeMemberFromOrganization(

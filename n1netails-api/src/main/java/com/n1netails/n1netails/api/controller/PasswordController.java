@@ -46,6 +46,14 @@ public class PasswordController {
     private final ForgotPasswordRequestRepository forgotPasswordRequestRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Operation(
+        summary = "Reset password for authenticated user",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Password updated successfully"),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "400", description = "Invalid password format")
+        }
+    )
     @PostMapping("/reset")
     public ResponseEntity<String> resetPassword(
             @RequestHeader(AUTHORIZATION) String authorizationHeader,
@@ -73,13 +81,14 @@ public class PasswordController {
     }
 
     @Operation(
-            summary = "Request a reset password when user forgot password",
-            description = "Post request for user to submit when the user forgot password",
-            responses = {
-                    @ApiResponse(responseCode = "202", description = "Request success",
-                            content = @Content(schema = @Schema(implementation = String.class))
-                    ),
-            }
+        summary = "Request a reset password when user forgot password",
+        description = "Post request for user to submit when the user forgot password",
+        responses = {
+            @ApiResponse(responseCode = "202", description = "Request success",
+                content = @Content(schema = @Schema(implementation = String.class))
+            ),
+            @ApiResponse(responseCode = "404", description = "Email not found")
+        }
     )
     @PostMapping("/forgot")
     public ResponseEntity<String> forgotPasswordRequest(@RequestParam String email) throws MessagingException, EmailTemplateNotFoundException {
@@ -88,6 +97,15 @@ public class PasswordController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body("Request success");
     }
 
+    @Operation(
+        summary = "Reset password using forgot password request",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Password changed successfully"),
+            @ApiResponse(responseCode = "404", description = "Request not found"),
+            @ApiResponse(responseCode = "410", description = "Request expired"),
+            @ApiResponse(responseCode = "400", description = "New password matches previous password")
+        }
+    )
     @PutMapping("/reset/forgot")
     public ResponseEntity<String> resetPasswordOnForgot(@RequestBody ForgotPasswordResetRequest forgotPasswordResetRequest) throws UserNotFoundException {
         Optional<ForgotPasswordRequestEntity> optional =

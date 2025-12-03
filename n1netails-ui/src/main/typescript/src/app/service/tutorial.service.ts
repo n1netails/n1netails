@@ -32,8 +32,14 @@ export class TutorialService {
     this.shepherdService.addSteps([
       {
         id: 'welcome',
-        title: 'Welcome to N1neTails!',
-        text: ['N1netails is a platform for managing and monitoring your applications. This tutorial will guide you through the key features.'],
+        title: 'Welcome to N1netails!',
+        text: [
+          `
+          <img class="tutorial-image" src="/tutorial/Fox_full_transparent.png"/>
+          <p>N1netails is a platform for managing and monitoring your application\'s notifications. This tutorial will guide you through the key features.</p>
+          `
+          // 'N1netails is a platform for managing and monitoring your applications. This tutorial will guide you through the key features.'
+        ],
         buttons: [
           {
             classes: 'shepherd-button-secondary',
@@ -53,7 +59,12 @@ export class TutorialService {
       {
         id: 'settings',
         title: 'Settings',
-        text: ['First, let\'s set up your notification preferences.'],
+        text: [
+          `
+          <img class="tutorial-image" src="/tutorial/fox-cog-transparent.png"/>
+          <p>Welcome to the settings page take a look around. Here you can create new n1ne tokens, set notification preferences, and various other things. First, let\'s set up your notification preferences.</p>
+          `
+        ],
         attachTo: {
           element: '.ant-menu-item a[href="/settings"]',
           on: 'right'
@@ -95,7 +106,12 @@ export class TutorialService {
       {
         id: 'create-token',
         title: 'Create a N1ne Token',
-        text: ['Now, let\'s create a N1ne token. Click the "+ Create Token" button.'],
+        text: [
+          `
+          <img class="tutorial-image-coin" src="/tutorial/fox-token-transparent.png"/>
+          <p>Now, let\'s create a N1ne token. Click the "+ Create Token" button.</p>
+          `
+        ],
         attachTo: {
           element: '[data-tutorial-id="create-token-button"]',
           on: 'bottom'
@@ -200,7 +216,12 @@ export class TutorialService {
       {
         id: 'add-new-tail',
         title: 'Add New Tail',
-        text: ['Now, let\'s add a new tail. Click the "+" button on the left sidenav.'],
+        text: [
+          `
+          <img class="tutorial-image" src="/tutorial/Fox_tail5.png"/>
+          <p>Now, let\'s add a new tail. Usually if you wan to add a new tail you can click on the "+" button on the left sidenav. For now click Next.</p>
+          `
+        ],
         attachTo: {
           element: 'a.add-tail-button',
           on: 'right'
@@ -279,7 +300,12 @@ export class TutorialService {
       {
         id: 'learn-more',
         title: 'Learn More',
-        text: ['If you want to learn how to send a POST request to N1neTails for your web services, check out the documentation at <a href="https://n1netails.com/docs/n1netails/n1netails-post-tail-alert" target="_blank">Post Tail Alerts to N1netails</a>.'],
+        text: [
+          `
+          <img class="tutorial-image" src="/tutorial/fox-reading-transparent.png"/>
+          <p>If you want to learn how to send a POST request to N1neTails for your web services, check out the documentation at <a href="https://n1netails.com/docs/n1netails/n1netails-post-tail-alert" target="_blank">Post Tail Alerts to N1netails</a>. Click Finish to make sure this tutorial does not pop up again.</p>
+          `
+        ],
         buttons: [
           {
             classes: 'shepherd-button-primary',

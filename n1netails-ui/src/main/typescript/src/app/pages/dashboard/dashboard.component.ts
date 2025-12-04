@@ -26,6 +26,8 @@ import { TailUtilService } from '../../shared/util/tail-util.service';
 import { ResolveTailModalComponent } from '../../shared/components/resolve-tail-modal/resolve-tail-modal.component';
 import { ResolveTailRequest, TailSummary } from '../../model/tail.model';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { UserService } from '../../service/user.service';
+import { TutorialService } from '../../service/tutorial.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -160,7 +162,9 @@ export class DashboardComponent implements OnInit {
     private tailMetricsService: TailMetricsService,
     private tailService: TailService,
     private router: Router,
-    private breakpointObserver: BreakpointObserver
+    private breakpointObserver: BreakpointObserver,
+    private userService: UserService,
+    private tutorialService: TutorialService,
   ) {
     this.user = this.authenticationService.getUserFromLocalCache();
   }
@@ -172,6 +176,14 @@ export class DashboardComponent implements OnInit {
 
     const apiUrl = this.uiConfigService.getApiUrl();
     console.log('API URL:', apiUrl);
+
+    //  todo set up a check to see if the user is currently taking the tutorial
+    // this.userService.getSelf().subscribe(user => {
+    //   if (!user.tutorialCompleted) {
+    //     this.tutorialService.startTutorial();
+    //   }
+    // });
+
     this.initDashboard();
 
     this.breakpointObserver.observe([Breakpoints.Small, Breakpoints.XSmall]).subscribe(result => {

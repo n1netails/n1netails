@@ -30,4 +30,12 @@ export class UserService {
     this.host = this.uiConfigService.getApiUrl();
     return this.http.post(`${this.host}/ninetails/user/complete-tutorial`, {});
   }
+
+  setTutorialInProgress(inProgress: boolean) {
+    localStorage.setItem('tutorialInProgress', String(inProgress));
+  }
+
+  tutorialInProgress(): boolean {
+    return Boolean(localStorage.getItem('tutorialInProgress'));
+  }
 }

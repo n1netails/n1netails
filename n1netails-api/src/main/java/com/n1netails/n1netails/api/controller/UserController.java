@@ -218,6 +218,24 @@ public class UserController {
         return "ROLE_SUPER_ADMIN".equalsIgnoreCase(roleNameFromRequest);
     }
 
+    @Operation(
+            summary = "Mark tutorial as completed for the user",
+            description = "Marks the tutorial as completed for the logged-in user.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Tutorial status updated successfully"),
+                    @ApiResponse(responseCode = "401", description = "Authentication failed",
+                            content = @Content(schema = @Schema(implementation = HttpErrorResponse.class))),
+                    @ApiResponse(responseCode = "404", description = "User not found",
+                            content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
+            }
+    )
+    @PostMapping("/complete-tutorial")
+    public ResponseEntity<?> completeTutorial(@RequestHeader(AUTHORIZATION) String authorizationHeader) throws AccessDeniedException, UserNotFoundException {
+        UserPrincipal principal = authorizationService.getCurrentUserPrincipal(authorizationHeader);
+        userService.completeTutorial(principal.getUsername());
+        return ResponseEntity.ok().build();
+    }
+
     private void authenticate(String email, String password) {
         log.info("attempting to authenticate with password");
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));

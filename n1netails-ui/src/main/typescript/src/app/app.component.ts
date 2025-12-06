@@ -12,7 +12,9 @@ export class AppComponent implements OnInit {
 
   title = 'N1netails';
 
-  constructor(private uiConfigService: UiConfigService) {}
+  constructor(
+    private uiConfigService: UiConfigService,
+  ) {}
 
   ngOnInit() {
     this.uiConfigService.loadConfig().then(() => {

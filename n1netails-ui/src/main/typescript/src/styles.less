@@ -71,3 +71,114 @@ nz-row {
     display: none;
   }
 }
+
+
+/* ==============================
+   SHEPHERD DARK MODE THEME
+   ============================== */
+
+/* Apply custom class to all steps */
+.shepherd-element.custom-shepherd-theme {
+  font-family: 'Segoe UI', Roboto, sans-serif;
+  background: #1c1c1c !important;           /* Dark card background */
+  color: #e0e0e0;                /* Light text */
+  border-radius: 12px;
+  border: 1px solid #333;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.8);
+  max-width: 400px;
+}
+
+.shepherd-header {
+  background: transparent !important;
+}
+
+/* Title styling */
+.shepherd-element.custom-shepherd-theme .shepherd-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #ececec;
+  margin-bottom: 8px;
+}
+
+/* Step text styling */
+.shepherd-element.custom-shepherd-theme .shepherd-text {
+  color: #ccc;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+/* Buttons container */
+.shepherd-element.custom-shepherd-theme .shepherd-footer {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Primary Button - solid orange */
+.shepherd-element.custom-shepherd-theme .shepherd-button-primary {
+  background: #ff7a00;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.shepherd-element.custom-shepherd-theme .shepherd-button-primary:hover {
+  background: #e66c00;
+}
+
+/* Secondary Button - outline orange */
+.shepherd-element.custom-shepherd-theme .shepherd-button-secondary {
+  background: transparent;
+  color: #ff7a00;
+  border: 1px solid #ff7a00;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.shepherd-element.custom-shepherd-theme .shepherd-button-secondary:hover {
+  background: rgba(255, 122, 0, 0.1);
+}
+
+/* Cancel icon (top-right "x") */
+.shepherd-element.custom-shepherd-theme .shepherd-cancel-icon {
+  color: #ff7a00;
+  opacity: 0.9;
+  transition: opacity 0.2s;
+}
+
+.shepherd-element.custom-shepherd-theme .shepherd-cancel-icon:hover {
+  opacity: 1;
+}
+
+/* Arrow */
+.shepherd-element.custom-shepherd-theme .shepherd-arrow {
+  color: #1c1c1c;
+  fill: #1c1c1c;
+}
+
+/* Modal overlay for steps that block interaction */
+.shepherd-modal-overlay-container {
+  background: rgba(0, 0, 0, 0.75) !important;
+  z-index: 1000;
+}
+
+.custom-shepherd-theme .tutorial-image {
+  max-width: 100%;
+  border-radius: 10px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .shepherd-element.custom-shepherd-theme {
+    max-width: 90%;
+    font-size: 0.9rem;
+  }
+}

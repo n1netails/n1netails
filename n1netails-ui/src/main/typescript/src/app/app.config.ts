@@ -14,6 +14,8 @@ import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@a
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { AuthInterceptor } from './interceptor/auth.interceptor';
 import { UiConfigService } from './shared/util/ui-config.service';
+import { ShepherdService } from 'angular-shepherd';
+import { NzModalModule } from 'ng-zorro-antd/modal';
 
 registerLocaleData(en);
 
@@ -34,6 +36,8 @@ export const appConfig: ApplicationConfig = {
       const configService = inject(UiConfigService);
       return configService.loadConfig();
     }),
-    provideCharts(withDefaultRegisterables())
+    provideCharts(withDefaultRegisterables()),
+    ShepherdService,
+    importProvidersFrom(NzModalModule)
   ]
 };

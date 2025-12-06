@@ -23,7 +23,14 @@
                 <nz-form-item>
                   <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="tokenName" nzRequired>Token Name</nz-form-label>
                   <nz-form-control [nzSm]="14" [nzXs]="24">
-                    <input nz-input type="text" id="tokenName" name="name" [(ngModel)]="newTokenRequestForm.name" placeholder="Enter a name for the token" required #name="ngModel">
+                    <input 
+                      data-tutorial-id="add-token-name"
+                      nz-input type="text" 
+                      id="tokenName" name="name" 
+                      [(ngModel)]="newTokenRequestForm.name" 
+                      placeholder="Enter a name for the token" 
+                      required 
+                      #name="ngModel">
                     <div *ngIf="name.invalid && (name.dirty || name.touched)" class="error-text">
                       Token name is required.
                     </div>
@@ -33,6 +40,7 @@
                   <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="organization" nzRequired>Organization</nz-form-label>
                   <nz-form-control [nzSm]="14" [nzXs]="24">
                     <nz-select
+                      data-tutorial-id="add-token-organization"
                       id="organization"
                       name="organization"
                       [(ngModel)]="newTokenRequestForm.organizationId"
@@ -55,7 +63,7 @@
                 </nz-form-item>
                 <nz-form-item>
                   <nz-form-control [nzSm]="14" [nzXs]="24">
-                    <button nz-button nzType="primary" type="submit" [disabled]="!tokenForm.form.valid || isLoading" class="create-token-btn">+ Create Token</button>
+                    <button data-tutorial-id="create-token-button" nz-button nzType="primary" type="submit" [disabled]="!tokenForm.form.valid || isLoading" class="create-token-btn">+ Create Token</button>
                   </nz-form-control>
                 </nz-form-item>
               </form>
@@ -65,10 +73,11 @@
               <!-- Display Tokens Table -->
               <h3>Active Tokens</h3>
               <div class="table-responsive-wrapper">
-                <nz-table 
-                  #activeTokensTable 
-                  [nzData]="tokens" 
-                  [nzLoading]="isLoading" 
+                <nz-table
+                  data-tutorial-id="manage-tokens-table"
+                  #activeTokensTable
+                  [nzData]="tokens"
+                  [nzLoading]="isLoading"
                   nzSize="small"
                   [nzFrontPagination]="false"
                   [nzShowPagination]="false"
@@ -131,7 +140,7 @@
 
           <nz-col *ngIf="UiConfigService.isNotificationsEnabled()" [nzXs]="24" [nzSm]="24" [nzMd]="24" [nzLg]="24" [nzXl]="24">
             <nz-card nzTitle="Preferred Notification Methods" class="tails-primary-color" [nzBordered]="false">
-              <form nz-form (ngSubmit)="onSaveNotificationPreferences()" #notificationPreferencesForm="ngForm">
+              <form data-tutorial-id="notification-methods-form" nz-form (ngSubmit)="onSaveNotificationPreferences()" #notificationPreferencesForm="ngForm">
                 <nz-checkbox-group [(ngModel)]="notificationPreferences" [nzOptions]="notificationTypeOptions"
                   name="notificationPreferences"></nz-checkbox-group>
                 <button nz-button nzType="primary" type="submit" style="margin-top: 16px;">Save Preferences</button>

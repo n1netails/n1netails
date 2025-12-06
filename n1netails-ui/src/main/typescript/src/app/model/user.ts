@@ -20,6 +20,7 @@ export class User {
     public role: string;
     public authorities: string[];
     public organizations: Organization[];
+    public tutorialCompleted: boolean;
 
     constructor() {
         this.id = 0;
@@ -41,5 +42,6 @@ export class User {
         this.role = '';
         this.authorities = [];
         this.organizations = [];
+        this.tutorialCompleted = false;
     }
 }

@@ -93,11 +93,12 @@ export class DashboardComponent implements OnInit {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-        legend: {
-          display: true,
-          position: 'right' as const,
-        }
+      legend: {
+        display: true,
+        position: 'right' as const,
       }
+    },
+    cutout: '70%'
   };
 
   // Tail Resoultion Status (Pie Chart)
@@ -207,7 +208,8 @@ export class DashboardComponent implements OnInit {
           display: true,
           position: 'right'
         }
-      }
+      },
+      cutout: '70%'
     };
   }
 

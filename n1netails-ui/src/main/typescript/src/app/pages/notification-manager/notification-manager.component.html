@@ -46,7 +46,7 @@
             *ngIf="platforms[this.MICROSOFT_TEAMS].enabled && UiConfigService.isNotificationsMsTeamsEnabled()">
               <nz-card [nzBordered]="false">
                 <h3>Microsoft Teams Configuration</h3>
-                <p>Add Microsoft Teams Webhooks (<a data-tutorial-id="how-to-create-link" href="https://n1netails.com/docs/n1netails-teams-webhook-client/create-webhook" target="_blank">How to create webhooks for microsoft teams</a>).</p>
+                <p>Add Microsoft Teams Webhooks (<a href="https://n1netails.com/docs/n1netails-teams-webhook-client/create-webhook" target="_blank">How to create webhooks for microsoft teams</a>).</p>
                 <div class="config-row" *ngFor="let config of platforms[this.MICROSOFT_TEAMS].configs; let i = index">
                   <input nz-input [(ngModel)]="config.details.webhookUrl" placeholder="Enter webhook URL">
                   <button nz-button nzDanger (click)="removeConfig('msteams', i)">Remove</button>
@@ -71,7 +71,7 @@
             *ngIf="platforms[this.DISCORD].enabled && UiConfigService.isNotificationsDiscordEnabled()">
               <nz-card [nzBordered]="false">
                 <h3>Discord Configuration</h3>
-                <p>Add Discord Webhooks (<a href="https://n1netails.com/docs/n1netails-discord-webhook-client/create-webhook" target="_blank">How to create webhooks for discord</a>).</p>
+                <p>Add Discord Webhooks (<a data-tutorial-id="how-to-create-link" href="https://n1netails.com/docs/n1netails-discord-webhook-client/create-webhook" target="_blank">How to create webhooks for discord</a>).</p>
                 <div class="config-row" *ngFor="let config of platforms[this.DISCORD].configs; let i = index">
                   <input nz-input [(ngModel)]="config.details.webhookUrl" placeholder="Enter webhook URL">
                   <button nz-button nzDanger (click)="removeConfig('discord', i)">Remove</button>

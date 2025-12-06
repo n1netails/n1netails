@@ -182,13 +182,7 @@ export class DashboardComponent implements OnInit {
     this.breakpointObserver.observe([Breakpoints.Small, Breakpoints.XSmall]).subscribe(result => {
       this.isMobile = result.matches;
       this.updateChartOptions();
-
-      this.userService.getSelf().subscribe(user => {
-        if (!user.tutorialCompleted && !this.userService.tutorialInProgress() && !this.isMobile) {
-          this.tutorialService.startTutorial();
-          this.userService.setTutorialInProgress(true);
-        }
-      });
+      this.runTutorial();
     });
   }
 

@@ -107,7 +107,7 @@ export class TutorialService {
       { 
         id: 'add-token-name',
         title: 'Create N1ne Token Name',
-        text: ['Provide a name for your new toke. For example you can create a test token called `notification-test-token`.'],
+        text: ['Provide a name for your new token. For example you can create a test token called `notification-test-token`.'],
         attachTo: {
           element: '[data-tutorial-id="add-token-name"]',
           on: 'bottom'
@@ -142,8 +142,8 @@ export class TutorialService {
         title: 'Create a N1ne Token',
         text: [
           `
-          <img class="tutorial-image-coin" src="/tutorial/fox-token-transparent.png"/>
-          <p>Now, let\'s create a N1ne token. Click the "+ Create Token" button. Make sure to save the token value that is produce in the response modal as it will not be saved and you will need it for your application\'s POST resquest to n1netails.</p>
+          <img class="tutorial-image-coin" src="/tutorial/n1ne-token-transparent.png"/>
+          <p>Now, let\'s create a N1ne token. Click the "+ Create Token" button. Make sure to save the token value that is produce in the response modal as it will not be saved and you will need it for your application\'s POST request to n1netails.</p>
           `
         ],
         attachTo: {
@@ -228,7 +228,7 @@ export class TutorialService {
         text: [
           `
           <img class="tutorial-image" src="/tutorial/Fox_tail5.png"/>
-          <p>Now, let\'s add a new tail. Usually if you wan to add a new tail you can click on the "+" button on the left sidenav. For now click Next.</p>
+          <p>Now, let\'s add a new tail. Usually if you want to add a new tail you can click on the "+" button on the left sidenav. For now click Next.</p>
           `
         ],
         attachTo: {

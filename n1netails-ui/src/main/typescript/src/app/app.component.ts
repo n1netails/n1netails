@@ -23,11 +23,11 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.uiConfigService.loadConfig().then(() => {
       console.log('API URL loaded:', this.uiConfigService.getApiUrl());
-      this.userService.getSelf().subscribe(user => {
-        if (!user.tutorialCompleted) {
-          this.tutorialService.startTutorial();
-        }
-      });
+      // this.userService.getSelf().subscribe(user => {
+      //   if (!user.tutorialCompleted) {
+      //     this.tutorialService.startTutorial();
+      //   }
+      // });
     });
   }
 }

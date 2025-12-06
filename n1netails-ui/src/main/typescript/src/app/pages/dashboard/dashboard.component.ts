@@ -177,18 +177,18 @@ export class DashboardComponent implements OnInit {
     const apiUrl = this.uiConfigService.getApiUrl();
     console.log('API URL:', apiUrl);
 
-    this.userService.getSelf().subscribe(user => {
-      if (!user.tutorialCompleted && !this.userService.tutorialInProgress()) {
-        this.tutorialService.startTutorial();
-        this.userService.setTutorialInProgress(true);
-      }
-    });
-
     this.initDashboard();
 
     this.breakpointObserver.observe([Breakpoints.Small, Breakpoints.XSmall]).subscribe(result => {
       this.isMobile = result.matches;
       this.updateChartOptions();
+
+      this.userService.getSelf().subscribe(user => {
+        if (!user.tutorialCompleted && !this.userService.tutorialInProgress() && !this.isMobile) {
+          this.tutorialService.startTutorial();
+          this.userService.setTutorialInProgress(true);
+        }
+      });
     });
   }
 
@@ -215,6 +215,15 @@ export class DashboardComponent implements OnInit {
         }
       }
     };
+  }
+
+  runTutorial() {
+    this.userService.getSelf().subscribe(user => {
+        if (!user.tutorialCompleted && !this.userService.tutorialInProgress() && !this.isMobile) {
+          this.tutorialService.startTutorial();
+          this.userService.setTutorialInProgress(true);
+        }
+      });
   }
 
   goToTail(id: number) {

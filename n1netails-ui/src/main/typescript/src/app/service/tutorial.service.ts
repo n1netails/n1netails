@@ -38,7 +38,6 @@ export class TutorialService {
           <img class="tutorial-image" src="/tutorial/Fox_full_transparent.png"/>
           <p>N1netails is a platform for managing and monitoring your application\'s notifications. This tutorial will guide you through the key features.</p>
           `
-          // 'N1netails is a platform for managing and monitoring your applications. This tutorial will guide you through the key features.'
         ],
         buttons: [
           {
@@ -102,8 +101,6 @@ export class TutorialService {
           }
         ]
       },
-      // TODO:: add steps here on creating Token Name and selecting Organization
-      // steps to add token name
       { 
         id: 'add-token-name',
         title: 'Create N1ne Token Name',
@@ -120,7 +117,6 @@ export class TutorialService {
           }
         ]
       },
-      // steps to add organization
       { 
         id: 'add-token-orignaization',
         title: 'Set N1ne Token Orgianization',

@@ -142,7 +142,7 @@ export class TutorialService {
         title: 'Create a N1ne Token',
         text: [
           `
-          <img class="tutorial-image-coin" src="/tutorial/n1ne-token-transparent.png"/>
+          <img class="tutorial-image" src="/tutorial/n1ne-token-transparent.png"/>
           <p>Now, let\'s create a N1ne token. Click the "+ Create Token" button. Make sure to save the token value that is produce in the response modal as it will not be saved and you will need it for your application\'s POST request to n1netails.</p>
           `
         ],

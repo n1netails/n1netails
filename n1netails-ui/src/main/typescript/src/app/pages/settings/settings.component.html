@@ -23,7 +23,14 @@
                 <nz-form-item>
                   <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="tokenName" nzRequired>Token Name</nz-form-label>
                   <nz-form-control [nzSm]="14" [nzXs]="24">
-                    <input nz-input type="text" id="tokenName" name="name" [(ngModel)]="newTokenRequestForm.name" placeholder="Enter a name for the token" required #name="ngModel">
+                    <input 
+                      data-tutorial-id="add-token-name"
+                      nz-input type="text" 
+                      id="tokenName" name="name" 
+                      [(ngModel)]="newTokenRequestForm.name" 
+                      placeholder="Enter a name for the token" 
+                      required 
+                      #name="ngModel">
                     <div *ngIf="name.invalid && (name.dirty || name.touched)" class="error-text">
                       Token name is required.
                     </div>
@@ -33,6 +40,7 @@
                   <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="organization" nzRequired>Organization</nz-form-label>
                   <nz-form-control [nzSm]="14" [nzXs]="24">
                     <nz-select
+                      data-tutorial-id="add-token-organization"
                       id="organization"
                       name="organization"
                       [(ngModel)]="newTokenRequestForm.organizationId"

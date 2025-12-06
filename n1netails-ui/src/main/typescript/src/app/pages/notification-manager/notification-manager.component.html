@@ -12,7 +12,10 @@
       <div class="inner-content">
         <nz-row class="notification-manager-container" [nzGutter]="[16, 16]">
           <nz-col [nzXs]="24" [nzSm]="24" [nzMd]="24" [nzLg]="24" [nzXl]="24">
-            <nz-card nzTitle="Notification Manager for Token: {{ token.name }}" [nzBordered]="false">
+            <nz-card 
+              data-tutorial-id="notification-manager"
+              nzTitle="Notification Manager for Token: {{ token.name }}" 
+              [nzBordered]="false">
               <!-- Notification Platform Toggles -->
               <div data-tutorial-id="enable-notifications" class="notification-platforms">
                 <label>Enable notifications for:</label>

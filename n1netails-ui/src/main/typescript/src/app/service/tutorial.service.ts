@@ -103,13 +103,47 @@ export class TutorialService {
         ]
       },
       // TODO:: add steps here on creating Token Name and selecting Organization
+      // steps to add token name
+      { 
+        id: 'add-token-name',
+        title: 'Create N1ne Token Name',
+        text: ['Provide a name for your new toke. For example you can create a test token called `notification-test-token`.'],
+        attachTo: {
+          element: '[data-tutorial-id="add-token-name"]',
+          on: 'bottom'
+        },
+        buttons: [
+          {
+            classes: 'shepherd-button-primary',
+            text: 'Next',
+            action: () => this.shepherdService.next()
+          }
+        ]
+      },
+      // steps to add organization
+      { 
+        id: 'add-token-orignaization',
+        title: 'Set N1ne Token Orgianization',
+        text: ['Select the organization this token is associated with. Select the n1netails organization if this is token is for you.'],
+        attachTo: {
+          element: '[data-tutorial-id="add-token-organization"]',
+          on: 'bottom'
+        },
+        buttons: [
+          {
+            classes: 'shepherd-button-primary',
+            text: 'Next',
+            action: () => this.shepherdService.next()
+          }
+        ]
+      },
       {
         id: 'create-token',
         title: 'Create a N1ne Token',
         text: [
           `
           <img class="tutorial-image-coin" src="/tutorial/fox-token-transparent.png"/>
-          <p>Now, let\'s create a N1ne token. Click the "+ Create Token" button.</p>
+          <p>Now, let\'s create a N1ne token. Click the "+ Create Token" button. Make sure to save the token value that is produce in the response modal as it will not be saved and you will need it for your application\'s POST resquest to n1netails.</p>
           `
         ],
         attachTo: {
@@ -143,9 +177,9 @@ export class TutorialService {
       {
         id: 'notification-manager',
         title: 'Notification Manager',
-        text: ['Next, let\'s go to the Notification Manager. Click the "Manage" button for a token. (If you have not already please create a n1ne token before this step.)'],
+        text: ['This is the Notification Manager. Click “Manage” under Settings → Active Tokens to open the Token Notification Manager. Here, you can configure which platforms each token is allowed to send notifications to. (If you haven’t created a n1ne token yet, please do so before continuing.)'],
         attachTo: {
-          element: '.ant-table-tbody > tr:first-child > td:nth-child(9) > button',
+          element: '.ant-table-tbody > tr:first-child > td:nth-child(9) > button, [data-tutorial-id="notification-manager"]',
           on: 'right'
         },
         buttons: [
@@ -155,31 +189,6 @@ export class TutorialService {
             action: () => this.shepherdService.next()
           }
         ]
-        // buttons: [
-        //   {
-        //     text: 'Waiting for click...',
-        //     disabled: true
-        //   }
-        // ],
-        // beforeShowPromise: () => {
-        //   return new Promise(resolve => {
-        //     // Wait for Angular to finish rendering
-        //     setTimeout(() => {
-        //       const button = document.querySelector(
-        //         '.ant-table-tbody > tr:first-child > td:nth-child(9) > button'
-        //       );
-
-        //       if (button) {
-        //         const handler = () => {
-        //           button.removeEventListener('click', handler);
-        //           resolve(null); // Shepherd will move to next step automatically
-        //         };
-
-        //         button.addEventListener('click', handler);
-        //       }
-        //     }, 300);
-        //   });
-        // }
       },
       {
         id: 'enable-notifications',

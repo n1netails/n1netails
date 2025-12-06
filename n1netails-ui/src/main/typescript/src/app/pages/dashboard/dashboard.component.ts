@@ -177,12 +177,12 @@ export class DashboardComponent implements OnInit {
     const apiUrl = this.uiConfigService.getApiUrl();
     console.log('API URL:', apiUrl);
 
-    //  todo set up a check to see if the user is currently taking the tutorial
-    // this.userService.getSelf().subscribe(user => {
-    //   if (!user.tutorialCompleted) {
-    //     this.tutorialService.startTutorial();
-    //   }
-    // });
+    this.userService.getSelf().subscribe(user => {
+      if (!user.tutorialCompleted && !this.userService.tutorialInProgress()) {
+        this.tutorialService.startTutorial();
+        this.userService.setTutorialInProgress(true);
+      }
+    });
 
     this.initDashboard();
 

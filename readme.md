@@ -17,7 +17,7 @@
 [//]: # (![Twitter Follow]&#40;https://img.shields.io/twitter/follow/n1netails?style=social&#41;)
 
 # Alert Monitoring and Management
-N1netails is an open-source project that provides practical alerts and monitoring for applications. If you're tired of relying on complex SIEM tools 
+N1netails is an open-source project that provides practical alerts and monitoring for applications. If you're tired of relying on complex alerting and notification tools 
 to identify issues — or if your application lacks any alerting at all — N1netails offers a straightforward way to gain 
 clarity on problems affecting your applications.
 

@@ -5,6 +5,7 @@
   (nzOnCancel)="handleCancel()"
   (nzOnOk)="handleOk()"
   [nzFooter]="modalFooter"
+  nzWrapClassName="resolve-tail-modal-wrapper"
 >
   <ng-template #modalContent>
     <div *ngIf="selectedItem !== null" class="resolve-modal-content">

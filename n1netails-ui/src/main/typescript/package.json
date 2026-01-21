@@ -25,7 +25,7 @@
     "@auth0/angular-jwt": "^5.2.0",
     "angular-shepherd": "^20.0.0",
     "chart.js": "^4.5.1",
-    "ng-zorro-antd": "^20.4.3",
+    "ng-zorro-antd": "^20.4.4",
     "ng2-charts": "^8.0.0",
     "ngx-markdown": "^20.1.0",
     "rxjs": "~7.8.0",

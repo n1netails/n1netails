@@ -268,6 +268,18 @@ export class TailsComponent implements OnInit {
     this.resolveModalVisible = true;
   }
 
+  resolveAll(): void {
+    this.tailService.resolveAllTails().subscribe({
+      next: () => {
+        this.messageService.success('All NEW tails have been resolved.');
+        this.loadTails();
+      },
+      error: (err) => {
+        this.messageService.error(`Unable to resolve all tails. Error: ${err.message || err}`);
+      }
+    });
+  }
+
   openResolveModal(): void {
     if (!this.selectedTail) return;
     this.resolveModalVisible = true;

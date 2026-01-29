@@ -122,6 +122,23 @@ public class TailServiceImpl implements TailService {
     }
 
     @Override
+    public void resolveAll(UserPrincipal currentUser) throws TailStatusNotFoundException {
+        List<TailEntity> newTails = tailRepository.findAllByAssignedUserIdAndStatusName(currentUser.getId(), "NEW");
+
+        TailStatusEntity resolvedStatus = statusRepository.findTailStatusByName("RESOLVED")
+                .orElseThrow(() -> new TailStatusNotFoundException("The requested tail status 'RESOLVED' does not exist."));
+
+        Instant now = Instant.now();
+        newTails.forEach(tail -> {
+            tail.setStatus(resolvedStatus);
+            tail.setResolvedTimestamp(now);
+        });
+
+        tailRepository.saveAll(newTails);
+        log.info("Resolved {} tails for user {}", newTails.size(), currentUser.getUsername());
+    }
+
+    @Override
     public void markResolved(ResolveTailRequest request, UserPrincipal currentUser) throws TailNotFoundException, TailStatusNotFoundException, UnauthorizedException { // Added currentUser
         // Authorization logic implemented: User must be the assigned user or an organization admin to mark tail as resolved.
         TailEntity tail = this.tailRepository.findById(request.getTailSummary().getId())

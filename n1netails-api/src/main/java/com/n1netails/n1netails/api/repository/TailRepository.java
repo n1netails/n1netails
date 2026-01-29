@@ -180,6 +180,8 @@ public interface TailRepository extends JpaRepository<TailEntity, Long> {
 
     List<TailEntity> findByAssignedUserId(Long userId);
 
+    List<TailEntity> findAllByAssignedUserIdAndStatusName(Long assignedUserId, String statusName);
+
     long countByTimestampBetween(Instant startOfDay, Instant endOfDay);
     List<TailEntity> findByTimestampBetween(Instant startOfDay, Instant endOfDay);
 

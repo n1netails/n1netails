@@ -65,6 +65,11 @@ export class TailService {
     return this.http.post<void>(`${this.host}/mark/resolved`, resolvedTailRequest);
   }
 
+  resolveAllTails(): Observable<void> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiPath;
+    return this.http.post<void>(`${this.host}/resolve-all`, {});
+  }
+
   updateTailStatus(updateTailRequest: ResolveTailRequest): Observable<void> {
     this.host = this.uiConfigService.getApiUrl() + this.apiPath;
     return this.http.put<void>(`${this.host}/update/status`, updateTailRequest);

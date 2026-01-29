@@ -80,6 +80,17 @@ public class TailController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Resolve all NEW tails for current user", responses = {
+            @ApiResponse(responseCode = "204", description = "Tails resolved"),
+            @ApiResponse(responseCode = "404", description = "Tail status not found")
+    })
+    @PostMapping("/resolve-all")
+    public ResponseEntity<Void> resolveAll(@RequestHeader("Authorization") String authorizationHeader) throws UserNotFoundException, TailStatusNotFoundException {
+        UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
+        tailService.resolveAll(currentUser);
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "Update tail status", responses = {
             @ApiResponse(responseCode = "204", description = "Tail status updated"),
             @ApiResponse(responseCode = "404", description = "Tail or tail status not found")

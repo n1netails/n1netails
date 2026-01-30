@@ -22,7 +22,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -123,13 +122,8 @@ public class TailServiceImpl implements TailService {
     }
 
     @Override
-    @Transactional
     public void resolveAll(UserPrincipal currentUser) throws TailStatusNotFoundException {
-        log.info("Attempting to resolve all tails");
-        TailStatusEntity newStatus = statusRepository.findTailStatusByName("NEW")
-                .orElseThrow(() -> new TailStatusNotFoundException("The requested tail status 'NEW' does not exist."));
-
-        List<TailEntity> newTails = tailRepository.findAllByAssignedUserIdAndStatus(currentUser.getId(), newStatus);
+        List<TailEntity> newTails = tailRepository.findAllByAssignedUserIdAndStatusName(currentUser.getId(), "NEW");
 
         TailStatusEntity resolvedStatus = statusRepository.findTailStatusByName("RESOLVED")
                 .orElseThrow(() -> new TailStatusNotFoundException("The requested tail status 'RESOLVED' does not exist."));

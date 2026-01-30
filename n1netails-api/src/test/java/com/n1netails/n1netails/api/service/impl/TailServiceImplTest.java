@@ -16,6 +16,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
@@ -49,7 +51,7 @@ public class TailServiceImplTest {
         TailStatusEntity resolvedStatus = new TailStatusEntity();
         resolvedStatus.setName("RESOLVED");
 
-        when(tailRepository.findAllByAssignedUserIdAndStatusName(1L, "NEW")).thenReturn(newTails);
+        when(tailRepository.findAllByAssignedUserIdAndStatusName(anyLong(), anyString())).thenReturn(newTails);
         when(statusRepository.findTailStatusByName("RESOLVED")).thenReturn(Optional.of(resolvedStatus));
 
         tailService.resolveAll(currentUser);

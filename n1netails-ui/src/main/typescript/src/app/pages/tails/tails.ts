@@ -12,7 +12,6 @@ import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzTagModule } from 'ng-zorro-antd/tag';
-import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { TailLevelService } from '../../service/tail-level.service';
 import { TailStatusService } from '../../service/tail-status.service';
 import { TailTypeService } from '../../service/tail-type.service';
@@ -42,7 +41,6 @@ import { TailPageRequest, TailPageResponse } from '../../model/interface/tail-pa
     NzCheckboxModule,
     NzAvatarModule,
     NzTagModule,
-    NzToolTipModule,
     NzIconModule,
     CommonModule,
     FormsModule,

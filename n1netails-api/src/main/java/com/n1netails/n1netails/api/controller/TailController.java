@@ -2,6 +2,7 @@ package com.n1netails.n1netails.api.controller;
 
 import com.n1netails.n1netails.api.exception.type.*;
 import com.n1netails.n1netails.api.model.UserPrincipal;
+import com.n1netails.n1netails.api.model.core.TailStatus;
 import com.n1netails.n1netails.api.model.request.ResolveTailRequest;
 import com.n1netails.n1netails.api.model.request.TailPageRequest;
 import com.n1netails.n1netails.api.model.response.HttpErrorResponse;

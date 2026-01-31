@@ -67,6 +67,7 @@ export class TailsComponent implements OnInit {
   selectedLevel: string = '';  // Bound to level dropdown
 
   selectedTails: Set<TailResponse> = new Set();
+  newTailCount: number = 0;
 
   tailLevels: string[] = [];
   tailStatusList: string[] = [];
@@ -96,6 +97,7 @@ export class TailsComponent implements OnInit {
   ngOnInit(): void {
     this.loadTails();
     this.loadTailInfoData();
+    this.loadNewTailCount();
   }
 
   goToTail(id: number) {
@@ -175,6 +177,17 @@ export class TailsComponent implements OnInit {
         }
       });
     }
+  }
+
+  loadNewTailCount(): void {
+    this.tailService.getNewTailCount().subscribe({
+      next: (count: number) => {
+        this.newTailCount = count;
+      },
+      error: (err) => {
+        console.error('Error loading new tail count:', err);
+      }
+    });
   }
 
   loadTailInfoData(): void {
@@ -273,6 +286,7 @@ export class TailsComponent implements OnInit {
       next: () => {
         this.messageService.success('All NEW tails have been resolved.');
         this.loadTails();
+        this.loadNewTailCount();
       },
       error: (err) => {
         this.messageService.error(`Unable to resolve all tails. Error: ${err.message || err}`);

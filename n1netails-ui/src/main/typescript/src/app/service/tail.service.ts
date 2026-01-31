@@ -74,4 +74,9 @@ export class TailService {
     this.host = this.uiConfigService.getApiUrl() + this.apiPath;
     return this.http.put<void>(`${this.host}/update/status`, updateTailRequest);
   }
+
+  getNewTailCount(): Observable<number> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiPath;
+    return this.http.get<number>(`${this.host}/count/new`);
+  }
 }

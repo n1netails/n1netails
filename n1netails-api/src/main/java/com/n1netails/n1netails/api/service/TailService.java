@@ -28,5 +28,7 @@ public interface TailService {
 
     void resolveAll(UserPrincipal currentUser) throws TailStatusNotFoundException;
 
+    long countNewTails(UserPrincipal currentUser);
+
     TailResponse setTailSummaryResponse(TailSummary tailSummary);
 }

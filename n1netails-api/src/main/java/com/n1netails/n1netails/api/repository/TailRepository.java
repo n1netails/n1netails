@@ -183,6 +183,8 @@ public interface TailRepository extends JpaRepository<TailEntity, Long> {
     @Query("SELECT t FROM TailEntity t WHERE t.assignedUserId = :assignedUserId AND t.status.name = :statusName")
     List<TailEntity> findAllByAssignedUserIdAndStatusName(@Param("assignedUserId") Long assignedUserId, @Param("statusName") String statusName);
 
+    long countByAssignedUserIdAndStatusName(Long assignedUserId, String statusName);
+
     long countByTimestampBetween(Instant startOfDay, Instant endOfDay);
     List<TailEntity> findByTimestampBetween(Instant startOfDay, Instant endOfDay);
 

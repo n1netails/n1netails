@@ -91,6 +91,16 @@ public class TailController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Count all NEW tails for current user", responses = {
+            @ApiResponse(responseCode = "200", description = "Count of NEW tails",
+                    content = @Content(schema = @Schema(implementation = Long.class)))
+    })
+    @GetMapping("/count/new")
+    public ResponseEntity<Long> countNewTails(@RequestHeader("Authorization") String authorizationHeader) throws UserNotFoundException {
+        UserPrincipal currentUser = authorizationService.getCurrentUserPrincipal(authorizationHeader);
+        return ResponseEntity.ok(tailService.countNewTails(currentUser));
+    }
+
     @Operation(summary = "Update tail status", responses = {
             @ApiResponse(responseCode = "204", description = "Tail status updated"),
             @ApiResponse(responseCode = "404", description = "Tail or tail status not found")

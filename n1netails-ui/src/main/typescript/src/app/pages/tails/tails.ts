@@ -17,6 +17,7 @@ import { TailStatusService } from '../../service/tail-status.service';
 import { TailTypeService } from '../../service/tail-type.service';
 import { Router } from '@angular/router';
 import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { TailUtilService } from '../../shared/util/tail-util.service';
 import { ResolveTailModalComponent } from '../../shared/components/resolve-tail-modal/resolve-tail-modal.component';
 import { User } from '../../model/user';
@@ -42,6 +43,7 @@ import { TailPageRequest, TailPageResponse } from '../../model/interface/tail-pa
     NzAvatarModule,
     NzTagModule,
     NzIconModule,
+    NzToolTipModule,
     CommonModule,
     FormsModule,
     HeaderComponent,

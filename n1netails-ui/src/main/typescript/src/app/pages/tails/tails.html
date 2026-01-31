@@ -97,10 +97,6 @@
                   <nz-option nzValue="50" nzLabel="50"></nz-option>
                   <nz-option nzValue="100" nzLabel="100"></nz-option>
                 </nz-select>
-
-                <button class="tails-button" style="margin-left: 16px;" nzTooltipTitle="Resolve all NEW tails" nzTooltipPlacement="top" nzType="default" nz-button nz-tooltip (click)="resolveAll()"><nz-icon nzType="check-circle" nzTheme="outline" /></button>
-                <span style="margin-left: 8px; font-weight: bold; color: #f1f1f1;">{{ newTailCount }}</span>
-
                 <button class="tails-button" nz-button nzType="primary" (click)="onSearchTermChange()"><nz-icon nzType="search" nzTheme="outline" /></button>
               </div>
 
@@ -164,7 +160,9 @@
                 <button class="tails-button" nz-button nzType="default" (click)="previousPage()" [disabled]="currentPage === 0"><nz-icon nzType="left" nzTheme="outline" /></button>
                 <span style="margin: 0 12px; color: #f1f1f1;">Page {{ displayedCurrentPage }} of {{ totalPages }}</span>
                 <button class="tails-button" nz-button nzType="default" (click)="nextPage()" [disabled]="currentPage >= totalPages - 1"><nz-icon nzType="right" nzTheme="outline" /></button>
-                <span style="margin-left: 16px;">Total items: {{ totalElements }}</span>
+                <span class="margin-left-16">Total items: {{ totalElements }}</span>
+                <button class="tails-button margin-left-16" nzTooltipTitle="Resolve all NEW tails" nzTooltipPlacement="top" nzType="default" nz-button nz-tooltip (click)="resolveAll()"><nz-icon nzType="check-circle" nzTheme="outline" /></button>
+                <span class="margin-left-16">New items: {{ newTailCount }}</span>
               </div>
             </nz-card>
           </nz-col>

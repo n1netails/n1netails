@@ -60,23 +60,23 @@ export class TailService {
     return this.http.get<TailResponse[]>(`${this.host}/top9`);
   }
 
-  markTailResolved(resolvedTailRequest: ResolveTailRequest): Observable<void> {
-    this.host = this.uiConfigService.getApiUrl() + this.apiPath;
-    return this.http.post<void>(`${this.host}/mark/resolved`, resolvedTailRequest);
-  }
-
   resolveAllTails(): Observable<void> {
     this.host = this.uiConfigService.getApiUrl() + this.apiPath;
     return this.http.post<void>(`${this.host}/resolve-all`, {});
   }
 
-  updateTailStatus(updateTailRequest: ResolveTailRequest): Observable<void> {
-    this.host = this.uiConfigService.getApiUrl() + this.apiPath;
-    return this.http.put<void>(`${this.host}/update/status`, updateTailRequest);
-  }
-
   getNewTailCount(): Observable<number> {
     this.host = this.uiConfigService.getApiUrl() + this.apiPath;
     return this.http.get<number>(`${this.host}/count/new`);
+  }
+
+  markTailResolved(resolvedTailRequest: ResolveTailRequest): Observable<void> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiPath;
+    return this.http.post<void>(`${this.host}/mark/resolved`, resolvedTailRequest);
+  }
+
+  updateTailStatus(updateTailRequest: ResolveTailRequest): Observable<void> {
+    this.host = this.uiConfigService.getApiUrl() + this.apiPath;
+    return this.http.put<void>(`${this.host}/update/status`, updateTailRequest);
   }
 }

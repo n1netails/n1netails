@@ -6,8 +6,6 @@ import com.n1netails.n1netails.api.service.AuthorizationService;
 import com.n1netails.n1netails.api.service.EmailService;
 import com.n1netails.n1netails.api.service.UserService;
 import com.n1netails.n1netails.api.util.JwtTokenUtil;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +20,6 @@ import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import javax.management.JMException;
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
@@ -38,8 +35,6 @@ public class UserControllerTest {
     private final String pathPrefix = "/ninetails/user";
     private static final String VALID_TOKEN = "valid.jwt.token";
     private static final String AUTH_HEADER = "Bearer " + VALID_TOKEN;
-
-    private UsersEntity enabledUser;
 
     @Autowired
     private MockMvc mockMvc;
@@ -59,19 +54,15 @@ public class UserControllerTest {
     @MockitoBean
     private EmailService emailService;
 
-    @BeforeEach
-    void setUp() {
-        enabledUser = new UsersEntity();
-        enabledUser.setId(1L);
-        enabledUser.setEnabled(true);
-        enabledUser.setActive(true);
-        enabledUser.setNotLocked(true);
-    }
-
     @Test
     void getCurrentUser_validToken_shouldReturnUser() throws Exception {
         // Arrange
         Jwt jwt = mock(Jwt.class);
+        UsersEntity enabledUser = new UsersEntity();
+        enabledUser.setId(1L);
+        enabledUser.setEnabled(true);
+        enabledUser.setActive(true);
+        enabledUser.setNotLocked(true);
 
         // Mock Data
         when(jwtDecoder.decode(VALID_TOKEN)).thenReturn(jwt);
@@ -141,7 +132,6 @@ public class UserControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
-
     @Test
     void getCurrentUser_disabledUser_shouldThrowAccessDenied() throws Exception {
         // Arrange
@@ -185,5 +175,6 @@ public class UserControllerTest {
                 // Assert
                 .andExpect(status().isUnauthorized());
     }
+
 
 }

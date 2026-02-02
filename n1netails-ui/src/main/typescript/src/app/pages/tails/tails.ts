@@ -17,6 +17,7 @@ import { TailStatusService } from '../../service/tail-status.service';
 import { TailTypeService } from '../../service/tail-type.service';
 import { Router } from '@angular/router';
 import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { TailUtilService } from '../../shared/util/tail-util.service';
 import { ResolveTailModalComponent } from '../../shared/components/resolve-tail-modal/resolve-tail-modal.component';
 import { User } from '../../model/user';
@@ -42,6 +43,7 @@ import { TailPageRequest, TailPageResponse } from '../../model/interface/tail-pa
     NzAvatarModule,
     NzTagModule,
     NzIconModule,
+    NzToolTipModule,
     CommonModule,
     FormsModule,
     HeaderComponent,
@@ -67,6 +69,7 @@ export class TailsComponent implements OnInit {
   selectedLevel: string = '';  // Bound to level dropdown
 
   selectedTails: Set<TailResponse> = new Set();
+  newTailCount: number = 0;
 
   tailLevels: string[] = [];
   tailStatusList: string[] = [];
@@ -96,6 +99,7 @@ export class TailsComponent implements OnInit {
   ngOnInit(): void {
     this.loadTails();
     this.loadTailInfoData();
+    this.loadNewTailCount();
   }
 
   goToTail(id: number) {
@@ -175,6 +179,17 @@ export class TailsComponent implements OnInit {
         }
       });
     }
+  }
+
+  loadNewTailCount(): void {
+    this.tailService.getNewTailCount().subscribe({
+      next: (count: number) => {
+        this.newTailCount = count;
+      },
+      error: (err) => {
+        console.error('Error loading new tail count:', err);
+      }
+    });
   }
 
   loadTailInfoData(): void {
@@ -266,6 +281,19 @@ export class TailsComponent implements OnInit {
   resolve(item: any): void {
     this.selectedTail = item;
     this.resolveModalVisible = true;
+  }
+
+  resolveAll(): void {
+    this.tailService.resolveAllTails().subscribe({
+      next: () => {
+        this.messageService.success('All NEW tails have been resolved.');
+        this.loadTails();
+        this.loadNewTailCount();
+      },
+      error: (err) => {
+        this.messageService.error(`Unable to resolve all tails. Error: ${err.message || err}`);
+      }
+    });
   }
 
   openResolveModal(): void {

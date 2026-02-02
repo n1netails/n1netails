@@ -1,7 +1,17 @@
 #!/bin/bash
 
 # Extract version from pom.xml
-VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+set -e
+
+cd "$(dirname "$0")"
+
+VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | tr -d '\r')
+
+if [ -z "$VERSION" ]; then
+  echo "❌ ERROR: Maven version not resolved"
+  exit 1
+fi
+
 IMAGE_NAME=n1netails-ui
 DOCKER_USER=shahidfo
 REPO=n1netails-ui

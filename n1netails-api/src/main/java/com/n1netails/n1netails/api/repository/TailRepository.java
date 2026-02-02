@@ -4,6 +4,7 @@ import com.n1netails.n1netails.api.model.dto.TailLevelAndTimestamp;
 import com.n1netails.n1netails.api.model.dto.TailSummary;
 import com.n1netails.n1netails.api.model.dto.TailTimestampAndResolvedTimestamp;
 import com.n1netails.n1netails.api.model.entity.TailEntity;
+import com.n1netails.n1netails.api.model.entity.TailStatusEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -179,6 +180,10 @@ public interface TailRepository extends JpaRepository<TailEntity, Long> {
     );
 
     List<TailEntity> findByAssignedUserId(Long userId);
+
+    List<TailEntity> findAllByAssignedUserIdAndStatus(Long assignedUserId, TailStatusEntity status);
+
+    long countByAssignedUserIdAndStatusName(Long assignedUserId, String statusName);
 
     long countByTimestampBetween(Instant startOfDay, Instant endOfDay);
     List<TailEntity> findByTimestampBetween(Instant startOfDay, Instant endOfDay);

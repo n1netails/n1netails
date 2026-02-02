@@ -22,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -119,6 +120,33 @@ public class TailServiceImpl implements TailService {
         tailRepository.save(tail);
 
         return setTailResponse(tail);
+    }
+
+    @Override
+    @Transactional
+    public void resolveAll(UserPrincipal currentUser) throws TailStatusNotFoundException {
+        log.info("Attempting to resolve all tails");
+        TailStatusEntity newStatus = statusRepository.findTailStatusByName("NEW")
+                .orElseThrow(() -> new TailStatusNotFoundException("The requested tail status 'NEW' does not exist."));
+
+        List<TailEntity> newTails = tailRepository.findAllByAssignedUserIdAndStatus(currentUser.getId(), newStatus);
+
+        TailStatusEntity resolvedStatus = statusRepository.findTailStatusByName("RESOLVED")
+                .orElseThrow(() -> new TailStatusNotFoundException("The requested tail status 'RESOLVED' does not exist."));
+
+        Instant now = Instant.now();
+        newTails.forEach(tail -> {
+            tail.setStatus(resolvedStatus);
+            tail.setResolvedTimestamp(now);
+        });
+
+        tailRepository.saveAll(newTails);
+        log.info("Resolved {} tails for user {}", newTails.size(), currentUser.getUsername());
+    }
+
+    @Override
+    public long countNewTails(UserPrincipal currentUser) {
+        return tailRepository.countByAssignedUserIdAndStatusName(currentUser.getId(), "NEW");
     }
 
     @Override

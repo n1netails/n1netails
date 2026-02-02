@@ -276,7 +276,7 @@ export class DashboardComponent implements OnInit {
           {
             data: result.data,
             backgroundColor: result.labels.map(label => this.tailUtilService.getPieChartStatusColor(label)),
-            borderWidth: 3, borderColor: '#F38A3F'
+            borderWidth: 1.5, borderColor: '#F38A3F'
           }
         ]
       };

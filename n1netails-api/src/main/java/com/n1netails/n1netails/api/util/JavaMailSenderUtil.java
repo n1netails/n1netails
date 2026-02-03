@@ -65,7 +65,7 @@ public class JavaMailSenderUtil {
         return CompletableFuture.completedFuture(null);
     }
 
-        private String applyParameters(String content, Map<String, String> parameters) {
+    private String applyParameters(String content, Map<String, String> parameters) {
         String result = content;
         Set<Entry<String, String>> entries = parameters.entrySet();
         if (entries.isEmpty()) {

@@ -43,7 +43,7 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendWelcomeEmail(UsersEntity usersEntity) {
-        log.info("call to usendWelcomeEmail");
+        log.info("call to sendWelcomeEmail");
         try {
             SendMailRequest welcomeMailRequest = new SendMailRequest();
             welcomeMailRequest.setNotificationTemplateName("welcome");

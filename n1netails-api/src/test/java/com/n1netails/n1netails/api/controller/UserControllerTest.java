@@ -211,7 +211,7 @@ public class UserControllerTest {
 
         UsersEntity updatedUser = new UsersEntity();
         updatedUser.setId(1L);
-        updatedUser.setEmail("userUpdated@example.com");
+        updatedUser.setEmail("user@example.com");
         updatedUser.setUsername("user-01-updated");
 
         UserPrincipal principal = new UserPrincipal(requestUser);
@@ -281,7 +281,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void editUser_userNotFound_shouldReturnUnauthorized() throws Exception {
+    void editUser_principalNotFound_shouldReturnUnauthorized() throws Exception {
         // NOTE: According to the Swagger/OpenAPI this endpoint should return 401 for authentication failures.
         // However, because the controller method declares `throws UserNotFoundException` and the exception
         // is not handled, Spring maps it to 404 Not Found by default.
@@ -308,6 +308,108 @@ public class UserControllerTest {
         verify(authorizationService, times(1)).getCurrentUserPrincipal(AUTH_HEADER);
         verify(userService, never()).editUser(any());
     }
+
+    @Test
+    void editUser_requestUserDiffersFromPrinciple_shouldReturnUnauthorized() throws Exception {
+        // Arrange
+        UsersEntity requestUser = new UsersEntity();
+        requestUser.setId(1L);
+        requestUser.setEmail("user@example.com");
+        requestUser.setUsername("user-01");
+
+        UsersEntity principleUser = new UsersEntity();
+        principleUser.setId(1L);
+        principleUser.setEmail("userPrinciple@example.com");
+        principleUser.setUsername("user-01");
+
+        UserPrincipal principal = new UserPrincipal(principleUser);
+
+        // Mock Data
+        when(authorizationService.getCurrentUserPrincipal(AUTH_HEADER)).thenReturn(principal);
+
+
+        // Action
+        mockMvc.perform(post(pathPrefix + "/edit")
+                        .header(HttpHeaders.AUTHORIZATION, AUTH_HEADER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestUser)))
+                // Assert
+                .andExpect(status().isUnauthorized());
+
+        // Verify mock call
+        verify(authorizationService, times(1)).getCurrentUserPrincipal(AUTH_HEADER);
+        verify(userService, never()).editUser(any());
+    }
+
+    @Test
+    void editUser_missingEmail_shouldReturnBadRequest() throws Exception {
+        // NOTE: According to the Swagger/OpenAPI this endpoint should return 401 for authentication failures.
+        // The problem for the test is the mission email in  @RequestBody UsersEntity user
+        // Swagger does not declare what to expect but usually BadRequest 400
+
+       //Arrange
+        UsersEntity requestUser = new UsersEntity();
+        requestUser.setId(1L);
+        requestUser.setUsername("user-01");
+
+        //Action
+        mockMvc.perform(post(pathPrefix + "/edit")
+                        .header(HttpHeaders.AUTHORIZATION, AUTH_HEADER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestUser)))
+                //Assets
+                .andExpect(status().isBadRequest());
+
+        // No service should be called
+        verify(authorizationService, never()).getCurrentUserPrincipal(any());
+        verify(userService, never()).editUser(any());
+    }
+
+    @Test
+    void editUser_extraJsonFields_shouldIgnoreAndSucceed() throws Exception {
+        //Arrange
+        String jsonWithExtra = "{ \"id\":1, \"email\":\"user@example.com\", \"username\":\"user-01\", \"extraField\":\"ignored\" }";
+
+        UsersEntity requestUser = new UsersEntity();
+        requestUser.setId(1L);
+        requestUser.setEmail("user@example.com");
+        requestUser.setUsername("user-01");
+
+        UserPrincipal principal = new UserPrincipal(requestUser);
+
+        //Mock
+        when(authorizationService.getCurrentUserPrincipal(AUTH_HEADER)).thenReturn(principal);
+        when(userService.editUser(any())).thenReturn(requestUser);
+
+        //Action
+        mockMvc.perform(post(pathPrefix + "/edit")
+                        .header(HttpHeaders.AUTHORIZATION, AUTH_HEADER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonWithExtra))
+                //Assets
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("user@example.com"))
+                .andExpect(jsonPath("$.username").value("user-01"));
+
+
+        verify(authorizationService, times(1)).getCurrentUserPrincipal(AUTH_HEADER);
+        verify(userService, times(1)).editUser(any());
+    }
+
+    @Test
+    void editUser_emptyRequestBody_shouldReturnInternalServerError() throws Exception {
+        //Action
+        mockMvc.perform(post(pathPrefix + "/edit")
+                        .header(HttpHeaders.AUTHORIZATION, AUTH_HEADER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(""))
+                //Assets
+                .andExpect(status().isInternalServerError());
+
+        verify(authorizationService, never()).getCurrentUserPrincipal(any());
+        verify(userService, never()).editUser(any());
+    }
+
 
 
 }

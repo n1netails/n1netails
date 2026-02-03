@@ -247,6 +247,9 @@ public class UserControllerTest {
         mockMvc.perform(post(pathPrefix + "/edit"))
                 // Assert
                 .andExpect(status().isUnauthorized());
+
+        verify(authorizationService, never()).getCurrentUserPrincipal(any());
+        verify(userService, never()).editUser(any());
     }
 
     @Test

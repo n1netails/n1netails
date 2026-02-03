@@ -103,6 +103,7 @@ public class UserControllerTest {
         mockMvc.perform(get(pathPrefix + "/self"))
                 // Assert
                 .andExpect(status().isUnauthorized());
+
     }
 
     @Test
@@ -112,10 +113,13 @@ public class UserControllerTest {
                         .header(HttpHeaders.AUTHORIZATION, "InvalidToken"))
                 // Assert
                 .andExpect(status().isUnauthorized());
+
+        verify(jwtDecoder, never()).decode("InvalidToken");
+        verify(userRepository, never()).findById(any());
     }
 
     @Test
-    void getCurrentUser_invalidJwt_shouldThrowAccessDenied() throws Exception {
+    void getCurrentUser_invalidJwt_shouldReturnUnauthorized() throws Exception {
         // Mock Data
         when(jwtDecoder.decode(VALID_TOKEN)).thenThrow(new JwtException("Invalid token"));
 
@@ -123,10 +127,13 @@ public class UserControllerTest {
         mockMvc.perform(get(pathPrefix + "/self").header(HttpHeaders.AUTHORIZATION, AUTH_HEADER))
                 // Assert
                 .andExpect(status().isUnauthorized());
+
+        verify(jwtDecoder, times(1)).decode(VALID_TOKEN);
+        verify(userRepository, never()).findById(any());
     }
 
     @Test
-    void getCurrentUser_userNotFound_shouldThrowAccessDenied() throws Exception {
+    void getCurrentUser_userNotFound_shouldReturnUnauthorized() throws Exception {
         // Arrange
         Jwt jwt = mock(Jwt.class);
 
@@ -139,10 +146,13 @@ public class UserControllerTest {
         mockMvc.perform(get(pathPrefix + "/self").header(HttpHeaders.AUTHORIZATION, AUTH_HEADER))
                 // Assert
                 .andExpect(status().isUnauthorized());
+
+        verify(jwtDecoder, times(1)).decode(VALID_TOKEN);
+        verify(userRepository, times(1)).findById(1L);
     }
 
     @Test
-    void getCurrentUser_disabledUser_shouldThrowAccessDenied() throws Exception {
+    void getCurrentUser_disabledUser_shouldReturnUnauthorized() throws Exception {
         // Arrange
         Jwt jwt = mock(Jwt.class);
 
@@ -161,10 +171,13 @@ public class UserControllerTest {
         mockMvc.perform(get(pathPrefix + "/self").header(HttpHeaders.AUTHORIZATION, AUTH_HEADER))
                 // Assert
                 .andExpect(status().isUnauthorized());
+
+        verify(jwtDecoder, times(1)).decode(VALID_TOKEN);
+        verify(userRepository, times(1)).findById(1L);
     }
 
     @Test
-    void getCurrentUser_lockedUser_shouldThrowAccessDenied() throws Exception {
+    void getCurrentUser_lockedUser_shouldReturnUnauthorized() throws Exception {
         // Arrange
         Jwt jwt = mock(Jwt.class);
 
@@ -183,6 +196,9 @@ public class UserControllerTest {
         mockMvc.perform(get(pathPrefix + "/self").header(HttpHeaders.AUTHORIZATION, AUTH_HEADER))
                 // Assert
                 .andExpect(status().isUnauthorized());
+
+        verify(jwtDecoder, times(1)).decode(VALID_TOKEN);
+        verify(userRepository, times(1)).findById(1L);
     }
 
     @Test

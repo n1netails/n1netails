@@ -1,5 +1,7 @@
 package com.n1netails.n1netails.api.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.n1netails.n1netails.api.model.UserPrincipal;
 import com.n1netails.n1netails.api.model.entity.UsersEntity;
 import com.n1netails.n1netails.api.repository.UserRepository;
 import com.n1netails.n1netails.api.service.AuthorizationService;
@@ -25,6 +27,8 @@ import java.util.Optional;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
@@ -38,6 +42,10 @@ public class UserControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
 
     @MockitoBean
     private UserService userService;
@@ -174,6 +182,41 @@ public class UserControllerTest {
         mockMvc.perform(get(pathPrefix + "/self").header(HttpHeaders.AUTHORIZATION, AUTH_HEADER))
                 // Assert
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void editUser_validUserBody_shouldReturnEditedUser() throws Exception {
+        // Arrange
+        UsersEntity requestUser = new UsersEntity();
+        requestUser.setId(1L);
+        requestUser.setEmail("user@example.com");
+        requestUser.setUsername("user-01");
+
+        UsersEntity updatedUser = new UsersEntity();
+        updatedUser.setId(1L);
+        updatedUser.setEmail("userUpdated@example.com");
+        updatedUser.setUsername("user-01-updated");
+
+        UserPrincipal principal = new UserPrincipal(requestUser);
+
+        // Mock Data
+        when(authorizationService.getCurrentUserPrincipal(AUTH_HEADER)).thenReturn(principal);
+        when(userService.editUser(any(UsersEntity.class))).thenReturn(updatedUser);
+
+        // Action
+        mockMvc.perform(post(pathPrefix + "/edit")
+                        .header(HttpHeaders.AUTHORIZATION, AUTH_HEADER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestUser)))
+                // Assert
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.email").value("userUpdated@example.com"))
+                .andExpect(jsonPath("$.id").value(1L));
+
+        // Verify mock call
+        verify(authorizationService, times(1)).getCurrentUserPrincipal(AUTH_HEADER);
+        verify(userService, times(1)).editUser(any(UsersEntity.class));
     }
 
 

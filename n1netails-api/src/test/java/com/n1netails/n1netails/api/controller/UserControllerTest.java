@@ -1,6 +1,7 @@
 package com.n1netails.n1netails.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
 import com.n1netails.n1netails.api.model.UserPrincipal;
 import com.n1netails.n1netails.api.model.entity.UsersEntity;
 import com.n1netails.n1netails.api.repository.UserRepository;
@@ -217,6 +218,76 @@ public class UserControllerTest {
         // Verify mock call
         verify(authorizationService, times(1)).getCurrentUserPrincipal(AUTH_HEADER);
         verify(userService, times(1)).editUser(any(UsersEntity.class));
+    }
+
+    @Test
+    void editUser_missingAuthorizationHeader_shouldReturnUnauthorized() throws Exception {
+        // NOTE: This test does NOT return 401 as one might expect.
+        // Because the @RequestHeader in the controller is required by default,
+        // Spring throws a MissingRequestHeaderException before the controller method is called.
+        // This results in the def. error response (500 INTERNAL_SERVER_ERROR).
+
+        // Action
+        mockMvc.perform(post(pathPrefix + "/edit"))
+                // Assert
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void editUser_invalidAuthorizationHeader_shouldReturnUnauthorized() throws Exception {
+        // NOTE: According to the Swagger/OpenAPI this endpoint should return 401 for authentication failures.
+        // However, because the controller method declares `throws UserNotFoundException` and the exception
+        // is not handled, Spring maps it to 404 Not Found by default.
+
+        //Arrange
+        UsersEntity requestUser = new UsersEntity();
+        requestUser.setEmail("user@example.com");
+        requestUser.setUsername("user-01");
+
+        //Mock
+        when(authorizationService.getCurrentUserPrincipal("InvalidToken"))
+                .thenThrow(new UserNotFoundException("User not found"));
+
+        // Action
+        mockMvc.perform(post(pathPrefix + "/edit")
+                        .header(HttpHeaders.AUTHORIZATION, "InvalidToken")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestUser)))
+                // Assert
+                .andExpect(status().isUnauthorized());
+
+        // Verify
+        verify(authorizationService, times(1)).getCurrentUserPrincipal("InvalidToken");
+        verify(userService, never()).editUser(any());
+    }
+
+    @Test
+    void editUser_userNotFound_shouldReturnUnauthorized() throws Exception {
+        // NOTE: According to the Swagger/OpenAPI this endpoint should return 401 for authentication failures.
+        // However, because the controller method declares `throws UserNotFoundException` and the exception
+        // is not handled, Spring maps it to 404 Not Found by default.
+
+        // Arrange
+        UsersEntity requestUser = new UsersEntity();
+        requestUser.setId(1L);
+        requestUser.setEmail("user@example.com");
+        requestUser.setUsername("user-01");
+
+        // Mock
+        when(authorizationService.getCurrentUserPrincipal(AUTH_HEADER))
+                .thenThrow(new UserNotFoundException("User not found"));
+
+        // Action
+        mockMvc.perform(post(pathPrefix + "/edit")
+                        .header(HttpHeaders.AUTHORIZATION, AUTH_HEADER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestUser)))
+                // Assert
+                .andExpect(status().isUnauthorized());
+
+        // Verify
+        verify(authorizationService, times(1)).getCurrentUserPrincipal(AUTH_HEADER);
+        verify(userService, never()).editUser(any());
     }
 
 

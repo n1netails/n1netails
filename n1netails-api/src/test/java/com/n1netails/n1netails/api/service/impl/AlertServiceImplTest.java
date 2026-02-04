@@ -193,21 +193,22 @@ public class AlertServiceImplTest {
         // Mock Data
         when(n1neTokenRepository.findByN1TokenHash(n1TokenHash)).thenReturn(Optional.of(n1neToken));
         when(tailLevelRepository.findTailLevelByName(any())).thenReturn(Optional.empty());
-        when(tailLevelRepository.save(any())).thenReturn(infoTailLevel);
+        when(tailLevelRepository.saveAndFlush(any())).thenReturn(infoTailLevel);
 
         when(tailTypeRepository.findTailTypeByName(any())).thenReturn(Optional.empty());
-        when(tailTypeRepository.save(any())).thenReturn(systemAlertTailType);
+        when(tailTypeRepository.saveAndFlush(any())).thenReturn(systemAlertTailType);
 
-        when(tailStatusRepository.save(any())).thenReturn(newTailStatus);
+        when(tailStatusRepository.findTailStatusByName(any())).thenReturn(Optional.empty());
+        when(tailStatusRepository.saveAndFlush(any())).thenReturn(newTailStatus);
 
         // Action
         alertService.createTail(n1Token, notFullPopulatedKudaTailRequest);
 
         // Verify mock call
-        verify(tailLevelRepository, times(1)).findTailLevelByName(eq(null));
+        verify(tailLevelRepository, never()).findTailLevelByName(eq(null));
         verify(tailLevelRepository, times(1)).findTailLevelByName(eq(AlertServiceImpl.INFO));
 
-        verify(tailTypeRepository, times(1)).findTailTypeByName(eq(null));
+        verify(tailTypeRepository, never()).findTailTypeByName(eq(null));
         verify(tailTypeRepository, times(1)).findTailTypeByName(eq(AlertServiceImpl.SYSTEM_ALERT));
 
         verify(tailStatusRepository, never()).findTailStatusByName(eq(null));
@@ -231,23 +232,21 @@ public class AlertServiceImplTest {
     public void testCreateTail_BlankRequestAndDefaultValuesNotInDB_ShouldCreateDefaultValuesAndTailWithDefaultValues() throws Exception {
         when(n1neTokenRepository.findByN1TokenHash(n1TokenHash)).thenReturn(Optional.of(n1neToken));
 
-        when(tailLevelRepository.findTailLevelByName(eq(""))).thenReturn(Optional.empty());
         when(tailLevelRepository.findTailLevelByName(eq(AlertServiceImpl.INFO))).thenReturn(Optional.empty());
-        when(tailLevelRepository.save(any())).thenReturn(infoTailLevel);
+        when(tailLevelRepository.saveAndFlush(any())).thenReturn(infoTailLevel);
 
-        when(tailTypeRepository.findTailTypeByName(eq(""))).thenReturn(Optional.empty());
         when(tailTypeRepository.findTailTypeByName(eq(AlertServiceImpl.SYSTEM_ALERT))).thenReturn(Optional.empty());
-        when(tailTypeRepository.save(any())).thenReturn(systemAlertTailType);
+        when(tailTypeRepository.saveAndFlush(any())).thenReturn(systemAlertTailType);
 
         when(tailStatusRepository.findTailStatusByName(eq(AlertServiceImpl.NEW))).thenReturn(Optional.empty());
-        when(tailStatusRepository.save(any())).thenReturn(newTailStatus);
+        when(tailStatusRepository.saveAndFlush(any())).thenReturn(newTailStatus);
 
         alertService.createTail(n1Token, emptyInputKudaTailRequest);
 
-        verify(tailLevelRepository, times(1)).findTailLevelByName(eq(""));
+        verify(tailLevelRepository, never()).findTailLevelByName(eq(""));
         verify(tailLevelRepository, times(1)).findTailLevelByName(eq(AlertServiceImpl.INFO));
 
-        verify(tailTypeRepository, times(1)).findTailTypeByName(eq(""));
+        verify(tailTypeRepository, never()).findTailTypeByName(eq(""));
         verify(tailTypeRepository, times(1)).findTailTypeByName(eq(AlertServiceImpl.SYSTEM_ALERT));
 
         verify(tailStatusRepository, never()).findTailStatusByName(eq(""));
@@ -272,32 +271,32 @@ public class AlertServiceImplTest {
         when(n1neTokenRepository.findByN1TokenHash(n1TokenHash)).thenReturn(Optional.of(n1neToken));
 
         when(tailLevelRepository.findTailLevelByName(anyString())).thenReturn(Optional.empty());
-        when(tailLevelRepository.save(any())).thenReturn(newTailLevelTrace);
+        when(tailLevelRepository.saveAndFlush(any())).thenReturn(newTailLevelTrace);
 
         when(tailTypeRepository.findTailTypeByName(anyString())).thenReturn(Optional.empty());
-        when(tailTypeRepository.save(any())).thenReturn(newTailTypeMonitorAlert);
+        when(tailTypeRepository.saveAndFlush(any())).thenReturn(newTailTypeMonitorAlert);
 
         when(tailStatusRepository.findTailStatusByName(eq(AlertServiceImpl.NEW))).thenReturn(Optional.empty());
-        when(tailStatusRepository.save(any())).thenReturn(newTailStatus);
+        when(tailStatusRepository.saveAndFlush(any())).thenReturn(newTailStatus);
 
         alertService.createTail(n1Token, newValuesKudaTailRequest);
 
         verify(tailLevelRepository, times(1)).findTailLevelByName(eq(newValuesKudaTailRequest.getLevel()));
         ArgumentCaptor<TailLevelEntity> tailLevelArgCaptor = ArgumentCaptor.forClass(TailLevelEntity.class);
-        verify(tailLevelRepository, times(1)).save(tailLevelArgCaptor.capture());
+        verify(tailLevelRepository, times(1)).saveAndFlush(tailLevelArgCaptor.capture());
         TailLevelEntity newTailLevelSaved = tailLevelArgCaptor.getValue();
         assertEquals(newValuesKudaTailRequest.getLevel(), newTailLevelSaved.getName());
 
         verify(tailTypeRepository, times(1)).findTailTypeByName(eq(newValuesKudaTailRequest.getType()));
         verify(tailStatusRepository, times(1)).findTailStatusByName(eq(AlertServiceImpl.NEW));
         ArgumentCaptor<TailTypeEntity> tailTypeArgCaptor = ArgumentCaptor.forClass(TailTypeEntity.class);
-        verify(tailTypeRepository, times(1)).save(tailTypeArgCaptor.capture());
+        verify(tailTypeRepository, times(1)).saveAndFlush(tailTypeArgCaptor.capture());
         TailTypeEntity newTailTypeSaved = tailTypeArgCaptor.getValue();
         assertEquals(newValuesKudaTailRequest.getType(), newTailTypeSaved.getName());
 
         verify(tailStatusRepository, times(1)).findTailStatusByName(eq(AlertServiceImpl.NEW));
         ArgumentCaptor<TailStatusEntity> tailStatusArgCaptor = ArgumentCaptor.forClass(TailStatusEntity.class);
-        verify(tailStatusRepository, times(1)).save(tailStatusArgCaptor.capture());
+        verify(tailStatusRepository, times(1)).saveAndFlush(tailStatusArgCaptor.capture());
         TailStatusEntity newTailStatusSaved = tailStatusArgCaptor.getValue();
         assertEquals(AlertServiceImpl.NEW, newTailStatusSaved.getName());
 

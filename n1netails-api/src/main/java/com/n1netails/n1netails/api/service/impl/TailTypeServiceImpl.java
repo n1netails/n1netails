@@ -56,6 +56,9 @@ public class TailTypeServiceImpl implements TailTypeService {
 
     @Override
     public TailTypeResponse createTailType(TailType request) {
+        this.tailTypeRepository.findTailTypeByName(request.getName()).ifPresent(s -> {
+            throw new IllegalArgumentException("Tail Type already exists with name: " + request.getName());
+        });
         TailTypeEntity tailTypeEntity = new TailTypeEntity();
         tailTypeEntity.setName(request.getName());
         tailTypeEntity.setDescription(request.getDescription());
@@ -68,6 +71,11 @@ public class TailTypeServiceImpl implements TailTypeService {
     public TailTypeResponse updateTailType(Long id, TailType request) {
         TailTypeEntity tailTypeEntity = this.tailTypeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(TAIL_TYPE_DOES_NOT_EXIST + id));
+        this.tailTypeRepository.findTailTypeByName(request.getName()).ifPresent(existing -> {
+            if (!existing.getId().equals(id)) {
+                throw new IllegalArgumentException("Tail Type already exists with name: " + request.getName());
+            }
+        });
         tailTypeEntity.setName(request.getName());
         tailTypeEntity.setDescription(request.getDescription());
         tailTypeEntity = this.tailTypeRepository.save(tailTypeEntity);

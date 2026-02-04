@@ -208,6 +208,33 @@ public class UserControllerTest {
     }
 
     @Test
+    //Return 500 what okay is but not declared in Swagger
+    void getCurrentUser_runTimeException_shouldReturnUnauthorized() throws Exception {
+        // Arrange
+        Jwt jwt = mock(Jwt.class);
+
+        UsersEntity disabledUser = new UsersEntity();
+        disabledUser.setId(1L);
+        disabledUser.setEnabled(true);
+        disabledUser.setActive(true);
+        disabledUser.setNotLocked(false);
+
+        // Mock Data
+        when(jwtDecoder.decode(VALID_TOKEN)).thenReturn(jwt);
+        when(jwt.getClaim("id")).thenReturn(1L);
+        when(userRepository.findById(1L)).thenThrow(new RuntimeException("DB down"));
+
+        // Action
+        mockMvc.perform(get(pathPrefix + "/self").header(HttpHeaders.AUTHORIZATION, AUTH_HEADER))
+                // Assert
+                .andExpect(status().isUnauthorized());
+
+        verify(jwtDecoder, times(1)).decode(VALID_TOKEN);
+        verify(userRepository, times(1)).findById(1L);
+    }
+
+
+    @Test
     void editUser_validUserBody_shouldReturnEditedUser() throws Exception {
         // Arrange
         UsersEntity requestUser = new UsersEntity();
@@ -287,10 +314,10 @@ public class UserControllerTest {
     }
 
     @Test
-    void editUser_principalNotFound_shouldReturnUnauthorized() throws Exception {
         // NOTE: According to the Swagger/OpenAPI this endpoint should return 401 for authentication failures.
         // However, because the controller method declares `throws UserNotFoundException` and the exception
         // is not handled, Spring maps it to 404 Not Found by default.
+    void editUser_principalNotFound_shouldReturnUnauthorized() throws Exception {
 
         // Arrange
         UsersEntity requestUser = new UsersEntity();
@@ -403,16 +430,44 @@ public class UserControllerTest {
     }
 
     @Test
-    void editUser_emptyRequestBody_shouldReturnInternalServerError() throws Exception {
+    // 500 but 401 is expected
+    void editUser_emptyRequestBody_shouldReturnUnauthorized() throws Exception {
         //Action
         mockMvc.perform(post(pathPrefix + "/edit")
                         .header(HttpHeaders.AUTHORIZATION, AUTH_HEADER)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(""))
                 //Assets
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isUnauthorized());
 
         verify(authorizationService, never()).getCurrentUserPrincipal(any());
+        verify(userService, never()).editUser(any());
+    }
+
+    @Test
+        //Expected 401 but was 500 what okay is but not declared in Swagger
+    void editUser_runTimeException_shouldReturnUnauthorized() throws Exception {
+
+        // Arrange
+        UsersEntity requestUser = new UsersEntity();
+        requestUser.setId(1L);
+        requestUser.setEmail("user@example.com");
+        requestUser.setUsername("user-01");
+
+        // Mock
+        when(authorizationService.getCurrentUserPrincipal(AUTH_HEADER))
+                .thenThrow(new RuntimeException());
+
+        // Action
+        mockMvc.perform(post(pathPrefix + "/edit")
+                        .header(HttpHeaders.AUTHORIZATION, AUTH_HEADER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestUser)))
+                // Assert
+                .andExpect(status().isUnauthorized());
+
+        // Verify
+        verify(authorizationService, times(1)).getCurrentUserPrincipal(AUTH_HEADER);
         verify(userService, never()).editUser(any());
     }
 

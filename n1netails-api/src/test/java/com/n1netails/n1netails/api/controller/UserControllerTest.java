@@ -1,6 +1,7 @@
 package com.n1netails.n1netails.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.n1netails.n1netails.api.exception.type.EmailExistException;
 import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
 import com.n1netails.n1netails.api.model.UserPrincipal;
 import com.n1netails.n1netails.api.model.entity.UsersEntity;
@@ -695,4 +696,113 @@ public class UserControllerTest {
         verify(emailService, times(1)).sendWelcomeEmail(registeredUser);
         verify(authenticationManager, times(1)).authenticate(any());
     }
+
+    @Test
+    void register_invalidPassword_shouldReturnBadRequest() throws Exception {
+        UserRegisterRequest request = new UserRegisterRequest();
+        request.setEmail("newuser@ninetails.com");
+        request.setPassword("weak");
+
+        mockMvc.perform(post(pathPrefix + "/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+
+        verify(userService, never()).register(any());
+        verify(emailService, never()).sendWelcomeEmail(any());
+        verify(authenticationManager, never()).authenticate(any());
+    }
+
+    @Test
+    // 400 expected but was 409 CONFLICT
+    void register_emailAlreadyExists_shouldReturnBadRequest() throws Exception {
+        UserRegisterRequest request = new UserRegisterRequest();
+        request.setEmail("existing@ninetails.com");
+        request.setPassword("StrongP@ssword1");
+
+        when(userService.register(any(UserRegisterRequest.class)))
+                .thenThrow(new EmailExistException("Email already exists"));
+
+        mockMvc.perform(post(pathPrefix + "/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+
+        verify(userService, times(1)).register(any());
+        verify(emailService, never()).sendWelcomeEmail(any());
+        verify(authenticationManager, never()).authenticate(any());
+    }
+
+    @Test
+    // 400 expected but was 500
+    void register_missingRequestBody_shouldReturnBadRequest() throws Exception {
+        mockMvc.perform(post(pathPrefix + "/register")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+        // 400 expected but was 500
+    void register_malformedJson_shouldReturnBadRequest() throws Exception {
+        String malformedJson = "{ \"email\": \"user@ninetails.com\", \"password\": }";
+
+        mockMvc.perform(post(pathPrefix + "/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(malformedJson))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+        // 400 expected but was 500
+    void register_wrongContentType_shouldReturnBadRequest() throws Exception {
+        UserRegisterRequest request = new UserRegisterRequest();
+        request.setEmail("user@ninetails.com");
+        request.setPassword("StrongP@ssword1");
+
+        mockMvc.perform(post(pathPrefix + "/register")
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+        // 400 expected but was 404
+    void register_userNotFound_shouldReturnBadRequest() throws Exception {
+        UserRegisterRequest request = new UserRegisterRequest();
+        request.setEmail("user@ninetails.com");
+        request.setPassword("StrongP@ssword1");
+
+        when(userService.register(any(UserRegisterRequest.class)))
+                .thenThrow(new UserNotFoundException("Not found"));
+
+        mockMvc.perform(post(pathPrefix + "/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+
+        verify(userService, times(1)).register(any());
+        verify(emailService, never()).sendWelcomeEmail(any());
+        verify(authenticationManager, never()).authenticate(any());
+    }
+
+    @Test
+    // 500 was returned but 400
+    void register_runtimeException_shouldReturnBadRequest() throws Exception {
+        UserRegisterRequest request = new UserRegisterRequest();
+        request.setEmail("user@ninetails.com");
+        request.setPassword("StrongP@ssword1");
+
+        when(userService.register(any(UserRegisterRequest.class))).thenThrow(new RuntimeException("DB down"));
+
+        mockMvc.perform(post(pathPrefix + "/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+
+        verify(emailService, never()).sendWelcomeEmail(any());
+    }
+
+
+
+
 }

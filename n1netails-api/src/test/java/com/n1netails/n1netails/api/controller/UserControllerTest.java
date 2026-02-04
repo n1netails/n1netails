@@ -5,6 +5,7 @@ import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
 import com.n1netails.n1netails.api.model.UserPrincipal;
 import com.n1netails.n1netails.api.model.entity.UsersEntity;
 import com.n1netails.n1netails.api.model.request.UserLoginRequest;
+import com.n1netails.n1netails.api.model.request.UserRegisterRequest;
 import com.n1netails.n1netails.api.repository.UserRepository;
 import com.n1netails.n1netails.api.service.AuthorizationService;
 import com.n1netails.n1netails.api.service.EmailService;
@@ -657,5 +658,41 @@ public class UserControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    @Test
+    void register_validUser_shouldReturnUserAndJwt() throws Exception {
+        UserRegisterRequest request = new UserRegisterRequest();
+        request.setEmail("newuser@ninetails.com");
+        request.setPassword("StrongP@ssword1");
+        request.setFirstName("Nine");
+        request.setLastName("Tails");
 
+        UsersEntity registeredUser = new UsersEntity();
+        registeredUser.setId(1L);
+        registeredUser.setEmail("newuser@ninetails.com");
+        registeredUser.setFirstName("Nine");
+        registeredUser.setLastName("Tails");
+
+        Authentication auth = mock(Authentication.class);
+
+        when(userService.register(any(UserRegisterRequest.class))).thenReturn(registeredUser);
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenReturn(auth);
+
+        doNothing().when(emailService).sendWelcomeEmail(registeredUser);
+        when(jwtTokenUtil.createToken(any(UserPrincipal.class))).thenReturn("dummy.jwt.token");
+
+        mockMvc.perform(post(pathPrefix + "/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+
+                .andExpect(status().isOk())
+                .andExpect(header().string("Jwt-Token", "dummy.jwt.token"))
+                .andExpect(jsonPath("$.email").value("newuser@ninetails.com"))
+                .andExpect(jsonPath("$.firstName").value("Nine"))
+                .andExpect(jsonPath("$.lastName").value("Tails"));
+
+        verify(userService, times(1)).register(any(UserRegisterRequest.class));
+        verify(emailService, times(1)).sendWelcomeEmail(registeredUser);
+        verify(authenticationManager, times(1)).authenticate(any());
+    }
 }

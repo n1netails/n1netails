@@ -19,8 +19,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
@@ -97,11 +99,11 @@ public class UserControllerTest {
     }
 
     @Test
-    void getCurrentUser_missingAuthorizationHeader_shouldReturnUnauthorized() throws Exception {
         // NOTE: This test does NOT return 401 as one might expect.
         // Because the @RequestHeader in the controller is required by default,
         // Spring throws a MissingRequestHeaderException before the controller method is called.
         // This results in the def. error response (500 INTERNAL_SERVER_ERROR).
+    void getCurrentUser_missingAuthorizationHeader_shouldReturnUnauthorized() throws Exception {
 
         // Action
         mockMvc.perform(get(pathPrefix + "/self"))
@@ -241,11 +243,11 @@ public class UserControllerTest {
     }
 
     @Test
-    void editUser_missingAuthorizationHeader_shouldReturnUnauthorized() throws Exception {
         // NOTE: This test does NOT return 401 as one might expect.
         // Because the @RequestHeader in the controller is required by default,
         // Spring throws a MissingRequestHeaderException before the controller method is called.
         // This results in the def. error response (500 INTERNAL_SERVER_ERROR).
+    void editUser_missingAuthorizationHeader_shouldReturnUnauthorized() throws Exception {
 
         // Action
         mockMvc.perform(post(pathPrefix + "/edit"))
@@ -257,10 +259,10 @@ public class UserControllerTest {
     }
 
     @Test
-    void editUser_invalidAuthorizationHeader_shouldReturnUnauthorized() throws Exception {
         // NOTE: According to the Swagger/OpenAPI this endpoint should return 401 for authentication failures.
-        // However, because the controller method declares `throws UserNotFoundException` and the exception
+        // But because the controller method declares `throws UserNotFoundException` and the exception
         // is not handled, Spring maps it to 404 Not Found by default.
+    void editUser_invalidAuthorizationHeader_shouldReturnUnauthorized() throws Exception {
 
         //Arrange
         UsersEntity requestUser = new UsersEntity();
@@ -346,10 +348,10 @@ public class UserControllerTest {
     }
 
     @Test
-    void editUser_missingEmail_shouldReturnBadRequest() throws Exception {
         // NOTE: According to the Swagger/OpenAPI this endpoint should return 401 for authentication failures.
         // The problem for the test is the mission email in  @RequestBody UsersEntity user
         // Swagger does not declare what to expect but usually BadRequest 400
+    void editUser_missingEmail_shouldReturnBadRequest() throws Exception {
 
         //Arrange
         UsersEntity requestUser = new UsersEntity();
@@ -436,9 +438,9 @@ public class UserControllerTest {
         when(jwtTokenUtil.createToken(any(UserPrincipal.class))).thenReturn("dummy.jwt.token");
 
         //Act
-        mockMvc.perform(post(pathPrefix+"/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+        mockMvc.perform(post(pathPrefix + "/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 //Assets
                 .andExpect(status().isOk())
                 .andExpect(header().string("Jwt-Token", "dummy.jwt.token"))
@@ -451,5 +453,154 @@ public class UserControllerTest {
                 .findUserByEmail(request.getEmail());
 
     }
+
+    @Test
+        //NOTE: BadCredentialsException is one of the errors authenticationManager.authenticate(...) can throw
+        //Any of them is not handled
+    void login_invalidCredentials_shouldReturnUnauthorized() throws Exception {
+
+        //Arrange
+        UserLoginRequest request = new UserLoginRequest();
+        request.setEmail("invalid_email@ninetails.com");
+        request.setPassword("wrong-password");
+
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenThrow(new BadCredentialsException("Invalid credentials"));
+
+        //Act
+        mockMvc.perform(post(pathPrefix + "/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                //Assets
+                .andExpect(status().isUnauthorized());
+
+        verify(authenticationManager, times(1))
+                .authenticate(any(UsernamePasswordAuthenticationToken.class));
+        verify(userService, never())
+                .findUserByEmail(request.getEmail());
+    }
+
+    @Test
+        //NOTE: userService.findUserByEmail returns null by default. This case is not handled.
+        //Some methods in UserService throws UserNotFoundException, maybe it is a good idea to do the same for the findUserByEmail and not "the null"
+    void login_userNotFound_shouldReturnUnauthorized() throws Exception {
+        //Arrange
+        UserLoginRequest request = new UserLoginRequest();
+        request.setEmail("valid_email@ninetails.com");
+        request.setPassword("unsecure-password");
+
+        Authentication auth = mock(Authentication.class);
+
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenReturn(auth);
+
+        when(userService.findUserByEmail(request.getEmail())).thenReturn(null);
+
+
+        //Act
+        mockMvc.perform(post(pathPrefix + "/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                //Assets
+                .andExpect(status().isUnauthorized());
+
+        verify(authenticationManager, times(1))
+                .authenticate(any(UsernamePasswordAuthenticationToken.class));
+        verify(userService, times(1))
+                .findUserByEmail(request.getEmail());
+
+    }
+
+    @Test
+    //Expected 401 but was 500. Not declared in swagger nor handled
+    //400 is better in this case
+    void login_malformedJson_shouldReturnUnauthorized() throws Exception {
+        //Arrange
+        String malformedJson = "{ \"email\": \"user@example.com\", \"password\": }";
+
+        mockMvc.perform(post(pathPrefix + "/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(malformedJson))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.httpStatusCode").value(400))
+                .andExpect(jsonPath("$.httpStatus").value("BAD_REQUEST"));
+
+        verify(authenticationManager, times(1))
+                .authenticate(any(UsernamePasswordAuthenticationToken.class));
+        verify(userService, times(1))
+                .findUserByEmail("user@example.com");
+    }
+
+    @Test
+        //Expected 401 but was 500. Not declared in swagger nor handled
+        //400 is better in this case
+    void login_missingRequestBody_shouldUnauthorized() throws Exception {
+        // Act & Assert
+        mockMvc.perform(post(pathPrefix + "/login")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.httpStatusCode").value(400))
+                .andExpect(jsonPath("$.httpStatus").value("BAD_REQUEST"));
+    }
+
+    @Test
+        //Expected 401 but was 500. Not declared in swagger nor handled
+        //400 is better in this case
+    void login_missingEmail_shouldReturnUnauthorized() throws Exception {
+        //Arrange
+        UserLoginRequest request = new UserLoginRequest();
+        request.setEmail(null);
+        request.setPassword("unsecure-password");
+
+        //Act
+        mockMvc.perform(post(pathPrefix + "/login")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(objectMapper.writeValueAsString(request)))
+                //Assets
+                .andExpect(status().isUnauthorized());
+
+
+        verify(authenticationManager, times(1))
+                .authenticate(any(UsernamePasswordAuthenticationToken.class));
+        verify(userService, never())
+                .findUserByEmail(request.getEmail());
+
+    }
+
+    @Test
+        //Expected 401 but was 500. Not declared in swagger
+    void login_wrongContentType_shouldReturnUnauthorized() throws Exception {
+        // Arrange
+        UserLoginRequest request = new UserLoginRequest();
+        request.setEmail("valid_email@ninetails.com");
+        request.setPassword("unsecure-password");
+
+        // Act
+        mockMvc.perform(post(pathPrefix + "/login")
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .content(objectMapper.writeValueAsString(request)))
+                //Assets
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+        //Expected 401 but was 500. Not declared in swagger
+    void login_runtimeException_shouldReturnUnauthorized() throws Exception {
+        // Arrange
+        UserLoginRequest request = new UserLoginRequest();
+        request.setEmail("valid_email@ninetails.com");
+        request.setPassword("unsecure-password");
+
+        // Mock userService to throw a runtime exception
+        when(userService.findUserByEmail(any()))
+                .thenThrow(new RuntimeException("DB down"));
+
+        // Act & Assert
+        mockMvc.perform(post(pathPrefix + "/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized());
+    }
+
 
 }

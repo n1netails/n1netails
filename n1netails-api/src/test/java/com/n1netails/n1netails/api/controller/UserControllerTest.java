@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
 import com.n1netails.n1netails.api.model.UserPrincipal;
 import com.n1netails.n1netails.api.model.entity.UsersEntity;
+import com.n1netails.n1netails.api.model.request.UserLoginRequest;
 import com.n1netails.n1netails.api.repository.UserRepository;
 import com.n1netails.n1netails.api.service.AuthorizationService;
 import com.n1netails.n1netails.api.service.EmailService;
@@ -11,12 +12,15 @@ import com.n1netails.n1netails.api.service.UserService;
 import com.n1netails.n1netails.api.util.JwtTokenUtil;
 import org.junit.jupiter.api.Test;
 
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
@@ -347,7 +351,7 @@ public class UserControllerTest {
         // The problem for the test is the mission email in  @RequestBody UsersEntity user
         // Swagger does not declare what to expect but usually BadRequest 400
 
-       //Arrange
+        //Arrange
         UsersEntity requestUser = new UsersEntity();
         requestUser.setId(1L);
         requestUser.setUsername("user-01");
@@ -410,6 +414,42 @@ public class UserControllerTest {
         verify(userService, never()).editUser(any());
     }
 
+    @Test
+    void login_validCredentials_shouldReturnUserAndJWTToken() throws Exception {
+        //Arrange
+        UserLoginRequest request = new UserLoginRequest();
+        request.setEmail("valid_email@ninetails.com");
+        request.setPassword("unsecure-password");
 
+        UsersEntity loginUser = new UsersEntity();
+        loginUser.setId(1L);
+        loginUser.setEmail("valid_email@ninetails.com");
+        loginUser.setUsername("user-01");
+
+        Authentication auth = mock(Authentication.class);
+
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenReturn(auth);
+
+        when(userService.findUserByEmail(request.getEmail())).thenReturn(loginUser);
+
+        when(jwtTokenUtil.createToken(any(UserPrincipal.class))).thenReturn("dummy.jwt.token");
+
+        //Act
+        mockMvc.perform(post(pathPrefix+"/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                //Assets
+                .andExpect(status().isOk())
+                .andExpect(header().string("Jwt-Token", "dummy.jwt.token"))
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.email").value("valid_email@ninetails.com"));
+
+        verify(authenticationManager, times(1))
+                .authenticate(any(UsernamePasswordAuthenticationToken.class));
+        verify(userService, times(1))
+                .findUserByEmail(request.getEmail());
+
+    }
 
 }

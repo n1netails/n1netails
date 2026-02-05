@@ -56,6 +56,9 @@ public class TailStatusServiceImpl implements TailStatusService {
 
     @Override
     public TailStatusResponse createTailStatus(TailStatus request) {
+        this.tailStatusRepository.findTailStatusByName(request.getName()).ifPresent(s -> {
+            throw new IllegalArgumentException("Tail Status already exists with name: " + request.getName());
+        });
         TailStatusEntity tailStatusEntity = new TailStatusEntity();
         tailStatusEntity.setName(request.getName());
         tailStatusEntity.setDeletable(request.isDeletable());
@@ -67,6 +70,11 @@ public class TailStatusServiceImpl implements TailStatusService {
     public TailStatusResponse updateTailStatus(Long id, TailStatus request) {
         TailStatusEntity tailStatusEntity = this.tailStatusRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(TAIL_STATUS_DOES_NOT_EXIST + id));
+        this.tailStatusRepository.findTailStatusByName(request.getName()).ifPresent(existing -> {
+            if (!existing.getId().equals(id)) {
+                throw new IllegalArgumentException("Tail Status already exists with name: " + request.getName());
+            }
+        });
         tailStatusEntity.setName(request.getName());
         tailStatusEntity = this.tailStatusRepository.save(tailStatusEntity);
         return generateTailStatusResponse(tailStatusEntity);

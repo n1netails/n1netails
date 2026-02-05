@@ -5,6 +5,7 @@ import com.n1netails.n1netails.api.exception.type.EmailExistException;
 import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
 import com.n1netails.n1netails.api.model.UserPrincipal;
 import com.n1netails.n1netails.api.model.entity.UsersEntity;
+import com.n1netails.n1netails.api.model.request.UpdateUserRoleRequest;
 import com.n1netails.n1netails.api.model.request.UserLoginRequest;
 import com.n1netails.n1netails.api.model.request.UserRegisterRequest;
 import com.n1netails.n1netails.api.repository.UserRepository;
@@ -28,15 +29,15 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -799,9 +800,58 @@ public class UserControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
 
+        verify(userService, times(1)).register(any());
         verify(emailService, never()).sendWelcomeEmail(any());
+        verify(authenticationManager, never()).authenticate(any());
+
     }
 
+    @Test
+    @WithMockUser(authorities = "user:super")
+    void updateUserRole_validRequest_shouldReturnUpdatedUser() throws Exception {
+
+        UpdateUserRoleRequest request = new UpdateUserRoleRequest();
+        request.setRoleName("ROLE_ADMIN");
+
+        Long userId = 10L;
+        UsersEntity targetUser = new UsersEntity();
+        targetUser.setId(userId);
+        targetUser.setEmail("user@ninetails.com");
+
+        UsersEntity updatedUser = new UsersEntity();
+        updatedUser.setId(userId);
+        updatedUser.setEmail("user@ninetails.com");
+        updatedUser.setRole("ROLE_ADMIN");
+
+        UsersEntity superAdminUser = new UsersEntity();
+        superAdminUser.setEmail("super_admin@ninetails.com");
+        superAdminUser.setRole("SUPER_ADMIN_AUTHORITIES");
+
+        UserPrincipal superAdminPrincipal = new UserPrincipal(superAdminUser);
+
+        when(authorizationService.getCurrentUserPrincipal(AUTH_HEADER))
+                .thenReturn(superAdminPrincipal);
+
+        when(userRepository.findById(userId))
+                .thenReturn(Optional.of(targetUser));
+        when(authorizationService.isSuperAdmin(any(UserPrincipal.class)))
+                .thenReturn(false);
+        when(userService.updateUserRole(userId, "ROLE_ADMIN"))
+                .thenReturn(updatedUser);
+
+        mockMvc.perform(put(pathPrefix + "/" + userId + "/role")
+                        .header(HttpHeaders.AUTHORIZATION, AUTH_HEADER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("user@ninetails.com"))
+                .andExpect(jsonPath("$.role").value("ROLE_ADMIN"));
+
+        verify(authorizationService, times(1)).getCurrentUserPrincipal(AUTH_HEADER);
+        verify(userRepository, times(1)).findById(userId);
+        verify(authorizationService, times(1)).isSuperAdmin(any(UserPrincipal.class));
+        verify(userService, times(1)).updateUserRole(userId, "ROLE_ADMIN");
+    }
 
 
 

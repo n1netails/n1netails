@@ -2,8 +2,10 @@ package com.n1netails.n1netails.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.n1netails.n1netails.api.exception.type.EmailExistException;
+import com.n1netails.n1netails.api.exception.type.InvalidRoleException;
 import com.n1netails.n1netails.api.exception.type.UserNotFoundException;
 import com.n1netails.n1netails.api.model.UserPrincipal;
+import com.n1netails.n1netails.api.model.entity.OrganizationEntity;
 import com.n1netails.n1netails.api.model.entity.UsersEntity;
 import com.n1netails.n1netails.api.model.request.UpdateUserRoleRequest;
 import com.n1netails.n1netails.api.model.request.UserLoginRequest;
@@ -34,6 +36,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Optional;
+import java.util.Set;
 
 import static org.mockito.Mockito.*;
 
@@ -853,6 +856,192 @@ public class UserControllerTest {
         verify(userService, times(1)).updateUserRole(userId, "ROLE_ADMIN");
     }
 
+    @Test
+    @WithMockUser(authorities = "user:super")
+    void updateUserRole_targetUserNotFound_shouldReturn404() throws Exception {
+        Long userId = 99L;
+
+        UpdateUserRoleRequest request = new UpdateUserRoleRequest();
+        request.setRoleName("ROLE_ADMIN");
+
+        UsersEntity superAdminUser = new UsersEntity();
+        superAdminUser.setEmail("super_admin@ninetails.com");
+        superAdminUser.setRole("SUPER_ADMIN_AUTHORITIES");
+
+        UserPrincipal superAdminPrincipal = new UserPrincipal(superAdminUser);
+
+        when(authorizationService.getCurrentUserPrincipal(AUTH_HEADER))
+                .thenReturn(superAdminPrincipal);
+
+        when(userRepository.findById(userId))
+                .thenReturn(Optional.empty());
+
+        mockMvc.perform(put(pathPrefix + "/" + userId + "/role")
+                        .header(HttpHeaders.AUTHORIZATION, AUTH_HEADER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
+        verify(authorizationService, times(1)).getCurrentUserPrincipal(AUTH_HEADER);
+        verify(userRepository, times(1)).findById(userId);
+        verify(authorizationService, never()).isSuperAdmin(any(UserPrincipal.class));
+        verify(userService, never()).updateUserRole(userId, "ROLE_ADMIN");
+    }
+
+    @Test
+    // Swagger @ApiResponse(responseCode = "403", description = "Access denied")
+    // But 403 is forbidden and not access denied 401
+    @WithMockUser(authorities = "user:super")
+    void updateUserRole_targetIsSuperAdmin_shouldReturn403() throws Exception {
+        Long userId = 5L;
+
+        UpdateUserRoleRequest request = new UpdateUserRoleRequest();
+        request.setRoleName("ROLE_ADMIN");
+
+        UsersEntity superAdminUser = new UsersEntity();
+        superAdminUser.setId(userId);
+
+        when(authorizationService.getCurrentUserPrincipal(anyString()))
+                .thenReturn(mock(UserPrincipal.class));
+
+        when(userRepository.findById(userId))
+                .thenReturn(Optional.of(superAdminUser));
+        when(authorizationService.isSuperAdmin(any(UserPrincipal.class)))
+                .thenReturn(true);
+
+        mockMvc.perform(put(pathPrefix + "/" + userId + "/role")
+                        .header(HttpHeaders.AUTHORIZATION, AUTH_HEADER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isForbidden());
+
+        verify(authorizationService, times(1)).getCurrentUserPrincipal(AUTH_HEADER);
+        verify(userRepository, times(1)).findById(userId);
+        verify(authorizationService, times(1)).isSuperAdmin(any(UserPrincipal.class));
+        verify(userService, never()).updateUserRole(userId, "ROLE_ADMIN");
+    }
+
+    @Test
+    // Swagger @ApiResponse(responseCode = "403", description = "Access denied")
+    // But 403 is forbidden and not access denied 401
+    @WithMockUser(authorities = "user:super")
+    void updateUserRole_promoteToSuperAdmin_wrongOrganization_shouldReturn403() throws Exception {
+        Long userId = 7L;
+
+        UpdateUserRoleRequest request = new UpdateUserRoleRequest();
+        request.setRoleName("ROLE_SUPER_ADMIN");
+
+        OrganizationEntity otherOrg = new OrganizationEntity();
+        otherOrg.setName("other-org");
+
+        UsersEntity user = new UsersEntity();
+        user.setId(userId);
+        user.setOrganizations(Set.of(otherOrg));
+
+        UsersEntity superAdminUser = new UsersEntity();
+        superAdminUser.setEmail("super_admin@ninetails.com");
+        superAdminUser.setRole("SUPER_ADMIN_AUTHORITIES");
+
+        UserPrincipal superAdminPrincipal = new UserPrincipal(superAdminUser);
+
+        when(authorizationService.getCurrentUserPrincipal(AUTH_HEADER))
+                .thenReturn(superAdminPrincipal);
+        when(userRepository.findById(userId))
+                .thenReturn(Optional.of(user));
+        when(authorizationService.isSuperAdmin(any(UserPrincipal.class)))
+                .thenReturn(false);
+
+        mockMvc.perform(put(pathPrefix + "/" + userId + "/role")
+                        .header(HttpHeaders.AUTHORIZATION, AUTH_HEADER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isForbidden());
+
+        verify(authorizationService, times(1)).getCurrentUserPrincipal(AUTH_HEADER);
+        verify(userRepository, times(1)).findById(userId);
+        verify(authorizationService, times(1)).isSuperAdmin(any(UserPrincipal.class));
+        verify(userService, never()).updateUserRole(userId, "ROLE_ADMIN");
+    }
+
+    @Test
+    @WithMockUser(authorities = "user:super")
+    void updateUserRole_invalidRole_shouldReturn404() throws Exception {
+        Long userId = 3L;
+
+        UpdateUserRoleRequest request = new UpdateUserRoleRequest();
+        request.setRoleName("ROLE_UNKNOWN");
+
+        UsersEntity user = new UsersEntity();
+        user.setId(userId);
+
+        UsersEntity superAdminUser = new UsersEntity();
+        superAdminUser.setEmail("super_admin@ninetails.com");
+        superAdminUser.setRole("SUPER_ADMIN_AUTHORITIES");
+
+        UserPrincipal superAdminPrincipal = new UserPrincipal(superAdminUser);
+
+        when(authorizationService.getCurrentUserPrincipal(AUTH_HEADER))
+                .thenReturn(superAdminPrincipal);
+
+        when(userRepository.findById(userId))
+                .thenReturn(Optional.of(user));
+        when(authorizationService.isSuperAdmin(any(UserPrincipal.class)))
+                .thenReturn(false);
+        when(userService.updateUserRole(userId, "ROLE_UNKNOWN"))
+                .thenThrow(new InvalidRoleException("Invalid role"));
+
+        mockMvc.perform(put(pathPrefix + "/" + userId + "/role")
+                        .header(HttpHeaders.AUTHORIZATION, AUTH_HEADER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
+
+        verify(authorizationService, times(1)).getCurrentUserPrincipal(AUTH_HEADER);
+        verify(userRepository, times(1)).findById(userId);
+        verify(authorizationService, times(1)).isSuperAdmin(any(UserPrincipal.class));
+        verify(userService, times(1)).updateUserRole(userId, "ROLE_UNKNOWN");
+    }
+
+    @Test
+    // returns 500 what okay is but not described in Swagger
+    void updateUserRole_runtimeException_shouldReturnInternalServerError() throws Exception {
+        Long userId = 1L;
+
+        UpdateUserRoleRequest request = new UpdateUserRoleRequest();
+        request.setRoleName("ROLE_USER");
+
+        UsersEntity adminUser = new UsersEntity();
+        adminUser.setEmail("admin@ninetails.com");
+
+        UsersEntity targetUser = new UsersEntity();
+        targetUser.setId(userId);
+        targetUser.setEmail("user@ninetails.com");
+        targetUser.setRole("ROLE_USER");
+
+        UserPrincipal adminPrincipal = new UserPrincipal(adminUser);
+
+        when(authorizationService.getCurrentUserPrincipal(AUTH_HEADER))
+                .thenReturn(adminPrincipal);
+
+        when(userRepository.findById(userId))
+                .thenReturn(Optional.of(targetUser));
+
+        when(authorizationService.isSuperAdmin(any(UserPrincipal.class)))
+                .thenReturn(false);
+
+        when(userService.updateUserRole(userId, request.getRoleName()))
+                .thenThrow(new RuntimeException("DB down"));
+
+        mockMvc.perform(put(pathPrefix + "/" + userId + "/role")
+                        .header(HttpHeaders.AUTHORIZATION, AUTH_HEADER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized());
+
+        verify(authorizationService, times(1)).getCurrentUserPrincipal(AUTH_HEADER);
+        verify(userRepository, times(1)).findById(userId);
+        verify(authorizationService, times(1)).isSuperAdmin(any(UserPrincipal.class));
+        verify(userService, times(1)).updateUserRole(userId, "ROLE_USER");
+    }
 
 
 }

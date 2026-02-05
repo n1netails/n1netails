@@ -23,6 +23,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -1043,5 +1044,67 @@ public class UserControllerTest {
         verify(userService, times(1)).updateUserRole(userId, "ROLE_USER");
     }
 
+    @Test
+    void completeTutorial_validUser_shouldReturnOk() throws Exception {
+
+        UserPrincipal principal = mock(UserPrincipal.class);
+
+        when(principal.getUsername()).thenReturn("user@ninetails.com");
+
+        when(authorizationService.getCurrentUserPrincipal(AUTH_HEADER))
+                .thenReturn(principal);
+
+        doNothing().when(userService)
+                .completeTutorial("user@ninetails.com");
+
+        mockMvc.perform(post(pathPrefix + "/complete-tutorial")
+                        .header(HttpHeaders.AUTHORIZATION, AUTH_HEADER))
+                .andExpect(status().isOk());
+
+        verify(authorizationService, times(1)).getCurrentUserPrincipal(AUTH_HEADER);
+        verify(userService, times(1)).completeTutorial("user@ninetails.com");
+    }
+
+    @Test
+    void completeTutorial_unauthorized_shouldReturn401() throws Exception {
+        when(authorizationService.getCurrentUserPrincipal(AUTH_HEADER))
+                .thenThrow(new AccessDeniedException("Unauthorized"));
+
+        mockMvc.perform(post(pathPrefix + "/complete-tutorial")
+                        .header(HttpHeaders.AUTHORIZATION, AUTH_HEADER))
+                .andExpect(status().isUnauthorized());
+
+        verify(authorizationService, times(1)).getCurrentUserPrincipal(AUTH_HEADER);
+        verify(userService, never()).completeTutorial(any());
+    }
+    @Test
+    void completeTutorial_userNotFound_shouldReturn404() throws Exception {
+        when(authorizationService.getCurrentUserPrincipal(AUTH_HEADER))
+                .thenThrow(new UserNotFoundException("User not found"));
+
+        mockMvc.perform(post(pathPrefix + "/complete-tutorial")
+                        .header(HttpHeaders.AUTHORIZATION, AUTH_HEADER))
+                .andExpect(status().isNotFound());
+
+        verify(authorizationService, times(1)).getCurrentUserPrincipal(AUTH_HEADER);
+        verify(userService, never()).completeTutorial(any());
+    }
+
+    @Test
+    //The test is okay but again 500 is not in the Swagger
+    void completeTutorial_runtimeException_shouldReturn500() throws Exception {
+        UserPrincipal principal = mock(UserPrincipal.class);
+        when(principal.getUsername()).thenReturn("user@ninetails.com");
+
+        when(authorizationService.getCurrentUserPrincipal(AUTH_HEADER))
+                .thenReturn(principal);
+
+        doThrow(new RuntimeException("DB down"))
+                .when(userService).completeTutorial("user@ninetails.com");
+
+        mockMvc.perform(post(pathPrefix + "/complete-tutorial")
+                        .header(HttpHeaders.AUTHORIZATION, AUTH_HEADER))
+                .andExpect(status().isInternalServerError());
+    }
 
 }

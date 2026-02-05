@@ -922,8 +922,7 @@ public class UserControllerTest {
     }
 
     @Test
-    // Swagger @ApiResponse(responseCode = "403", description = "Access denied")
-    // But 403 is forbidden and not access denied 401
+    // 401 is returned. But this case is authorization problem 403
     @WithMockUser(authorities = "user:super")
     void updateUserRole_promoteToSuperAdmin_wrongOrganization_shouldReturn403() throws Exception {
         Long userId = 7L;

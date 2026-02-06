@@ -56,6 +56,9 @@ public class TailLevelServiceImpl implements TailLevelService {
 
     @Override
     public TailLevelResponse createTailLevel(TailLevel request) {
+        this.tailLevelRepository.findTailLevelByName(request.getName()).ifPresent(s -> {
+            throw new IllegalArgumentException("Tail Level already exists with name: " + request.getName());
+        });
         TailLevelEntity tailLevelEntity = new TailLevelEntity();
         tailLevelEntity.setName(request.getName());
         tailLevelEntity.setDescription(request.getDescription());
@@ -68,6 +71,11 @@ public class TailLevelServiceImpl implements TailLevelService {
     public TailLevelResponse updateTailLevel(Long id, TailLevel request) {
         TailLevelEntity tailLevelEntity = this.tailLevelRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(TAIL_LEVEL_DOES_NOT_EXIST + id));
+        this.tailLevelRepository.findTailLevelByName(request.getName()).ifPresent(existing -> {
+            if (!existing.getId().equals(id)) {
+                throw new IllegalArgumentException("Tail Level already exists with name: " + request.getName());
+            }
+        });
         tailLevelEntity.setName(request.getName());
         tailLevelEntity.setDescription(request.getDescription());
         tailLevelEntity = this.tailLevelRepository.save(tailLevelEntity);

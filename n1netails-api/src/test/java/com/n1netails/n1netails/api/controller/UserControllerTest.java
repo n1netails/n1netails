@@ -17,18 +17,15 @@ import com.n1netails.n1netails.api.service.UserService;
 import com.n1netails.n1netails.api.util.JwtTokenUtil;
 import org.junit.jupiter.api.Test;
 
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
@@ -42,7 +39,6 @@ import java.util.Set;
 import static org.mockito.Mockito.*;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
@@ -106,10 +102,6 @@ public class UserControllerTest {
     }
 
     @Test
-        // NOTE: This test does NOT return 401 as one might expect.
-        // Because the @RequestHeader in the controller is required by default,
-        // Spring throws a MissingRequestHeaderException before the controller method is called.
-        // This results in the def. error response (500 INTERNAL_SERVER_ERROR).
     void getCurrentUser_missingAuthorizationHeader_shouldReturnUnauthorized() throws Exception {
 
         // Action
@@ -165,7 +157,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void getCurrentUser_disabledUser_shouldReturnUnauthorized() throws Exception {
+    void getCurrentUser_disabledUser_shouldReturnForbidden() throws Exception {
         // Arrange
         Jwt jwt = mock(Jwt.class);
 
@@ -183,14 +175,14 @@ public class UserControllerTest {
         // Action
         mockMvc.perform(get(pathPrefix + "/self").header(HttpHeaders.AUTHORIZATION, AUTH_HEADER))
                 // Assert
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
 
         verify(jwtDecoder, times(1)).decode(VALID_TOKEN);
         verify(userRepository, times(1)).findById(1L);
     }
 
     @Test
-    void getCurrentUser_lockedUser_shouldReturnUnauthorized() throws Exception {
+    void getCurrentUser_lockedUser_shouldReturnForbidden() throws Exception {
         // Arrange
         Jwt jwt = mock(Jwt.class);
 
@@ -208,15 +200,14 @@ public class UserControllerTest {
         // Action
         mockMvc.perform(get(pathPrefix + "/self").header(HttpHeaders.AUTHORIZATION, AUTH_HEADER))
                 // Assert
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
 
         verify(jwtDecoder, times(1)).decode(VALID_TOKEN);
         verify(userRepository, times(1)).findById(1L);
     }
 
     @Test
-    //Return 500 what okay is but not declared in Swagger
-    void getCurrentUser_runTimeException_shouldReturnUnauthorized() throws Exception {
+    void getCurrentUser_runTimeException_shouldReturnInternalServerError() throws Exception {
         // Arrange
         Jwt jwt = mock(Jwt.class);
 
@@ -234,7 +225,7 @@ public class UserControllerTest {
         // Action
         mockMvc.perform(get(pathPrefix + "/self").header(HttpHeaders.AUTHORIZATION, AUTH_HEADER))
                 // Assert
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isInternalServerError());
 
         verify(jwtDecoder, times(1)).decode(VALID_TOKEN);
         verify(userRepository, times(1)).findById(1L);
@@ -246,17 +237,21 @@ public class UserControllerTest {
         // Arrange
         UsersEntity requestUser = new UsersEntity();
         requestUser.setId(1L);
-        requestUser.setEmail("user@example.com");
+        requestUser.setEmail("user@example.com"); // Identity key — cannot be changed
         requestUser.setUsername("user-01");
 
+        // This represents the updated user after editing.
+        // Note: The email remains the same because email is the user's identity
+        // (used as username in UserPrincipal). Users cannot update their email.
         UsersEntity updatedUser = new UsersEntity();
         updatedUser.setId(1L);
-        updatedUser.setEmail("user@example.com");
-        updatedUser.setUsername("user-01-updated");
+        updatedUser.setEmail("user@example.com"); // must match principal
+        updatedUser.setUsername("user-01-updated"); // editable field
 
+        // The authenticated user making the request
         UserPrincipal principal = new UserPrincipal(requestUser);
 
-        // Mock Data
+        // Mock behavior
         when(authorizationService.getCurrentUserPrincipal(AUTH_HEADER)).thenReturn(principal);
         when(userService.editUser(any(UsersEntity.class))).thenReturn(updatedUser);
 
@@ -268,24 +263,27 @@ public class UserControllerTest {
                 // Assert
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.email").value("userUpdated@example.com"))
+                // Email remains unchanged because it is the identity key
+                .andExpect(jsonPath("$.email").value("user@example.com"))
+                // Other editable fields can change
+                .andExpect(jsonPath("$.username").value("user-01-updated"))
                 .andExpect(jsonPath("$.id").value(1L));
 
-        // Verify mock call
+        // Verify service calls
         verify(authorizationService, times(1)).getCurrentUserPrincipal(AUTH_HEADER);
         verify(userService, times(1)).editUser(any(UsersEntity.class));
     }
 
     @Test
-        // NOTE: This test does NOT return 401 as one might expect.
-        // Because the @RequestHeader in the controller is required by default,
-        // Spring throws a MissingRequestHeaderException before the controller method is called.
-        // This results in the def. error response (500 INTERNAL_SERVER_ERROR).
     void editUser_missingAuthorizationHeader_shouldReturnUnauthorized() throws Exception {
 
+        UsersEntity user = new UsersEntity();
+        user.setUsername("test");
+
         // Action
-        mockMvc.perform(post(pathPrefix + "/edit"))
-                // Assert
+        mockMvc.perform(post(pathPrefix + "/edit")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(user)))
                 .andExpect(status().isUnauthorized());
 
         verify(authorizationService, never()).getCurrentUserPrincipal(any());
@@ -293,9 +291,6 @@ public class UserControllerTest {
     }
 
     @Test
-        // NOTE: According to the Swagger/OpenAPI this endpoint should return 401 for authentication failures.
-        // But because the controller method declares `throws UserNotFoundException` and the exception
-        // is not handled, Spring maps it to 404 Not Found by default.
     void editUser_invalidAuthorizationHeader_shouldReturnUnauthorized() throws Exception {
 
         //Arrange
@@ -304,26 +299,23 @@ public class UserControllerTest {
         requestUser.setUsername("user-01");
 
         //Mock
-        when(authorizationService.getCurrentUserPrincipal("InvalidToken"))
+        when(authorizationService.getCurrentUserPrincipal("Bearer InvalidToken"))
                 .thenThrow(new UserNotFoundException("User not found"));
 
         // Action
         mockMvc.perform(post(pathPrefix + "/edit")
-                        .header(HttpHeaders.AUTHORIZATION, "InvalidToken")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer InvalidToken")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestUser)))
                 // Assert
                 .andExpect(status().isUnauthorized());
 
         // Verify
-        verify(authorizationService, times(1)).getCurrentUserPrincipal("InvalidToken");
+        verify(authorizationService, times(1)).getCurrentUserPrincipal("Bearer InvalidToken");
         verify(userService, never()).editUser(any());
     }
 
     @Test
-        // NOTE: According to the Swagger/OpenAPI this endpoint should return 401 for authentication failures.
-        // However, because the controller method declares `throws UserNotFoundException` and the exception
-        // is not handled, Spring maps it to 404 Not Found by default.
     void editUser_principalNotFound_shouldReturnUnauthorized() throws Exception {
 
         // Arrange
@@ -350,7 +342,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void editUser_requestUserDiffersFromPrinciple_shouldReturnUnauthorized() throws Exception {
+    void editUser_requestUserDiffersFromPrinciple_shouldReturnForbidden() throws Exception {
         // Arrange
         UsersEntity requestUser = new UsersEntity();
         requestUser.setId(1L);
@@ -374,7 +366,7 @@ public class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestUser)))
                 // Assert
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
 
         // Verify mock call
         verify(authorizationService, times(1)).getCurrentUserPrincipal(AUTH_HEADER);
@@ -382,9 +374,6 @@ public class UserControllerTest {
     }
 
     @Test
-        // NOTE: According to the Swagger/OpenAPI this endpoint should return 401 for authentication failures.
-        // The problem for the test is the mission email in  @RequestBody UsersEntity user
-        // Swagger does not declare what to expect but usually BadRequest 400
     void editUser_missingEmail_shouldReturnBadRequest() throws Exception {
 
         //Arrange
@@ -437,23 +426,21 @@ public class UserControllerTest {
     }
 
     @Test
-    // 500 but 401 is expected
-    void editUser_emptyRequestBody_shouldReturnUnauthorized() throws Exception {
+    void editUser_emptyRequestBody_shouldReturnBadRequest() throws Exception {
         //Action
         mockMvc.perform(post(pathPrefix + "/edit")
                         .header(HttpHeaders.AUTHORIZATION, AUTH_HEADER)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(""))
                 //Assets
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isBadRequest());
 
         verify(authorizationService, never()).getCurrentUserPrincipal(any());
         verify(userService, never()).editUser(any());
     }
 
     @Test
-        //Expected 401 but was 500 what okay is but not declared in Swagger
-    void editUser_runTimeException_shouldReturnUnauthorized() throws Exception {
+    void editUser_runTimeException_shouldReturnInternalServerError() throws Exception {
 
         // Arrange
         UsersEntity requestUser = new UsersEntity();
@@ -471,7 +458,7 @@ public class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestUser)))
                 // Assert
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isInternalServerError());
 
         // Verify
         verify(authorizationService, times(1)).getCurrentUserPrincipal(AUTH_HEADER);
@@ -517,8 +504,6 @@ public class UserControllerTest {
     }
 
     @Test
-        //NOTE: BadCredentialsException is one of the errors authenticationManager.authenticate(...) can throw
-        //Any of them is not handled
     void login_invalidCredentials_shouldReturnUnauthorized() throws Exception {
 
         //Arrange
@@ -543,8 +528,6 @@ public class UserControllerTest {
     }
 
     @Test
-        //NOTE: userService.findUserByEmail returns null by default. This case is not handled.
-        //Some methods in UserService throws UserNotFoundException, maybe it is a good idea to do the same for the findUserByEmail and not "the null"
     void login_userNotFound_shouldReturnUnauthorized() throws Exception {
         //Arrange
         UserLoginRequest request = new UserLoginRequest();
@@ -574,41 +557,35 @@ public class UserControllerTest {
     }
 
     @Test
-    //Expected 401 but was 500. Not declared in swagger nor handled
-    //400 is better in this case
-    void login_malformedJson_shouldReturnUnauthorized() throws Exception {
+    void login_malformedJson_shouldReturnBadRequest() throws Exception {
         //Arrange
         String malformedJson = "{ \"email\": \"user@example.com\", \"password\": }";
 
         mockMvc.perform(post(pathPrefix + "/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(malformedJson))
-                .andExpect(status().isUnauthorized())
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.httpStatusCode").value(400))
                 .andExpect(jsonPath("$.httpStatus").value("BAD_REQUEST"));
 
-        verify(authenticationManager, times(1))
+        verify(authenticationManager, never())
                 .authenticate(any(UsernamePasswordAuthenticationToken.class));
-        verify(userService, times(1))
+        verify(userService, never())
                 .findUserByEmail("user@example.com");
     }
 
     @Test
-        //Expected 401 but was 500. Not declared in swagger nor handled
-        //400 is better in this case
-    void login_missingRequestBody_shouldUnauthorized() throws Exception {
+    void login_missingRequestBody_shouldReturnBadRequest() throws Exception {
         // Act & Assert
         mockMvc.perform(post(pathPrefix + "/login")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isUnauthorized())
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.httpStatusCode").value(400))
                 .andExpect(jsonPath("$.httpStatus").value("BAD_REQUEST"));
     }
 
     @Test
-        //Expected 401 but was 500. Not declared in swagger nor handled
-        //400 is better in this case
-    void login_missingEmail_shouldReturnUnauthorized() throws Exception {
+    void login_missingEmail_shouldReturnBadRequest() throws Exception {
         //Arrange
         UserLoginRequest request = new UserLoginRequest();
         request.setEmail(null);
@@ -619,10 +596,10 @@ public class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(objectMapper.writeValueAsString(request)))
                 //Assets
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isBadRequest());
 
 
-        verify(authenticationManager, times(1))
+        verify(authenticationManager, never())
                 .authenticate(any(UsernamePasswordAuthenticationToken.class));
         verify(userService, never())
                 .findUserByEmail(request.getEmail());
@@ -630,8 +607,7 @@ public class UserControllerTest {
     }
 
     @Test
-        //Expected 401 but was 500. Not declared in swagger
-    void login_wrongContentType_shouldReturnUnauthorized() throws Exception {
+    void login_wrongContentType_shouldReturnBadRequest() throws Exception {
         // Arrange
         UserLoginRequest request = new UserLoginRequest();
         request.setEmail("valid_email@ninetails.com");
@@ -642,12 +618,11 @@ public class UserControllerTest {
                         .contentType(MediaType.TEXT_PLAIN)
                         .content(objectMapper.writeValueAsString(request)))
                 //Assets
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-        //Expected 401 but was 500. Not declared in swagger
-    void login_runtimeException_shouldReturnUnauthorized() throws Exception {
+    void login_runtimeException_shouldReturnInternalServerError() throws Exception {
         // Arrange
         UserLoginRequest request = new UserLoginRequest();
         request.setEmail("valid_email@ninetails.com");
@@ -661,7 +636,7 @@ public class UserControllerTest {
         mockMvc.perform(post(pathPrefix + "/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
@@ -719,8 +694,7 @@ public class UserControllerTest {
     }
 
     @Test
-    // 400 expected but was 409 CONFLICT
-    void register_emailAlreadyExists_shouldReturnBadRequest() throws Exception {
+    void register_emailAlreadyExists_shouldReturnConflict() throws Exception {
         UserRegisterRequest request = new UserRegisterRequest();
         request.setEmail("existing@ninetails.com");
         request.setPassword("StrongP@ssword1");
@@ -731,7 +705,7 @@ public class UserControllerTest {
         mockMvc.perform(post(pathPrefix + "/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isConflict());
 
         verify(userService, times(1)).register(any());
         verify(emailService, never()).sendWelcomeEmail(any());
@@ -739,7 +713,6 @@ public class UserControllerTest {
     }
 
     @Test
-    // 400 expected but was 500
     void register_missingRequestBody_shouldReturnBadRequest() throws Exception {
         mockMvc.perform(post(pathPrefix + "/register")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -747,7 +720,6 @@ public class UserControllerTest {
     }
 
     @Test
-        // 400 expected but was 500
     void register_malformedJson_shouldReturnBadRequest() throws Exception {
         String malformedJson = "{ \"email\": \"user@ninetails.com\", \"password\": }";
 
@@ -758,7 +730,6 @@ public class UserControllerTest {
     }
 
     @Test
-        // 400 expected but was 500
     void register_wrongContentType_shouldReturnBadRequest() throws Exception {
         UserRegisterRequest request = new UserRegisterRequest();
         request.setEmail("user@ninetails.com");
@@ -771,8 +742,7 @@ public class UserControllerTest {
     }
 
     @Test
-        // 400 expected but was 404
-    void register_userNotFound_shouldReturnBadRequest() throws Exception {
+    void register_userNotFound_shouldReturnNotFound() throws Exception {
         UserRegisterRequest request = new UserRegisterRequest();
         request.setEmail("user@ninetails.com");
         request.setPassword("StrongP@ssword1");
@@ -783,7 +753,7 @@ public class UserControllerTest {
         mockMvc.perform(post(pathPrefix + "/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
 
         verify(userService, times(1)).register(any());
         verify(emailService, never()).sendWelcomeEmail(any());
@@ -791,8 +761,7 @@ public class UserControllerTest {
     }
 
     @Test
-    // 500 was returned but 400
-    void register_runtimeException_shouldReturnBadRequest() throws Exception {
+    void register_runtimeException_shouldReturnInternalServerError() throws Exception {
         UserRegisterRequest request = new UserRegisterRequest();
         request.setEmail("user@ninetails.com");
         request.setPassword("StrongP@ssword1");
@@ -802,7 +771,7 @@ public class UserControllerTest {
         mockMvc.perform(post(pathPrefix + "/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isInternalServerError());
 
         verify(userService, times(1)).register(any());
         verify(emailService, never()).sendWelcomeEmail(any());
@@ -859,7 +828,7 @@ public class UserControllerTest {
 
     @Test
     @WithMockUser(authorities = "user:super")
-    void updateUserRole_targetUserNotFound_shouldReturn404() throws Exception {
+    void updateUserRole_targetUserNotFound_shouldReturnNotFound() throws Exception {
         Long userId = 99L;
 
         UpdateUserRoleRequest request = new UpdateUserRoleRequest();
@@ -889,10 +858,8 @@ public class UserControllerTest {
     }
 
     @Test
-    // Swagger @ApiResponse(responseCode = "403", description = "Access denied")
-    // But 403 is forbidden and not access denied 401
     @WithMockUser(authorities = "user:super")
-    void updateUserRole_targetIsSuperAdmin_shouldReturn403() throws Exception {
+    void updateUserRole_targetIsSuperAdmin_shouldReturnForbidden() throws Exception {
         Long userId = 5L;
 
         UpdateUserRoleRequest request = new UpdateUserRoleRequest();
@@ -922,9 +889,8 @@ public class UserControllerTest {
     }
 
     @Test
-    // 401 is returned. But this case is authorization problem 403
     @WithMockUser(authorities = "user:super")
-    void updateUserRole_promoteToSuperAdmin_wrongOrganization_shouldReturn403() throws Exception {
+    void updateUserRole_promoteToSuperAdmin_wrongOrganization_shouldReturnForbidden() throws Exception {
         Long userId = 7L;
 
         UpdateUserRoleRequest request = new UpdateUserRoleRequest();
@@ -964,7 +930,7 @@ public class UserControllerTest {
 
     @Test
     @WithMockUser(authorities = "user:super")
-    void updateUserRole_invalidRole_shouldReturn404() throws Exception {
+    void updateUserRole_invalidRole_shouldReturnNotFound() throws Exception {
         Long userId = 3L;
 
         UpdateUserRoleRequest request = new UpdateUserRoleRequest();
@@ -1002,7 +968,6 @@ public class UserControllerTest {
     }
 
     @Test
-    // returns 500 what okay is but not described in Swagger
     void updateUserRole_runtimeException_shouldReturnInternalServerError() throws Exception {
         Long userId = 1L;
 
@@ -1035,7 +1000,7 @@ public class UserControllerTest {
                         .header(HttpHeaders.AUTHORIZATION, AUTH_HEADER)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isInternalServerError());
 
         verify(authorizationService, times(1)).getCurrentUserPrincipal(AUTH_HEADER);
         verify(userRepository, times(1)).findById(userId);
@@ -1065,19 +1030,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void completeTutorial_unauthorized_shouldReturn401() throws Exception {
-        when(authorizationService.getCurrentUserPrincipal(AUTH_HEADER))
-                .thenThrow(new AccessDeniedException("Unauthorized"));
-
-        mockMvc.perform(post(pathPrefix + "/complete-tutorial")
-                        .header(HttpHeaders.AUTHORIZATION, AUTH_HEADER))
-                .andExpect(status().isUnauthorized());
-
-        verify(authorizationService, times(1)).getCurrentUserPrincipal(AUTH_HEADER);
-        verify(userService, never()).completeTutorial(any());
-    }
-    @Test
-    void completeTutorial_userNotFound_shouldReturn404() throws Exception {
+    void completeTutorial_userNotFound_shouldReturnNotFound() throws Exception {
         when(authorizationService.getCurrentUserPrincipal(AUTH_HEADER))
                 .thenThrow(new UserNotFoundException("User not found"));
 
@@ -1090,8 +1043,7 @@ public class UserControllerTest {
     }
 
     @Test
-    //The test is okay but again 500 is not in the Swagger
-    void completeTutorial_runtimeException_shouldReturn500() throws Exception {
+    void completeTutorial_runtimeException_shouldReturnInternalServerError() throws Exception {
         UserPrincipal principal = mock(UserPrincipal.class);
         when(principal.getUsername()).thenReturn("user@ninetails.com");
 

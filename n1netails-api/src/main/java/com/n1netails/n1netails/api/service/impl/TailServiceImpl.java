@@ -94,15 +94,18 @@ public class TailServiceImpl implements TailService {
             throw new UnauthorizedException("User is not authorized to update the status of this tail. Must be owner or organization admin.");
         }
 
-        Optional<TailStatusEntity> newStatus = statusRepository.findTailStatusByName(tailStatus.getName());
-        if (newStatus.isPresent()) {
-            tail.setStatus(newStatus.get());
-        } else {
-            TailStatusEntity createdStatus = new TailStatusEntity();
-            createdStatus.setName(tailStatus.getName());
-            createdStatus = statusRepository.save(createdStatus);
-            tail.setStatus(createdStatus);
-        }
+        TailStatusEntity newStatus = statusRepository.findTailStatusByName(tailStatus.getName())
+                .orElseGet(() -> {
+                    try {
+                        TailStatusEntity createdStatus = new TailStatusEntity();
+                        createdStatus.setName(tailStatus.getName());
+                        return statusRepository.saveAndFlush(createdStatus);
+                    } catch (org.springframework.dao.DataIntegrityViolationException e) {
+                        return statusRepository.findTailStatusByName(tailStatus.getName())
+                                .orElseThrow(() -> e);
+                    }
+                });
+        tail.setStatus(newStatus);
 
         if (!request.getNote().isBlank()) {
             UsersEntity resolverUser = this.usersRepository.findUserById(request.getUserId());

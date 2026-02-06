@@ -24,8 +24,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.*;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.web.bind.annotation.*;
@@ -63,27 +63,40 @@ public class UserController {
                     @ApiResponse(responseCode = "200", description = "User profile located successfully",
                             content = @Content(schema = @Schema(implementation = UsersEntity.class))),
                     @ApiResponse(responseCode = "401", description = "Authentication failed",
+                            content = @Content(schema = @Schema(implementation = HttpErrorResponse.class))),
+                    @ApiResponse(responseCode = "403", description = "Forbidden",
+                            content = @Content(schema = @Schema(implementation = HttpErrorResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "Internal Server Error",
                             content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
             }
     )
     @GetMapping("/self")
-    public ResponseEntity<UsersEntity> getCurrentUser(@RequestHeader(AUTHORIZATION) String authorizationHeader) throws AccessDeniedException {
+    public ResponseEntity<UsersEntity> getCurrentUser(@RequestHeader(value = AUTHORIZATION, required = false) String authorizationHeader) throws AccessDeniedException, UserNotFoundException {
+        // No token provided → 401
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new AccessDeniedException("Missing or invalid Authorization header");
+            throw new AuthenticationCredentialsNotFoundException("Missing or invalid Authorization header");
         }
 
+        String token = authorizationHeader.substring(TOKEN_PREFIX.length());
+        Long id;
+
         try {
-            String token = authorizationHeader.substring(TOKEN_PREFIX.length());
-            Long id = jwtDecoder.decode(token).getClaim("id");
-            log.info("Fetching current user with ID: {}", id);
-            UsersEntity user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("Get current user not found."));
-            if (!user.isEnabled() || !user.isActive() || !user.isNotLocked()) {
-                throw new AccessDeniedException("User is disabled or locked");
-            }
-            return ResponseEntity.ok(user);
-        } catch (JwtException | UserNotFoundException e) {
-            throw new AccessDeniedException(ACCESS_DENIED_MESSAGE);
+            id = jwtDecoder.decode(token).getClaim("id");
+        } catch (JwtException e) {
+            // Token invalid or expired → 401
+            throw new AuthenticationCredentialsNotFoundException("Invalid token");
         }
+
+        // Fetch user
+        UsersEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("User not found")); // Could map to 404
+
+        // User exists but disabled/locked → 403
+        if (!user.isEnabled() || !user.isActive() || !user.isNotLocked()) {
+            throw new AccessDeniedException("User is disabled or locked");
+        }
+
+        return ResponseEntity.ok(user);
     }
 
     @Operation(
@@ -92,17 +105,36 @@ public class UserController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "User updated successfully",
                             content = @Content(schema = @Schema(implementation = UsersEntity.class))),
+                    @ApiResponse(responseCode = "400", description = "Bad Request",
+                            content = @Content(schema = @Schema(implementation = HttpErrorResponse.class))),
                     @ApiResponse(responseCode = "401", description = "Authentication failed",
+                            content = @Content(schema = @Schema(implementation = HttpErrorResponse.class))),
+                    @ApiResponse(responseCode = "403", description = "Forbidden",
+                            content = @Content(schema = @Schema(implementation = HttpErrorResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "Internal Server Error",
                             content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
             }
     )
     @PostMapping(value = "/edit", consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<UsersEntity> editUser(
-            @RequestHeader(AUTHORIZATION) String authorizationHeader,
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorizationHeader,
             @RequestBody UsersEntity user
-    ) throws AccessDeniedException, UserNotFoundException {
+    ) throws AuthenticationException, AccessDeniedException {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new AuthenticationCredentialsNotFoundException("Missing or invalid Authorization header");
+        }
 
-        UserPrincipal editingPrincipal = authorizationService.getCurrentUserPrincipal(authorizationHeader);
+        if (user.getEmail() == null || user.getEmail().isEmpty()) {
+            throw new IllegalArgumentException("Email is required");
+        }
+
+        UserPrincipal editingPrincipal;
+        try {
+            editingPrincipal = authorizationService.getCurrentUserPrincipal(authorizationHeader);
+        } catch (UserNotFoundException e) {
+            // map UserNotFoundException -> 401
+            throw new BadCredentialsException("Invalid token");
+        }
         // Basic check: user can only edit their own profile through this specific endpoint
         if (editingPrincipal.getUsername().equals(user.getEmail())) {
             log.info("User {} editing their own profile.", editingPrincipal.getUsername());
@@ -120,17 +152,27 @@ public class UserController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "User authenticated successfully",
                             content = @Content(schema = @Schema(implementation = UsersEntity.class))),
+                    @ApiResponse(responseCode = "400", description = "Bad Request",
+                            content = @Content(schema = @Schema(implementation = HttpErrorResponse.class))),
                     @ApiResponse(responseCode = "401", description = "Authentication failed",
+                            content = @Content(schema = @Schema(implementation = HttpErrorResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "Internal Server Error",
                             content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
             }
     )
     @PostMapping(value = "/login", consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<UsersEntity> login(@RequestBody UserLoginRequest user) {
+        if (user.getEmail() == null || user.getPassword() == null) {
+            throw new IllegalArgumentException("Email and password are required");
+        }
 
         log.info("attempting user login");
         authenticate(user.getEmail(), user.getPassword());
         log.info("finding user by email");
         UsersEntity loginUser = userService.findUserByEmail(user.getEmail());
+        if (loginUser == null) {
+            throw new LoginFailedException("Invalid email or password");
+        }
         log.info("logged in users organizations: {}", loginUser.getOrganizations());
         UserPrincipal userPrincipal = new UserPrincipal(loginUser);
         HttpHeaders jwtHeader = setJwtHeader(userPrincipal);
@@ -143,7 +185,13 @@ public class UserController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "User registered successfully",
                             content = @Content(schema = @Schema(implementation = UsersEntity.class))),
-                    @ApiResponse(responseCode = "400", description = "Invalid request or user already exists",
+                    @ApiResponse(responseCode = "400", description = "Bad Request",
+                            content = @Content(schema = @Schema(implementation = HttpErrorResponse.class))),
+                    @ApiResponse(responseCode = "404", description = "Not Found",
+                            content = @Content(schema = @Schema(implementation = HttpErrorResponse.class))),
+                    @ApiResponse(responseCode = "409", description = "Conflict user already exists",
+                            content = @Content(schema = @Schema(implementation = HttpErrorResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "Internal Server Error",
                             content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
             }
     )
@@ -169,8 +217,12 @@ public class UserController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "User role updated successfully",
                             content = @Content(schema = @Schema(implementation = UsersEntity.class))),
-                    @ApiResponse(responseCode = "403", description = "Access denied"),
-                    @ApiResponse(responseCode = "404", description = "User not found")
+                    @ApiResponse(responseCode = "403", description = "Access denied",
+                            content = @Content(schema = @Schema(implementation = HttpErrorResponse.class))),
+                    @ApiResponse(responseCode = "404", description = "User not found",
+                            content = @Content(schema = @Schema(implementation = HttpErrorResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                            content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
             }
     )
     @PutMapping("/{userId}/role")
@@ -226,11 +278,13 @@ public class UserController {
                     @ApiResponse(responseCode = "401", description = "Authentication failed",
                             content = @Content(schema = @Schema(implementation = HttpErrorResponse.class))),
                     @ApiResponse(responseCode = "404", description = "User not found",
+                            content = @Content(schema = @Schema(implementation = HttpErrorResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "Internal Server Error",
                             content = @Content(schema = @Schema(implementation = HttpErrorResponse.class)))
             }
     )
     @PostMapping("/complete-tutorial")
-    public ResponseEntity<?> completeTutorial(@RequestHeader(AUTHORIZATION) String authorizationHeader) throws AccessDeniedException, UserNotFoundException {
+    public ResponseEntity<?> completeTutorial(@RequestHeader(AUTHORIZATION) String authorizationHeader) throws UserNotFoundException {
         UserPrincipal principal = authorizationService.getCurrentUserPrincipal(authorizationHeader);
         userService.completeTutorial(principal.getUsername());
         return ResponseEntity.ok().build();

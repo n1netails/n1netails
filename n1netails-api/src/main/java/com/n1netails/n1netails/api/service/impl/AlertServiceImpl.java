@@ -113,60 +113,56 @@ public class AlertServiceImpl implements AlertService {
     }
 
     private void attachTailLevel(TailEntity tailEntity, KudaTailRequest request) {
-        TailLevelEntity tailLevelEntity;
-        Optional<TailLevelEntity> optionalTailLevel = this.levelRepository.findTailLevelByName(request.getLevel());
-        if (optionalTailLevel.isPresent()) {
-            tailLevelEntity = optionalTailLevel.get();
-        } else if (request.getLevel() == null || request.getLevel().isBlank()) {
-            tailLevelEntity = this.levelRepository.findTailLevelByName(INFO)
+        String levelName = (request.getLevel() == null || request.getLevel().isBlank()) ? INFO : request.getLevel();
+        boolean deletable = !(request.getLevel() == null || request.getLevel().isBlank());
+
+        TailLevelEntity tailLevelEntity = levelRepository.findTailLevelByName(levelName)
                 .orElseGet(() -> {
-                    TailLevelEntity newLevel = new TailLevelEntity();
-                    newLevel.setName(INFO);
-                    newLevel.setDeletable(false);
-                    return this.levelRepository.save(newLevel);
+                    try {
+                        TailLevelEntity newLevel = new TailLevelEntity();
+                        newLevel.setName(levelName);
+                        newLevel.setDeletable(deletable);
+                        return levelRepository.saveAndFlush(newLevel);
+                    } catch (org.springframework.dao.DataIntegrityViolationException e) {
+                        return levelRepository.findTailLevelByName(levelName)
+                                .orElseThrow(() -> e);
+                    }
                 });
-        } else {
-            tailLevelEntity = new TailLevelEntity();
-            tailLevelEntity.setName(request.getLevel());
-            tailLevelEntity.setDeletable(true);
-            tailLevelEntity = this.levelRepository.save(tailLevelEntity);
-        }
         tailEntity.setLevel(tailLevelEntity);
     }
 
     private void attachTailType(TailEntity tailEntity, KudaTailRequest request) {
-        TailTypeEntity tailTypeEntity;
-        Optional<TailTypeEntity> optionalTailType = this.typeRepository.findTailTypeByName(request.getType());
-        if (optionalTailType.isPresent()) {
-            tailTypeEntity = optionalTailType.get();
-        } else if (request.getType() == null || request.getType().isBlank()) {
-            tailTypeEntity = this.typeRepository.findTailTypeByName(SYSTEM_ALERT)
+        String typeName = (request.getType() == null || request.getType().isBlank()) ? SYSTEM_ALERT : request.getType();
+        boolean deletable = !(request.getType() == null || request.getType().isBlank());
+
+        TailTypeEntity tailTypeEntity = typeRepository.findTailTypeByName(typeName)
                 .orElseGet(() -> {
-                    TailTypeEntity newType = new TailTypeEntity();
-                    newType.setName(SYSTEM_ALERT);
-                    newType.setDeletable(false);
-                    return this.typeRepository.save(newType);
+                    try {
+                        TailTypeEntity newType = new TailTypeEntity();
+                        newType.setName(typeName);
+                        newType.setDeletable(deletable);
+                        return typeRepository.saveAndFlush(newType);
+                    } catch (org.springframework.dao.DataIntegrityViolationException e) {
+                        return typeRepository.findTailTypeByName(typeName)
+                                .orElseThrow(() -> e);
+                    }
                 });
-        } else {
-            tailTypeEntity = new TailTypeEntity();
-            tailTypeEntity.setName(request.getType());
-            tailTypeEntity.setDeletable(true);
-            tailTypeEntity = this.typeRepository.save(tailTypeEntity);
-        }
         tailEntity.setType(tailTypeEntity);
     }
 
     private void attachTailStatus(TailEntity tailEntity) {
-        TailStatusEntity tailStatusEntity;
-        Optional<TailStatusEntity> optionalNewTailStatus = this.statusRepository.findTailStatusByName(NEW);
-        if (optionalNewTailStatus.isPresent()) {
-            tailStatusEntity = optionalNewTailStatus.get();
-        } else {
-            tailStatusEntity = new TailStatusEntity();
-            tailStatusEntity.setName(NEW);
-            tailStatusEntity.setDeletable(false);
-            tailStatusEntity = this.statusRepository.save(tailStatusEntity);
-        }
+        TailStatusEntity tailStatusEntity = statusRepository.findTailStatusByName(NEW)
+                .orElseGet(() -> {
+                    try {
+                        TailStatusEntity newStatus = new TailStatusEntity();
+                        newStatus.setName(NEW);
+                        newStatus.setDeletable(false);
+                        return statusRepository.saveAndFlush(newStatus);
+                    } catch (org.springframework.dao.DataIntegrityViolationException e) {
+                        return statusRepository.findTailStatusByName(NEW)
+                                .orElseThrow(() -> e);
+                    }
+                });
         tailEntity.setStatus(tailStatusEntity);
     }
 

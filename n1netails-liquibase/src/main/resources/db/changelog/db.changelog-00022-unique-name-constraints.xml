@@ -1,0 +1,16 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="00022-unique-name-constraints" author="jules">
+        <sqlFile path="sql/db.changelog-00022-unique-name-constraints.sql" relativeToChangelogFile="true"/>
+        <rollback>
+            ALTER TABLE ntail.tail_level DROP CONSTRAINT IF EXISTS uk_tail_level_name;
+            ALTER TABLE ntail.tail_status DROP CONSTRAINT IF EXISTS uk_tail_status_name;
+            ALTER TABLE ntail.tail_type DROP CONSTRAINT IF EXISTS uk_tail_type_name;
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

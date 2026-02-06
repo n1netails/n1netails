@@ -742,7 +742,6 @@ public class UserControllerTest {
     }
 
     @Test
-        // 400 expected but was 404
     void register_userNotFound_shouldReturnNotFound() throws Exception {
         UserRegisterRequest request = new UserRegisterRequest();
         request.setEmail("user@ninetails.com");
@@ -859,8 +858,6 @@ public class UserControllerTest {
     }
 
     @Test
-    // Swagger @ApiResponse(responseCode = "403", description = "Access denied")
-    // But 403 is forbidden and not access denied 401
     @WithMockUser(authorities = "user:super")
     void updateUserRole_targetIsSuperAdmin_shouldReturnForbidden() throws Exception {
         Long userId = 5L;
@@ -892,7 +889,6 @@ public class UserControllerTest {
     }
 
     @Test
-    // 401 is returned. But this case is authorization problem 403
     @WithMockUser(authorities = "user:super")
     void updateUserRole_promoteToSuperAdmin_wrongOrganization_shouldReturnForbidden() throws Exception {
         Long userId = 7L;
@@ -972,7 +968,6 @@ public class UserControllerTest {
     }
 
     @Test
-    // returns 500 what okay is but not described in Swagger
     void updateUserRole_runtimeException_shouldReturnInternalServerError() throws Exception {
         Long userId = 1L;
 

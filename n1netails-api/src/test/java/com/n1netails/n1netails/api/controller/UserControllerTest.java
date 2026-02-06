@@ -231,7 +231,6 @@ public class UserControllerTest {
         verify(userRepository, times(1)).findById(1L);
     }
 
-
     @Test
     void editUser_validUserBody_shouldReturnEditedUser() throws Exception {
         // Arrange
@@ -291,6 +290,8 @@ public class UserControllerTest {
     }
 
     @Test
+        // NOTE: if a token is invalid
+        // String authEmail = jwtDecoder.decode(token).getSubject() will throw JwtException
     void editUser_invalidAuthorizationHeader_shouldReturnUnauthorized() throws Exception {
 
         //Arrange
@@ -300,7 +301,7 @@ public class UserControllerTest {
 
         //Mock
         when(authorizationService.getCurrentUserPrincipal("Bearer InvalidToken"))
-                .thenThrow(new UserNotFoundException("User not found"));
+                .thenThrow(new JwtException("Invalid token"));
 
         // Action
         mockMvc.perform(post(pathPrefix + "/edit")
@@ -827,6 +828,42 @@ public class UserControllerTest {
     }
 
     @Test
+        // 500 was returned
+    void updateUserRole_missingAuthorizationHeader_shouldReturnUnauthorized() throws Exception {
+        Long userId = 10L;
+        UpdateUserRoleRequest request = new UpdateUserRoleRequest();
+        request.setRoleName("ROLE_ADMIN");
+
+        // Action
+        mockMvc.perform(put(pathPrefix + "/" + userId + "/role")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                // Assert
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(authorities = "user:super")
+        // 500 was returned
+    void updateUserRole_invalidAuthorizationHeader_shouldReturnUnauthorized() throws Exception {
+        Long userId = 10L;
+        UpdateUserRoleRequest request = new UpdateUserRoleRequest();
+        request.setRoleName("ROLE_ADMIN");
+
+        //Mock
+        when(authorizationService.getCurrentUserPrincipal("InvalidToken"))
+                .thenThrow(new JwtException("Invalid token"));
+
+        // Action
+        mockMvc.perform(put(pathPrefix + "/" + userId + "/role")
+                        .header(HttpHeaders.AUTHORIZATION, "InvalidToken")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                // Assert
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     @WithMockUser(authorities = "user:super")
     void updateUserRole_targetUserNotFound_shouldReturnNotFound() throws Exception {
         Long userId = 99L;
@@ -1028,6 +1065,28 @@ public class UserControllerTest {
         verify(authorizationService, times(1)).getCurrentUserPrincipal(AUTH_HEADER);
         verify(userService, times(1)).completeTutorial("user@ninetails.com");
     }
+
+    @Test
+        // 500 was returned
+    void completeTutorial_missingAuthorizationHeader_shouldReturnUnauthorized() throws Exception {
+        mockMvc.perform(post(pathPrefix + "/complete-tutorial"))
+                .andExpect(status().isUnauthorized());
+
+    }
+
+    @Test
+        // 500 was returned
+    void completeTutorial_invalidAuthorizationHeader_shouldReturnUnauthorized() throws Exception {
+
+        //Mock
+        when(authorizationService.getCurrentUserPrincipal("InvalidToken"))
+                .thenThrow(new JwtException("Invalid token"));
+
+        mockMvc.perform(post(pathPrefix + "/complete-tutorial")
+                        .header(HttpHeaders.AUTHORIZATION, AUTH_HEADER))
+                .andExpect(status().isUnauthorized());
+    }
+
 
     @Test
     void completeTutorial_userNotFound_shouldReturnNotFound() throws Exception {

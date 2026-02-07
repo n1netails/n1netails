@@ -1,5 +1,10 @@
 import { Component, Input, OnInit, ViewChild, inject } from '@angular/core';
-import { CdkFixedSizeVirtualScroll, CdkVirtualForOf, CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
+import {
+  CdkFixedSizeVirtualScroll,
+  CdkVirtualForOf,
+  CdkVirtualScrollViewport,
+  ScrollingModule,
+} from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NzCardModule } from 'ng-zorro-antd/card';
@@ -47,7 +52,7 @@ interface ChatMessage extends Note {
     MarkdownModule,
   ],
   templateUrl: './ai-chat-card.component.html',
-  styleUrls: ['./ai-chat-card.component.less']
+  styleUrls: ['./ai-chat-card.component.less'],
 })
 export class AiChatCardComponent implements OnInit {
   @Input() tail!: TailResponse;
@@ -98,7 +103,7 @@ export class AiChatCardComponent implements OnInit {
     this.noteService.getNotesByTailId(this.tail.id).subscribe({
       next: (loadedNotes) => {
         this.notes = [];
-        loadedNotes.forEach(note => {
+        loadedNotes.forEach((note) => {
           this.notes.push(note as ChatMessage);
         });
         this.isLoadingNotes = false;
@@ -107,7 +112,7 @@ export class AiChatCardComponent implements OnInit {
         this.messageService.error('Failed to load notes.');
         console.error('Error loading notes:', err);
         this.isLoadingNotes = false;
-      }
+      },
     });
   }
 
@@ -131,12 +136,11 @@ export class AiChatCardComponent implements OnInit {
       human: true,
       n1: false,
       createdAt: new Date(),
-      content: this.newNoteText
+      content: this.newNoteText,
     };
 
     this.noteService.saveNote(note).subscribe({
       next: (savedNote) => {
-
         this.refreashNotes();
         this.notes.push(savedNote as ChatMessage);
 
@@ -149,7 +153,7 @@ export class AiChatCardComponent implements OnInit {
         this.messageService.error('Failed to save note.');
         console.error('Error saving note:', err);
         this.isSendingMessage = false;
-      }
+      },
     });
   }
 
@@ -166,7 +170,7 @@ export class AiChatCardComponent implements OnInit {
       createdAt: new Date(), // Timestamp for user prompt
       content: this.newNoteText,
       organizationId: this.tail.organizationId,
-      n1: false
+      n1: false,
     };
 
     this.noteService.saveNote(userPromptNote).subscribe({
@@ -183,10 +187,10 @@ export class AiChatCardComponent implements OnInit {
           prompt: currentPromptText,
           userId: this.currentUser.id,
           organizationId: this.tail.organizationId,
-          tailId: this.tail.id
+          tailId: this.tail.id,
         };
 
-        console.log("sending prompt request");
+        console.log('sending prompt request');
         this.llmService.sendPrompt(llmRequest).subscribe({
           next: (llmResponse) => {
             // 3. Save LLM's response as an AI note
@@ -200,7 +204,7 @@ export class AiChatCardComponent implements OnInit {
               createdAt: llmResponse.timestamp || new Date(), // Timestamp for AI response
               content: llmResponse.completion,
               organizationId: this.tail.organizationId,
-              n1: false
+              n1: false,
             };
 
             this.refreashNotes();
@@ -215,14 +219,14 @@ export class AiChatCardComponent implements OnInit {
             this.isSendingMessage = false;
             // Restore user text if LLM call failed
             this.newNoteText = currentPromptText;
-          }
+          },
         });
       },
       error: (err) => {
         this.messageService.error('Failed to save your prompt as a note before sending to LLM.');
         console.error('Error saving user prompt note:', err);
         this.isSendingMessage = false;
-      }
+      },
     });
   }
 
@@ -230,7 +234,7 @@ export class AiChatCardComponent implements OnInit {
     // TODO FIGURE OUT A WAY TO REFRESH THE NOTES ON SCREEN
     const tempN = this.notes;
     this.notes = [];
-    tempN.forEach(note => {
+    tempN.forEach((note) => {
       this.notes.push(note);
     });
   }

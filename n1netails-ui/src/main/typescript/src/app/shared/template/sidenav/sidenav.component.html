@@ -1,7 +1,7 @@
 <div *ngIf="!isMobile()">
   <div class="sidebar-logo">
     <a routerLink="/dashboard">
-      <img src="n1netails_icon_transparent.png" alt="logo">
+      <img src="n1netails_icon_transparent.png" alt="logo" />
       <h1>N1netails</h1>
     </a>
   </div>
@@ -31,6 +31,8 @@
       </ul>
     </li> -->
 
-    <a class="add-tail-button" nz-submenu nzTitle="Add" nzIcon="plus" (click)="addTailAlert()">Add New Tail</a>
+    <a class="add-tail-button" nz-submenu nzTitle="Add" nzIcon="plus" (click)="addTailAlert()"
+      >Add New Tail</a
+    >
   </ul>
 </div>

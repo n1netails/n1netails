@@ -1,15 +1,27 @@
 <div class="app-header">
   <span (click)="dashboard()" class="header-title">
-    <img src="n1netails_icon_transparent.png" alt="logo" style="height: 30px; margin-right: 8px;" *ngIf="isMobile()">
+    <img
+      src="n1netails_icon_transparent.png"
+      alt="logo"
+      style="height: 30px; margin-right: 8px"
+      *ngIf="isMobile()"
+    />
     <b>N1netails</b>
   </span>
 
-  <span style="float: right; display: flex; align-items: right; justify-content: right;">
-
+  <span style="float: right; display: flex; align-items: right; justify-content: right">
     <div class="right-items">
       <span class="pointer">
         <a class="header-link" [href]="n1netailsDocUrl" target="_blank">
-          <nz-icon class="header-icon" nzType="read" nzTheme="outline" nzTooltipTitle="Docs" nzTooltipPlacement="bottom" nz-button nz-tooltip/>
+          <nz-icon
+            class="header-icon"
+            nzType="read"
+            nzTheme="outline"
+            nzTooltipTitle="Docs"
+            nzTooltipPlacement="bottom"
+            nz-button
+            nz-tooltip
+          />
         </a>
       </span>
     </div>
@@ -17,14 +29,30 @@
       <span class="pointer">
         @if (isInSettings === false) {
           <a class="header-link" (click)="accountSettings()">
-            <nz-icon class="header-icon" nzType="setting" nzTheme="outline" nzTooltipTitle="Settings" nzTooltipPlacement="bottom" nz-button nz-tooltip/>
+            <nz-icon
+              class="header-icon"
+              nzType="setting"
+              nzTheme="outline"
+              nzTooltipTitle="Settings"
+              nzTooltipPlacement="bottom"
+              nz-button
+              nz-tooltip
+            />
           </a>
         } @else {
           <a class="active-link" (click)="accountSettings()">
-            <nz-icon class="header-icon" nzType="setting" nzTheme="outline" nzTooltipTitle="Settings" nzTooltipPlacement="bottom" nz-button nz-tooltip/>
+            <nz-icon
+              class="header-icon"
+              nzType="setting"
+              nzTheme="outline"
+              nzTooltipTitle="Settings"
+              nzTooltipPlacement="bottom"
+              nz-button
+              nz-tooltip
+            />
           </a>
         }
-        </span>
+      </span>
     </div>
 
     <div class="right-items">
@@ -36,20 +64,20 @@
         }
       </span>
       <nz-dropdown-menu #profile="nzDropdownMenu">
-        <ul nz-menu style="padding: 8px; width: 220px;">
+        <ul nz-menu style="padding: 8px; width: 220px">
           <li>
-            <div style="display: flex; align-items: center;">
+            <div style="display: flex; align-items: center">
               @if (loggedInUser.providerId == null) {
                 <nz-avatar nzSize="large" nzIcon="user"></nz-avatar>
               } @else {
                 <nz-avatar nzSize="large" [nzSrc]="loggedInUser.profileImageUrl"></nz-avatar>
               }
-              <div style="margin-left: 10px;">
-                <p style="margin: 0;">{{ loggedInUser.username }}</p>
-                <p style="margin: 0;">{{ loggedInUser.email }}</p>
+              <div style="margin-left: 10px">
+                <p style="margin: 0">{{ loggedInUser.username }}</p>
+                <p style="margin: 0">{{ loggedInUser.email }}</p>
               </div>
             </div>
-            <hr>
+            <hr />
           </li>
           <li nz-menu-item>
             <a (click)="editProfile()">
@@ -78,6 +106,5 @@
         </ul>
       </nz-dropdown-menu>
     </div>
-
   </span>
 </div>

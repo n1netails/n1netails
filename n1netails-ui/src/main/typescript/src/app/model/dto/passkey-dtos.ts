@@ -1,6 +1,6 @@
 // Based on backend DTOs
 
-import { User } from "../user";
+import { User } from '../user';
 
 // --- Registration ---
 export interface PasskeyRegistrationStartRequestDto {
@@ -21,7 +21,8 @@ export interface PasskeyRegistrationStartResponseDto {
 // The service will transform its ArrayBuffer fields to base64url for this DTO
 export interface PasskeyRegistrationFinishRequestDto {
   flowId: string;
-  credential: { // This mirrors the structure expected by the backend
+  credential: {
+    // This mirrors the structure expected by the backend
     id: string; // Base64URL encoded
     rawId: string; // Base64URL encoded
     response: {
@@ -52,7 +53,8 @@ export interface PasskeyAuthenticationStartResponseDto {
 
 export interface PasskeyAuthenticationFinishRequestDto {
   flowId: string;
-  credential: { // This mirrors the structure expected by the backend
+  credential: {
+    // This mirrors the structure expected by the backend
     id: string; // Base64URL encoded
     rawId: string; // Base64URL encoded
     response: {

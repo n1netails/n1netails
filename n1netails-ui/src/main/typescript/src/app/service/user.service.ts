@@ -5,10 +5,9 @@ import { User } from '../model/user';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserService {
-
   host: string = '';
 
   constructor(

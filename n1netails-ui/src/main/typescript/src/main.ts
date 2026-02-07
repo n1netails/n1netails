@@ -5,9 +5,5 @@ import { provideMarkdown } from 'ngx-markdown';
 
 bootstrapApplication(AppComponent, {
   ...appConfig,
-  providers: [
-    ...(appConfig.providers || []),
-    provideMarkdown(),
-  ]
-})
-  .catch((err) => console.error(err));
+  providers: [...(appConfig.providers || []), provideMarkdown()],
+}).catch((err) => console.error(err));

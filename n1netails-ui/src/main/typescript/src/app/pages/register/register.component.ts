@@ -15,12 +15,11 @@ import { validateEmail, validatePassword } from '../../shared/validation/user-lo
 
 @Component({
   selector: 'app-register',
-  imports: [NzFormModule,FormsModule,RouterModule,NzIconModule,CommonModule],
+  imports: [NzFormModule, FormsModule, RouterModule, NzIconModule, CommonModule],
   templateUrl: './register.component.html',
-  styleUrl: './register.component.less'
+  styleUrl: './register.component.less',
 })
 export class RegisterComponent implements OnInit, OnDestroy {
-
   public isLoading: boolean = false;
   private subscriptions: Subscription[] = [];
 
@@ -31,7 +30,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
     private uiConfigService: UiConfigService,
     private notification: NzNotificationService,
     private authenticationService: AuthenticationService,
-    private router: Router,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -44,7 +43,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
 
   loginWithGithub() {
@@ -73,7 +72,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
       this.authenticationService.register(user).subscribe({
         next: (response: HttpResponse<User>) => {
-          this.saveUser(response)
+          this.saveUser(response);
           this.router.navigateByUrl('/dashboard');
           this.isLoading = false;
           form.resetForm();
@@ -82,20 +81,20 @@ export class RegisterComponent implements OnInit, OnDestroy {
           console.error('Error: ', errorResponse);
           this.presentToast('Error registering: \n' + errorResponse.error.message);
           this.isLoading = false;
-        }
+        },
       })
-    )
+    );
   }
 
   private async presentToast(message: string) {
     this.notification.error('Error', message, {
       nzPlacement: 'topRight',
-      nzDuration: 10000
+      nzDuration: 10000,
     });
   }
 
   private saveUser(response: HttpResponse<User>) {
-    const token = response.headers.get(HeaderType.JWT_TOKEN) || "";
+    const token = response.headers.get(HeaderType.JWT_TOKEN) || '';
     this.authenticationService.saveToken(token);
     this.authenticationService.addUserToLocalCache(response.body || null);
   }
@@ -112,7 +111,9 @@ export class RegisterComponent implements OnInit, OnDestroy {
   private validatePassword(password: string): boolean {
     const passwordValidated = validatePassword(password);
     if (!passwordValidated) {
-      this.presentToast('Password must be at least 8 characters long, contain at least 1 uppercase letter, and 1 special character.');
+      this.presentToast(
+        'Password must be at least 8 characters long, contain at least 1 uppercase letter, and 1 special character.'
+      );
       return false;
     }
     return true;

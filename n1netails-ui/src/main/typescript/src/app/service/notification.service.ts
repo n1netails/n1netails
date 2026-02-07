@@ -12,10 +12,9 @@ export interface NotificationConfig {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class NotificationService {
-
   host: string = '';
   private apiPath = '/ninetails/notifications';
 
@@ -38,7 +37,10 @@ export class NotificationService {
     return this.http.get<string[]>(`${this.host}/user/${userId}/preferences`);
   }
 
-  saveUserNotificationPreferences(userId: number, notificationPreferences: string[]): Observable<void> {
+  saveUserNotificationPreferences(
+    userId: number,
+    notificationPreferences: string[]
+  ): Observable<void> {
     return this.http.post<void>(`${this.host}/user/${userId}/preferences`, notificationPreferences);
   }
 }

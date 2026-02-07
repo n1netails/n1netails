@@ -13,21 +13,19 @@
         <nz-row class="edit-profile" [nzGutter]="8">
           <nz-col [nzSpan]="24">
             <nz-card class="tails-primary-color" nzTitle="Tail Information" [nzBordered]="false">
-
               <!-- Search & Filters Row -->
               <div class="filters-row">
-
-                <button 
+                <button
                   id="bookmark-button"
                   [class.active]="bookmarksActive"
-                  nzTooltipTitle="View bookmarked tails" 
+                  nzTooltipTitle="View bookmarked tails"
                   nzType="default"
-                  nzTooltipPlacement="topRight" 
-                  nz-button nz-tooltip
-                  (click)="setBookmarkActive()">
-                  <nz-icon 
-                    nzType="book" 
-                    nzTheme="outline"/>
+                  nzTooltipPlacement="topRight"
+                  nz-button
+                  nz-tooltip
+                  (click)="setBookmarkActive()"
+                >
+                  <nz-icon nzType="book" nzTheme="outline" />
                 </button>
 
                 <input
@@ -44,14 +42,14 @@
                   nzPlaceHolder="Status"
                   nzShowSearch
                   (nzOnSearch)="onStatusSearch($event)"
-                  style="width: 140px; margin-right: 12px;"
+                  style="width: 140px; margin-right: 12px"
                 >
                   <nz-option nzValue="" nzLabel="All"></nz-option>
-                    <nz-option
-                      *ngFor="let status of tailStatusList"
-                      [nzValue]="status"
-                      [nzLabel]="status"
-                    ></nz-option>
+                  <nz-option
+                    *ngFor="let status of tailStatusList"
+                    [nzValue]="status"
+                    [nzLabel]="status"
+                  ></nz-option>
                 </nz-select>
                 <nz-select
                   [(ngModel)]="selectedType"
@@ -60,7 +58,7 @@
                   nzPlaceHolder="Type"
                   nzShowSearch
                   (nzOnSearch)="onTypeSearch($event)"
-                  style="width: 160px; margin-right: 12px;"
+                  style="width: 160px; margin-right: 12px"
                 >
                   <nz-option nzValue="" nzLabel="All"></nz-option>
                   <nz-option
@@ -76,7 +74,7 @@
                   nzPlaceHolder="Level"
                   nzShowSearch
                   (nzOnSearch)="onLevelSearch($event)"
-                  style="width: 120px;"
+                  style="width: 120px"
                 >
                   <nz-option nzValue="" nzLabel="All"></nz-option>
                   <nz-option
@@ -90,14 +88,21 @@
                   [(ngModel)]="pageSize"
                   (ngModelChange)="onPageSizeChange()"
                   nzPlaceHolder="Page Size"
-                  style="width: 100px; margin-left: 12px;"
+                  style="width: 100px; margin-left: 12px"
                 >
                   <nz-option nzValue="10" nzLabel="10"></nz-option>
                   <nz-option nzValue="20" nzLabel="20"></nz-option>
                   <nz-option nzValue="50" nzLabel="50"></nz-option>
                   <nz-option nzValue="100" nzLabel="100"></nz-option>
                 </nz-select>
-                <button class="tails-button" nz-button nzType="primary" (click)="onSearchTermChange()"><nz-icon nzType="search" nzTheme="outline" /></button>
+                <button
+                  class="tails-button"
+                  nz-button
+                  nzType="primary"
+                  (click)="onSearchTermChange()"
+                >
+                  <nz-icon nzType="search" nzTheme="outline" />
+                </button>
               </div>
 
               <!-- Ng Zorro Table -->
@@ -144,24 +149,70 @@
                       ></nz-avatar>
                     </td>
                     <td>{{ tail.id }}</td>
-                    <td class="col-word-break"><a (click)="goToTail(tail.id)">{{ tail.title }}</a></td>
+                    <td class="col-word-break">
+                      <a (click)="goToTail(tail.id)">{{ tail.title }}</a>
+                    </td>
                     <td class="col-word-break">{{ tail.description }}</td>
                     <td>{{ tail.timestamp | date:'medium' }}</td>
-                    <td><nz-tag [nzColor]="tailUtilService.getStatusColor(tail.status)">{{ tail.status }}</nz-tag></td>
-                    <td><nz-tag [nzColor]="tailUtilService.getTypeColor(tail.type)">{{ tail.type }}</nz-tag></td>
-                    <td><nz-tag [nzColor]="tailUtilService.getLevelColor(tail.level)">{{ tail.level }}</nz-tag></td>
+                    <td>
+                      <nz-tag [nzColor]="tailUtilService.getStatusColor(tail.status)"
+                        >{{ tail.status }}</nz-tag
+                      >
+                    </td>
+                    <td>
+                      <nz-tag [nzColor]="tailUtilService.getTypeColor(tail.type)"
+                        >{{ tail.type }}</nz-tag
+                      >
+                    </td>
+                    <td>
+                      <nz-tag [nzColor]="tailUtilService.getLevelColor(tail.level)"
+                        >{{ tail.level }}</nz-tag
+                      >
+                    </td>
                     <td>{{ tail.assignedUsername || tail.assignedUserId || 'N/A' }}</td>
-                    <td><a *ngIf="tail.assignedUserId == currentUser.id" (click)="resolve(tail)">resolve</a></td>
+                    <td>
+                      <a *ngIf="tail.assignedUserId == currentUser.id" (click)="resolve(tail)"
+                        >resolve</a
+                      >
+                    </td>
                   </tr>
                 </tbody>
               </nz-table>
 
               <div *ngIf="totalPages > 0" class="table-pagination">
-                <button class="tails-button" nz-button nzType="default" (click)="previousPage()" [disabled]="currentPage === 0"><nz-icon nzType="left" nzTheme="outline" /></button>
-                <span style="margin: 0 12px; color: #f1f1f1;">Page {{ displayedCurrentPage }} of {{ totalPages }}</span>
-                <button class="tails-button" nz-button nzType="default" (click)="nextPage()" [disabled]="currentPage >= totalPages - 1"><nz-icon nzType="right" nzTheme="outline" /></button>
+                <button
+                  class="tails-button"
+                  nz-button
+                  nzType="default"
+                  (click)="previousPage()"
+                  [disabled]="currentPage === 0"
+                >
+                  <nz-icon nzType="left" nzTheme="outline" />
+                </button>
+                <span style="margin: 0 12px; color: #f1f1f1"
+                  >Page {{ displayedCurrentPage }} of {{ totalPages }}</span
+                >
+                <button
+                  class="tails-button"
+                  nz-button
+                  nzType="default"
+                  (click)="nextPage()"
+                  [disabled]="currentPage >= totalPages - 1"
+                >
+                  <nz-icon nzType="right" nzTheme="outline" />
+                </button>
                 <span class="margin-left-16">Total items: {{ totalElements }}</span>
-                <button class="tails-button margin-left-16" nzTooltipTitle="Resolve all NEW tails" nzTooltipPlacement="top" nzType="default" nz-button nz-tooltip (click)="resolveAll()"><nz-icon nzType="check-circle" nzTheme="outline" /></button>
+                <button
+                  class="tails-button margin-left-16"
+                  nzTooltipTitle="Resolve all NEW tails"
+                  nzTooltipPlacement="top"
+                  nzType="default"
+                  nz-button
+                  nz-tooltip
+                  (click)="resolveAll()"
+                >
+                  <nz-icon nzType="check-circle" nzTheme="outline" />
+                </button>
                 <span class="margin-left-16">New items: {{ newTailCount }}</span>
               </div>
             </nz-card>

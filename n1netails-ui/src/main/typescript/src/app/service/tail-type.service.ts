@@ -19,10 +19,9 @@ export interface TailTypeResponse {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TailTypeService {
-
   host: string = '';
   private apiPath = '/ninetails/tail-type'; // Base URL for tail type operations
 

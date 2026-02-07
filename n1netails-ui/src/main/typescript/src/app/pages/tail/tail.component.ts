@@ -51,10 +51,10 @@ import { BookmarkService, IsBookmarkedResponse } from '../../service/bookmark.se
     ResolveTailModalComponent,
     UpdateTailStatusModalComponent,
     MarkdownModule,
-    AiChatCardComponent
+    AiChatCardComponent,
   ],
   templateUrl: './tail.component.html',
-  styleUrl: './tail.component.less'
+  styleUrl: './tail.component.less',
 })
 export class TailComponent implements OnInit {
   objectKeys = Object.keys;
@@ -87,7 +87,7 @@ export class TailComponent implements OnInit {
     human: false,
     n1: true,
     createdAt: new Date(),
-    content: ''
+    content: '',
   };
 
   public tailUtilService = inject(TailUtilService);
@@ -136,7 +136,7 @@ export class TailComponent implements OnInit {
       error: (err) => {
         console.error('Error checking if tail bookmarked by user:', err);
         this.error = `Failed to check bookmark by user. Status: ${err.status}, message: ${err.message || err}`;
-      }
+      },
     });
   }
 
@@ -149,7 +149,7 @@ export class TailComponent implements OnInit {
         error: (err) => {
           console.error('Error bookmarking tail:', err);
           this.error = `Failed to bookmark. Status: ${err.status}, message: ${err.message || err}`;
-        }
+        },
       });
     } else {
       this.bookmarkService.removeBookmark(id).subscribe({
@@ -159,8 +159,8 @@ export class TailComponent implements OnInit {
         error: (err) => {
           console.error('Error removing bookmark for tail:', err);
           this.error = `Failed to remove bookmark. Status: ${err.status}, message: ${err.message || err}`;
-        }
-      })
+        },
+      });
     }
   }
 
@@ -180,7 +180,7 @@ export class TailComponent implements OnInit {
         console.error('Error fetching tail:', err);
         this.error = `Failed to load tail data. Status: ${err.status}, Message: ${err.message || err}`;
         this.isLoading = false;
-      }
+      },
     });
   }
 
@@ -189,7 +189,7 @@ export class TailComponent implements OnInit {
       this.noteService.getN1Note(id).subscribe({
         next: (data) => {
           this.n1Note = data;
-        }
+        },
       });
     }
   }
@@ -208,7 +208,7 @@ export class TailComponent implements OnInit {
     this.updateStatusModalVisible = false;
   }
 
-  handleUpdateStatusModalOk(event: { status: string, note: string }): void {
+  handleUpdateStatusModalOk(event: { status: string; note: string }): void {
     this.updateStatusModalVisible = false;
     // Call the service to update the status
     if (!this.tail) return;
@@ -222,7 +222,7 @@ export class TailComponent implements OnInit {
       assignedUserId: this.currentUser.id,
       level: this.tail.level,
       type: this.tail.type,
-      status: event.status
+      status: event.status,
     };
 
     const tailUpdateRequest: ResolveTailRequest = {
@@ -239,7 +239,9 @@ export class TailComponent implements OnInit {
         }
       },
       error: (err) => {
-        this.messageService.error(`Unable to update status for "${this.tail?.title}". Error: ${err.message || err}`);
+        this.messageService.error(
+          `Unable to update status for "${this.tail?.title}". Error: ${err.message || err}`
+        );
       },
     });
   }
@@ -263,7 +265,7 @@ export class TailComponent implements OnInit {
       assignedUserId: this.currentUser.id,
       level: this.tail.level,
       type: this.tail.type,
-      status: this.tail.status
+      status: this.tail.status,
     };
 
     const tailResolveRequest: ResolveTailRequest = {
@@ -281,7 +283,9 @@ export class TailComponent implements OnInit {
         }
       },
       error: (err) => {
-        this.messageService.error(`Unable to mark tail "${this.tail?.title}" as resolved. Error: ${err.message || err}`);
+        this.messageService.error(
+          `Unable to mark tail "${this.tail?.title}" as resolved. Error: ${err.message || err}`
+        );
       },
     });
   }
@@ -295,8 +299,10 @@ export class TailComponent implements OnInit {
     // Add an explicit check for organizationId on the tail object,
     // as it's a new field and might not be immediately available from the backend.
     if (typeof this.tail.organizationId !== 'number') {
-        this.messageService.error('Cannot investigate tail: Organization ID is missing from tail data. The backend might need an update.');
-        return;
+      this.messageService.error(
+        'Cannot investigate tail: Organization ID is missing from tail data. The backend might need an update.'
+      );
+      return;
     }
 
     this.isInvestigating = true;
@@ -304,12 +310,12 @@ export class TailComponent implements OnInit {
 
     const llmRequest: LlmPromptRequest = {
       // TODO GIVE USERS OPTION TO SELECT DIFFERENT LLM PROVIDERS AND MODELS
-      provider: this.llmService.openai, 
+      provider: this.llmService.openai,
       model: this.llmService.openAiModels[0],
       prompt: '',
       tailId: this.tail.id,
       userId: this.currentUser.id,
-      organizationId: this.tail.organizationId
+      organizationId: this.tail.organizationId,
     };
 
     this.llmService.investigateTail(llmRequest).subscribe({
@@ -325,8 +331,10 @@ export class TailComponent implements OnInit {
         console.error('Error investigating tail:', err);
         this.llmResponse = null;
         this.isInvestigating = false;
-        this.messageService.error(`Failed to investigate tail. Status: ${err.status}, Message: ${err.error?.message || err.message || 'Unknown error'}`);
-      }
+        this.messageService.error(
+          `Failed to investigate tail. Status: ${err.status}, Message: ${err.error?.message || err.message || 'Unknown error'}`
+        );
+      },
     });
   }
 }

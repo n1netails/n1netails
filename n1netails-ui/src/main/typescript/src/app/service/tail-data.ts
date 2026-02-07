@@ -6,10 +6,9 @@ import { TailPageRequest, TailPageResponse } from '../model/interface/tail-page.
 import { TailResponse } from '../model/tail.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TailDataService {
-
   host: string = '';
   private apiPath = '/ninetails/tail'; // Backend API endpoint
 

@@ -6,17 +6,17 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 import { User } from '../model/user';
 import { ForgotPasswordResetRequest } from '../pages/reset-password/reset-password.component';
 
-const USER_FORGOT_PASSWORD_REQUEST_URL = (email: string) => `/ninetails/password/forgot?email=${email}`
-const USER_RESET_PASSWORD_FORGOT_URL = `/ninetails/password/reset/forgot`
+const USER_FORGOT_PASSWORD_REQUEST_URL = (email: string) =>
+  `/ninetails/password/forgot?email=${email}`;
+const USER_RESET_PASSWORD_FORGOT_URL = `/ninetails/password/reset/forgot`;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthenticationService {
-
   host: string = '';
-  private token: string | null = "";
-  private loggedInUsername: string = "";
+  private token: string | null = '';
+  private loggedInUsername: string = '';
   private jwtHelper = new JwtHelperService();
 
   constructor(
@@ -33,12 +33,14 @@ export class AuthenticationService {
   public register(user: User): Observable<HttpResponse<User>> {
     this.host = this.uiConfigService.getApiUrl();
     console.log('register API URL:', this.host);
-    return this.http.post<User>(`${this.host}/ninetails/user/register`, user, { observe: 'response' });
+    return this.http.post<User>(`${this.host}/ninetails/user/register`, user, {
+      observe: 'response',
+    });
   }
 
   public logOut(): void {
-    this.token = "";
-    this.loggedInUsername = "";
+    this.token = '';
+    this.loggedInUsername = '';
     localStorage.removeItem('user');
     localStorage.removeItem('token');
     localStorage.clear();
@@ -75,8 +77,7 @@ export class AuthenticationService {
         if (!this.jwtHelper.isTokenExpired(this.token)) {
           this.loggedInUsername = this.jwtHelper.decodeToken(this.token).sub;
           return true;
-        }
-        else {
+        } else {
           this.logOut();
           return false;
         }
@@ -87,16 +88,28 @@ export class AuthenticationService {
   }
 
   public resetPassword(email: string, newPassword: string): Observable<string> {
-    return this.http.post(`${this.host}/ninetails/password/reset`, { email, newPassword }, { responseType: 'text' });
+    return this.http.post(
+      `${this.host}/ninetails/password/reset`,
+      { email, newPassword },
+      { responseType: 'text' }
+    );
   }
 
   forgotPassword(email: string): Observable<string> {
     this.host = this.uiConfigService.getApiUrl();
-    return this.http.post(`${this.host}${USER_FORGOT_PASSWORD_REQUEST_URL(email)}`, null, { responseType: 'text' });
+    return this.http.post(`${this.host}${USER_FORGOT_PASSWORD_REQUEST_URL(email)}`, null, {
+      responseType: 'text',
+    });
   }
 
-  resetPasswordOnForgot(forgotPasswordResetRequest: ForgotPasswordResetRequest): Observable<string> {
+  resetPasswordOnForgot(
+    forgotPasswordResetRequest: ForgotPasswordResetRequest
+  ): Observable<string> {
     this.host = this.uiConfigService.getApiUrl();
-    return this.http.put(`${this.host}${USER_RESET_PASSWORD_FORGOT_URL}`, forgotPasswordResetRequest, { responseType: 'text'})
+    return this.http.put(
+      `${this.host}${USER_RESET_PASSWORD_FORGOT_URL}`,
+      forgotPasswordResetRequest,
+      { responseType: 'text' }
+    );
   }
 }

@@ -5,7 +5,11 @@ import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzInputModule } from 'ng-zorro-antd/input';
-import { TailStatus, TailStatusResponse, TailStatusService } from '../../../service/tail-status.service';
+import {
+  TailStatus,
+  TailStatusResponse,
+  TailStatusService,
+} from '../../../service/tail-status.service';
 import { PageRequest } from '../../../model/interface/page.interface';
 import { TailResponse } from '../../../model/tail.model';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
@@ -23,12 +27,12 @@ import { NzAvatarModule } from 'ng-zorro-antd/avatar';
     NzAvatarModule,
   ],
   templateUrl: './update-tail-status-modal.component.html',
-  styleUrls: ['./update-tail-status-modal.component.less']
+  styleUrls: ['./update-tail-status-modal.component.less'],
 })
 export class UpdateTailStatusModalComponent implements OnInit {
   @Input() isVisible: boolean = false;
   @Input() selectedItem: TailResponse | null = null;
-  @Output() onOk: EventEmitter<{ status: string, note: string }> = new EventEmitter();
+  @Output() onOk: EventEmitter<{ status: string; note: string }> = new EventEmitter();
   @Output() onCancel: EventEmitter<void> = new EventEmitter();
 
   selectedStatus: string | null = null;
@@ -42,8 +46,13 @@ export class UpdateTailStatusModalComponent implements OnInit {
   }
 
   loadTailStatuses(): void {
-    const pageRequest: PageRequest = { pageNumber: 0, pageSize: 100, sortDirection: "DESC", sortBy: 'name' };
-    this.tailStatusService.getTailStatusList(pageRequest).subscribe(response => {
+    const pageRequest: PageRequest = {
+      pageNumber: 0,
+      pageSize: 100,
+      sortDirection: 'DESC',
+      sortBy: 'name',
+    };
+    this.tailStatusService.getTailStatusList(pageRequest).subscribe((response) => {
       this.tailStatuses = response.content;
     });
   }

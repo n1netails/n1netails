@@ -10,22 +10,25 @@
     <div *ngIf="n1Token.n1Token !== null" class="n1token-modal-content">
       <!-- <h1>N1 Token</h1> -->
       <div class="n1token-modal-header">
-        <nz-avatar
-          nzSrc="Fox_head.png"
-          [nzSize]="56"
-          class="n1token-modal-avatar"
-        ></nz-avatar>
-        <p>Here is your N1 Token used to create tail alerts. Save this token value in a safe location as you will not be able to retrieve it later after this modal is closed..</p>
+        <nz-avatar nzSrc="Fox_head.png" [nzSize]="56" class="n1token-modal-avatar"></nz-avatar>
+        <p>
+          Here is your N1 Token used to create tail alerts. Save this token value in a safe location
+          as you will not be able to retrieve it later after this modal is closed..
+        </p>
       </div>
-      <hr>
-      <p><b><code>{{ n1Token.n1Token }}</code></b></p>
+      <hr />
+      <p>
+        <b
+          ><code>{{ n1Token.n1Token }}</code></b
+        >
+      </p>
       <button
         nz-button
         nzType="link"
         nzSize="small"
         (click)="copyToken(n1Token.n1Token)"
         aria-label="Copy"
-        style="padding: 0 4px;"
+        style="padding: 0 4px"
       >
         <span nz-icon nzType="copy"></span>
         <span>Copy Token</span>

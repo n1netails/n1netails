@@ -9,11 +9,19 @@ import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 import { CommonModule } from '@angular/common';
 import { TailLevel, TailLevelResponse, TailLevelService } from '../../service/tail-level.service';
-import { TailStatus, TailStatusResponse, TailStatusService } from '../../service/tail-status.service';
+import {
+  TailStatus,
+  TailStatusResponse,
+  TailStatusService,
+} from '../../service/tail-status.service';
 import { TailType, TailTypeResponse, TailTypeService } from '../../service/tail-type.service';
 import { User } from '../../model/user';
 import { AuthenticationService } from '../../service/authentication.service';
-import { N1neTokenService, N1neTokenResponse, CreateTokenRequest } from '../../service/n1ne-token.service';
+import {
+  N1neTokenService,
+  N1neTokenResponse,
+  CreateTokenRequest,
+} from '../../service/n1ne-token.service';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { Organization } from '../../model/organization';
 import { NzSelectModule } from 'ng-zorro-antd/select';
@@ -42,19 +50,18 @@ import { UiConfigService } from '../../shared/util/ui-config.service';
     NzSelectModule,
     NzIconModule,
     N1TokenModalComponent,
-    RouterModule
+    RouterModule,
   ],
   templateUrl: './settings.component.html',
-  styleUrl: './settings.component.less'
+  styleUrl: './settings.component.less',
 })
 export class SettingsComponent implements OnInit {
-
   user: User;
   organizations: Organization[];
 
   // N1ne Token Management
   tokens: N1neTokenResponse[] = [];
-  newTokenRequestForm: { name?: string, expiresAt?: string, organizationId?: number } = {};
+  newTokenRequestForm: { name?: string; expiresAt?: string; organizationId?: number } = {};
   isLoading: boolean = false;
   errorMessage: string = '';
 
@@ -85,7 +92,7 @@ export class SettingsComponent implements OnInit {
     n1Token: '',
     name: '',
     lastUsedAt: '',
-    revoked: false
+    revoked: false,
   };
 
   // Notification Preferences
@@ -95,7 +102,7 @@ export class SettingsComponent implements OnInit {
     { label: 'Microsoft Teams', value: 'msteams' },
     { label: 'Slack', value: 'slack' },
     { label: 'Discord', value: 'discord' },
-    { label: 'Telegram', value: 'telegram' }
+    { label: 'Telegram', value: 'telegram' },
   ];
 
   constructor(
@@ -107,7 +114,7 @@ export class SettingsComponent implements OnInit {
     private pageUtilService: PageUtilService,
     private notificationService: NotificationService,
     private msg: NzMessageService,
-    public UiConfigService: UiConfigService,
+    public UiConfigService: UiConfigService
   ) {
     this.user = this.authenticationService.getUserFromLocalCache();
     this.organizations = this.user.organizations;
@@ -123,23 +130,29 @@ export class SettingsComponent implements OnInit {
 
   private listTailLevels() {
     const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequest();
-    this.tailLevelService.getTailLevels(pageRequest).subscribe((response: PageResponse<TailLevelResponse>) => {
-      this.tailLevels = response.content;
-    });
+    this.tailLevelService
+      .getTailLevels(pageRequest)
+      .subscribe((response: PageResponse<TailLevelResponse>) => {
+        this.tailLevels = response.content;
+      });
   }
 
-    private listTailStatus() {
+  private listTailStatus() {
     const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequest();
-    this.tailStatusService.getTailStatusList(pageRequest).subscribe((response: PageResponse<TailStatusResponse>) => {
-      this.tailStatuses = response.content;
-    });
+    this.tailStatusService
+      .getTailStatusList(pageRequest)
+      .subscribe((response: PageResponse<TailStatusResponse>) => {
+        this.tailStatuses = response.content;
+      });
   }
 
   private listTailTypes() {
     const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequest();
-    this.tailTypeService.getTailTypes(pageRequest).subscribe((response: PageResponse<TailTypeResponse>) => {
-      this.tailTypes = response.content;
-    });
+    this.tailTypeService
+      .getTailTypes(pageRequest)
+      .subscribe((response: PageResponse<TailTypeResponse>) => {
+        this.tailTypes = response.content;
+      });
   }
 
   // N1ne Token Management Methods
@@ -150,8 +163,8 @@ export class SettingsComponent implements OnInit {
     const pageRequest: PageRequest = {
       pageNumber: this.currentPage,
       pageSize: this.pageSize,
-      sortDirection: "DESC",
-      sortBy: "id"
+      sortDirection: 'DESC',
+      sortBy: 'id',
     };
 
     this.n1neTokenService.getAllTokensByUserId(this.user.id, pageRequest).subscribe({
@@ -165,7 +178,7 @@ export class SettingsComponent implements OnInit {
         this.errorMessage = 'Failed to load tokens.';
         this.isLoading = false;
         console.error('Failed to load tokens', err);
-      }
+      },
     });
   }
 
@@ -206,7 +219,7 @@ export class SettingsComponent implements OnInit {
       name: this.newTokenRequestForm.name,
       userId: this.user.id,
       organizationId: this.newTokenRequestForm.organizationId,
-      expiresAt: ''
+      expiresAt: '',
     };
 
     if (this.newTokenRequestForm.expiresAt) {
@@ -225,7 +238,7 @@ export class SettingsComponent implements OnInit {
         this.errorMessage = 'Failed to create token.';
         this.isLoading = false;
         console.error('Failed to create token', err);
-      }
+      },
     });
   }
 
@@ -240,7 +253,7 @@ export class SettingsComponent implements OnInit {
         this.errorMessage = 'Failed to revoke token.';
         this.isLoading = false;
         console.error(`Failed to revoke token ${token.id}`, err);
-      }
+      },
     });
   }
 
@@ -255,7 +268,7 @@ export class SettingsComponent implements OnInit {
         this.errorMessage = 'Failed to enable token.';
         this.isLoading = false;
         console.error(`Failed to enable token ${token.id}`, err);
-      }
+      },
     });
   }
 
@@ -270,7 +283,7 @@ export class SettingsComponent implements OnInit {
         this.errorMessage = 'Failed to delete token.';
         this.isLoading = false;
         console.error(`Failed to delete token ${tokenId}`, err);
-      }
+      },
     });
   }
 
@@ -289,20 +302,20 @@ export class SettingsComponent implements OnInit {
 
   addAlertLevel() {
     console.log('adding level', this.newTailLevel);
-    const tailLevel: TailLevel = { name: this.newTailLevel, description: '', deletable: true }
-    if (this.newTailLevel && !this.tailLevels.some(level => level.name === tailLevel.name)) {
-      this.tailLevelService.createTailLevel(tailLevel).subscribe(response => {
+    const tailLevel: TailLevel = { name: this.newTailLevel, description: '', deletable: true };
+    if (this.newTailLevel && !this.tailLevels.some((level) => level.name === tailLevel.name)) {
+      this.tailLevelService.createTailLevel(tailLevel).subscribe((response) => {
         this.tailLevels.push(response);
         this.newTailLevel = '';
       });
     }
   }
   removeAlertLevel(levelName: string) {
-    const levelToRemove = this.tailLevels.find(lvl => lvl.name === levelName);
+    const levelToRemove = this.tailLevels.find((lvl) => lvl.name === levelName);
     if (levelToRemove && levelToRemove.id) {
       this.tailLevelService.deleteTailLevel(levelToRemove.id).subscribe(() => {
         console.log('TailLevel deleted:', levelToRemove.id);
-        this.tailLevels = this.tailLevels.filter(lvl => lvl.id !== levelToRemove.id);
+        this.tailLevels = this.tailLevels.filter((lvl) => lvl.id !== levelToRemove.id);
       });
     } else {
       console.warn('TailLevel not found or id missing for level:', levelName);
@@ -311,9 +324,12 @@ export class SettingsComponent implements OnInit {
 
   addAlertStatus() {
     console.log('adding status', this.newTailStatus);
-    const tailStatus: TailStatus = { name: this.newTailStatus, deletable: true }
-    if (this.newTailStatus && !this.tailStatuses.some(status => status.name === tailStatus.name)) {
-      this.tailStatusService.createTailStatus(tailStatus).subscribe(response => {
+    const tailStatus: TailStatus = { name: this.newTailStatus, deletable: true };
+    if (
+      this.newTailStatus &&
+      !this.tailStatuses.some((status) => status.name === tailStatus.name)
+    ) {
+      this.tailStatusService.createTailStatus(tailStatus).subscribe((response) => {
         console.log('TailStatus created:', response);
         this.tailStatuses.push(response);
         this.newTailStatus = '';
@@ -322,11 +338,11 @@ export class SettingsComponent implements OnInit {
   }
 
   removeAlertStatus(statusName: string) {
-    const statusToRemove = this.tailStatuses.find(stat => stat.name === statusName);
+    const statusToRemove = this.tailStatuses.find((stat) => stat.name === statusName);
     if (statusToRemove && statusToRemove.id) {
       this.tailStatusService.deleteTailStatus(statusToRemove.id).subscribe(() => {
         console.log('TailStatus deleted:', statusToRemove.id);
-        this.tailStatuses = this.tailStatuses.filter(stat => stat.id !== statusToRemove.id);
+        this.tailStatuses = this.tailStatuses.filter((stat) => stat.id !== statusToRemove.id);
       });
     } else {
       console.warn('TailStatus not found or id missing for status:', statusName);
@@ -335,9 +351,9 @@ export class SettingsComponent implements OnInit {
 
   addAlertType() {
     console.log('adding type', this.newTailType);
-    const tailType: TailType = { name: this.newTailType, description: '', deletable: true }
-    if (this.newTailType && !this.tailTypes.some(type => type.name === tailType.name)) {
-      this.tailTypeService.createTailType(tailType).subscribe(response => {
+    const tailType: TailType = { name: this.newTailType, description: '', deletable: true };
+    if (this.newTailType && !this.tailTypes.some((type) => type.name === tailType.name)) {
+      this.tailTypeService.createTailType(tailType).subscribe((response) => {
         console.log('TailType created:', response);
         this.tailTypes.push(response);
         this.newTailType = '';
@@ -346,11 +362,11 @@ export class SettingsComponent implements OnInit {
   }
 
   removeAlertType(typeName: string) {
-    const typeToRemove = this.tailTypes.find(type => type.name === typeName);
+    const typeToRemove = this.tailTypes.find((type) => type.name === typeName);
     if (typeToRemove && typeToRemove.id) {
       this.tailTypeService.deleteTailType(typeToRemove.id).subscribe(() => {
         console.log('TailType deleted:', typeToRemove.id);
-        this.tailTypes = this.tailTypes.filter(type => type.id !== typeToRemove.id);
+        this.tailTypes = this.tailTypes.filter((type) => type.id !== typeToRemove.id);
       });
     } else {
       console.warn('TailType not found or id missing for type:', typeName);
@@ -358,40 +374,60 @@ export class SettingsComponent implements OnInit {
   }
 
   onSaveNotificationPreferences() {
-    this.notificationService.saveUserNotificationPreferences(this.user.id, this.notificationPreferences).subscribe({
-      next: () => { this.msg.success('Notification preferences saved successfully.') },
-      error: (err) => { this.msg.error('There was an error saving notification preferences.') }
-    });
+    this.notificationService
+      .saveUserNotificationPreferences(this.user.id, this.notificationPreferences)
+      .subscribe({
+        next: () => {
+          this.msg.success('Notification preferences saved successfully.');
+        },
+        error: (err) => {
+          this.msg.error('There was an error saving notification preferences.');
+        },
+      });
   }
 
   getUserNotificationPreferences() {
-    this.notificationService.getUserNotificationPreferences(this.user.id).subscribe((preferences: string[]) => {
-      this.notificationPreferences = preferences;
-    });
+    this.notificationService
+      .getUserNotificationPreferences(this.user.id)
+      .subscribe((preferences: string[]) => {
+        this.notificationPreferences = preferences;
+      });
   }
 
   searchLevels() {
-    const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequestWithSearch(this.searchTailLevel);
-    this.tailLevelService.getTailLevels(pageRequest).subscribe((response: PageResponse<TailLevelResponse>) => {
-      this.tailLevels = response.content;
-    });
+    const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequestWithSearch(
+      this.searchTailLevel
+    );
+    this.tailLevelService
+      .getTailLevels(pageRequest)
+      .subscribe((response: PageResponse<TailLevelResponse>) => {
+        this.tailLevels = response.content;
+      });
   }
 
   searchStatuses() {
-    const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequestWithSearch(this.searchTailStatus);
-    this.tailStatusService.getTailStatusList(pageRequest).subscribe((response: PageResponse<TailStatusResponse>) => {
-      this.tailStatuses = response.content;
-    });
+    const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequestWithSearch(
+      this.searchTailStatus
+    );
+    this.tailStatusService
+      .getTailStatusList(pageRequest)
+      .subscribe((response: PageResponse<TailStatusResponse>) => {
+        this.tailStatuses = response.content;
+      });
   }
 
   searchType() {
-    const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequestWithSearch(this.searchTailType);
-    this.tailTypeService.getTailTypes(pageRequest).subscribe((response: PageResponse<TailTypeResponse>) => {
-      this.tailTypes = response.content;
-    });
+    const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequestWithSearch(
+      this.searchTailType
+    );
+    this.tailTypeService
+      .getTailTypes(pageRequest)
+      .subscribe((response: PageResponse<TailTypeResponse>) => {
+        this.tailTypes = response.content;
+      });
   }
 
-  // n1 token modal 
+  // n1 token modal
   handleResolveCancel(): void {
     this.n1TokenModalVisible = false;
     this.generatedN1neToken = {
@@ -401,7 +437,7 @@ export class SettingsComponent implements OnInit {
       n1Token: '',
       name: '',
       lastUsedAt: '',
-      revoked: false
+      revoked: false,
     };
   }
 
@@ -414,7 +450,7 @@ export class SettingsComponent implements OnInit {
       n1Token: '',
       name: '',
       lastUsedAt: '',
-      revoked: false
+      revoked: false,
     };
   }
 }

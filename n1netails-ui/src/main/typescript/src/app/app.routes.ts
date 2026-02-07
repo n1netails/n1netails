@@ -12,16 +12,23 @@ import { ResetPasswordComponent } from './pages/reset-password/reset-password.co
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: '/login' },
-  { path: 'dashboard', loadChildren: () => import('./pages/dashboard/dashboard.routes').then(m => m.DASHBOARD_ROUTES) },
+  {
+    path: 'dashboard',
+    loadChildren: () =>
+      import('./pages/dashboard/dashboard.routes').then((m) => m.DASHBOARD_ROUTES),
+  },
   { path: 'edit-profile', component: EditProfileComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { path: 'forgot-password', component: ForgotPasswordComponent},
+  { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'settings', component: SettingsComponent },
   { path: 'notification-manager/:id', component: NotificationManagerComponent },
-  { path: 'welcome', loadChildren: () => import('./pages/welcome/welcome.routes').then(m => m.WELCOME_ROUTES) },
+  {
+    path: 'welcome',
+    loadChildren: () => import('./pages/welcome/welcome.routes').then((m) => m.WELCOME_ROUTES),
+  },
   { path: 'tail/:id', component: TailComponent },
   { path: 'tails', component: TailsComponent, title: 'Tails' },
-  { path: 'oauth2/success', component: Oauth2SuccessComponent }
+  { path: 'oauth2/success', component: Oauth2SuccessComponent },
 ];

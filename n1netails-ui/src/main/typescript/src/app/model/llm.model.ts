@@ -1,7 +1,7 @@
 // Request for general LLM prompting
 export interface LlmPromptRequest {
   provider: string; // e.g., 'openai', 'gemini'
-  model: string;    // e.g., 'gpt-4.1', 'gemini-pro'
+  model: string; // e.g., 'gpt-4.1', 'gemini-pro'
   prompt: string;
   userId: number;
   organizationId: number;

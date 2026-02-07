@@ -13,16 +13,24 @@
         <!-- KPI Cards -->
         <nz-row class="kpi-cards" [nzGutter]="[16, 16]">
           <nz-col [nzXs]="24" [nzSm]="12" [nzMd]="6">
-            <nz-card class="tails-primary-color" nzTitle="Alerts Today" [nzBordered]="false"><b>{{ totalTailAlertsToday }}</b></nz-card>
+            <nz-card class="tails-primary-color" nzTitle="Alerts Today" [nzBordered]="false"
+              ><b>{{ totalTailAlertsToday }}</b></nz-card
+            >
           </nz-col>
           <nz-col [nzXs]="24" [nzSm]="12" [nzMd]="6">
-            <nz-card class="tails-primary-color" nzTitle="Resolved" [nzBordered]="false"><b>{{ totalTailsResolved }}</b></nz-card>
+            <nz-card class="tails-primary-color" nzTitle="Resolved" [nzBordered]="false"
+              ><b>{{ totalTailsResolved }}</b></nz-card
+            >
           </nz-col>
           <nz-col [nzXs]="24" [nzSm]="12" [nzMd]="6">
-            <nz-card class="tails-primary-color" nzTitle="Not Resolved" [nzBordered]="false"><b>{{ totalTailsNotResolved }}</b></nz-card>
+            <nz-card class="tails-primary-color" nzTitle="Not Resolved" [nzBordered]="false"
+              ><b>{{ totalTailsNotResolved }}</b></nz-card
+            >
           </nz-col>
           <nz-col [nzXs]="24" [nzSm]="12" [nzMd]="6">
-            <nz-card class="tails-primary-color" nzTitle="Avg. MTTR" [nzBordered]="false"><b>{{ mttr | duration }}</b></nz-card>
+            <nz-card class="tails-primary-color" nzTitle="Avg. MTTR" [nzBordered]="false"
+              ><b>{{ mttr | duration }}</b></nz-card
+            >
           </nz-col>
         </nz-row>
 
@@ -31,7 +39,12 @@
           <nz-col [nzXs]="24" [nzLg]="16">
             <nz-card nzTitle="Tail Alerts (Hourly)" [nzBordered]="false">
               <div style="height: 200px">
-                <canvas baseChart [data]="alertsTodayData" [options]="stackedBarOptions" [type]="'bar'">
+                <canvas
+                  baseChart
+                  [data]="alertsTodayData"
+                  [options]="stackedBarOptions"
+                  [type]="'bar'"
+                >
                 </canvas>
               </div>
             </nz-card>
@@ -39,7 +52,12 @@
           <nz-col [nzXs]="24" [nzLg]="8">
             <nz-card nzTitle="Tail Resolution Status" [nzBordered]="false">
               <div style="height: 200px">
-                <canvas baseChart [data]="alertStatusData" [options]="pieChartOptions" [type]="'doughnut'">
+                <canvas
+                  baseChart
+                  [data]="alertStatusData"
+                  [options]="pieChartOptions"
+                  [type]="'doughnut'"
+                >
                 </canvas>
               </div>
             </nz-card>
@@ -51,16 +69,25 @@
           <nz-col [nzXs]="24" [nzLg]="16">
             <nz-card nzTitle="Monthly Alerts (Stacked)" [nzBordered]="false">
               <div style="height: 200px">
-                <canvas baseChart [data]="monthlyAlertsData" [options]="stackedBarOptions" [type]="'bar'">
+                <canvas
+                  baseChart
+                  [data]="monthlyAlertsData"
+                  [options]="stackedBarOptions"
+                  [type]="'bar'"
+                >
                 </canvas>
               </div>
-
             </nz-card>
           </nz-col>
           <nz-col [nzXs]="24" [nzLg]="8">
             <nz-card nzTitle="Mean Time To Resolution (Hours)" [nzBordered]="false">
               <div style="height: 200px">
-                <canvas baseChart [data]="mttrLineData" [options]="lineChartOptions" [type]="'line'">
+                <canvas
+                  baseChart
+                  [data]="mttrLineData"
+                  [options]="lineChartOptions"
+                  [type]="'line'"
+                >
                 </canvas>
               </div>
             </nz-card>
@@ -75,55 +102,71 @@
                   <nz-empty [nzNotFoundContent]="'No active tails found.'"></nz-empty>
                 } @else {
                   @for (item of list; track item) {
-                  <nz-list-item>
-                    @if (item.loading) {
-                    <nz-skeleton [nzAvatar]="true" [nzActive]="true" [nzTitle]="false" [nzLoading]="true" />
-                    } @else {
-                    <ng-container>
-                      <div class="list-item-title-wrapper">
-                        <ng-template #customAvatarTpl>
-                          <nz-avatar
-                            [nzSrc]="tailUtilService.getKudaAvatar(item.level)"
-                            [nzSize]="32"
-                            class="tail-avatar">
-                          </nz-avatar>
-                        </ng-template>
-                        <nz-list-item-meta [nzAvatar]="customAvatarTpl">
-                          <nz-list-item-meta-title>
-                            <a
-                              (click)="goToTail(item.id)"
-                              class="truncate-text title"
-                              [title]="item.title">
-                              {{ item.title }}
-                            </a>
-                          </nz-list-item-meta-title>
-                        </nz-list-item-meta>
-                      </div>
+                    <nz-list-item>
+                      @if (item.loading) {
+                        <nz-skeleton
+                          [nzAvatar]="true"
+                          [nzActive]="true"
+                          [nzTitle]="false"
+                          [nzLoading]="true"
+                        />
+                      } @else {
+                        <ng-container>
+                          <div class="list-item-title-wrapper">
+                            <ng-template #customAvatarTpl>
+                              <nz-avatar
+                                [nzSrc]="tailUtilService.getKudaAvatar(item.level)"
+                                [nzSize]="32"
+                                class="tail-avatar"
+                              >
+                              </nz-avatar>
+                            </ng-template>
+                            <nz-list-item-meta [nzAvatar]="customAvatarTpl">
+                              <nz-list-item-meta-title>
+                                <a
+                                  (click)="goToTail(item.id)"
+                                  class="truncate-text title"
+                                  [title]="item.title"
+                                >
+                                  {{ item.title }}
+                                </a>
+                              </nz-list-item-meta-title>
+                            </nz-list-item-meta>
+                          </div>
 
-                      <div class="list-item-details-actions-wrapper">
-                        <div class="tags-wrapper">
-                          <nz-tag [nzColor]="tailUtilService.getLevelColor(item.level)" class="tag">
-                            {{ item.level }}
-                          </nz-tag>
-                          <nz-tag [nzColor]="tailUtilService.getTypeColor(item.type)" class="tag">
-                            {{ item.type }}
-                          </nz-tag>
-                          <nz-tag [nzColor]="tailUtilService.getStatusColor(item.status)" class="tag">
-                            {{ item.status }}
-                          </nz-tag>
-                        </div>
+                          <div class="list-item-details-actions-wrapper">
+                            <div class="tags-wrapper">
+                              <nz-tag
+                                [nzColor]="tailUtilService.getLevelColor(item.level)"
+                                class="tag"
+                              >
+                                {{ item.level }}
+                              </nz-tag>
+                              <nz-tag
+                                [nzColor]="tailUtilService.getTypeColor(item.type)"
+                                class="tag"
+                              >
+                                {{ item.type }}
+                              </nz-tag>
+                              <nz-tag
+                                [nzColor]="tailUtilService.getStatusColor(item.status)"
+                                class="tag"
+                              >
+                                {{ item.status }}
+                              </nz-tag>
+                            </div>
 
-                        <ul nz-list-item-actions class="list-item-actions">
-                          <nz-list-item-action>
-                            <a *ngIf="item.assignedUserId == user.id" (click)="resolve(item)">
-                              resolve
-                            </a>
-                          </nz-list-item-action>
-                        </ul>
-                      </div>
-                    </ng-container>
-                    }
-                  </nz-list-item>
+                            <ul nz-list-item-actions class="list-item-actions">
+                              <nz-list-item-action>
+                                <a *ngIf="item.assignedUserId == user.id" (click)="resolve(item)">
+                                  resolve
+                                </a>
+                              </nz-list-item-action>
+                            </ul>
+                          </div>
+                        </ng-container>
+                      }
+                    </nz-list-item>
                   }
                 }
               </nz-list>
@@ -132,7 +175,6 @@
         </nz-row>
       </div>
     </nz-content>
-
   </nz-layout>
 </nz-layout>
 

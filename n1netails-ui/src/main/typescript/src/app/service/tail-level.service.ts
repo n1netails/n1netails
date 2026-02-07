@@ -19,15 +19,14 @@ export interface TailLevelResponse {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TailLevelService {
-
   host: string = '';
   private apiPath = '/ninetails/tail-level'; // Base URL for tail level operations
 
   constructor(
-    private http: HttpClient, 
+    private http: HttpClient,
     private uiConfigService: UiConfigService,
     private pageUtilService: PageUtilService
   ) {}

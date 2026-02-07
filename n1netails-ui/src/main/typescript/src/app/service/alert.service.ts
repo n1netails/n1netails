@@ -5,17 +5,16 @@ import { UiConfigService } from '../shared/util/ui-config.service';
 import { TailAlert } from '../model/interface/tail-alert.interface';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AlertService {
-
   host: string = '';
   private apiPath = '/ninetails/alert';
 
   constructor(
     private http: HttpClient,
-    private uiConfigService: UiConfigService,
-  ) { }
+    private uiConfigService: UiConfigService
+  ) {}
 
   createTail(token: string, tailAlert: TailAlert): Observable<void> {
     const headers = new HttpHeaders().set('N1ne-Token', token);
@@ -25,11 +24,22 @@ export class AlertService {
 
   createManualTail(organizationId: number, userId: number, tailAlert: TailAlert): Observable<void> {
     this.host = this.uiConfigService.getApiUrl() + this.apiPath;
-    return this.http.post<void>(`${this.host}/manual/${userId}/organization/${organizationId}`, tailAlert);
+    return this.http.post<void>(
+      `${this.host}/manual/${userId}/organization/${organizationId}`,
+      tailAlert
+    );
   }
 
-  createManualTailWithToken(organizationId: number, userId: number, tailAlert: TailAlert, tokenId: number): Observable<void> {
+  createManualTailWithToken(
+    organizationId: number,
+    userId: number,
+    tailAlert: TailAlert,
+    tokenId: number
+  ): Observable<void> {
     this.host = this.uiConfigService.getApiUrl() + this.apiPath;
-    return this.http.post<void>(`${this.host}/manual/${userId}/organization/${organizationId}/tokenId/${tokenId}`, tailAlert);
+    return this.http.post<void>(
+      `${this.host}/manual/${userId}/organization/${organizationId}/tokenId/${tokenId}`,
+      tailAlert
+    );
   }
 }

@@ -73,9 +73,7 @@ public class UserController {
     @GetMapping("/self")
     public ResponseEntity<UsersEntity> getCurrentUser(@RequestHeader(value = AUTHORIZATION, required = false) String authorizationHeader) throws AccessDeniedException, UserNotFoundException {
         // No token provided → 401
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new AuthenticationCredentialsNotFoundException("Missing or invalid Authorization header");
-        }
+        checkAuthorizationHeader(authorizationHeader);
 
         String token = authorizationHeader.substring(TOKEN_PREFIX.length());
         Long id;
@@ -120,9 +118,7 @@ public class UserController {
             @RequestHeader(value = AUTHORIZATION, required = false) String authorizationHeader,
             @RequestBody UsersEntity user
     ) throws AuthenticationException, AccessDeniedException {
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new AuthenticationCredentialsNotFoundException("Missing or invalid Authorization header");
-        }
+        checkAuthorizationHeader(authorizationHeader);
 
         if (user.getEmail() == null || user.getEmail().isEmpty()) {
             throw new IllegalArgumentException("Email is required");
@@ -131,8 +127,8 @@ public class UserController {
         UserPrincipal editingPrincipal;
         try {
             editingPrincipal = authorizationService.getCurrentUserPrincipal(authorizationHeader);
-        } catch (UserNotFoundException e) {
-            // map UserNotFoundException -> 401
+        } catch (UserNotFoundException | JwtException e) {
+            // map UserNotFoundException | JwtException → 401
             throw new BadCredentialsException("Invalid token");
         }
         // Basic check: user can only edit their own profile through this specific endpoint
@@ -228,10 +224,12 @@ public class UserController {
     @PutMapping("/{userId}/role")
     @PreAuthorize("hasAuthority('user:super')") // 'user:super' is unique to SUPER_ADMIN_AUTHORITIES
     public ResponseEntity<?> updateUserRole(
-            @RequestHeader(AUTHORIZATION) String authorizationHeader,
+            @RequestHeader(value = AUTHORIZATION, required = false) String authorizationHeader,
             @PathVariable Long userId,
             @Valid @RequestBody UpdateUserRoleRequest updateUserRoleRequest
     ) throws UserNotFoundException, InvalidRoleException, AccessDeniedException {
+        checkAuthorizationHeader(authorizationHeader);
+
         UserPrincipal adminPrincipal = authorizationService.getCurrentUserPrincipal(authorizationHeader); // Admin making the call
         log.info("Admin {} attempting to update role for user ID: {} to role: {}", adminPrincipal.getUsername(), userId, updateUserRoleRequest.getRoleName());
 
@@ -284,7 +282,8 @@ public class UserController {
             }
     )
     @PostMapping("/complete-tutorial")
-    public ResponseEntity<?> completeTutorial(@RequestHeader(AUTHORIZATION) String authorizationHeader) throws UserNotFoundException {
+    public ResponseEntity<?> completeTutorial(@RequestHeader(value = AUTHORIZATION, required = false) String authorizationHeader) throws UserNotFoundException {
+        checkAuthorizationHeader(authorizationHeader);
         UserPrincipal principal = authorizationService.getCurrentUserPrincipal(authorizationHeader);
         userService.completeTutorial(principal.getUsername());
         return ResponseEntity.ok().build();
@@ -293,6 +292,12 @@ public class UserController {
     private void authenticate(String email, String password) {
         log.info("attempting to authenticate with password");
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+    }
+
+    private static void checkAuthorizationHeader(String authorizationHeader) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new AuthenticationCredentialsNotFoundException("Missing or invalid Authorization header");
+        }
     }
 
     private HttpHeaders setJwtHeader(UserPrincipal userPrincipal) {

@@ -7,6 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -27,7 +31,10 @@ public class ExceptionController implements ErrorController {
             NoteNoContentException.class,
             PasswordRegexException.class,
             ForgotPasswordRequestExpiredException.class,
-            Base64UrlException.class
+            Base64UrlException.class,
+            IllegalArgumentException.class,
+            HttpMessageNotReadableException.class,
+            HttpMediaTypeNotSupportedException.class
     })
     public ResponseEntity<HttpErrorResponse> badRequestException(Exception exception) {
         log.error(exception.getMessage());
@@ -40,11 +47,26 @@ public class ExceptionController implements ErrorController {
      * @return http error response
      */
     @ExceptionHandler({
-            AccessDeniedException.class
+            AuthenticationException.class,
+            BadCredentialsException.class,
+            LoginFailedException.class
     })
     public ResponseEntity<HttpErrorResponse> unauthorizedException(Exception exception) {
         log.error(exception.getMessage());
         return createHttpResponse(UNAUTHORIZED, exception.getMessage());
+    }
+
+    /**
+     * Forbidden Exception (403)
+     * @param exception forbidden exception
+     * @return http error response
+     */
+    @ExceptionHandler({
+            AccessDeniedException.class
+    })
+    public ResponseEntity<HttpErrorResponse> forbiddenException(Exception exception) {
+        log.error(exception.getMessage());
+        return createHttpResponse(FORBIDDEN, exception.getMessage());
     }
 
     /**
@@ -59,8 +81,7 @@ public class ExceptionController implements ErrorController {
             UserNotFoundException.class,
             NoteNotFoundException.class,
             OrganizationNotFoundException.class,
-            ForgotPasswordRequestNotFoundException.class,
-            IllegalArgumentException.class
+            ForgotPasswordRequestNotFoundException.class
     })
     public ResponseEntity<HttpErrorResponse> notFoundException(Exception exception) {
         log.error(exception.getMessage());

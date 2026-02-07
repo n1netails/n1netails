@@ -10,7 +10,10 @@
     "spring-boot-build": "ng build --configuration=development && xcopy dist\\typescript\\browser\\ ..\\resources\\static\\* /E /I /Y",
     "spring-boot-build-production": "ng build --configuration=production && xcopy dist\\typescript\\browser\\ ..\\resources\\static\\* /E /I /Y",
     "spring-boot-build-unix": "ng build --configuration=development && cp -r dist/typescript/browser/* ../resources/static/",
-    "spring-boot-build-unix-production": "ng build --configuration=production && cp -r dist/typescript/browser/* ../resources/static/"
+    "spring-boot-build-unix-production": "ng build --configuration=production && cp -r dist/typescript/browser/* ../resources/static/",
+
+    "format": "prettier --write \"src/main/typescript/**/*.{ts,html,scss,css,json,md}\"",
+    "format:check": "prettier --check \"src/main/typescript/**/*.{ts,html,scss,css,json,md}\""
   },
   "private": true,
   "dependencies": {

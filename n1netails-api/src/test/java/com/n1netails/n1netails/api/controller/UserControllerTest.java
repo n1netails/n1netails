@@ -290,8 +290,6 @@ public class UserControllerTest {
     }
 
     @Test
-        // NOTE: if a token is invalid
-        // String authEmail = jwtDecoder.decode(token).getSubject() will throw JwtException
     void editUser_invalidAuthorizationHeader_shouldReturnUnauthorized() throws Exception {
 
         //Arrange
@@ -828,7 +826,6 @@ public class UserControllerTest {
     }
 
     @Test
-        // 500 was returned
     void updateUserRole_missingAuthorizationHeader_shouldReturnUnauthorized() throws Exception {
         Long userId = 10L;
         UpdateUserRoleRequest request = new UpdateUserRoleRequest();
@@ -844,7 +841,6 @@ public class UserControllerTest {
 
     @Test
     @WithMockUser(authorities = "user:super")
-        // 500 was returned
     void updateUserRole_invalidAuthorizationHeader_shouldReturnUnauthorized() throws Exception {
         Long userId = 10L;
         UpdateUserRoleRequest request = new UpdateUserRoleRequest();
@@ -1067,7 +1063,6 @@ public class UserControllerTest {
     }
 
     @Test
-        // 500 was returned
     void completeTutorial_missingAuthorizationHeader_shouldReturnUnauthorized() throws Exception {
         mockMvc.perform(post(pathPrefix + "/complete-tutorial"))
                 .andExpect(status().isUnauthorized());
@@ -1075,7 +1070,6 @@ public class UserControllerTest {
     }
 
     @Test
-        // 500 was returned
     void completeTutorial_invalidAuthorizationHeader_shouldReturnUnauthorized() throws Exception {
 
         //Mock
@@ -1083,7 +1077,7 @@ public class UserControllerTest {
                 .thenThrow(new JwtException("Invalid token"));
 
         mockMvc.perform(post(pathPrefix + "/complete-tutorial")
-                        .header(HttpHeaders.AUTHORIZATION, AUTH_HEADER))
+                        .header(HttpHeaders.AUTHORIZATION, "InvalidToken"))
                 .andExpect(status().isUnauthorized());
     }
 

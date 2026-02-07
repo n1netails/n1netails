@@ -20,7 +20,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: n1netails-ui
-        run: npm ci
+        run: npm install
 
       - name: Run Prettier check
         working-directory: n1netails-ui

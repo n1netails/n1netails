@@ -34,7 +34,7 @@
     "rxjs": "~7.8.0",
     "shepherd.js": "^14.5.1",
     "tslib": "^2.3.0",
-    "zone.js": "~0.15.0"
+    "zone.js": "~0.15.0",
   },
   "devDependencies": {
     "@angular/build": "^20.3.13",
@@ -48,6 +48,7 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
     "less": "^4.2.0",
-    "typescript": "~5.9.3"
+    "typescript": "~5.9.3",
+    "prettier": "^3.8.1"
   }
 }

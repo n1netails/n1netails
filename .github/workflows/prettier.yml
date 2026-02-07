@@ -18,10 +18,10 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install dependencies
-        working-directory: n1netails-ui
+      - name: Install Angular UI dependencies
+        working-directory: n1netails-ui/src/main/typescript
         run: npm install
 
       - name: Run Prettier check
-        working-directory: n1netails-ui
+        working-directory: n1netails-ui/src/main/typescript
         run: npm run format:check

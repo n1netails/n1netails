@@ -12,8 +12,8 @@
     "spring-boot-build-unix": "ng build --configuration=development && cp -r dist/typescript/browser/* ../resources/static/",
     "spring-boot-build-unix-production": "ng build --configuration=production && cp -r dist/typescript/browser/* ../resources/static/",
 
-    "format": "prettier --write \"src/main/typescript/**/*.{ts,html,scss,css,json,md}\"",
-    "format:check": "prettier --check \"src/main/typescript/**/*.{ts,html,scss,css,json,md}\""
+    "format": "prettier --write \"**/*.{ts,html,scss,css,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,html,scss,css,json,md}\""
   },
   "private": true,
   "dependencies": {

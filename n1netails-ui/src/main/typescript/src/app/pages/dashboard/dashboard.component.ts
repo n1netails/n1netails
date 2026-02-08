@@ -8,10 +8,13 @@ import { NzListModule } from 'ng-zorro-antd/list';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
 import { NzTagModule } from 'ng-zorro-antd/tag';
+import { NzSegmentedModule } from 'ng-zorro-antd/segmented';
+import { NzTableModule } from 'ng-zorro-antd/table';
+import { NzBadgeModule } from 'ng-zorro-antd/badge';
 import { BaseChartDirective } from 'ng2-charts';
-import { HeaderComponent } from '../../shared/template/header/header.component';
-import { SidenavComponent } from '../../shared/template/sidenav/sidenav.component';
-import { UiConfigService } from '../../shared/util/ui-config.service';
+import { HeaderComponent } from "../../shared/template/header/header.component";
+import { SidenavComponent } from "../../shared/template/sidenav/sidenav.component";
+import { UiConfigService } from "../../shared/util/ui-config.service";
 import { AuthenticationService } from '../../service/authentication.service';
 import { Router } from '@angular/router';
 import { TailMetricsService } from '../../service/tail-metrics.service';
@@ -43,16 +46,20 @@ import { TutorialService } from '../../service/tutorial.service';
     NzListModule,
     NzSkeletonModule,
     NzTagModule,
+    NzSegmentedModule,
+    NzTableModule,
+    NzBadgeModule,
     BaseChartDirective,
     HeaderComponent,
     SidenavComponent,
     DurationPipe,
-    ResolveTailModalComponent,
+    ResolveTailModalComponent
   ],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.less',
+  styleUrl: './dashboard.component.less'
 })
 export class DashboardComponent implements OnInit {
+
   user: User;
   isMobile = true;
 
@@ -63,70 +70,55 @@ export class DashboardComponent implements OnInit {
   mttr = 0;
 
   // Bar Chart Options
-  barChartOptions = { responsive: true, maintainAspectRatio: false };
-  stackedBarOptions = {
-    responsive: true,
+  barChartOptions = { responsive: true, maintainAspectRatio: false, };
+  stackedBarOptions = { 
+    responsive: true, 
     maintainAspectRatio: false,
     scales: { x: { stacked: true }, y: { stacked: true } },
     plugins: {
       legend: {
         display: true,
         position: 'bottom' as const,
-      },
-    },
+      }
+    }
   };
 
   // Line Chart Options
-  lineChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
+  lineChartOptions = { 
+    responsive: true, 
+    maintainAspectRatio: false, 
     plugins: {
       legend: {
-        display: false,
-      },
-    },
+        display: false
+      }
+    }
   };
 
   // Pie Chart Options
-  pieChartOptions = {
+  pieChartOptions: any = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: {
         display: true,
         position: 'right' as const,
-      },
+      }
     },
-    cutout: '70%',
+    cutout: '70%'
   };
 
   // Tail Resoultion Status (Pie Chart)
   alertStatusData = {
     labels: ['Resolved', 'Blocked', 'New', 'In progress'],
-    datasets: [
-      {
-        data: [0, 0, 0, 0],
-        backgroundColor: ['#F06D0F', '#F00F21', '#FFA500', '#1E90FF'],
-        borderWidth: 3,
-        borderColor: '#F38A3F',
-      },
-    ],
+    datasets: [{ data: [0, 0, 0, 0], backgroundColor: ['#2ECC71', '#F00F21', '#1E90FF', '#FFA500'], borderWidth: 1.5, borderColor: '#ffffff'}]
   };
+
+  selectedStatusView: 'table' | 'chart' = 'table';
+  statusTableData: { label: string, value: number }[] = [];
 
   // Tail Alerts Hourly (Bar Chart)
   alertsTodayData = {
-    labels: [
-      '00:00',
-      '01:00',
-      '02:00',
-      '03:00',
-      '04:00',
-      '05:00',
-      '06:00',
-      '07:00',
-      '08:00',
-      '09:00',
-    ],
+    labels: ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00','08:00', '09:00'],
     datasets: [
       { label: 'Info', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], backgroundColor: '#1E90FF' },
       { label: 'Success', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], backgroundColor: 'green' },
@@ -134,43 +126,12 @@ export class DashboardComponent implements OnInit {
       { label: 'Error', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], backgroundColor: '#FF4500' },
       { label: 'Critical', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], backgroundColor: '#FF0000' },
       { label: 'Kuda', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], backgroundColor: '#8B0000' },
-    ],
+    ]
   };
 
   // Monthly Alerts Stacked (Stacked Bar Chart)
   monthlyAlertsData = {
-    labels: [
-      'Apr 1',
-      'Apr 2',
-      'Apr 3',
-      'Apr 4',
-      'Apr 5',
-      'Apr 6',
-      'Apr 7',
-      'Apr 8',
-      'Apr 9',
-      'Apr 10',
-      'Apr 11',
-      'Apr 12',
-      'Apr 13',
-      'Apr 14',
-      'Apr 15',
-      'Apr 16',
-      'Apr 17',
-      'Apr 18',
-      'Apr 19',
-      'Apr 20',
-      'Apr 21',
-      'Apr 22',
-      'Apr 23',
-      'Apr 24',
-      'Apr 25',
-      'Apr 26',
-      'Apr 27',
-      'Apr 28',
-      'Apr 29',
-      '...',
-    ],
+    labels: ['Apr 1', 'Apr 2', 'Apr 3', 'Apr 4', 'Apr 5', 'Apr 6', 'Apr 7', 'Apr 8', 'Apr 9', 'Apr 10', 'Apr 11', 'Apr 12', 'Apr 13', 'Apr 14', 'Apr 15', 'Apr 16', 'Apr 17', 'Apr 18', 'Apr 19', 'Apr 20', 'Apr 21', 'Apr 22', 'Apr 23', 'Apr 24', 'Apr 25', 'Apr 26', 'Apr 27', 'Apr 28', 'Apr 29', '...'],
     datasets: [
       { label: 'Info', data: [0], backgroundColor: '#1E90FF' },
       { label: 'Success', data: [0], backgroundColor: 'green' },
@@ -178,36 +139,27 @@ export class DashboardComponent implements OnInit {
       { label: 'Error', data: [0], backgroundColor: '#FF4500' },
       { label: 'Critical', data: [0], backgroundColor: '#FF0000' },
       { label: 'Kuda', data: [0], backgroundColor: '#8B0000' },
-    ],
+    ]
   };
 
   // Mean Time To Resolution Hours (Line Chart)
   mttrLineData = {
-    labels: ['Apr 24', 'Apr 25', 'Apr 26', 'Apr 27', 'Apr 28', 'Apr 29', 'Apr 30'],
+    labels: ['Apr 24','Apr 25','Apr 26','Apr 27','Apr 28', 'Apr 29', 'Apr 30'],
     datasets: [
       {
         label: 'MTTR (hours)',
         data: [0],
         borderColor: '#F06D0F',
-        tension: 0.4,
-      },
-    ],
+        tension: 0.4
+      }
+    ]
   };
 
   // 9 newest tails
   initLoading = true; // bug
   loadingMore = false;
   data: any[] = [];
-  list: Array<{
-    loading: boolean;
-    id: number;
-    title: string;
-    description: string;
-    level: string;
-    type: string;
-    status: string;
-    assignedUserId: number;
-  }> = [];
+  list: Array<{ loading: boolean; id: number, title: string, description: string, level: string, type: string, status: string, assignedUserId: number }> = [];
 
   // tail domain info
   tailTypes: TailTypeResponse[] = [];
@@ -222,7 +174,7 @@ export class DashboardComponent implements OnInit {
     private router: Router,
     private breakpointObserver: BreakpointObserver,
     private userService: UserService,
-    private tutorialService: TutorialService
+    private tutorialService: TutorialService,
   ) {
     this.user = this.authenticationService.getUserFromLocalCache();
   }
@@ -235,9 +187,14 @@ export class DashboardComponent implements OnInit {
     const apiUrl = this.uiConfigService.getApiUrl();
     console.log('API URL:', apiUrl);
 
+    const savedView = localStorage.getItem('dashboard_status_view');
+    if (savedView === 'table' || savedView === 'chart') {
+      this.selectedStatusView = savedView;
+    }
+
     this.initDashboard();
 
-    this.breakpointObserver.observe([Breakpoints.Small, Breakpoints.XSmall]).subscribe((result) => {
+    this.breakpointObserver.observe([Breakpoints.Small, Breakpoints.XSmall]).subscribe(result => {
       this.isMobile = result.matches;
       this.updateChartOptions();
       this.runTutorial();
@@ -253,8 +210,8 @@ export class DashboardComponent implements OnInit {
         legend: {
           display: !this.isMobile,
           position: 'bottom' as const,
-        },
-      },
+        }
+      }
     };
 
     this.pieChartOptions = {
@@ -263,20 +220,20 @@ export class DashboardComponent implements OnInit {
       plugins: {
         legend: {
           display: true,
-          position: 'right',
-        },
+          position: this.isMobile ? 'bottom' as const : 'right' as const,
+        }
       },
-      cutout: '70%',
+      cutout: '70%'
     };
   }
 
   runTutorial() {
-    this.userService.getSelf().subscribe((user) => {
-      if (!user.tutorialCompleted && !this.userService.tutorialInProgress() && !this.isMobile) {
-        this.tutorialService.startTutorial();
-        this.userService.setTutorialInProgress(true);
-      }
-    });
+    this.userService.getSelf().subscribe(user => {
+        if (!user.tutorialCompleted && !this.userService.tutorialInProgress() && !this.isMobile) {
+          this.tutorialService.startTutorial();
+          this.userService.setTutorialInProgress(true);
+        }
+      });
   }
 
   goToTail(id: number) {
@@ -294,38 +251,35 @@ export class DashboardComponent implements OnInit {
 
   getMetrics() {
     const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    this.tailMetricsService.countTailAlertsToday(userTimezone).subscribe((result) => {
+    this.tailMetricsService.countTailAlertsToday(userTimezone).subscribe(result => {
       this.totalTailAlertsToday = result;
     });
-    this.tailMetricsService.countTailAlertsResolved().subscribe((result) => {
+    this.tailMetricsService.countTailAlertsResolved().subscribe(result => {
       this.totalTailsResolved = result;
-      this.updateAlertStatusData();
     });
-    this.tailMetricsService.countTailAlertsNotResolved().subscribe((result) => {
+    this.tailMetricsService.countTailAlertsNotResolved().subscribe(result => {
       this.totalTailsNotResolved = result;
-      this.updateAlertStatusData();
     });
-    this.tailMetricsService.mttr().subscribe((result) => {
+    this.tailMetricsService.mttr().subscribe(result => {
       this.mttr = result;
     });
-    this.tailMetricsService.mttrLast7Days().subscribe((result) => {
+    this.tailMetricsService.mttrLast7Days().subscribe(result => {
       this.mttrLineData = {
         labels: result.labels,
-        datasets: [
-          { label: 'MTTR (hours)', data: result.data, borderColor: '#F06D0F', tension: 0.4 },
-        ],
+        datasets: [{ label: 'MTTR (hours)', data: result.data, borderColor: '#F06D0F', tension: 0.4 }]
       };
     });
-    this.tailMetricsService.getTailAlertsHourlyByLevel(userTimezone).subscribe((result) => {
+    this.tailMetricsService.getTailAlertsHourlyByLevel(userTimezone).subscribe(result => {
       this.alertsTodayData = {
         labels: result.labels,
-        datasets: result.datasets.map((dataset) => ({
+        datasets: result.datasets.map(dataset => ({
           ...dataset,
-          backgroundColor: this.tailUtilService.getBarChartLevelColor(dataset.label),
-        })),
+          backgroundColor: this.tailUtilService.getBarChartLevelColor(dataset.label)
+        }))
       };
     });
-    this.tailMetricsService.getTailResolutionStatus().subscribe((result) => {
+    this.tailMetricsService.getTailResolutionStatus().subscribe(result => {
+
       console.log('tail status count', result);
 
       this.alertStatusData = {
@@ -333,42 +287,35 @@ export class DashboardComponent implements OnInit {
         datasets: [
           {
             data: result.data,
-            backgroundColor: result.labels.map((label) =>
-              this.tailUtilService.getPieChartStatusColor(label)
-            ),
-            borderWidth: 1.5,
-            borderColor: '#F38A3F',
-          },
-        ],
+            backgroundColor: result.labels.map(label => this.tailUtilService.getPieChartStatusColor(label)),
+            borderWidth: 1.5, borderColor: '#ffffff'
+          }
+        ]
       };
+
+      this.statusTableData = result.labels.map((label, index) => ({
+        label: label,
+        value: result.data[index]
+      }));
     });
-    this.tailMetricsService.getTailMonthlySummary(userTimezone).subscribe((result) => {
+    this.tailMetricsService.getTailMonthlySummary(userTimezone).subscribe(result => {
       this.monthlyAlertsData = {
         labels: result.labels,
-        datasets: result.datasets.map((dataset) => ({
+        datasets: result.datasets.map(dataset => ({
           ...dataset,
-          backgroundColor: this.tailUtilService.getBarChartLevelColor(dataset.label),
-        })),
+          backgroundColor: this.tailUtilService.getBarChartLevelColor(dataset.label)
+        }))
       };
     });
   }
 
-  updateAlertStatusData() {
-    this.alertStatusData = {
-      labels: ['Resolved', 'Not Resolved'],
-      datasets: [
-        {
-          data: [this.totalTailsResolved, this.totalTailsNotResolved],
-          backgroundColor: ['#F06D0F', '#F00F21'],
-          borderWidth: 3,
-          borderColor: '#F38A3F',
-        },
-      ],
-    };
+  onStatusViewChange(view: string | number) {
+    this.selectedStatusView = view as 'table' | 'chart';
+    localStorage.setItem('dashboard_status_view', this.selectedStatusView);
   }
 
   getTop9NewestTails(callback: (res: any) => void): void {
-    this.tailService.getTop9NewestTails().subscribe((result) => {
+    this.tailService.getTop9NewestTails().subscribe(result => {
       callback(result);
     });
   }
@@ -404,7 +351,7 @@ export class DashboardComponent implements OnInit {
 
     const tailResolveRequest: ResolveTailRequest = {
       userId: this.user.id,
-      tailSummary: tailSummary,
+      tailSummary: tailSummary, 
       note: note,
     };
 
@@ -413,12 +360,10 @@ export class DashboardComponent implements OnInit {
         this.msg.success(`Resolved "${this.selectedItem.title}"`);
         this.resolveModalVisible = false;
         this.selectedItem = null;
-        this.initDashboard();
-      },
+        this.initDashboard(); 
+      }, 
       error: (err) => {
-        this.msg.error(
-          `Unable to mark tail "${this.selectedItem.title}" as resolved. Error: ${err.message || err}`
-        );
+        this.msg.error(`Unable to mark tail "${this.selectedItem.title}" as resolved. Error: ${err.message || err}`);
       },
     });
   }

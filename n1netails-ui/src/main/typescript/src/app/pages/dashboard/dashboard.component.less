@@ -8,6 +8,47 @@ nz-header {
 
 .kpi-cards {
   padding-top: 8px;
+  margin-bottom: 8px;
+
+  nz-card {
+    border-radius: 12px;
+    background: linear-gradient(135deg, #24292e 0%, #1c1f22 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      border-color: @primary-color !important;
+    }
+
+    ::ng-deep .ant-card-head {
+      border-bottom: none;
+      padding-top: 12px;
+    }
+
+    ::ng-deep .ant-card-head-title {
+      color: rgba(255, 255, 255, 0.5) !important;
+      font-size: 0.75rem !important;
+      font-weight: 600 !important;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+    }
+
+    ::ng-deep .ant-card-body {
+      padding: 0 20px 24px 20px;
+    }
+
+    b {
+      font-size: 2.2rem;
+      color: #fff;
+      display: block;
+      line-height: 1.2;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+  }
 }
 
 .resolve-modal-content {
@@ -93,9 +134,30 @@ button[nz-button].resolve-btn {
 // Responsive adjustments for dashboard cards
 .inner-content {
   nz-card {
+    border-radius: 12px;
+    background: #1c1f22;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+
+    ::ng-deep .ant-card-head {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 0 20px;
+    }
+
     ::ng-deep .ant-card-head-title {
+      color: #fff;
+      font-weight: 500;
       font-size: 1em; // Default size
       white-space: normal; // Allow title to wrap
+    }
+
+    ::ng-deep .ant-card-body {
+      padding: 20px;
+    }
+
+    ::ng-deep .ant-card-extra {
+      padding: 0;
     }
 
     // On smaller screens, reduce title font size slightly if needed
@@ -121,6 +183,57 @@ button[nz-button].resolve-btn {
     max-width: 100%;
     height: auto !important;
   }
+}
+
+.status-view-container {
+  height: 220px;
+  overflow: hidden;
+  position: relative;
+}
+
+.fade-in {
+  animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.chart-wrapper {
+  height: 100%;
+  padding: 10px 0;
+}
+
+.table-wrapper {
+  height: 100%;
+
+  ::ng-deep .ant-table {
+    background: transparent;
+  }
+
+  ::ng-deep .ant-table-thead > tr > th {
+    background: transparent !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 0.45) !important;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  ::ng-deep .ant-table-tbody > tr > td {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    padding: 10px 8px;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  ::ng-deep .ant-table-tbody > tr:last-child > td {
+    border-bottom: none !important;
+  }
+}
+
+.mb-6 {
+  margin-bottom: 24px;
 }
 
 button[nz-button].cancel-btn {

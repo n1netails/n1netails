@@ -37,11 +37,49 @@
             </nz-card>
           </nz-col>
           <nz-col [nzXs]="24" [nzLg]="8">
-            <nz-card nzTitle="Tail Resolution Status" [nzBordered]="false">
+            <nz-card nzTitle="Tail Resolution Status" [nzBordered]="false" [nzExtra]="statusToggleTpl">
               <div style="height: 200px">
-                <canvas baseChart [data]="alertStatusData" [options]="pieChartOptions" [type]="'doughnut'">
-                </canvas>
+                <ng-template #statusToggleTpl>
+                  <nz-segmented
+                    [nzOptions]="[
+                      { label: 'Table', value: 'table', icon: 'table' },
+                      { label: 'Chart', value: 'chart', icon: 'pie-chart' }
+                    ]"
+                    [ngModel]="selectedStatusView"
+                    (nzValueChange)="onStatusViewChange($event)">
+                  </nz-segmented>
+                </ng-template>
+                <div class="status-view-container">
+                  @if (selectedStatusView === 'chart') {
+                    <div class="chart-wrapper fade-in">
+                      <canvas baseChart [data]="alertStatusData" [options]="pieChartOptions" [type]="'doughnut'">
+                      </canvas>
+                    </div>
+                  } @else {
+                    <div class="table-wrapper fade-in">
+                      <nz-table #statusTable [nzData]="statusTableData" [nzFrontPagination]="false" [nzShowPagination]="false" nzSize="small">
+                        <thead>
+                          <tr>
+                            <th>Status</th>
+                            <th nzAlign="right">Count</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (item of statusTable.data; track item.label) {
+                            <tr>
+                              <td>
+                                <nz-badge [nzColor]="tailUtilService.getStatusColor(item.label)" [nzText]="item.label"></nz-badge>
+                              </td>
+                              <td nzAlign="right"><b>{{ item.value }}</b></td>
+                            </tr>
+                          }
+                        </tbody>
+                      </nz-table>
+                    </div>
+                  }
+                </div>
               </div>
+              
             </nz-card>
           </nz-col>
         </nz-row>

@@ -32,21 +32,15 @@ export class TailUtilService {
   getStatusColor(status: string): string {
     switch (status?.toUpperCase()) {
       case 'NEW': return '#1E90FF';
-      case 'IN_PROGRESS': return 'gold';
-      case 'BLOCKED': return 'red';
-      case 'RESOLVED': return 'blue';
-      default: return 'orange';
-    }
-  }
-
-    getPieChartStatusColor(status: string): string {
-    switch (status?.toUpperCase()) {
-      case 'NEW': return '#1E90FF';
       case 'IN_PROGRESS': return '#FFA500';
       case 'BLOCKED': return '#F00F21';
       case 'RESOLVED': return '#2ECC71';
       default: return 'orange';
     }
+  }
+
+  getPieChartStatusColor(status: string): string {
+    return this.getStatusColor(status);
   }
 
   getTypeColor(type: string): string {

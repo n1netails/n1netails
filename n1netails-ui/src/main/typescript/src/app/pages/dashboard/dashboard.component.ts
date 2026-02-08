@@ -8,6 +8,9 @@ import { NzListModule } from 'ng-zorro-antd/list';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
 import { NzTagModule } from 'ng-zorro-antd/tag';
+import { NzSegmentedModule } from 'ng-zorro-antd/segmented';
+import { NzTableModule } from 'ng-zorro-antd/table';
+import { NzBadgeModule } from 'ng-zorro-antd/badge';
 import { BaseChartDirective } from 'ng2-charts';
 import { HeaderComponent } from "../../shared/template/header/header.component";
 import { SidenavComponent } from "../../shared/template/sidenav/sidenav.component";
@@ -43,6 +46,9 @@ import { TutorialService } from '../../service/tutorial.service';
     NzListModule,
     NzSkeletonModule,
     NzTagModule,
+    NzSegmentedModule,
+    NzTableModule,
+    NzBadgeModule,
     BaseChartDirective,
     HeaderComponent,
     SidenavComponent,
@@ -89,7 +95,7 @@ export class DashboardComponent implements OnInit {
   };
 
   // Pie Chart Options
-  pieChartOptions = {
+  pieChartOptions: any = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -104,8 +110,11 @@ export class DashboardComponent implements OnInit {
   // Tail Resoultion Status (Pie Chart)
   alertStatusData = {
     labels: ['Resolved', 'Blocked', 'New', 'In progress'],
-    datasets: [{ data: [0, 0, 0, 0], backgroundColor: ['#F06D0F', '#F00F21', '#FFA500', '#1E90FF'], borderWidth: 3, borderColor: '#F38A3F'}]
+    datasets: [{ data: [0, 0, 0, 0], backgroundColor: ['#2ECC71', '#F00F21', '#1E90FF', '#FFA500'], borderWidth: 1.5, borderColor: '#ffffff'}]
   };
+
+  selectedStatusView: 'table' | 'chart' = 'table';
+  statusTableData: { label: string, value: number }[] = [];
 
   // Tail Alerts Hourly (Bar Chart)
   alertsTodayData = {
@@ -178,6 +187,11 @@ export class DashboardComponent implements OnInit {
     const apiUrl = this.uiConfigService.getApiUrl();
     console.log('API URL:', apiUrl);
 
+    const savedView = localStorage.getItem('dashboard_status_view');
+    if (savedView === 'table' || savedView === 'chart') {
+      this.selectedStatusView = savedView;
+    }
+
     this.initDashboard();
 
     this.breakpointObserver.observe([Breakpoints.Small, Breakpoints.XSmall]).subscribe(result => {
@@ -206,7 +220,7 @@ export class DashboardComponent implements OnInit {
       plugins: {
         legend: {
           display: true,
-          position: 'right'
+          position: this.isMobile ? 'bottom' as const : 'right' as const,
         }
       },
       cutout: '70%'
@@ -242,11 +256,9 @@ export class DashboardComponent implements OnInit {
     });
     this.tailMetricsService.countTailAlertsResolved().subscribe(result => {
       this.totalTailsResolved = result;
-      this.updateAlertStatusData();
     });
     this.tailMetricsService.countTailAlertsNotResolved().subscribe(result => {
       this.totalTailsNotResolved = result;
-      this.updateAlertStatusData();
     });
     this.tailMetricsService.mttr().subscribe(result => {
       this.mttr = result;
@@ -276,10 +288,15 @@ export class DashboardComponent implements OnInit {
           {
             data: result.data,
             backgroundColor: result.labels.map(label => this.tailUtilService.getPieChartStatusColor(label)),
-            borderWidth: 1.5, borderColor: '#F38A3F'
+            borderWidth: 1.5, borderColor: '#ffffff'
           }
         ]
       };
+
+      this.statusTableData = result.labels.map((label, index) => ({
+        label: label,
+        value: result.data[index]
+      }));
     });
     this.tailMetricsService.getTailMonthlySummary(userTimezone).subscribe(result => {
       this.monthlyAlertsData = {
@@ -292,11 +309,9 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  updateAlertStatusData() {
-    this.alertStatusData = {
-      labels: ['Resolved', 'Not Resolved'],
-      datasets: [{ data: [this.totalTailsResolved, this.totalTailsNotResolved], backgroundColor: ['#F06D0F', '#F00F21'], borderWidth: 3, borderColor: '#F38A3F'}]
-    };
+  onStatusViewChange(view: string | number) {
+    this.selectedStatusView = view as 'table' | 'chart';
+    localStorage.setItem('dashboard_status_view', this.selectedStatusView);
   }
 
   getTop9NewestTails(callback: (res: any) => void): void {

@@ -8,9 +8,8 @@ describe('N1TokenModalComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [N1TokenModalComponent]
-    })
-    .compileComponents();
+      imports: [N1TokenModalComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(N1TokenModalComponent);
     component = fixture.componentInstance;

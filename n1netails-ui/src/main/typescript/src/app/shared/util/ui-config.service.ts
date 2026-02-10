@@ -4,10 +4,9 @@ import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UiConfigService {
-
   private apiUrl: string = environment.n1netailsApiUrl;
   private docUrl: string = environment.n1netailsDocUrl;
 
@@ -64,15 +63,30 @@ export class UiConfigService {
       { prop: 'githubAuthEnabled', path: '/ui/n1netails-config/github-auth-enabled' },
       { prop: 'googleAuthEnabled', path: '/ui/n1netails-config/google-auth-enabled' },
       { prop: 'notificationsEnabled', path: '/ui/n1netails-config/notifications-enabled' },
-      { prop: 'notificationsEmailEnabled', path: '/ui/n1netails-config/notifications-email-enabled' },
-      { prop: 'notificationsMsTeamsEnabled', path: '/ui/n1netails-config/notifications-msteams-enabled' },
-      { prop: 'notificationsSlackEnabled', path: '/ui/n1netails-config/notifications-slack-enabled' },
-      { prop: 'notificationsDiscordEnabled', path: '/ui/n1netails-config/notifications-discord-enabled' },
-      { prop: 'notificationsTelegramEnabled', path: '/ui/n1netails-config/notifications-telegram-enabled' }
+      {
+        prop: 'notificationsEmailEnabled',
+        path: '/ui/n1netails-config/notifications-email-enabled',
+      },
+      {
+        prop: 'notificationsMsTeamsEnabled',
+        path: '/ui/n1netails-config/notifications-msteams-enabled',
+      },
+      {
+        prop: 'notificationsSlackEnabled',
+        path: '/ui/n1netails-config/notifications-slack-enabled',
+      },
+      {
+        prop: 'notificationsDiscordEnabled',
+        path: '/ui/n1netails-config/notifications-discord-enabled',
+      },
+      {
+        prop: 'notificationsTelegramEnabled',
+        path: '/ui/n1netails-config/notifications-telegram-enabled',
+      },
     ];
 
     const results = await Promise.all(
-      endpoints.map(e => fetchBoolean(e.path, (this as any)[e.prop]))
+      endpoints.map((e) => fetchBoolean(e.path, (this as any)[e.prop]))
     );
 
     endpoints.forEach((e, idx) => {

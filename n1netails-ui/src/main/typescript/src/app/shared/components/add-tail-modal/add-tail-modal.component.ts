@@ -39,7 +39,7 @@ import { PageResponse } from '../../../model/interface/page.interface';
     NzSelectModule,
   ],
   templateUrl: './add-tail-modal.component.html',
-  styleUrls: ['./add-tail-modal.component.less']
+  styleUrls: ['./add-tail-modal.component.less'],
 })
 export class AddTailModalComponent {
   @Input() isVisible: boolean = true;
@@ -73,8 +73,8 @@ export class AddTailModalComponent {
     private tailTypeService: TailTypeService,
     private pageUtilService: PageUtilService,
     private msg: NzMessageService,
-    private router: Router,
-  ) { 
+    private router: Router
+  ) {
     this.user = this.authenticationService.getUserFromLocalCache();
     this.organizations = this.user.organizations;
     this.loadUserTokens();
@@ -84,15 +84,15 @@ export class AddTailModalComponent {
     const pageRequest: PageRequest = {
       pageNumber: 0,
       pageSize: 50,
-      sortDirection: "DESC",
-      sortBy: "id"
+      sortDirection: 'DESC',
+      sortBy: 'id',
     };
 
     this.n1neTokenService.getAllTokensByUserId(this.user.id, pageRequest).subscribe({
       next: (data: PageResponse<N1neTokenResponse>) => {
         this.tokens = data.content;
       },
-      error: (err) => this.msg.error(`Failed to load tokens: ${err.message || err}`)
+      error: (err) => this.msg.error(`Failed to load tokens: ${err.message || err}`),
     });
   }
 
@@ -102,22 +102,24 @@ export class AddTailModalComponent {
     this.tailAlert.metadata = this.buildMetadata();
 
     if (this.tokenId !== -1) {
-      this.alertService.createManualTailWithToken(this.organizationId, this.user.id, this.tailAlert, this.tokenId)
+      this.alertService
+        .createManualTailWithToken(this.organizationId, this.user.id, this.tailAlert, this.tokenId)
         .subscribe({
           next: () => {
             this.modal.close(this.tailAlert);
             this.navigateToDashboard();
           },
-          error: (err) => this.msg.error(`Failed to create tail alert: ${err.message || err}`)
+          error: (err) => this.msg.error(`Failed to create tail alert: ${err.message || err}`),
         });
     } else {
-      this.alertService.createManualTail(this.organizationId, this.user.id, this.tailAlert)
+      this.alertService
+        .createManualTail(this.organizationId, this.user.id, this.tailAlert)
         .subscribe({
           next: () => {
             this.modal.close(this.tailAlert);
             this.navigateToDashboard();
           },
-          error: (err) => this.msg.error(`Failed to create tail alert: ${err.message || err}`)
+          error: (err) => this.msg.error(`Failed to create tail alert: ${err.message || err}`),
         });
     }
   }
@@ -135,10 +137,13 @@ export class AddTailModalComponent {
   }
 
   private buildMetadata(): Record<string, string> {
-    return this.metadataKeys.reduce((acc, { key }, index) => {
-      acc[key] = this.metadataValues[index].value;
-      return acc;
-    }, {} as Record<string, string>);
+    return this.metadataKeys.reduce(
+      (acc, { key }, index) => {
+        acc[key] = this.metadataValues[index].value;
+        return acc;
+      },
+      {} as Record<string, string>
+    );
   }
 
   private navigateToDashboard(): void {
@@ -155,7 +160,8 @@ export class AddTailModalComponent {
 
   addField(e?: MouseEvent): void {
     e?.preventDefault();
-    const id = this.metadataKeys.length > 0 ? this.metadataKeys[this.metadataKeys.length - 1].id + 1 : 0;
+    const id =
+      this.metadataKeys.length > 0 ? this.metadataKeys[this.metadataKeys.length - 1].id + 1 : 0;
     const mKey = { id, key: '' };
     const mValue = { id, value: '' };
     this.metadataKeys.push(mKey);
@@ -173,25 +179,25 @@ export class AddTailModalComponent {
 
   onTokenSearch(term: string): void {
     const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequestWithSearch(term);
-    this.n1neTokenService.getAllTokensByUserId(this.user.id, pageRequest).subscribe(result => {
+    this.n1neTokenService.getAllTokensByUserId(this.user.id, pageRequest).subscribe((result) => {
       this.tokens = [];
-      result.content.forEach(token => this.tokens.push(token));
-    })
+      result.content.forEach((token) => this.tokens.push(token));
+    });
   }
 
   onTypeSearch(term: string): void {
     const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequestWithSearch(term);
-    this.tailTypeService.getTailTypes(pageRequest).subscribe(result => {
+    this.tailTypeService.getTailTypes(pageRequest).subscribe((result) => {
       this.tailTypes = [];
-      result.content.forEach(type => this.tailTypes.push(type.name));
+      result.content.forEach((type) => this.tailTypes.push(type.name));
     });
-  } 
+  }
 
   onLevelSearch(term: string): void {
     const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequestWithSearch(term);
-    this.tailLevelService.getTailLevels(pageRequest).subscribe(result => {
+    this.tailLevelService.getTailLevels(pageRequest).subscribe((result) => {
       this.tailLevels = [];
-      result.content.forEach(level => this.tailLevels.push(level.name));
+      result.content.forEach((level) => this.tailLevels.push(level.name));
     });
-  } 
+  }
 }

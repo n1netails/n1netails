@@ -15,29 +15,42 @@
           <nz-col [nzXs]="24" [nzSm]="24" [nzMd]="24" [nzLg]="24" [nzXl]="24">
             <nz-card nzTitle="N1ne Token Manager" class="tails-primary-color" [nzBordered]="false">
               <div *ngIf="isLoading" class="loading-indicator">Loading tokens...</div>
-              <div *ngIf="errorMessage" [class.bind]="'error-message'" style="color: red; margin-bottom: 10px;">{{ errorMessage }}</div>
+              <div
+                *ngIf="errorMessage"
+                [class.bind]="'error-message'"
+                style="color: red; margin-bottom: 10px"
+              >
+                {{ errorMessage }}
+              </div>
 
               <!-- Create Token Form -->
               <h3>Create New Token</h3>
               <form #tokenForm="ngForm" (ngSubmit)="createToken()" nz-form>
                 <nz-form-item>
-                  <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="tokenName" nzRequired>Token Name</nz-form-label>
+                  <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="tokenName" nzRequired
+                    >Token Name</nz-form-label
+                  >
                   <nz-form-control [nzSm]="14" [nzXs]="24">
-                    <input 
+                    <input
                       data-tutorial-id="add-token-name"
-                      nz-input type="text" 
-                      id="tokenName" name="name" 
-                      [(ngModel)]="newTokenRequestForm.name" 
-                      placeholder="Enter a name for the token" 
-                      required 
-                      #name="ngModel">
+                      nz-input
+                      type="text"
+                      id="tokenName"
+                      name="name"
+                      [(ngModel)]="newTokenRequestForm.name"
+                      placeholder="Enter a name for the token"
+                      required
+                      #name="ngModel"
+                    />
                     <div *ngIf="name.invalid && (name.dirty || name.touched)" class="error-text">
                       Token name is required.
                     </div>
                   </nz-form-control>
                 </nz-form-item>
                 <nz-form-item>
-                  <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="organization" nzRequired>Organization</nz-form-label>
+                  <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="organization" nzRequired
+                    >Organization</nz-form-label
+                  >
                   <nz-form-control [nzSm]="14" [nzXs]="24">
                     <nz-select
                       data-tutorial-id="add-token-organization"
@@ -56,14 +69,31 @@
                   </nz-form-control>
                 </nz-form-item>
                 <nz-form-item>
-                  <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="tokenExpiresAt">Expiration Date (Optional)</nz-form-label>
+                  <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="tokenExpiresAt"
+                    >Expiration Date (Optional)</nz-form-label
+                  >
                   <nz-form-control [nzSm]="14" [nzXs]="24">
-                    <input nz-input type="datetime-local" id="tokenExpiresAt" name="expiresAt" [(ngModel)]="newTokenRequestForm.expiresAt">
+                    <input
+                      nz-input
+                      type="datetime-local"
+                      id="tokenExpiresAt"
+                      name="expiresAt"
+                      [(ngModel)]="newTokenRequestForm.expiresAt"
+                    />
                   </nz-form-control>
                 </nz-form-item>
                 <nz-form-item>
                   <nz-form-control [nzSm]="14" [nzXs]="24">
-                    <button data-tutorial-id="create-token-button" nz-button nzType="primary" type="submit" [disabled]="!tokenForm.form.valid || isLoading" class="create-token-btn">+ Create Token</button>
+                    <button
+                      data-tutorial-id="create-token-button"
+                      nz-button
+                      nzType="primary"
+                      type="submit"
+                      [disabled]="!tokenForm.form.valid || isLoading"
+                      class="create-token-btn"
+                    >
+                      + Create Token
+                    </button>
                   </nz-form-control>
                 </nz-form-item>
               </form>
@@ -101,105 +131,258 @@
                     <tr *ngFor="let token of tokens; let i = index">
                       <td>{{ token.name }}</td>
                       <td>{{ token.id }}</td>
-                      <td>{{ token.createdAt | date:'short' }}</td>
-                      <td>{{ token.expiresAt ? (token.expiresAt | date:'short') : 'Never' }}</td>
-                      <td>{{ token.lastUsedAt ? (token.lastUsedAt | date:'short') : 'Never' }}</td>
+                      <td>{{ token.createdAt | date: 'short' }}</td>
+                      <td>{{ token.expiresAt ? (token.expiresAt | date: 'short') : 'Never' }}</td>
+                      <td>{{ token.lastUsedAt ? (token.lastUsedAt | date: 'short') : 'Never' }}</td>
                       <td>
-                        <span *ngIf="token.revoked" style="color: red;">Revoked</span>
-                        <span *ngIf="!token.revoked" style="color: green;">Active</span>
+                        <span *ngIf="token.revoked" style="color: red">Revoked</span>
+                        <span *ngIf="!token.revoked" style="color: green">Active</span>
                       </td>
                       <td>{{ user.username }}</td>
                       <!-- TODO GET ORGANIATION INFO BY ORGANIZATION ID (DISPLAY ORGANIZATON NAME HERE)-->
                       <td>{{ token.organizationId }}</td>
                       <td *ngIf="UiConfigService.isNotificationsEnabled()">
-                        <button nz-button style="background-color: green;" nzType="primary" [routerLink]="['/notification-manager', token.id]" nzSize="small">Manage</button>
+                        <button
+                          nz-button
+                          style="background-color: green"
+                          nzType="primary"
+                          [routerLink]="['/notification-manager', token.id]"
+                          nzSize="small"
+                        >
+                          Manage
+                        </button>
                       </td>
                       <td>
-                        <button nz-button nzType="default" (click)="revokeToken(token)" *ngIf="!token.revoked" [disabled]="isLoading" nzSize="small" style="margin-right: 5px;">Revoke</button>
-                        <button nz-button nzType="default" (click)="enableToken(token)" *ngIf="token.revoked" [disabled]="isLoading" nzSize="small" style="margin-right: 5px;">Enable</button>
+                        <button
+                          nz-button
+                          nzType="default"
+                          (click)="revokeToken(token)"
+                          *ngIf="!token.revoked"
+                          [disabled]="isLoading"
+                          nzSize="small"
+                          style="margin-right: 5px"
+                        >
+                          Revoke
+                        </button>
+                        <button
+                          nz-button
+                          nzType="default"
+                          (click)="enableToken(token)"
+                          *ngIf="token.revoked"
+                          [disabled]="isLoading"
+                          nzSize="small"
+                          style="margin-right: 5px"
+                        >
+                          Enable
+                        </button>
                       </td>
                       <td>
-                        <button nz-button style="background-color: red;" nzDanger (click)="deleteToken(token.id)" [disabled]="isLoading" nzSize="small">Delete</button>
+                        <button
+                          nz-button
+                          style="background-color: red"
+                          nzDanger
+                          (click)="deleteToken(token.id)"
+                          [disabled]="isLoading"
+                          nzSize="small"
+                        >
+                          Delete
+                        </button>
                       </td>
                     </tr>
                     <tr *ngIf="!isLoading && tokens.length === 0">
-                      <td colspan="9" style="text-align: center;">No tokens found.</td>
+                      <td colspan="9" style="text-align: center">No tokens found.</td>
                     </tr>
                   </tbody>
                 </nz-table>
 
                 <div *ngIf="totalPages > 0" class="table-pagination">
-                  <button nz-button nzType="default" (click)="previousPage()" [disabled]="currentPage === 0"><nz-icon nzType="left" nzTheme="outline" /></button>
-                  <span style="margin: 0 12px; color: #f1f1f1;">Page {{ displayedCurrentPage }} of {{ totalPages }}</span>
-                  <button nz-button nzType="default" (click)="nextPage()" [disabled]="currentPage >= totalPages - 1"><nz-icon nzType="right" nzTheme="outline" /></button>
-                  <span style="margin-left: 16px;">Total tokens: {{ totalElements }}</span>
+                  <button
+                    nz-button
+                    nzType="default"
+                    (click)="previousPage()"
+                    [disabled]="currentPage === 0"
+                  >
+                    <nz-icon nzType="left" nzTheme="outline" />
+                  </button>
+                  <span style="margin: 0 12px; color: #f1f1f1"
+                    >Page {{ displayedCurrentPage }} of {{ totalPages }}</span
+                  >
+                  <button
+                    nz-button
+                    nzType="default"
+                    (click)="nextPage()"
+                    [disabled]="currentPage >= totalPages - 1"
+                  >
+                    <nz-icon nzType="right" nzTheme="outline" />
+                  </button>
+                  <span style="margin-left: 16px">Total tokens: {{ totalElements }}</span>
                 </div>
               </div>
             </nz-card>
           </nz-col>
 
-          <nz-col *ngIf="UiConfigService.isNotificationsEnabled()" [nzXs]="24" [nzSm]="24" [nzMd]="24" [nzLg]="24" [nzXl]="24">
-            <nz-card nzTitle="Preferred Notification Methods" class="tails-primary-color" [nzBordered]="false">
-              <form data-tutorial-id="notification-methods-form" nz-form (ngSubmit)="onSaveNotificationPreferences()" #notificationPreferencesForm="ngForm">
-                <nz-checkbox-group [(ngModel)]="notificationPreferences" [nzOptions]="notificationTypeOptions"
-                  name="notificationPreferences"></nz-checkbox-group>
-                <button nz-button nzType="primary" type="submit" style="margin-top: 16px;">Save Preferences</button>
+          <nz-col
+            *ngIf="UiConfigService.isNotificationsEnabled()"
+            [nzXs]="24"
+            [nzSm]="24"
+            [nzMd]="24"
+            [nzLg]="24"
+            [nzXl]="24"
+          >
+            <nz-card
+              nzTitle="Preferred Notification Methods"
+              class="tails-primary-color"
+              [nzBordered]="false"
+            >
+              <form
+                data-tutorial-id="notification-methods-form"
+                nz-form
+                (ngSubmit)="onSaveNotificationPreferences()"
+                #notificationPreferencesForm="ngForm"
+              >
+                <nz-checkbox-group
+                  [(ngModel)]="notificationPreferences"
+                  [nzOptions]="notificationTypeOptions"
+                  name="notificationPreferences"
+                ></nz-checkbox-group>
+                <button nz-button nzType="primary" type="submit" style="margin-top: 16px">
+                  Save Preferences
+                </button>
               </form>
             </nz-card>
           </nz-col>
 
           <nz-col [nzXs]="24" [nzSm]="24" [nzMd]="24" [nzLg]="24" [nzXl]="24">
-            <nz-card nzTitle="Alert Levels, Statuses, and Types" class="tails-primary-color" [nzBordered]="false">
+            <nz-card
+              nzTitle="Alert Levels, Statuses, and Types"
+              class="tails-primary-color"
+              [nzBordered]="false"
+            >
               <div class="alert-management">
                 <div class="alert-list">
                   <h4>Tail Levels</h4>
                   <div class="alert-form">
-                    <input nz-input [(ngModel)]="searchTailLevel" (ngModelChange)="searchLevels()" name="searchTailLevel" placeholder="Search level" class="alert-input"/>
-                    <button nz-button nzType="default" (click)="searchLevels()" class="alert-btn"><nz-icon nzType="search" nzTheme="outline" /></button>
+                    <input
+                      nz-input
+                      [(ngModel)]="searchTailLevel"
+                      (ngModelChange)="searchLevels()"
+                      name="searchTailLevel"
+                      placeholder="Search level"
+                      class="alert-input"
+                    />
+                    <button nz-button nzType="default" (click)="searchLevels()" class="alert-btn">
+                      <nz-icon nzType="search" nzTheme="outline" />
+                    </button>
                   </div>
                   <ul>
                     <li *ngFor="let level of tailLevels">
                       {{ level.name }}
-                      <button *ngIf="level.deletable" nz-button nzType="link" nzDanger (click)="removeAlertLevel(level.name)">Remove</button>
+                      <button
+                        *ngIf="level.deletable"
+                        nz-button
+                        nzType="link"
+                        nzDanger
+                        (click)="removeAlertLevel(level.name)"
+                      >
+                        Remove
+                      </button>
                     </li>
                   </ul>
                   <div class="alert-form">
-                    <input nz-input [(ngModel)]="newTailLevel" name="newTailLevel" placeholder="Add new level" class="alert-input"/>
-                    <button nz-button nzType="default" (click)="addAlertLevel()" class="alert-btn">+</button>
+                    <input
+                      nz-input
+                      [(ngModel)]="newTailLevel"
+                      name="newTailLevel"
+                      placeholder="Add new level"
+                      class="alert-input"
+                    />
+                    <button nz-button nzType="default" (click)="addAlertLevel()" class="alert-btn">
+                      +
+                    </button>
                   </div>
                 </div>
                 <div class="alert-list">
                   <h4>Tail Statuses</h4>
                   <div class="alert-form">
-                    <input nz-input [(ngModel)]="searchTailStatus" (ngModelChange)="searchStatuses()" name="searchTailStatus" placeholder="Search status" class="alert-input"/>
-                    <button nz-button nzType="default" (click)="searchStatuses()" class="alert-btn"><nz-icon nzType="search" nzTheme="outline" /></button>
+                    <input
+                      nz-input
+                      [(ngModel)]="searchTailStatus"
+                      (ngModelChange)="searchStatuses()"
+                      name="searchTailStatus"
+                      placeholder="Search status"
+                      class="alert-input"
+                    />
+                    <button nz-button nzType="default" (click)="searchStatuses()" class="alert-btn">
+                      <nz-icon nzType="search" nzTheme="outline" />
+                    </button>
                   </div>
                   <ul>
                     <li *ngFor="let status of tailStatuses">
                       {{ status.name }}
-                      <button *ngIf="status.deletable" nz-button nzType="link" nzDanger (click)="removeAlertStatus(status.name)">Remove</button>
+                      <button
+                        *ngIf="status.deletable"
+                        nz-button
+                        nzType="link"
+                        nzDanger
+                        (click)="removeAlertStatus(status.name)"
+                      >
+                        Remove
+                      </button>
                     </li>
                   </ul>
                   <div class="alert-form">
-                    <input nz-input [(ngModel)]="newTailStatus" name="newTailStatus" placeholder="Add new status" class="alert-input"/>
-                    <button nz-button nzType="default" (click)="addAlertStatus()" class="alert-btn">+</button>
+                    <input
+                      nz-input
+                      [(ngModel)]="newTailStatus"
+                      name="newTailStatus"
+                      placeholder="Add new status"
+                      class="alert-input"
+                    />
+                    <button nz-button nzType="default" (click)="addAlertStatus()" class="alert-btn">
+                      +
+                    </button>
                   </div>
                 </div>
                 <div class="alert-list">
                   <h4>Tail Types</h4>
                   <div class="alert-form">
-                    <input nz-input [(ngModel)]="searchTailType" (ngModelChange)="searchType()" name="searchTailType" placeholder="Search type" class="alert-input"/>
-                    <button nz-button nzType="default" (click)="searchType()" class="alert-btn"><nz-icon nzType="search" nzTheme="outline" /></button>
+                    <input
+                      nz-input
+                      [(ngModel)]="searchTailType"
+                      (ngModelChange)="searchType()"
+                      name="searchTailType"
+                      placeholder="Search type"
+                      class="alert-input"
+                    />
+                    <button nz-button nzType="default" (click)="searchType()" class="alert-btn">
+                      <nz-icon nzType="search" nzTheme="outline" />
+                    </button>
                   </div>
                   <ul>
                     <li *ngFor="let type of tailTypes">
                       {{ type.name }}
-                      <button *ngIf="type.deletable" nz-button nzType="link" nzDanger (click)="removeAlertType(type.name)">Remove</button>
+                      <button
+                        *ngIf="type.deletable"
+                        nz-button
+                        nzType="link"
+                        nzDanger
+                        (click)="removeAlertType(type.name)"
+                      >
+                        Remove
+                      </button>
                     </li>
                   </ul>
                   <div class="alert-form">
-                    <input nz-input [(ngModel)]="newTailType" name="newTailType" placeholder="Add new type" class="alert-input"/>
-                    <button nz-button nzType="default" (click)="addAlertType()" class="alert-btn">+</button>
+                    <input
+                      nz-input
+                      [(ngModel)]="newTailType"
+                      name="newTailType"
+                      placeholder="Add new type"
+                      class="alert-input"
+                    />
+                    <button nz-button nzType="default" (click)="addAlertType()" class="alert-btn">
+                      +
+                    </button>
                   </div>
                 </div>
               </div>

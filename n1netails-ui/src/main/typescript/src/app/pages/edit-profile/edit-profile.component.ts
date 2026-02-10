@@ -29,17 +29,16 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
     SidenavComponent,
     NzFormModule,
     FormsModule,
-    CommonModule
+    CommonModule,
   ],
   templateUrl: './edit-profile.component.html',
-  styleUrl: './edit-profile.component.less'
+  styleUrl: './edit-profile.component.less',
 })
 export class EditProfileComponent implements OnInit, OnDestroy {
-
   user: User = new User();
-  usernameInput: string = "";
-  firstNameInput: string = "";
-  lastNameInput: string = "";
+  usernameInput: string = '';
+  firstNameInput: string = '';
+  lastNameInput: string = '';
   isLoading = false;
 
   // Password Reset
@@ -53,7 +52,7 @@ export class EditProfileComponent implements OnInit, OnDestroy {
     private notification: NzNotificationService,
     private authenticationService: AuthenticationService,
     private passkeyService: PasskeyService,
-    private userService: UserService,
+    private userService: UserService
   ) {}
 
   ngOnInit(): void {
@@ -73,22 +72,21 @@ export class EditProfileComponent implements OnInit, OnDestroy {
     editUser.username = form.value.username;
     editUser.firstName = form.value.firstName;
     editUser.lastName = form.value.lastName;
-    const sub: Subscription = this.userService
-      .editUser(editUser).subscribe({
-        next: (response: User) => {
-          this.authenticationService.addUserToLocalCache(response);
-          this.user = response;
-          this.presentToast('Success','Updated profile successfully');
-        },
-        error: (errorResponse: HttpErrorResponse) => {
-          console.error(errorResponse);
-          this.presentToast('Error','Error updating profile');
-        }
-      });
+    const sub: Subscription = this.userService.editUser(editUser).subscribe({
+      next: (response: User) => {
+        this.authenticationService.addUserToLocalCache(response);
+        this.user = response;
+        this.presentToast('Success', 'Updated profile successfully');
+      },
+      error: (errorResponse: HttpErrorResponse) => {
+        console.error(errorResponse);
+        this.presentToast('Error', 'Error updating profile');
+      },
+    });
     this.subscriptions.push(sub);
   }
 
-    // Password Reset
+  // Password Reset
   onPasswordReset() {
     this.passwordResetSuccessMessage = '';
     this.passwordResetErrorMessage = '';
@@ -111,11 +109,12 @@ export class EditProfileComponent implements OnInit, OnDestroy {
         this.presentToast('Success', 'Password updated successfully.');
       },
       error: (error) => {
-        this.passwordResetErrorMessage = 'Failed to update password. The password needs to contain at least 8 characters, 1 uppercase character, and 1 special character.';
+        this.passwordResetErrorMessage =
+          'Failed to update password. The password needs to contain at least 8 characters, 1 uppercase character, and 1 special character.';
         console.error('Failed to update password:', error);
         this.newPassword = '';
         this.presentToast('Error', this.passwordResetErrorMessage);
-      }
+      },
     });
   }
 
@@ -124,13 +123,13 @@ export class EditProfileComponent implements OnInit, OnDestroy {
       case 'Error':
         this.notification.error(type, message, {
           nzPlacement: 'topRight',
-          nzDuration: 10000
+          nzDuration: 10000,
         });
         break;
       case 'Success':
         this.notification.success(type, message, {
           nzPlacement: 'topRight',
-          nzDuration: 10000
+          nzDuration: 10000,
         });
         break;
     }
@@ -151,31 +150,50 @@ export class EditProfileComponent implements OnInit, OnDestroy {
       this.passkeyService.startPasskeyRegistration(email, domain).subscribe({
         next: (startResponse) => {
           if (startResponse && startResponse.options) {
-            console.log("creating pass key");
+            console.log('creating pass key');
             this.passkeyService.createPasskey(startResponse.options).subscribe({
               next: (credential) => {
                 if (credential) {
-
                   // Prompt for a friendly name for the key, or generate one
-                  const friendlyName = prompt("Enter a name for this passkey (e.g., 'My Laptop Chrome')", "My Passkey");
+                  const friendlyName = prompt(
+                    "Enter a name for this passkey (e.g., 'My Laptop Chrome')",
+                    'My Passkey'
+                  );
 
-                  console.log("Finishing passkey registration");
-                  this.passkeyService.finishPasskeyRegistration(startResponse.flowId, credential, friendlyName || undefined).subscribe({
-                    next: (finishResponse) => {
-                      if (finishResponse.success) {
-                        this.notification.success('Success', 'Passkey registration successful! You can now login using your passkey in the future.', { nzPlacement: 'topRight' });
-                        // this.router.navigate(['/login']); // Navigate to login after successful passkey registration
-                      } else {
-                        this.presentToast('Error', `Passkey registration failed: ${finishResponse.message}`);
-                      }
-                      this.isLoading = false;
-                    },
-                    error: (err) => {
-                      console.error('Error finishing passkey registration:', err);
-                      this.presentToast('Error', err.message || 'An unknown error occurred while finishing passkey registration.');
-                      this.isLoading = false;
-                    }
-                  });
+                  console.log('Finishing passkey registration');
+                  this.passkeyService
+                    .finishPasskeyRegistration(
+                      startResponse.flowId,
+                      credential,
+                      friendlyName || undefined
+                    )
+                    .subscribe({
+                      next: (finishResponse) => {
+                        if (finishResponse.success) {
+                          this.notification.success(
+                            'Success',
+                            'Passkey registration successful! You can now login using your passkey in the future.',
+                            { nzPlacement: 'topRight' }
+                          );
+                          // this.router.navigate(['/login']); // Navigate to login after successful passkey registration
+                        } else {
+                          this.presentToast(
+                            'Error',
+                            `Passkey registration failed: ${finishResponse.message}`
+                          );
+                        }
+                        this.isLoading = false;
+                      },
+                      error: (err) => {
+                        console.error('Error finishing passkey registration:', err);
+                        this.presentToast(
+                          'Error',
+                          err.message ||
+                            'An unknown error occurred while finishing passkey registration.'
+                        );
+                        this.isLoading = false;
+                      },
+                    });
                 } else {
                   this.presentToast('Error', 'Passkey creation was cancelled or failed.');
                   this.isLoading = false;
@@ -183,9 +201,13 @@ export class EditProfileComponent implements OnInit, OnDestroy {
               },
               error: (err) => {
                 console.error('Error creating passkey credential:', err);
-                this.presentToast('Error', err.message || 'Could not create passkey. User may have cancelled or an error occurred.');
+                this.presentToast(
+                  'Error',
+                  err.message ||
+                    'Could not create passkey. User may have cancelled or an error occurred.'
+                );
                 this.isLoading = false;
-              }
+              },
             });
           } else {
             this.presentToast('Error', 'Failed to start passkey registration process.');
@@ -194,9 +216,12 @@ export class EditProfileComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           console.error('Error starting passkey registration:', err);
-          this.presentToast('Error', err.message || 'An unknown error occurred while starting passkey registration.');
+          this.presentToast(
+            'Error',
+            err.message || 'An unknown error occurred while starting passkey registration.'
+          );
           this.isLoading = false;
-        }
+        },
       })
     );
   }

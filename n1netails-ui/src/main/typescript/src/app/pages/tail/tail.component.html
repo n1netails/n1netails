@@ -9,12 +9,10 @@
     </nz-header>
 
     <nz-content>
-
       <div class="inner-content">
         <nz-row [nzGutter]="[16, 16]">
           <nz-col [nzXs]="24" [nzSm]="24" [nzMd]="24" [nzLg]="24" [nzXl]="24">
             <nz-card class="tails-primary-color" nzTitle="Tail Information" [nzBordered]="false">
-
               <div class="tail-details-container">
                 <div *ngIf="isLoading" class="loading-indicator">
                   <nz-spin nzSimple [nzSize]="'large'"></nz-spin>
@@ -26,62 +24,109 @@
                 </div>
 
                 <div *ngIf="!isLoading && tail" class="tail-content">
-
                   <!-- Modified section for action buttons -->
                   <div class="tail-actions">
-                    <button 
+                    <button
                       id="bookmark-button"
                       [class.active]="bookmarkActive"
-                      nzTooltipTitle="Bookmark tail" 
+                      nzTooltipTitle="Bookmark tail"
                       nzType="default"
-                      nzTooltipPlacement="topRight" 
-                      nz-button nz-tooltip
-                      (click)="bookmarkTailEvent(tail.id)">
-                      <nz-icon 
-                        nzType="book" 
-                        nzTheme="outline"/>
+                      nzTooltipPlacement="topRight"
+                      nz-button
+                      nz-tooltip
+                      (click)="bookmarkTailEvent(tail.id)"
+                    >
+                      <nz-icon nzType="book" nzTheme="outline" />
                     </button>
 
-                    <button nz-button nzType="primary" (click)="openResolveModal()" *ngIf="tail && tail.status !== 'RESOLVED' && tail.assignedUserId == currentUser.id">
+                    <button
+                      nz-button
+                      nzType="primary"
+                      (click)="openResolveModal()"
+                      *ngIf="
+                        tail && tail.status !== 'RESOLVED' && tail.assignedUserId == currentUser.id
+                      "
+                    >
                       Resolve Tail
                     </button>
-                    <button nz-button nzType="default" (click)="openUpdateStatusModal()" *ngIf="tail && tail.status !== 'RESOLVED' && tail.assignedUserId == currentUser.id">
+                    <button
+                      nz-button
+                      nzType="default"
+                      (click)="openUpdateStatusModal()"
+                      *ngIf="
+                        tail && tail.status !== 'RESOLVED' && tail.assignedUserId == currentUser.id
+                      "
+                    >
                       Update Status
                     </button>
-                    <button nz-button nzType="default" (click)="investigateTail()" *ngIf="llmEnabled && tail && tail.status !== 'RESOLVED' && n1Note.content === ''" [nzLoading]="isInvestigating" [disabled]="!tail || isInvestigating">
+                    <button
+                      nz-button
+                      nzType="default"
+                      (click)="investigateTail()"
+                      *ngIf="
+                        llmEnabled && tail && tail.status !== 'RESOLVED' && n1Note.content === ''
+                      "
+                      [nzLoading]="isInvestigating"
+                      [disabled]="!tail || isInvestigating"
+                    >
                       Investigate with Inari
                     </button>
                   </div>
 
-                  <nz-row [nzGutter]="[16,16]">
-                    <nz-col [nzXs]="24" [nzSm]="24" [nzMd]="8" [nzLg]="6" [nzXl]="6" class="avatar-column">
+                  <nz-row [nzGutter]="[16, 16]">
+                    <nz-col
+                      [nzXs]="24"
+                      [nzSm]="24"
+                      [nzMd]="8"
+                      [nzLg]="6"
+                      [nzXl]="6"
+                      class="avatar-column"
+                    >
                       <nz-avatar
                         [nzSrc]="tailUtilService.getKudaAvatar(tail.level)"
                         [nzSize]="224"
                         class="tail-avatar"
                       ></nz-avatar>
                     </nz-col>
-                    <nz-col [nzXs]="24" [nzSm]="24" [nzMd]="16" [nzLg]="18" [nzXl]="18" class="meta-info-column">
+                    <nz-col
+                      [nzXs]="24"
+                      [nzSm]="24"
+                      [nzMd]="16"
+                      [nzLg]="18"
+                      [nzXl]="18"
+                      class="meta-info-column"
+                    >
                       <div class="meta-info">
                         <h3>{{ tail.title }}</h3>
                         <p><strong>ID:</strong> {{ tail.id }}</p>
-                        <p><strong>Timestamp:</strong> {{ tail.timestamp | date:'medium' }}</p>
-                        <p *ngIf="tail.resolvedTimestamp"><strong>Resolved At:</strong> {{ tail.resolvedTimestamp | date:'medium' }}</p>
-                        <p *ngIf="tail.assignedUsername"><strong>Assigned To:</strong> {{ tail.assignedUsername }}</p>
+                        <p><strong>Timestamp:</strong> {{ tail.timestamp | date: 'medium' }}</p>
+                        <p *ngIf="tail.resolvedTimestamp">
+                          <strong>Resolved At:</strong>
+                          {{ tail.resolvedTimestamp | date: 'medium' }}
+                        </p>
+                        <p *ngIf="tail.assignedUsername">
+                          <strong>Assigned To:</strong> {{ tail.assignedUsername }}
+                        </p>
                       </div>
                     </nz-col>
                   </nz-row>
-                  <br>
+                  <br />
                   <div class="tags">
-                    <nz-tag [nzColor]="tailUtilService.getLevelColor(tail.level)">{{ tail.level }}</nz-tag>
-                    <nz-tag [nzColor]="tailUtilService.getTypeColor(tail.type)">{{ tail.type }}</nz-tag>
-                    <nz-tag [nzColor]="tailUtilService.getStatusColor(tail.status)">{{ tail.status }}</nz-tag>
+                    <nz-tag [nzColor]="tailUtilService.getLevelColor(tail.level)">{{
+                      tail.level
+                    }}</nz-tag>
+                    <nz-tag [nzColor]="tailUtilService.getTypeColor(tail.type)">{{
+                      tail.type
+                    }}</nz-tag>
+                    <nz-tag [nzColor]="tailUtilService.getStatusColor(tail.status)">{{
+                      tail.status
+                    }}</nz-tag>
                   </div>
 
                   <div class="metadata" *ngIf="tail.metadata && metadataKeys.length > 0">
-                    <h4 style="display: flex; align-items: center; gap: 12px;">
+                    <h4 style="display: flex; align-items: center; gap: 12px">
                       Metadata
-                      <a (click)="showMetadata = !showMetadata" style="cursor: pointer;">
+                      <a (click)="showMetadata = !showMetadata" style="cursor: pointer">
                         {{ showMetadata ? '-' : '+' }}
                       </a>
                     </h4>
@@ -100,8 +145,9 @@
                   </div>
 
                   <div class="details-section" *ngIf="tail.details">
-                    <h3>Details
-                      <a (click)="showDetails = !showDetails" style="cursor: pointer;">
+                    <h3>
+                      Details
+                      <a (click)="showDetails = !showDetails" style="cursor: pointer">
                         {{ showDetails ? '-' : '+' }}
                       </a>
                     </h3>
@@ -112,24 +158,26 @@
                 </div>
 
                 <div *ngIf="!isLoading && !tail && !error" class="no-data-message">
-                  <nz-empty nzNotFoundImage="simple" [nzNotFoundContent]="'Tail data not found or ID is invalid.'"></nz-empty>
+                  <nz-empty
+                    nzNotFoundImage="simple"
+                    [nzNotFoundContent]="'Tail data not found or ID is invalid.'"
+                  ></nz-empty>
                 </div>
               </div>
-
             </nz-card>
           </nz-col>
         </nz-row>
 
         <!-- LLM Investigation Display Area -->
-        <nz-row [nzGutter]="[16,16]" *ngIf="isInvestigating && !llmResponse">
+        <nz-row [nzGutter]="[16, 16]" *ngIf="isInvestigating && !llmResponse">
           <nz-col [nzXs]="24" [nzSm]="24" [nzMd]="24" [nzLg]="24" [nzXl]="24">
-            <div style="text-align: center; margin-top: 8px !important;">
-                <nz-spin nzSimple [nzSize]="'large'" nzTip="Investigating..."></nz-spin>
+            <div style="text-align: center; margin-top: 8px !important">
+              <nz-spin nzSimple [nzSize]="'large'" nzTip="Investigating..."></nz-spin>
             </div>
           </nz-col>
         </nz-row>
 
-        <nz-row [nzGutter]="[16,16]" *ngIf="n1Note.content !== '' && !isInvestigating">
+        <nz-row [nzGutter]="[16, 16]" *ngIf="n1Note.content !== '' && !isInvestigating">
           <nz-col [nzXs]="24" [nzSm]="24" [nzMd]="24" [nzLg]="24" [nzXl]="24">
             <nz-card nzTitle="Inari Investigation Analysis" [nzBordered]="false" class="inari-card">
               <markdown [data]="n1Note.content"></markdown>
@@ -144,7 +192,8 @@
           [tail]="tail"
           [currentUser]="currentUser"
           [initialLlmResponse]="llmResponse?.completion"
-          style="margin-top: 16px;">
+          style="margin-top: 16px"
+        >
         </app-ai-chat-card>
         <!-- End of AI Chat Card -->
       </div>

@@ -54,6 +54,23 @@ ng e2e
 
 Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
 
+## Before committing or opening a PR
+
+Before you commit your changes or create a pull request, make sure to run the Prettier formatter.
+The CI pipeline will fail if formatting is not applied.
+
+Ensure you are in the following directory:
+
+```bash
+  n1netails/n1netails-ui/src/main/typescript
+```
+
+Then run:
+
+```bash
+  npm run format
+```
+
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

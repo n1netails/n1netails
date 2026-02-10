@@ -13,30 +13,63 @@
         <div class="inner-content">
           <nz-row class="notification-manager-container" [nzGutter]="[16, 16]">
             <nz-col [nzXs]="24" [nzSm]="24" [nzMd]="24" [nzLg]="24" [nzXl]="24">
-              <nz-card 
+              <nz-card
                 data-tutorial-id="notification-manager"
-                nzTitle="Notification Manager for Token: {{ token.name }}" 
-                [nzBordered]="false">
+                nzTitle="Notification Manager for Token: {{ token.name }}"
+                [nzBordered]="false"
+              >
                 <!-- Notification Platform Toggles -->
                 <div data-tutorial-id="enable-notifications" class="notification-platforms">
                   <label>Enable notifications for:</label>
                   @if (UiConfigService.isNotificationsEmailEnabled()) {
-                    <span><nz-switch [(ngModel)]="platforms[this.EMAIL].enabled" (ngModelChange)="onPlatformToggle('email')"></nz-switch> Email</span>
+                    <span
+                      ><nz-switch
+                        [(ngModel)]="platforms[this.EMAIL].enabled"
+                        (ngModelChange)="onPlatformToggle('email')"
+                      ></nz-switch>
+                      Email</span
+                    >
                   }
                   @if (UiConfigService.isNotificationsMsTeamsEnabled()) {
-                    <span><nz-switch [(ngModel)]="platforms[this.MICROSOFT_TEAMS].enabled" (ngModelChange)="onPlatformToggle('msteams')"></nz-switch> Microsoft Teams</span>
+                    <span
+                      ><nz-switch
+                        [(ngModel)]="platforms[this.MICROSOFT_TEAMS].enabled"
+                        (ngModelChange)="onPlatformToggle('msteams')"
+                      ></nz-switch>
+                      Microsoft Teams</span
+                    >
                   }
                   @if (UiConfigService.isNotificationsSlackEnabled()) {
-                    <span><nz-switch [(ngModel)]="platforms[this.SLACK].enabled" (ngModelChange)="onPlatformToggle('slack')"></nz-switch> Slack</span>
+                    <span
+                      ><nz-switch
+                        [(ngModel)]="platforms[this.SLACK].enabled"
+                        (ngModelChange)="onPlatformToggle('slack')"
+                      ></nz-switch>
+                      Slack</span
+                    >
                   }
                   @if (UiConfigService.isNotificationsDiscordEnabled()) {
-                    <span><nz-switch [(ngModel)]="platforms[this.DISCORD].enabled" (ngModelChange)="onPlatformToggle('discord')"></nz-switch> Discord</span>
+                    <span
+                      ><nz-switch
+                        [(ngModel)]="platforms[this.DISCORD].enabled"
+                        (ngModelChange)="onPlatformToggle('discord')"
+                      ></nz-switch>
+                      Discord</span
+                    >
                   }
                   @if (UiConfigService.isNotificationsTelegramEnabled()) {
-                    <span><nz-switch [(ngModel)]="platforms[this.TELEGRAM].enabled" (ngModelChange)="onPlatformToggle('telegram')"></nz-switch> Telegram</span>
+                    <span
+                      ><nz-switch
+                        [(ngModel)]="platforms[this.TELEGRAM].enabled"
+                        (ngModelChange)="onPlatformToggle('telegram')"
+                      ></nz-switch>
+                      Telegram</span
+                    >
                   }
                 </div>
-                <button nz-button nzType="primary" (click)="saveConfigurations()">Save Configurations</button>
+                <button nz-button nzType="primary" (click)="saveConfigurations()">
+                  Save Configurations
+                </button>
               </nz-card>
             </nz-col>
 
@@ -48,26 +81,51 @@
                   <p>Add emails you wish to send alerts to.</p>
                   @for (config of platforms[this.EMAIL].configs; track $index) {
                     <div class="config-row">
-                      <input nz-input [(ngModel)]="config.details.address" placeholder="Enter email address">
-                      <button nz-button nzDanger (click)="removeConfig('email', $index)">Remove</button>
+                      <input
+                        nz-input
+                        [(ngModel)]="config.details.address"
+                        placeholder="Enter email address"
+                      />
+                      <button nz-button nzDanger (click)="removeConfig('email', $index)">
+                        Remove
+                      </button>
                     </div>
                   }
-                  <button nz-button nzType="dashed" (click)="addConfig('email')">+ Add Email</button>
+                  <button nz-button nzType="dashed" (click)="addConfig('email')">
+                    + Add Email
+                  </button>
                 </nz-card>
               </nz-col>
             }
-            @if (platforms[this.MICROSOFT_TEAMS].enabled && UiConfigService.isNotificationsMsTeamsEnabled()) {
+            @if (
+              platforms[this.MICROSOFT_TEAMS].enabled &&
+              UiConfigService.isNotificationsMsTeamsEnabled()
+            ) {
               <nz-col [nzXs]="24" [nzSm]="24" [nzMd]="24" [nzLg]="24" [nzXl]="24">
                 <nz-card [nzBordered]="false">
                   <h3>Microsoft Teams Configuration</h3>
-                  <p>Add Microsoft Teams Webhooks (<a href="https://n1netails.com/docs/n1netails-teams-webhook-client/create-webhook" target="_blank">How to create webhooks for microsoft teams</a>).</p>
+                  <p>
+                    Add Microsoft Teams Webhooks (<a
+                      href="https://n1netails.com/docs/n1netails-teams-webhook-client/create-webhook"
+                      target="_blank"
+                      >How to create webhooks for microsoft teams</a
+                    >).
+                  </p>
                   @for (config of platforms[this.MICROSOFT_TEAMS].configs; track $index) {
                     <div class="config-row">
-                      <input nz-input [(ngModel)]="config.details.webhookUrl" placeholder="Enter webhook URL">
-                      <button nz-button nzDanger (click)="removeConfig('msteams', $index)">Remove</button>
+                      <input
+                        nz-input
+                        [(ngModel)]="config.details.webhookUrl"
+                        placeholder="Enter webhook URL"
+                      />
+                      <button nz-button nzDanger (click)="removeConfig('msteams', $index)">
+                        Remove
+                      </button>
                     </div>
                   }
-                  <button nz-button nzType="dashed" (click)="addConfig('msteams')">+ Add Webhook</button>
+                  <button nz-button nzType="dashed" (click)="addConfig('msteams')">
+                    + Add Webhook
+                  </button>
                 </nz-card>
               </nz-col>
             }
@@ -75,48 +133,103 @@
               <nz-col [nzXs]="24" [nzSm]="24" [nzMd]="24" [nzLg]="24" [nzXl]="24">
                 <nz-card [nzBordered]="false">
                   <h3>Slack Configuration</h3>
-                  <p>Add Slack bots and channels (<a href="https://n1netails.com/docs/n1netails-slack-client/create-bot" target="_blank">How to create slack bots</a>).</p>
+                  <p>
+                    Add Slack bots and channels (<a
+                      href="https://n1netails.com/docs/n1netails-slack-client/create-bot"
+                      target="_blank"
+                      >How to create slack bots</a
+                    >).
+                  </p>
                   @for (config of platforms[this.SLACK].configs; track $index) {
                     <div class="config-row">
-                      <input nz-input [(ngModel)]="config.details.botToken" placeholder="Enter bot token">
-                      <input nz-input [(ngModel)]="config.details.channel" placeholder="Enter channel name (channel names need to include the hash tag ex. #prototype)">
-                      <button nz-button nzDanger (click)="removeConfig('slack', $index)">Remove</button>
+                      <input
+                        nz-input
+                        [(ngModel)]="config.details.botToken"
+                        placeholder="Enter bot token"
+                      />
+                      <input
+                        nz-input
+                        [(ngModel)]="config.details.channel"
+                        placeholder="Enter channel name (channel names need to include the hash tag ex. #prototype)"
+                      />
+                      <button nz-button nzDanger (click)="removeConfig('slack', $index)">
+                        Remove
+                      </button>
                     </div>
                   }
-                  <button nz-button nzType="dashed" (click)="addConfig('slack')">+ Add Slack Config</button>
+                  <button nz-button nzType="dashed" (click)="addConfig('slack')">
+                    + Add Slack Config
+                  </button>
                 </nz-card>
               </nz-col>
             }
-            @if (platforms[this.DISCORD].enabled && UiConfigService.isNotificationsDiscordEnabled()) {
+            @if (
+              platforms[this.DISCORD].enabled && UiConfigService.isNotificationsDiscordEnabled()
+            ) {
               <nz-col [nzXs]="24" [nzSm]="24" [nzMd]="24" [nzLg]="24" [nzXl]="24">
                 <nz-card [nzBordered]="false">
                   <h3>Discord Configuration</h3>
-                  <p>Add Discord Webhooks (<a data-tutorial-id="how-to-create-link" href="https://n1netails.com/docs/n1netails-discord-webhook-client/create-webhook" target="_blank">How to create webhooks for discord</a>).</p>
+                  <p>
+                    Add Discord Webhooks (<a
+                      data-tutorial-id="how-to-create-link"
+                      href="https://n1netails.com/docs/n1netails-discord-webhook-client/create-webhook"
+                      target="_blank"
+                      >How to create webhooks for discord</a
+                    >).
+                  </p>
                   @for (config of platforms[this.DISCORD].configs; track $index) {
                     <div class="config-row">
-                      <input nz-input [(ngModel)]="config.details.webhookUrl" placeholder="Enter webhook URL">
-                      <button nz-button nzDanger (click)="removeConfig('discord', $index)">Remove</button>
+                      <input
+                        nz-input
+                        [(ngModel)]="config.details.webhookUrl"
+                        placeholder="Enter webhook URL"
+                      />
+                      <button nz-button nzDanger (click)="removeConfig('discord', $index)">
+                        Remove
+                      </button>
                     </div>
                   }
-                  <button nz-button nzType="dashed" (click)="addConfig('discord')">+ Add Webhook</button>
+                  <button nz-button nzType="dashed" (click)="addConfig('discord')">
+                    + Add Webhook
+                  </button>
                 </nz-card>
               </nz-col>
             }
-            @if (platforms[this.TELEGRAM].enabled && UiConfigService.isNotificationsTelegramEnabled()) {
+            @if (
+              platforms[this.TELEGRAM].enabled && UiConfigService.isNotificationsTelegramEnabled()
+            ) {
               <nz-col [nzXs]="24" [nzSm]="24" [nzMd]="24" [nzLg]="24" [nzXl]="24">
                 <nz-card [nzBordered]="false">
                   <h3>Telegram Configuration</h3>
-                  <p>Add Telegram bot tokens and Telegram chat IDs (<a href="https://n1netails.com/docs/n1netails-telegram-client/create-bot" target="_blank">How to create telegram bots and generate chat IDs</a>).</p>
+                  <p>
+                    Add Telegram bot tokens and Telegram chat IDs (<a
+                      href="https://n1netails.com/docs/n1netails-telegram-client/create-bot"
+                      target="_blank"
+                      >How to create telegram bots and generate chat IDs</a
+                    >).
+                  </p>
                   @for (config of platforms[this.TELEGRAM].configs; track $index) {
                     <div class="config-row">
-                      <input nz-input [(ngModel)]="config.details.botToken" placeholder="Enter bot token">
-                      <input nz-input [(ngModel)]="config.details.chatId" placeholder="Enter chat ID">
-                      <button nz-button nzDanger (click)="removeConfig('telegram', $index)">Remove</button>
+                      <input
+                        nz-input
+                        [(ngModel)]="config.details.botToken"
+                        placeholder="Enter bot token"
+                      />
+                      <input
+                        nz-input
+                        [(ngModel)]="config.details.chatId"
+                        placeholder="Enter chat ID"
+                      />
+                      <button nz-button nzDanger (click)="removeConfig('telegram', $index)">
+                        Remove
+                      </button>
                     </div>
                   }
-                  <button nz-button nzType="dashed" (click)="addConfig('telegram')">+ Add Telegram Config</button>
+                  <button nz-button nzType="dashed" (click)="addConfig('telegram')">
+                    + Add Telegram Config
+                  </button>
                 </nz-card>
-              </nz-col>  
+              </nz-col>
             }
           </nz-row>
         </div>

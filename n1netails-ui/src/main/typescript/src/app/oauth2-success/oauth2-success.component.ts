@@ -7,7 +7,7 @@ import { User } from '../model/user';
 @Component({
   selector: 'app-oauth2-success',
   imports: [],
-  template: ''
+  template: '',
 })
 export class Oauth2SuccessComponent {
   constructor(
@@ -18,8 +18,8 @@ export class Oauth2SuccessComponent {
   ) {}
 
   ngOnInit(): void {
-    console.log("oauth2 success login");
-    this.route.queryParams.subscribe(params => {
+    console.log('oauth2 success login');
+    this.route.queryParams.subscribe((params) => {
       const token = params['token'];
       console.log('TOKEN', token);
 

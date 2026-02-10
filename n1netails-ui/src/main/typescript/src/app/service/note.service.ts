@@ -5,10 +5,9 @@ import { Note } from '../model/note.model';
 import { UiConfigService } from '../shared/util/ui-config.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class NoteService {
-
   host: string = '';
   private apiPath = '/ninetails/note';
 

@@ -15,12 +15,11 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login',
-  imports: [NzFormModule,FormsModule,RouterModule,NzIconModule,CommonModule],
+  imports: [NzFormModule, FormsModule, RouterModule, NzIconModule, CommonModule],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.less'
+  styleUrl: './login.component.less',
 })
 export class LoginComponent implements OnInit, OnDestroy {
-
   public isLoading: boolean = false;
   private subscriptions: Subscription[] = [];
 
@@ -45,7 +44,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
 
   loginWithGithub() {
@@ -72,23 +71,25 @@ export class LoginComponent implements OnInit, OnDestroy {
           form.resetForm();
         },
         error: (errorResponse: HttpErrorResponse) => {
-          this.presentToast('Error logging in please try again later. ' + errorResponse.error.message);;
+          this.presentToast(
+            'Error logging in please try again later. ' + errorResponse.error.message
+          );
           console.error('Error: ', errorResponse);
           this.isLoading = false;
-        }
+        },
       })
     );
   }
 
   private async presentToast(message: string) {
-    this.notification.error('Error', "Error logging in please try again later. " + message, {
+    this.notification.error('Error', 'Error logging in please try again later. ' + message, {
       nzPlacement: 'topRight',
-      nzDuration: 10000
+      nzDuration: 10000,
     });
   }
 
   private saveUser(response: HttpResponse<User>) {
-    const token = response.headers.get(HeaderType.JWT_TOKEN) || "";
+    const token = response.headers.get(HeaderType.JWT_TOKEN) || '';
     this.authenticationService.saveToken(token);
     this.authenticationService.addUserToLocalCache(response.body || null);
   }
@@ -106,25 +107,35 @@ export class LoginComponent implements OnInit, OnDestroy {
             this.passkeyService.getPasskey(startResponse.options).subscribe({
               next: (credential) => {
                 if (credential) {
-                  this.passkeyService.finishPasskeyAuthentication(startResponse.flowId, credential).subscribe({
-                    next: (finishResponse) => {
-                      if (finishResponse.success && finishResponse.jwtToken
-                        && finishResponse.user
-                      ) {
-                        // Successful login using passkey, token and user are already saved by PasskeyService
-                        this.notification.success('Success', 'Logged in successfully with passkey!', { nzPlacement: 'topRight' });
-                        this.router.navigateByUrl('/dashboard');
-                      } else {
-                        this.presentToast(`Passkey login failed: ${finishResponse.message}`);
-                      }
-                      this.isLoading = false;
-                    },
-                    error: (err) => {
-                      console.error('Error finishing passkey authentication:', err);
-                      this.presentToast(err.message || 'An unknown error occurred while finishing passkey login.');
-                      this.isLoading = false;
-                    }
-                  });
+                  this.passkeyService
+                    .finishPasskeyAuthentication(startResponse.flowId, credential)
+                    .subscribe({
+                      next: (finishResponse) => {
+                        if (
+                          finishResponse.success &&
+                          finishResponse.jwtToken &&
+                          finishResponse.user
+                        ) {
+                          // Successful login using passkey, token and user are already saved by PasskeyService
+                          this.notification.success(
+                            'Success',
+                            'Logged in successfully with passkey!',
+                            { nzPlacement: 'topRight' }
+                          );
+                          this.router.navigateByUrl('/dashboard');
+                        } else {
+                          this.presentToast(`Passkey login failed: ${finishResponse.message}`);
+                        }
+                        this.isLoading = false;
+                      },
+                      error: (err) => {
+                        console.error('Error finishing passkey authentication:', err);
+                        this.presentToast(
+                          err.message || 'An unknown error occurred while finishing passkey login.'
+                        );
+                        this.isLoading = false;
+                      },
+                    });
                 } else {
                   this.presentToast('Passkey assertion was cancelled or failed.');
                   this.isLoading = false;
@@ -132,9 +143,12 @@ export class LoginComponent implements OnInit, OnDestroy {
               },
               error: (err) => {
                 console.error('Error getting passkey credential:', err);
-                this.presentToast(err.message || 'Could not get passkey. User may have cancelled or an error occurred.');
+                this.presentToast(
+                  err.message ||
+                    'Could not get passkey. User may have cancelled or an error occurred.'
+                );
                 this.isLoading = false;
-              }
+              },
             });
           } else {
             this.presentToast('Failed to start passkey authentication process.');
@@ -143,9 +157,11 @@ export class LoginComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           console.error('Error starting passkey authentication:', err);
-          this.presentToast(err.message || 'An unknown error occurred while starting passkey login.');
+          this.presentToast(
+            err.message || 'An unknown error occurred while starting passkey login.'
+          );
           this.isLoading = false;
-        }
+        },
       })
     );
   }

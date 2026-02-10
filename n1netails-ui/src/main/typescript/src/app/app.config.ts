@@ -1,4 +1,10 @@
-import { ApplicationConfig, provideZoneChangeDetection, importProvidersFrom, provideAppInitializer, inject } from '@angular/core';
+import {
+  ApplicationConfig,
+  provideZoneChangeDetection,
+  importProvidersFrom,
+  provideAppInitializer,
+  inject,
+} from '@angular/core';
 import { provideRouter, withHashLocation } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -27,9 +33,7 @@ export const appConfig: ApplicationConfig = {
     provideNzI18n(en_US),
     importProvidersFrom(FormsModule),
     provideAnimationsAsync(),
-    provideHttpClient(
-      withInterceptorsFromDi()
-    ),
+    provideHttpClient(withInterceptorsFromDi()),
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     UiConfigService,
     provideAppInitializer(() => {
@@ -38,6 +42,6 @@ export const appConfig: ApplicationConfig = {
     }),
     provideCharts(withDefaultRegisterables()),
     ShepherdService,
-    importProvidersFrom(NzModalModule)
-  ]
+    importProvidersFrom(NzModalModule),
+  ],
 };

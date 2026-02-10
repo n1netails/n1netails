@@ -3,7 +3,14 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, from, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { UiConfigService } from '../shared/util/ui-config.service';
-import { PasskeyRegistrationStartRequestDto, PasskeyRegistrationStartResponseDto, PasskeyApiResponseDto, PasskeyAuthenticationStartRequestDto, PasskeyAuthenticationStartResponseDto, PasskeyAuthenticationResponseDto } from '../model/dto/passkey-dtos'; // Assuming a combined DTO file or individual imports
+import {
+  PasskeyRegistrationStartRequestDto,
+  PasskeyRegistrationStartResponseDto,
+  PasskeyApiResponseDto,
+  PasskeyAuthenticationStartRequestDto,
+  PasskeyAuthenticationStartResponseDto,
+  PasskeyAuthenticationResponseDto,
+} from '../model/dto/passkey-dtos'; // Assuming a combined DTO file or individual imports
 import { AuthenticationService } from './authentication.service'; // To handle JWT and user caching
 
 // Helper function to convert base64url to ArrayBuffer
@@ -43,9 +50,8 @@ function base64urlDecode(input: string): string {
   return atob(input);
 }
 
-
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PasskeyService {
   private host: string = '';
@@ -58,9 +64,10 @@ export class PasskeyService {
     private authService: AuthenticationService // For saving token/user on successful login
   ) {
     // Check if the functions exist, which implies WebAuthn support
-    this.isWebAuthnSupported = typeof navigator.credentials !== 'undefined' &&
-                               typeof navigator.credentials.create === 'function' &&
-                               typeof navigator.credentials.get === 'function';
+    this.isWebAuthnSupported =
+      typeof navigator.credentials !== 'undefined' &&
+      typeof navigator.credentials.create === 'function' &&
+      typeof navigator.credentials.get === 'function';
   }
 
   public checkWebAuthnSupport(): boolean {
@@ -71,13 +78,19 @@ export class PasskeyService {
   }
 
   // --- REGISTRATION ---
-  startPasskeyRegistration(email: string, domain: string): Observable<PasskeyRegistrationStartResponseDto> {
+  startPasskeyRegistration(
+    email: string,
+    domain: string
+  ): Observable<PasskeyRegistrationStartResponseDto> {
     this.host = this.uiConfigService.getApiUrl() + this.apiPath;
     if (!this.checkWebAuthnSupport()) {
-      return throwError(() => new Error('Passkey authentication (WebAuthn) is not supported by this browser.'));
+      return throwError(
+        () => new Error('Passkey authentication (WebAuthn) is not supported by this browser.')
+      );
     }
     const request: PasskeyRegistrationStartRequestDto = { email, domain };
-    return this.http.post<PasskeyRegistrationStartResponseDto>(`${this.host}/register/start`, request)
+    return this.http
+      .post<PasskeyRegistrationStartResponseDto>(`${this.host}/register/start`, request)
       .pipe(catchError(this.handleError));
   }
 
@@ -88,7 +101,9 @@ export class PasskeyService {
   ): Observable<PasskeyApiResponseDto> {
     this.host = this.uiConfigService.getApiUrl() + this.apiPath;
     if (!this.checkWebAuthnSupport()) {
-      return throwError(() => new Error('Passkey authentication (WebAuthn) is not supported by this browser.'));
+      return throwError(
+        () => new Error('Passkey authentication (WebAuthn) is not supported by this browser.')
+      );
     }
 
     const attestationResponse = credential.response as AuthenticatorAttestationResponse;
@@ -100,7 +115,7 @@ export class PasskeyService {
         rawId: arrayBufferToBase64url(credential.rawId), // must be encoded
         response: {
           attestationObject: arrayBufferToBase64url(attestationResponse.attestationObject), // must be encoded
-          clientDataJSON: arrayBufferToBase64url(attestationResponse.clientDataJSON),       // must be encoded
+          clientDataJSON: arrayBufferToBase64url(attestationResponse.clientDataJSON), // must be encoded
           transports: attestationResponse.getTransports?.() ?? [],
         },
         type: credential.type,
@@ -113,10 +128,14 @@ export class PasskeyService {
   }
 
   // Wrapper for navigator.credentials.create()
-  createPasskey(options: PublicKeyCredentialCreationOptions): Observable<PublicKeyCredential | null> {
-    console.log("create passkey checking for web authn support");
+  createPasskey(
+    options: PublicKeyCredentialCreationOptions
+  ): Observable<PublicKeyCredential | null> {
+    console.log('create passkey checking for web authn support');
     if (!this.checkWebAuthnSupport()) {
-      return throwError(() => new Error('Passkey authentication (WebAuthn) is not supported by this browser.'));
+      return throwError(
+        () => new Error('Passkey authentication (WebAuthn) is not supported by this browser.')
+      );
     }
 
     // options.extensions.appidExclude
@@ -125,28 +144,22 @@ export class PasskeyService {
       rp: options.rp,
       pubKeyCredParams: options.pubKeyCredParams,
       challenge: base64urlToArrayBuffer(
-        typeof options.challenge === 'string'
-          ? options.challenge
-          : String(options.challenge)
+        typeof options.challenge === 'string' ? options.challenge : String(options.challenge)
       ),
       user: {
         ...options.user,
-        id: typeof options.user.id === 'string'
-          ? new TextEncoder().encode(base64urlDecode(options.user.id)).buffer
-          : options.user.id,
+        id:
+          typeof options.user.id === 'string'
+            ? new TextEncoder().encode(base64urlDecode(options.user.id)).buffer
+            : options.user.id,
       },
       // Ensure pubKeyCredParams if any are correctly formatted (usually fine)
       // Ensure excludeCredentials IDs are ArrayBuffer
-      excludeCredentials: options.excludeCredentials?.map(exCred => ({
+      excludeCredentials: options.excludeCredentials?.map((exCred) => ({
         ...exCred,
-        id: base64urlToArrayBuffer(
-          typeof exCred.id === 'string'
-          ? exCred.id
-          : String(exCred.id)
-        
-        ),
+        id: base64urlToArrayBuffer(typeof exCred.id === 'string' ? exCred.id : String(exCred.id)),
       })),
-      extensions: options.extensions ? { ...options.extensions } : undefined
+      extensions: options.extensions ? { ...options.extensions } : undefined,
     };
 
     // Sanitize appidExclude if present
@@ -160,32 +173,48 @@ export class PasskeyService {
     }
 
     if (createOptions.extensions) {
-      Object.keys(createOptions.extensions).forEach(key => {
+      Object.keys(createOptions.extensions).forEach((key) => {
         if (createOptions.extensions[key] == null) delete createOptions.extensions[key];
       });
     }
 
     // console.log('CREATE OPTIONS (final):', JSON.stringify(createOptions, null, 2));
-    return from(navigator.credentials.create({ publicKey: createOptions }) as Promise<PublicKeyCredential | null>)
-      .pipe(catchError(this.handleNavigatorError));
+    return from(
+      navigator.credentials.create({
+        publicKey: createOptions,
+      }) as Promise<PublicKeyCredential | null>
+    ).pipe(catchError(this.handleNavigatorError));
   }
 
-
   // --- AUTHENTICATION ---
-  startPasskeyAuthentication(email?: string, domain?: string): Observable<PasskeyAuthenticationStartResponseDto> {
+  startPasskeyAuthentication(
+    email?: string,
+    domain?: string
+  ): Observable<PasskeyAuthenticationStartResponseDto> {
     this.host = this.uiConfigService.getApiUrl() + this.apiPath;
     if (!this.checkWebAuthnSupport()) {
-      return throwError(() => new Error('Passkey authentication (WebAuthn) is not supported by this browser.'));
+      return throwError(
+        () => new Error('Passkey authentication (WebAuthn) is not supported by this browser.')
+      );
     }
-    const request: PasskeyAuthenticationStartRequestDto = { email, domain: domain || window.location.hostname };
-    return this.http.post<PasskeyAuthenticationStartResponseDto>(`${this.host}/login/start`, request)
+    const request: PasskeyAuthenticationStartRequestDto = {
+      email,
+      domain: domain || window.location.hostname,
+    };
+    return this.http
+      .post<PasskeyAuthenticationStartResponseDto>(`${this.host}/login/start`, request)
       .pipe(catchError(this.handleError));
   }
 
-  finishPasskeyAuthentication(flowId: string, credential: PublicKeyCredential): Observable<PasskeyAuthenticationResponseDto> {
+  finishPasskeyAuthentication(
+    flowId: string,
+    credential: PublicKeyCredential
+  ): Observable<PasskeyAuthenticationResponseDto> {
     this.host = this.uiConfigService.getApiUrl() + this.apiPath;
     if (!this.checkWebAuthnSupport()) {
-      return throwError(() => new Error('Passkey authentication (WebAuthn) is not supported by this browser.'));
+      return throwError(
+        () => new Error('Passkey authentication (WebAuthn) is not supported by this browser.')
+      );
     }
     const assertionResponse = credential.response as AuthenticatorAssertionResponse;
 
@@ -198,18 +227,19 @@ export class PasskeyService {
           authenticatorData: arrayBufferToBase64url(assertionResponse.authenticatorData),
           clientDataJSON: arrayBufferToBase64url(assertionResponse.clientDataJSON),
           signature: arrayBufferToBase64url(assertionResponse.signature),
-          userHandle: assertionResponse.userHandle ? arrayBufferToBase64url(assertionResponse.userHandle) : null,
+          userHandle: assertionResponse.userHandle
+            ? arrayBufferToBase64url(assertionResponse.userHandle)
+            : null,
         },
         type: credential.type,
         clientExtensionResults: credential.getClientExtensionResults(),
-      }
+      },
     };
-    return this.http.post<PasskeyAuthenticationResponseDto>(`${this.host}/login/finish`, requestBody)
+    return this.http
+      .post<PasskeyAuthenticationResponseDto>(`${this.host}/login/finish`, requestBody)
       .pipe(
-        map(response => {
-          if (response.success && response.jwtToken 
-            && response.user
-          ) {
+        map((response) => {
+          if (response.success && response.jwtToken && response.user) {
             this.authService.saveToken(response.jwtToken);
             this.authService.addUserToLocalCache(response.user);
           }
@@ -220,9 +250,11 @@ export class PasskeyService {
 
   // Wrapper for navigator.credentials.get()
   getPasskey(options: PublicKeyCredentialRequestOptions): Observable<PublicKeyCredential | null> {
-    console.log("get passkey");
+    console.log('get passkey');
     if (!this.checkWebAuthnSupport()) {
-      return throwError(() => new Error('Passkey authentication (WebAuthn) is not supported by this browser.'));
+      return throwError(
+        () => new Error('Passkey authentication (WebAuthn) is not supported by this browser.')
+      );
     }
 
     const getOptions: any = {
@@ -232,11 +264,13 @@ export class PasskeyService {
         return {
           type: cred.type,
           id: base64urlToArrayBuffer(cred.id),
-          transports: Array.isArray(cred.transports) && cred.transports.every((t: any) => typeof t === 'string')
-            ? cred.transports
-            : undefined // skip transports if invalid
+          transports:
+            Array.isArray(cred.transports) &&
+            cred.transports.every((t: any) => typeof t === 'string')
+              ? cred.transports
+              : undefined, // skip transports if invalid
         };
-      })
+      }),
     };
 
     // Sanitize appid if present
@@ -253,11 +287,9 @@ export class PasskeyService {
     }
 
     // console.log("public key credential request get options: ", getOptions);
-    return from(navigator.credentials.get({ publicKey: getOptions }) as Promise<PublicKeyCredential | null>)
-      .pipe(
-        catchError(this.handleNavigatorError)
-      );
-
+    return from(
+      navigator.credentials.get({ publicKey: getOptions }) as Promise<PublicKeyCredential | null>
+    ).pipe(catchError(this.handleNavigatorError));
   }
 
   private handleError(error: HttpErrorResponse) {
@@ -283,20 +315,24 @@ export class PasskeyService {
     if (error instanceof DOMException) {
       switch (error.name) {
         case 'NotAllowedError':
-          message = 'The passkey operation was cancelled or not allowed. Please try again. If you denied permission, you might need to reset it in your browser settings.';
+          message =
+            'The passkey operation was cancelled or not allowed. Please try again. If you denied permission, you might need to reset it in your browser settings.';
           break;
         case 'UnknownError':
-          message = 'An unknown error occurred with the authenticator. Please try a different passkey or contact support.';
+          message =
+            'An unknown error occurred with the authenticator. Please try a different passkey or contact support.';
           break;
         case 'InvalidStateError':
-          message = 'The authenticator is in an invalid state for this operation (e.g., this passkey might already be registered for this user).';
+          message =
+            'The authenticator is in an invalid state for this operation (e.g., this passkey might already be registered for this user).';
           break;
         case 'SecurityError':
-          message = 'A security error occurred. This might be due to an insecure connection (HTTPS required) or a policy violation.';
+          message =
+            'A security error occurred. This might be due to an insecure connection (HTTPS required) or a policy violation.';
           break;
         case 'NotSupportedError':
-           message = 'This operation is not supported by your authenticator or browser.';
-           break;
+          message = 'This operation is not supported by your authenticator or browser.';
+          break;
         default:
           message = `Error during passkey operation: ${error.message} (${error.name})`;
       }

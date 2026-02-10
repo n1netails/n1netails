@@ -5,13 +5,12 @@ import { LlmPromptRequest, LlmPromptResponse } from '../model/llm.model';
 import { UiConfigService } from '../shared/util/ui-config.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class LlmService {
-
   public openai = 'openai';
   public openAiModels = ['gpt-4.1'];
-  
+
   public gemini = 'gemini';
   public geminiAiModels = [];
 

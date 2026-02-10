@@ -25,10 +25,9 @@ export interface N1neTokenResponse {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class N1neTokenService {
-
   host: string = '';
   private apiPath = '/ninetails/n1ne-token';
 
@@ -43,10 +42,15 @@ export class N1neTokenService {
     return this.http.post<N1neTokenResponse>(this.host, tokenRequest);
   }
 
-  getAllTokensByUserId(userId: number, pageRequest: PageRequest): Observable<PageResponse<N1neTokenResponse>> {
+  getAllTokensByUserId(
+    userId: number,
+    pageRequest: PageRequest
+  ): Observable<PageResponse<N1neTokenResponse>> {
     let params = this.pageUtilService.getPageRequestParams(pageRequest);
     this.host = this.uiConfigService.getApiUrl() + this.apiPath;
-    return this.http.get<PageResponse<N1neTokenResponse>>(`${this.host}/user-tokens/${userId}`, { params });
+    return this.http.get<PageResponse<N1neTokenResponse>>(`${this.host}/user-tokens/${userId}`, {
+      params,
+    });
   }
 
   getTokenById(id: number): Observable<N1neTokenResponse> {

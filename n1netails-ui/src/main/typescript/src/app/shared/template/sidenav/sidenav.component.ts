@@ -7,18 +7,16 @@ import { AddTailModalComponent } from '../../components/add-tail-modal/add-tail-
 
 @Component({
   selector: 'app-sidenav',
-  imports: [NzMenuModule,RouterModule,CommonModule,NzModalModule,],
+  imports: [NzMenuModule, RouterModule, CommonModule, NzModalModule],
   templateUrl: './sidenav.component.html',
-  styleUrl: './sidenav.component.less'
+  styleUrl: './sidenav.component.less',
 })
 export class SidenavComponent {
   isCollapsed = true;
   public screenWidth: any;
   public isMobileView: boolean;
 
-  constructor(
-    private modalService: NzModalService
-  ) {
+  constructor(private modalService: NzModalService) {
     this.screenWidth = window.innerWidth;
     this.isMobileView = this.screenWidth < 768;
   }
@@ -35,7 +33,7 @@ export class SidenavComponent {
 
   addTailAlert(): void {
     this.modalService.create({
-      nzContent: AddTailModalComponent
+      nzContent: AddTailModalComponent,
     });
   }
 }

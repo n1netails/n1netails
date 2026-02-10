@@ -8,9 +8,8 @@ describe('Oauth2SuccessComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Oauth2SuccessComponent]
-    })
-    .compileComponents();
+      imports: [Oauth2SuccessComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(Oauth2SuccessComponent);
     component = fixture.componentInstance;

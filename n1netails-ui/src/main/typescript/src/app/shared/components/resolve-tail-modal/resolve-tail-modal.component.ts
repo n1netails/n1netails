@@ -18,10 +18,10 @@ import { TailUtilService } from '../../util/tail-util.service';
     NzAvatarModule,
     NzTagModule,
     NzInputModule,
-    NzButtonModule
+    NzButtonModule,
   ],
   templateUrl: './resolve-tail-modal.component.html',
-  styleUrls: ['./resolve-tail-modal.component.less']
+  styleUrls: ['./resolve-tail-modal.component.less'],
 })
 export class ResolveTailModalComponent {
   @Input() isVisible: boolean = false;
@@ -35,7 +35,7 @@ export class ResolveTailModalComponent {
   // Inject TailUtilService
   public tailUtilService = inject(TailUtilService);
 
-  constructor() { }
+  constructor() {}
 
   handleOk(): void {
     this.onOk.emit(this.resolveNote);

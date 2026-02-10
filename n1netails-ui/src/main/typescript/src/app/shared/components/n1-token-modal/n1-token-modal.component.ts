@@ -9,15 +9,9 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 
 @Component({
   selector: 'app-n1-token-modal',
-  imports: [
-    CommonModule,
-    NzModalModule,
-    NzAvatarModule,
-    NzButtonModule,
-    NzIconModule
-  ],
+  imports: [CommonModule, NzModalModule, NzAvatarModule, NzButtonModule, NzIconModule],
   templateUrl: './n1-token-modal.component.html',
-  styleUrl: './n1-token-modal.component.less'
+  styleUrl: './n1-token-modal.component.less',
 })
 export class N1TokenModalComponent {
   @Input() isVisible: boolean = false;
@@ -28,20 +22,18 @@ export class N1TokenModalComponent {
     n1Token: '',
     name: '',
     lastUsedAt: '',
-    revoked: false
+    revoked: false,
   };
 
   @Output() onOk = new EventEmitter<void>();
   @Output() onCancel = new EventEmitter<void>();
 
-  constructor(
-    private msg: NzMessageService,
-  ) { }
+  constructor(private msg: NzMessageService) {}
 
   copyToken(tokenValue: string): void {
     navigator.clipboard.writeText(tokenValue).then(() => {
       console.log('copied token');
-      this.msg.success("Token copied successfully.");
+      this.msg.success('Token copied successfully.');
     });
   }
 

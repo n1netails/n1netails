@@ -28,7 +28,7 @@ export interface TailSummary {
 }
 
 export interface ResolveTailRequest {
-  userId: number,
+  userId: number;
   tailSummary: TailSummary;
   note: string;
 }

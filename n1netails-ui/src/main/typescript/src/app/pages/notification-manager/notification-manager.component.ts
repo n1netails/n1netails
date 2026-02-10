@@ -4,7 +4,7 @@ import { N1neTokenService, N1neTokenResponse } from '../../service/n1ne-token.se
 import {
   NotificationPlatform,
   NotificationConfig,
-  NotificationService
+  NotificationService,
 } from '../../service/notification.service';
 import { FormsModule } from '@angular/forms';
 import { NzCardModule } from 'ng-zorro-antd/card';
@@ -38,11 +38,10 @@ import { UiConfigService } from '../../shared/util/ui-config.service';
     NzInputModule,
     NzButtonModule,
     RouterModule,
-    NzIconModule
-  ]
+    NzIconModule,
+  ],
 })
 export class NotificationManagerComponent implements OnInit {
-
   EMAIL: string = 'email';
   MICROSOFT_TEAMS: string = 'msteams';
   SLACK: string = 'slack';
@@ -56,14 +55,14 @@ export class NotificationManagerComponent implements OnInit {
     n1Token: '',
     name: '',
     lastUsedAt: '', // ISO 8601 format
-    revoked: true
+    revoked: true,
   };
   platforms: { [key: string]: { enabled: boolean; configs: any[] } } = {
     email: { enabled: false, configs: [] },
     msteams: { enabled: false, configs: [] },
     slack: { enabled: false, configs: [] },
     discord: { enabled: false, configs: [] },
-    telegram: { enabled: false, configs: [] }
+    telegram: { enabled: false, configs: [] },
   };
 
   constructor(
@@ -71,13 +70,13 @@ export class NotificationManagerComponent implements OnInit {
     private n1neTokenService: N1neTokenService,
     private notificationService: NotificationService,
     private msg: NzMessageService,
-    public UiConfigService: UiConfigService,
+    public UiConfigService: UiConfigService
   ) {}
 
   ngOnInit(): void {
     const tokenId = this.route.snapshot.paramMap.get('id');
     if (tokenId) {
-      this.n1neTokenService.getTokenById(+tokenId).subscribe(token => {
+      this.n1neTokenService.getTokenById(+tokenId).subscribe((token) => {
         this.token = token;
         console.log('TOKEN', this.token);
         this.loadConfigurations(token.id);
@@ -86,16 +85,19 @@ export class NotificationManagerComponent implements OnInit {
   }
 
   loadConfigurations(tokenId: number): void {
-    this.notificationService.getConfigurations(tokenId).subscribe(configs => {
+    this.notificationService.getConfigurations(tokenId).subscribe((configs) => {
       console.log('NOTIFICATION CONFIGS', configs);
-      this.platforms[this.EMAIL].configs = configs.filter(c => c.platform === this.EMAIL);
-      this.platforms[this.MICROSOFT_TEAMS].configs = configs.filter(c => c.platform === this.MICROSOFT_TEAMS);
-      this.platforms[this.SLACK].configs = configs.filter(c => c.platform === this.SLACK);
-      this.platforms[this.DISCORD].configs = configs.filter(c => c.platform === this.DISCORD);
-      this.platforms[this.TELEGRAM].configs = configs.filter(c => c.platform === this.TELEGRAM);
+      this.platforms[this.EMAIL].configs = configs.filter((c) => c.platform === this.EMAIL);
+      this.platforms[this.MICROSOFT_TEAMS].configs = configs.filter(
+        (c) => c.platform === this.MICROSOFT_TEAMS
+      );
+      this.platforms[this.SLACK].configs = configs.filter((c) => c.platform === this.SLACK);
+      this.platforms[this.DISCORD].configs = configs.filter((c) => c.platform === this.DISCORD);
+      this.platforms[this.TELEGRAM].configs = configs.filter((c) => c.platform === this.TELEGRAM);
 
       this.platforms[this.EMAIL].enabled = this.platforms[this.EMAIL].configs.length > 0;
-      this.platforms[this.MICROSOFT_TEAMS].enabled = this.platforms[this.MICROSOFT_TEAMS].configs.length > 0;
+      this.platforms[this.MICROSOFT_TEAMS].enabled =
+        this.platforms[this.MICROSOFT_TEAMS].configs.length > 0;
       this.platforms[this.SLACK].enabled = this.platforms[this.SLACK].configs.length > 0;
       this.platforms[this.DISCORD].enabled = this.platforms[this.DISCORD].configs.length > 0;
       this.platforms[this.TELEGRAM].enabled = this.platforms[this.TELEGRAM].configs.length > 0;
@@ -112,24 +114,26 @@ export class NotificationManagerComponent implements OnInit {
     let newConfig = {};
     switch (platform) {
       case 'email':
-        newConfig = { details: { address: '' }};
+        newConfig = { details: { address: '' } };
         break;
       case 'msteams':
       case 'discord':
-        newConfig = { details: { webhookUrl: '' }};
+        newConfig = { details: { webhookUrl: '' } };
         break;
       case 'slack':
-        newConfig = { 
+        newConfig = {
           details: {
-            botToken: '', channel: '' 
-          }
+            botToken: '',
+            channel: '',
+          },
         };
         break;
       case 'telegram':
         newConfig = {
           details: {
-            botToken: '', chatId: '' 
-          }
+            botToken: '',
+            chatId: '',
+          },
         };
         break;
     }
@@ -149,11 +153,11 @@ export class NotificationManagerComponent implements OnInit {
     const allConfigs: NotificationConfig[] = [];
     for (const platformName in this.platforms) {
       if (this.platforms[platformName].enabled) {
-        this.platforms[platformName].configs.forEach(config => {
+        this.platforms[platformName].configs.forEach((config) => {
           allConfigs.push({
             tokenId: this.token.id,
             platform: platformName as NotificationPlatform,
-            details: config.details
+            details: config.details,
           });
         });
       }
@@ -164,15 +168,16 @@ export class NotificationManagerComponent implements OnInit {
         this.msg.success('Token notification configurations saved.');
       },
       error: (err) => {
-        this.msg.error('There was an error saving token notification configurations. Please try again.');
-      }
+        this.msg.error(
+          'There was an error saving token notification configurations. Please try again.'
+        );
+      },
     });
   }
 
   getMsTeamsWebhookUrl(config: any) {
     if (config.details.webhookUrl) {
       return config.details.webhookUrl;
-    }
-    else return undefined;
+    } else return undefined;
   }
 }

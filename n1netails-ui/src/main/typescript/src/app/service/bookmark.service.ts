@@ -10,12 +10,11 @@ export interface IsBookmarkedResponse {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class BookmarkService {
-
   host: string = '';
-  private apiPath = '/ninetails/bookmarks'
+  private apiPath = '/ninetails/bookmarks';
 
   constructor(
     private http: HttpClient,

@@ -4,7 +4,7 @@ import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzLayoutModule } from 'ng-zorro-antd/layout';
 import { AuthenticationService } from '../../../service/authentication.service';
-import { Router, NavigationEnd  } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { User } from '../../../model/user';
 import { CommonModule } from '@angular/common';
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
@@ -13,22 +13,28 @@ import { UiConfigService } from '../../util/ui-config.service';
 
 @Component({
   selector: 'app-header',
-  imports: [NzLayoutModule, NzIconModule, NzDropDownModule, NzTooltipModule, NzAvatarModule,CommonModule],
+  imports: [
+    NzLayoutModule,
+    NzIconModule,
+    NzDropDownModule,
+    NzTooltipModule,
+    NzAvatarModule,
+    CommonModule,
+  ],
   templateUrl: './header.component.html',
-  styleUrl: './header.component.less'
+  styleUrl: './header.component.less',
 })
 export class HeaderComponent {
-
   n1netailsDocUrl: string = 'https://n1netails.com';
   loggedInUser: User;
   isInSettings: boolean;
   public screenWidth: any;
   public isMobileView: boolean;
 
-  constructor(    
+  constructor(
     private uiConfigService: UiConfigService,
     private authenticationService: AuthenticationService,
-    private router: Router,
+    private router: Router
   ) {
     this.n1netailsDocUrl = this.uiConfigService.getDocUrl();
     this.loggedInUser = this.authenticationService.getUserFromLocalCache();
@@ -39,11 +45,11 @@ export class HeaderComponent {
     // initial check
     this.isInSettings = this.router.url.startsWith('/setting');
     // update on navigation
-    this.router.events.pipe(
-      filter(e => e instanceof NavigationEnd)
-    ).subscribe((e: NavigationEnd) => {
-      this.isInSettings = e.urlAfterRedirects.startsWith('/setting');
-    });
+    this.router.events
+      .pipe(filter((e) => e instanceof NavigationEnd))
+      .subscribe((e: NavigationEnd) => {
+        this.isInSettings = e.urlAfterRedirects.startsWith('/setting');
+      });
   }
 
   @HostListener('window:resize', ['$event'])

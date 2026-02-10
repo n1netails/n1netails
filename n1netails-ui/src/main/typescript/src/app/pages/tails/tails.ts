@@ -48,13 +48,12 @@ import { TailPageRequest, TailPageResponse } from '../../model/interface/tail-pa
     FormsModule,
     HeaderComponent,
     SidenavComponent,
-    ResolveTailModalComponent
+    ResolveTailModalComponent,
   ],
   templateUrl: './tails.html',
-  styleUrl: './tails.less'
+  styleUrl: './tails.less',
 })
 export class TailsComponent implements OnInit {
-
   bookmarksActive = false;
 
   tails: TailResponse[] = [];
@@ -65,8 +64,8 @@ export class TailsComponent implements OnInit {
 
   searchTerm: string = '';
   selectedStatus: string = ''; // Bound to status dropdown
-  selectedType: string = '';   // Bound to type dropdown
-  selectedLevel: string = '';  // Bound to level dropdown
+  selectedType: string = ''; // Bound to type dropdown
+  selectedLevel: string = ''; // Bound to level dropdown
 
   selectedTails: Set<TailResponse> = new Set();
   newTailCount: number = 0;
@@ -107,7 +106,7 @@ export class TailsComponent implements OnInit {
   }
 
   setBookmarkActive() {
-    this.bookmarksActive = !this.bookmarksActive
+    this.bookmarksActive = !this.bookmarksActive;
     this.currentPage = 0;
     this.loadTails();
   }
@@ -119,12 +118,12 @@ export class TailsComponent implements OnInit {
       searchTerm: this.searchTerm,
       filterByStatus: this.selectedStatus || undefined,
       filterByType: this.selectedType || undefined,
-      filterByLevel: this.selectedLevel || undefined
+      filterByLevel: this.selectedLevel || undefined,
     };
 
     this.tailDataService.getTails(request).subscribe({
       next: (response: TailPageResponse<TailResponse>) => {
-        response.content.forEach(tail => {
+        response.content.forEach((tail) => {
           tail.selected = false;
           this.tails.push(tail);
         });
@@ -140,7 +139,7 @@ export class TailsComponent implements OnInit {
         this.tails = [];
         this.totalElements = 0;
         this.totalPages = 0;
-      }
+      },
     });
   }
 
@@ -154,12 +153,12 @@ export class TailsComponent implements OnInit {
         searchTerm: this.searchTerm,
         filterByStatus: this.selectedStatus || undefined,
         filterByType: this.selectedType || undefined,
-        filterByLevel: this.selectedLevel || undefined
+        filterByLevel: this.selectedLevel || undefined,
       };
 
       this.bookmarkService.getUserTailBookmarks(request).subscribe({
         next: (response: TailPageResponse<TailResponse>) => {
-          response.content.forEach(tail => {
+          response.content.forEach((tail) => {
             tail.selected = false;
             this.tails.push(tail);
           });
@@ -176,7 +175,7 @@ export class TailsComponent implements OnInit {
           this.totalElements = 0;
           this.totalPages = 0;
           this.bookmarksActive = false;
-        }
+        },
       });
     }
   }
@@ -188,49 +187,49 @@ export class TailsComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error loading new tail count:', err);
-      }
+      },
     });
   }
 
   loadTailInfoData(): void {
     const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequest();
 
-    this.tailLevelService.getTailLevels(pageRequest).subscribe(result => {
-      result.content.forEach(level => this.tailLevels.push(level.name));
+    this.tailLevelService.getTailLevels(pageRequest).subscribe((result) => {
+      result.content.forEach((level) => this.tailLevels.push(level.name));
     });
 
-    this.tailStatusService.getTailStatusList(pageRequest).subscribe(result => {
-      result.content.forEach(status => this.tailStatusList.push(status.name));
+    this.tailStatusService.getTailStatusList(pageRequest).subscribe((result) => {
+      result.content.forEach((status) => this.tailStatusList.push(status.name));
     });
 
-    this.tailTypeService.getTailTypes(pageRequest).subscribe(result => {
-      result.content.forEach(type => this.tailTypes.push(type.name));
+    this.tailTypeService.getTailTypes(pageRequest).subscribe((result) => {
+      result.content.forEach((type) => this.tailTypes.push(type.name));
     });
   }
 
   onStatusSearch(term: string): void {
     const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequestWithSearch(term);
-    this.tailStatusService.getTailStatusList(pageRequest).subscribe(result => {
+    this.tailStatusService.getTailStatusList(pageRequest).subscribe((result) => {
       this.tailStatusList = [];
-      result.content.forEach(status => this.tailStatusList.push(status.name));
+      result.content.forEach((status) => this.tailStatusList.push(status.name));
     });
-  } 
+  }
 
   onTypeSearch(term: string): void {
     const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequestWithSearch(term);
-    this.tailTypeService.getTailTypes(pageRequest).subscribe(result => {
+    this.tailTypeService.getTailTypes(pageRequest).subscribe((result) => {
       this.tailTypes = [];
-      result.content.forEach(type => this.tailTypes.push(type.name));
+      result.content.forEach((type) => this.tailTypes.push(type.name));
     });
-  } 
+  }
 
   onLevelSearch(term: string): void {
     const pageRequest: PageRequest = this.pageUtilService.setDefaultPageRequestWithSearch(term);
-    this.tailLevelService.getTailLevels(pageRequest).subscribe(result => {
+    this.tailLevelService.getTailLevels(pageRequest).subscribe((result) => {
       this.tailLevels = [];
-      result.content.forEach(level => this.tailLevels.push(level.name));
+      result.content.forEach((level) => this.tailLevels.push(level.name));
     });
-  } 
+  }
 
   onSearchTermChange(): void {
     this.currentPage = 0; // Reset to first page on new search
@@ -292,7 +291,7 @@ export class TailsComponent implements OnInit {
       },
       error: (err) => {
         this.messageService.error(`Unable to resolve all tails. Error: ${err.message || err}`);
-      }
+      },
     });
   }
 
@@ -320,7 +319,7 @@ export class TailsComponent implements OnInit {
       assignedUserId: this.currentUser.id,
       level: this.selectedTail.level,
       type: this.selectedTail.type,
-      status: this.selectedTail.status
+      status: this.selectedTail.status,
     };
 
     const tailResolveRequest: ResolveTailRequest = {
@@ -336,9 +335,11 @@ export class TailsComponent implements OnInit {
         this.selectedTail = null;
         note = '';
         this.loadTails();
-      }, 
+      },
       error: (err) => {
-        this.messageService.error(`Unable to mark tail "${this.selectedTail.title}" as resolved. Error: ${err.message || err}`);
+        this.messageService.error(
+          `Unable to mark tail "${this.selectedTail.title}" as resolved. Error: ${err.message || err}`
+        );
       },
     });
   }

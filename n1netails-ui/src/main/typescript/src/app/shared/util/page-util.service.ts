@@ -3,11 +3,10 @@ import { Injectable } from '@angular/core';
 import { PageRequest } from '../../model/interface/page.interface';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PageUtilService {
-
-  constructor() { }
+  constructor() {}
 
   getPageRequestParams(pageRequest: PageRequest): HttpParams {
     let params = new HttpParams()
@@ -26,8 +25,8 @@ export class PageUtilService {
     const pageRequest: PageRequest = {
       pageNumber: 0,
       pageSize: 50,
-      sortDirection: "ASC",
-      sortBy: "id"
+      sortDirection: 'ASC',
+      sortBy: 'id',
     };
     return pageRequest;
   }
@@ -36,9 +35,9 @@ export class PageUtilService {
     const pageRequest: PageRequest = {
       pageNumber: 0,
       pageSize: 50,
-      sortDirection: "ASC",
-      sortBy: "id",
-      searchTerm: term
+      sortDirection: 'ASC',
+      sortBy: 'id',
+      searchTerm: term,
     };
     return pageRequest;
   }

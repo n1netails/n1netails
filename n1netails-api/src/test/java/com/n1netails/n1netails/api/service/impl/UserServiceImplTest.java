@@ -355,16 +355,26 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void testEditUser_EmailAlreadyTakenByAnotherUser_ShouldThrowException() {
+    public void testRegister_EmailAlreadyTaken_ShouldThrowEmailExistException() {
+        String emailInUse = "already@taken.com";
+
         UsersEntity existingUserInDb = new UsersEntity();
-        existingUserInDb.setId(1L);
-        existingUserInDb.setEmail("original@test.com");
+        existingUserInDb.setId(99L);
+        existingUserInDb.setEmail(emailInUse);
 
-        UsersEntity anotherUserInDb = new UsersEntity();
-        anotherUserInDb.setId(2L);
-        anotherUserInDb.setEmail("taken@test.com");
+        when(userRepository.findUserByEmail(emailInUse)).thenReturn(Optional.of(existingUserInDb));
 
+        UserRegisterRequest request = new UserRegisterRequest();
+        request.setEmail(emailInUse);
+        request.setPassword("password123");
+
+        EmailExistException exception = assertThrows(EmailExistException.class, () -> {
+            userServiceImpl.register(request);
+        });
+
+        assertEquals(UserServiceImpl.EMAIL_ALREADY_EXISTS, exception.getMessage());
+
+        verify(userRepository, never()).save(any(UsersEntity.class));
     }
 
-    
 }
